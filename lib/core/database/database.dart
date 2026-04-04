@@ -1,0 +1,166 @@
+import 'package:drift/drift.dart';
+import 'seed_data.dart';
+
+// Dopo aver runnato build_runner questo file verrà generato
+part 'database.g.dart';
+
+class Workouts extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  DateTimeColumn get date => dateTime()();
+  TextColumn get name => text()();
+  IntColumn get routineId => integer().nullable().references(Routines, #id)();
+}
+
+class Exercises extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get name => text()();
+  TextColumn get targetMuscle => text()();
+  TextColumn get referenceVideoUrl => text().nullable()();
+  TextColumn get imageUrl => text().nullable()();
+  TextColumn get equipment => text().nullable()();
+  TextColumn get focusArea => text().nullable()();
+  TextColumn get preparation => text().nullable()();
+  TextColumn get execution => text().nullable()();
+  TextColumn get tips => text().nullable()();
+  BoolColumn get isVector => boolean().withDefault(const Constant(false))();
+  BoolColumn get isFavorite => boolean().withDefault(const Constant(false))();
+}
+
+class Routines extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get title => text()();
+  IntColumn get estimatedDuration => integer().nullable()();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+}
+
+class RoutineExercises extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get routineId => integer().references(Routines, #id)();
+  IntColumn get exerciseId => integer().references(Exercises, #id)();
+  IntColumn get sets => integer().withDefault(const Constant(3))();
+  IntColumn get reps => integer().withDefault(const Constant(10))();
+  RealColumn get weight => real().withDefault(const Constant(0.0))();
+  IntColumn get orderIndex => integer().withDefault(const Constant(0))();
+  TextColumn get setsData => text().nullable()(); // Nuova colonna per JSON serie
+}
+
+class WorkoutSets extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get workoutId => integer().references(Workouts, #id)();
+  IntColumn get exerciseId => integer().references(Exercises, #id)();
+  IntColumn get reps => integer()();
+  RealColumn get weight => real()();
+  IntColumn get rpe => integer().nullable()();
+  DateTimeColumn get timestamp => dateTime()();
+}
+
+class WeightLogs extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  RealColumn get weight => real()();
+  DateTimeColumn get date => dateTime()();
+}
+
+class AppSettings extends Table {
+  TextColumn get key => text()();
+  TextColumn get value => text()();
+  @override
+  Set<Column> get primaryKey => {key};
+}
+
+@DriftDatabase(tables: [Workouts, Exercises, WorkoutSets, Routines, RoutineExercises, WeightLogs, AppSettings])
+class AppDatabase extends _$AppDatabase {
+  AppDatabase(super.e);
+  
+  @override
+  int get schemaVersion => 8;
+
+  @override
+  MigrationStrategy get migration {
+    return MigrationStrategy(
+      onCreate: (m) async {
+        await m.createAll();
+      },
+      onUpgrade: (m, from, to) async {
+        if (from < 8) {
+          // Ricrea per sviluppo
+          for (final table in allTables) {
+            await m.deleteTable(table.actualTableName);
+          }
+          await m.createAll();
+        }
+      },
+      beforeOpen: (details) async {
+        final exercisesExist = await select(exercises).get();
+
+        if (exercisesExist.isEmpty) {
+          // Se la tabella è vuota, inseriamo il seeding iniziale
+          await _seedInitialData();
+        }
+      },
+    );
+  }
+
+  Future<void> _seedInitialData() async {
+    // 157 esercizi importati dal database legacy (Stitch Design)
+    final initialExercises = getSeedExercises();
+
+    for (final exercise in initialExercises) {
+      final id = await into(exercises).insert(exercise);
+      
+      // Crea una routine di esempio con Distensioni su panca piana
+      if (exercise.name.value == 'Distensioni su panca piana (Bilanciere)') {
+         final routineId = await into(routines).insert(const RoutinesCompanion(
+            title: Value('Powerbuilding A'),
+            estimatedDuration: Value(60),
+         ));
+         
+         await into(routineExercises).insert(RoutineExercisesCompanion(
+           routineId: Value(routineId),
+           exerciseId: Value(id),
+           sets: const Value(5),
+           reps: const Value(5),
+           weight: const Value(80.0),
+           orderIndex: const Value(0),
+         ));
+      }
+    }
+
+    // Seed default settings
+    await into(appSettings).insert(const AppSettingsCompanion(key: Value('rest_timer'), value: Value('90')));
+    await into(appSettings).insert(const AppSettingsCompanion(key: Value('units'), value: Value('metric')));
+
+    // Simple weight seed for analytics
+    await into(weightLogs).insert(WeightLogsCompanion(weight: const Value(78.5), date: Value(DateTime.now().subtract(const Duration(days: 7)))));
+    await into(weightLogs).insert(WeightLogsCompanion(weight: const Value(78.2), date: Value(DateTime.now().subtract(const Duration(days: 6)))));
+  }
+
+  // Metodi access point base
+  Stream<List<Exercise>> watchAllExercises() => select(exercises).watch();
+  Future<int> insertSet(WorkoutSetsCompanion set) => into(workoutSets).insert(set);
+
+  // Routines access
+  Stream<List<Routine>> watchAllRoutines() => select(routines).watch();
+  Future<int> insertRoutine(RoutinesCompanion routine) => into(routines).insert(routine);
+  Future<void> deleteRoutine(int id) => (delete(routines)..where((t) => t.id.equals(id))).go();
+  
+  // Performed sets stats
+  Stream<List<WorkoutSet>> watchLatestWeightLogs() => (select(workoutSets)..orderBy([(t) => OrderingTerm(expression: t.timestamp, mode: OrderingMode.desc)])).watch();
+
+  // Body weight tracking
+  Stream<List<WeightLog>> watchLatestWeightEntries() => 
+    (select(weightLogs)..orderBy([(t) => OrderingTerm(expression: t.date, mode: OrderingMode.desc)])).watch();
+  Future<int> insertWeightLog(WeightLogsCompanion entry) => into(weightLogs).insert(entry);
+
+  // Settings management
+  Stream<String?> watchSetting(String key) => 
+    (select(appSettings)..where((t) => t.key.equals(key))).map((row) => row.value).watchSingleOrNull();
+
+  Stream<List<AppSetting>> watchAllSettings() => select(appSettings).watch();
+
+  Future<void> updateSetting(String key, String value) => 
+    (update(appSettings)..where((t) => t.key.equals(key))).write(AppSettingsCompanion(value: Value(value)));
+
+  // Favorites
+  Future<void> toggleExerciseFavorite(int id, bool isFavorite) =>
+      (update(exercises)..where((e) => e.id.equals(id))).write(ExercisesCompanion(isFavorite: Value(isFavorite)));
+}

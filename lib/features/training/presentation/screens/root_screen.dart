@@ -1,0 +1,183 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:go_router/go_router.dart';
+import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'dart:ui' as ui;
+
+class RootScreen extends StatelessWidget {
+  final Widget child;
+
+  const RootScreen({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    // Gestione base Adaptive: layout switch per schermi larghi e piccoli
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isDesktop = screenWidth > 800;
+
+    if (isDesktop) {
+      return Scaffold(
+        body: SafeArea(
+          child: Row(
+            children: [
+              NavigationRail(
+                destinations: const [
+                  NavigationRailDestination(
+                    icon: Icon(Icons.fitness_center),
+                    label: Text('Training'),
+                  ),
+                  NavigationRailDestination(
+                    icon: Icon(Icons.list),
+                    label: Text('Esercizi'),
+                  ),
+                  NavigationRailDestination(
+                    icon: Icon(Icons.analytics),
+                    label: Text('Analytics'),
+                  ),
+                ],
+                selectedIndex: _calculateSelectedIndex(context),
+                onDestinationSelected: (index) => _onItemTapped(index, context),
+              ),
+              const VerticalDivider(thickness: 1, width: 1),
+              Expanded(child: child),
+            ],
+          ),
+        ),
+      );
+    }
+
+    // Piattaforme iOS (Cupertino) per schermi standard
+    if (!kIsWeb && Platform.isIOS) {
+      return CupertinoTabScaffold(
+        tabBar: CupertinoTabBar(
+          items: const [
+            BottomNavigationBarItem(icon: Icon(CupertinoIcons.flame), label: 'Training'),
+            BottomNavigationBarItem(icon: Icon(CupertinoIcons.list_bullet), label: 'Esercizi'),
+            BottomNavigationBarItem(icon: Icon(CupertinoIcons.graph_square), label: 'Analytics'),
+          ],
+          currentIndex: _calculateSelectedIndex(context),
+          onTap: (index) => _onItemTapped(index, context),
+        ),
+        tabBuilder: (context, index) {
+          // Cupertino impone la tab construction in modo specifico,
+          // qui passiamo semplicemente il current branch gestito da ShellRoute
+          return CupertinoPageScaffold(child: child);
+        },
+      );
+    }
+
+    // Material 3 / Custom Stitch Design Default 
+    return Scaffold(
+      extendBody: true, // Important to see blur over content
+      body: child,
+      bottomNavigationBar: _buildCustomNavBar(context),
+    );
+  }
+
+  Widget _buildCustomNavBar(BuildContext context) {
+    final selectedIndex = _calculateSelectedIndex(context);
+    
+    return Container(
+      height: 90,
+      decoration: BoxDecoration(
+        color: const Color(0xFF08082F).withValues(alpha: 0.8),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.4),
+            blurRadius: 32,
+            offset: const Offset(0, -12), // Adjusted to go upwards
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+        child: BackdropFilter(
+          filter: ui.ImageFilter.blur(sigmaX: 30, sigmaY: 30),
+          child: Padding(
+            padding: const EdgeInsets.only(top: 12, bottom: 20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildNavItem(context, 0, Icons.fitness_center, 'Training', selectedIndex),
+                _buildNavItem(context, 1, Icons.dashboard_customize, 'Custom', selectedIndex),
+                _buildNavItem(context, 2, Icons.list_alt, 'Esercizi', selectedIndex),
+                _buildNavItem(context, 3, Icons.insights, 'Analytics', selectedIndex),
+                _buildNavItem(context, 4, Icons.person, 'Profile', selectedIndex),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNavItem(BuildContext context, int index, IconData icon, String label, int selectedIndex) {
+    final theme = Theme.of(context);
+    final isSelected = index == selectedIndex;
+    
+    return GestureDetector(
+      onTap: () => _onItemTapped(index, context),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFF3367FF).withValues(alpha: 0.2) : Colors.transparent,
+          borderRadius: BorderRadius.circular(24),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              color: isSelected ? const Color(0xFF94AAFF) : theme.colorScheme.outline,
+              size: 22,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label.toUpperCase(),
+              style: TextStyle(
+                fontFamily: 'Lexend',
+                fontSize: 8,
+                fontWeight: FontWeight.w500,
+                letterSpacing: 0.8,
+                color: isSelected ? const Color(0xFF94AAFF) : theme.colorScheme.outline,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  int _calculateSelectedIndex(BuildContext context) {
+    final String location = GoRouterState.of(context).uri.path;
+    if (location.startsWith('/training')) return 0;
+    if (location.startsWith('/custom')) return 1;
+    if (location.startsWith('/exercises')) return 2;
+    if (location.startsWith('/analytics')) return 3;
+    if (location.startsWith('/profile')) return 4;
+    return 0;
+  }
+
+  void _onItemTapped(int index, BuildContext context) {
+    switch (index) {
+      case 0:
+        context.go('/training');
+        break;
+      case 1:
+        context.go('/custom');
+        break;
+      case 2:
+        context.go('/exercises');
+        break;
+      case 3:
+        context.go('/analytics');
+        break;
+      case 4:
+        context.go('/profile');
+        break;
+    }
+  }
+}
