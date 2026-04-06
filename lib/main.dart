@@ -23,6 +23,7 @@ import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dar
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
 import 'package:gym_corpus/features/training/presentation/screens/custom_workouts_screen.dart';
 import 'package:gym_corpus/features/training/presentation/screens/root_screen.dart';
+import 'package:gym_corpus/features/training/presentation/screens/training_dashboard_screen.dart';
 import 'package:gym_corpus/features/training/presentation/screens/training_screen.dart';
 import 'package:gym_corpus/features/training/presentation/screens/workout_detail_screen.dart';
 import 'package:gym_corpus/features/training/presentation/screens/workout_page.dart';
@@ -133,10 +134,20 @@ class _GymAppState extends State<GymApp> {
             return RootScreen(child: child);
           },
           routes: [
+
             GoRoute(
               path: '/training',
-              builder: (context, state) => const TrainingScreen(),
+              builder: (context, state) => const TrainingDashboardScreen(),
+              routes: [
+                GoRoute(
+                  path: 'session',
+                  builder: (context, state) => TrainingScreen(
+                    routine: state.extra as RoutineEntity?,
+                  ),
+                ),
+              ],
             ),
+
             GoRoute(
               path: '/custom',
               builder: (context, state) => const CustomWorkoutsScreen(),

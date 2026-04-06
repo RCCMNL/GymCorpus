@@ -4,15 +4,20 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
+import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
 
 class TrainingScreen extends StatefulWidget {
-  const TrainingScreen({super.key});
+
+  const TrainingScreen({this.routine, super.key});
+
+  final RoutineEntity? routine;
 
   @override
   State<TrainingScreen> createState() => _TrainingScreenState();
 }
+
 
 class _TrainingScreenState extends State<TrainingScreen> {
   Timer? _timer;
@@ -116,7 +121,7 @@ class _TrainingScreenState extends State<TrainingScreen> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                'Panca Piana Bilanciere',
+                                widget.routine?.title ?? 'Panca Piana Bilanciere',
                                 style: theme.textTheme.titleLarge?.copyWith(
                                   fontWeight: FontWeight.bold,
                                   fontFamily: 'Lexend',
@@ -124,6 +129,7 @@ class _TrainingScreenState extends State<TrainingScreen> {
                                   fontSize: 18,
                                 ),
                               ),
+
                             ],
                           ),
                         ),

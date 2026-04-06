@@ -101,9 +101,9 @@ class RootScreen extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildNavItem(context, 0, Icons.fitness_center, 'Training', selectedIndex),
+                _buildNavItem(context, 0, Icons.list_alt, 'Esercizi', selectedIndex),
                 _buildNavItem(context, 1, Icons.dashboard_customize, 'Custom', selectedIndex),
-                _buildNavItem(context, 2, Icons.list_alt, 'Esercizi', selectedIndex),
+                _buildNavItem(context, 2, Icons.fitness_center, 'Training', selectedIndex),
                 _buildNavItem(context, 3, Icons.insights, 'Analytics', selectedIndex),
                 _buildNavItem(context, 4, Icons.person, 'Profile', selectedIndex),
               ],
@@ -154,9 +154,9 @@ class RootScreen extends StatelessWidget {
 
   int _calculateSelectedIndex(BuildContext context) {
     final location = GoRouterState.of(context).uri.path;
-    if (location.startsWith('/training')) return 0;
+    if (location.startsWith('/exercises')) return 0;
     if (location.startsWith('/custom')) return 1;
-    if (location.startsWith('/exercises')) return 2;
+    if (location.startsWith('/training')) return 2;
     if (location.startsWith('/analytics')) return 3;
     if (location.startsWith('/profile')) return 4;
     return 0;
@@ -165,11 +165,11 @@ class RootScreen extends StatelessWidget {
   void _onItemTapped(int index, BuildContext context) {
     switch (index) {
       case 0:
-        context.go('/training');
+        context.go('/exercises');
       case 1:
         context.go('/custom');
       case 2:
-        context.go('/exercises');
+        context.go('/training');
       case 3:
         context.go('/analytics');
       case 4:
