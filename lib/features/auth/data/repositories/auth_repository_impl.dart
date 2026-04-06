@@ -33,19 +33,22 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, UserEntity>> login(String email, String password) async {
+  Future<Either<Failure, UserEntity>> login(
+      String email, String password,) async {
     try {
       final credential = await _firebaseAuth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
-      
+
       if (credential.user != null) {
         final user = _mapFirebaseUser(credential.user!);
         await _localDataSource.saveUserSession(user);
         return Right(user);
       }
-      return const Left(AuthFailure('Errore durante il login: utente non trovato'));
+      return const Left(
+        AuthFailure('Errore durante il login: utente non trovato'),
+      );
     } on FirebaseAuthException catch (e) {
       return Left(AuthFailure(e.message ?? 'Errore di autenticazione'));
     } catch (e) {
@@ -54,7 +57,8 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, UserEntity>> signUp(String email, String password) async {
+  Future<Either<Failure, UserEntity>> signUp(
+      String email, String password,) async {
     try {
       final credential = await _firebaseAuth.createUserWithEmailAndPassword(
         email: email,
@@ -66,7 +70,9 @@ class AuthRepositoryImpl implements AuthRepository {
         await _localDataSource.saveUserSession(user);
         return Right(user);
       }
-      return const Left(AuthFailure("Errore durante la creazione dell'account"));
+      return const Left(
+        AuthFailure("Errore durante la creazione dell'account"),
+      );
     } on FirebaseAuthException catch (e) {
       return Left(AuthFailure(e.message ?? 'Errore di registrazione'));
     } catch (e) {
@@ -87,12 +93,12 @@ class AuthRepositoryImpl implements AuthRepository {
     if (firebaseUser != null) {
       return Right(_mapFirebaseUser(firebaseUser));
     }
-    
+
     final cachedUser = await _localDataSource.getUserSession();
     if (cachedUser != null) {
       return Right(cachedUser);
     }
-    
+
     return const Left(AuthFailure('Nessuna sessione attiva'));
   }
 
@@ -112,6 +118,11 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, UserEntity>> signInWithGoogle() async {
     try {
       final googleSignIn = GoogleSignIn.instance;
+      await googleSignIn.initialize(
+        serverClientId:
+            '996703301991-gap14vk81ourfhvkaftpnf8ntvc0g68c.apps.googleusercontent.com',
+      );
+
       final googleUser = await googleSignIn.authenticate();
 
       final googleAuth = googleUser.authentication;
@@ -125,7 +136,8 @@ class AuthRepositoryImpl implements AuthRepository {
         idToken: idToken,
       );
 
-      final userCredential = await _firebaseAuth.signInWithCredential(credential);
+      final userCredential =
+          await _firebaseAuth.signInWithCredential(credential);
       if (userCredential.user != null) {
         final user = _mapFirebaseUser(userCredential.user!);
         await _localDataSource.saveUserSession(user);
@@ -135,7 +147,8 @@ class AuthRepositoryImpl implements AuthRepository {
     } on FirebaseAuthException catch (e) {
       return Left(AuthFailure(e.message ?? 'Errore login Google'));
     } catch (e) {
-      if (e is GoogleSignInException && e.code == GoogleSignInExceptionCode.canceled) {
+      if (e is GoogleSignInException &&
+          e.code == GoogleSignInExceptionCode.canceled) {
         return const Left(AuthFailure('Login annullato'));
       }
       return Left(AuthFailure(e.toString()));
@@ -157,7 +170,8 @@ class AuthRepositoryImpl implements AuthRepository {
         accessToken: appleCredential.authorizationCode,
       );
 
-      final userCredential = await _firebaseAuth.signInWithCredential(credential);
+      final userCredential =
+          await _firebaseAuth.signInWithCredential(credential);
       if (userCredential.user != null) {
         final user = _mapFirebaseUser(userCredential.user!);
         await _localDataSource.saveUserSession(user);
