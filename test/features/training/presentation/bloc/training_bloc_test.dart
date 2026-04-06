@@ -1,12 +1,12 @@
-import 'package:flutter_test/flutter_test.dart';
 import 'package:bloc_test/bloc_test.dart';
-import 'package:mocktail/mocktail.dart';
 import 'package:dartz/dartz.dart';
-import 'package:gym_corpus/features/training/domain/repositories/training_repository.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
+import 'package:gym_corpus/features/training/domain/repositories/training_repository.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
+import 'package:mocktail/mocktail.dart';
 
 class MockTrainingRepository extends Mock implements TrainingRepository {}
 
@@ -52,19 +52,27 @@ void main() {
       build: () {
         when(() => mockRepository.watchExercises())
             .thenAnswer((_) => Stream.value(tExercises));
-        when(() => mockRepository.addSetToExercise(
-              workoutId: 1,
-              exerciseId: 1,
-              reps: 5,
-              weight: 100,
-              rpe: 9,
-            )).thenAnswer((_) async => const Right(null));
+        when(
+          () => mockRepository.addSetToExercise(
+            workoutId: 1,
+            exerciseId: 1,
+            reps: 5,
+            weight: 100,
+            rpe: 9,
+          ),
+        ).thenAnswer((_) async => const Right(null));
         return bloc;
       },
       seed: () => TrainingLoaded(exercises: tExercises), // Start State Ready
-      act: (bloc) => bloc.add(const AddSetToExercise(
-        workoutId: 1, exerciseId: 1, reps: 5, weight: 100, rpe: 9,
-      )),
+      act: (bloc) => bloc.add(
+        const AddSetToExercise(
+          workoutId: 1,
+          exerciseId: 1,
+          reps: 5,
+          weight: 100,
+          rpe: 9,
+        ),
+      ),
       expect: () => [
         // La formula stima ~112.5 per 100kgx5 reps
         isA<TrainingLoaded>().having((s) => s.lastEstimated1RM, 'last estimated', closeTo(112.5, 0.1)),

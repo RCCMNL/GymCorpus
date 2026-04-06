@@ -1,27 +1,26 @@
 import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gym_corpus/core/utils/training_calculations.dart';
+import 'package:gym_corpus/features/training/domain/entities/body_weight.dart';
+import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
+import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 import 'package:gym_corpus/features/training/domain/repositories/training_repository.dart';
+import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
+import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
+import 'package:injectable/injectable.dart';
 
-import 'training_event.dart';
-import 'training_state.dart';
-
+@injectable
 class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
-  final TrainingRepository repository;
-  StreamSubscription? _exercisesSubscription;
-  StreamSubscription? _routinesSubscription;
-  StreamSubscription? _weightLogsSubscription;
-  StreamSubscription? _bodyWeightLogsSubscription;
-  StreamSubscription? _settingsSubscription;
-
-  TrainingBloc({required this.repository}) : super(TrainingLoading()) {
+  TrainingBloc({required this.repository})
+      : super(const TrainingState.loading()) {
     on<LoadExercisesEvent>((event, emit) async {
       await _exercisesSubscription?.cancel();
       _exercisesSubscription = repository.watchExercises().listen(
         (exercises) {
           add(UpdateExercisesList(exercises));
         },
-        onError: (e) => add(StreamErrorEvent(e.toString())),
+        onError: (Object e) => add(StreamErrorEvent(e.toString())),
       );
     });
 
@@ -31,7 +30,7 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
         (routines) {
           add(UpdateRoutinesList(routines));
         },
-        onError: (e) => add(StreamErrorEvent(e.toString())),
+        onError: (Object e) => add(StreamErrorEvent(e.toString())),
       );
     });
 
@@ -41,7 +40,7 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
         (logs) {
           add(UpdateWeightLogsList(logs));
         },
-        onError: (e) => add(StreamErrorEvent(e.toString())),
+        onError: (Object e) => add(StreamErrorEvent(e.toString())),
       );
     });
 
@@ -51,7 +50,7 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
         (logs) {
           add(UpdateBodyWeightLogsList(logs));
         },
-        onError: (e) => add(StreamErrorEvent(e.toString())),
+        onError: (Object e) => add(StreamErrorEvent(e.toString())),
       );
     });
 
@@ -61,7 +60,7 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
         (settings) {
           add(UpdateSettingsList(settings));
         },
-        onError: (e) => add(StreamErrorEvent(e.toString())),
+        onError: (Object e) => add(StreamErrorEvent(e.toString())),
       );
     });
 
@@ -91,11 +90,18 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
 
     on<UpdateBodyWeightLogsList>((event, emit) {
       if (state is TrainingLoaded) {
-        emit((state as TrainingLoaded)
-            .copyWith(bodyWeightLogs: event.bodyWeightLogs));
+        emit(
+          (state as TrainingLoaded).copyWith(
+            bodyWeightLogs: event.bodyWeightLogs,
+          ),
+        );
       } else {
-        emit(TrainingLoaded(
-            exercises: const [], bodyWeightLogs: event.bodyWeightLogs));
+        emit(
+          TrainingLoaded(
+            exercises: const [],
+            bodyWeightLogs: event.bodyWeightLogs,
+          ),
+        );
       }
     });
 
@@ -109,7 +115,10 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
 
     on<AddRoutineEvent>((event, emit) async {
       final result = await repository.addRoutine(
-          event.title, event.exercises, event.estDuration);
+        event.title,
+        event.exercises,
+        event.estDuration,
+      );
       result.fold(
         (f) => emit(TrainingError(f.message)),
         (id) => null, // Stream will update UI
@@ -118,7 +127,11 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
 
     on<UpdateRoutineEvent>((event, emit) async {
       final result = await repository.updateRoutine(
-          event.id, event.title, event.exercises, event.estDuration);
+        event.id,
+        event.title,
+        event.exercises,
+        event.estDuration,
+      );
       result.fold(
         (f) => emit(TrainingError(f.message)),
         (_) => null, // Stream will update UI
@@ -136,7 +149,7 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
     on<AddSetToExercise>((event, emit) async {
       if (state is TrainingLoaded) {
         final current = state as TrainingLoaded;
-        double? new1RM = current.lastEstimated1RM;
+        var new1RM = current.lastEstimated1RM;
 
         if (event.rpe != null && event.rpe! > 8) {
           new1RM = TrainingCalculations.calculateBrzycki1RM(
@@ -179,7 +192,10 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
     });
 
     on<ToggleExerciseFavoriteEvent>((event, emit) async {
-      final result = await repository.toggleExerciseFavorite(event.exerciseId, event.isFavorite);
+      final result = await repository.toggleExerciseFavorite(
+        event.exerciseId,
+        isFavorite: event.isFavorite,
+      );
       result.fold(
         (f) => emit(TrainingError(f.message)),
         (_) => null, // The stream will update the UI
@@ -190,6 +206,13 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
       emit(TrainingError(event.message));
     });
   }
+
+  final TrainingRepository repository;
+  StreamSubscription<List<ExerciseEntity>>? _exercisesSubscription;
+  StreamSubscription<List<RoutineEntity>>? _routinesSubscription;
+  StreamSubscription<List<WorkoutSetEntity>>? _weightLogsSubscription;
+  StreamSubscription<List<BodyWeightLogEntity>>? _bodyWeightLogsSubscription;
+  StreamSubscription<Map<String, String>>? _settingsSubscription;
 
   @override
   Future<void> close() {

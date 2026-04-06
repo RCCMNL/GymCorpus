@@ -1,14 +1,15 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:go_router/go_router.dart';
 import 'dart:io' show Platform;
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'dart:ui' as ui;
 
-class RootScreen extends StatelessWidget {
-  final Widget child;
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
-  const RootScreen({super.key, required this.child});
+class RootScreen extends StatelessWidget {
+  const RootScreen({required this.child, super.key});
+
+  final Widget child;
 
   @override
   Widget build(BuildContext context) {
@@ -152,7 +153,7 @@ class RootScreen extends StatelessWidget {
   }
 
   int _calculateSelectedIndex(BuildContext context) {
-    final String location = GoRouterState.of(context).uri.path;
+    final location = GoRouterState.of(context).uri.path;
     if (location.startsWith('/training')) return 0;
     if (location.startsWith('/custom')) return 1;
     if (location.startsWith('/exercises')) return 2;
@@ -165,19 +166,14 @@ class RootScreen extends StatelessWidget {
     switch (index) {
       case 0:
         context.go('/training');
-        break;
       case 1:
         context.go('/custom');
-        break;
       case 2:
         context.go('/exercises');
-        break;
       case 3:
         context.go('/analytics');
-        break;
       case 4:
         context.go('/profile');
-        break;
     }
   }
 }

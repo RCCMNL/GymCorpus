@@ -1567,7 +1567,7 @@ class $RoutineExercisesTable extends RoutineExercises
       'weight', aliasedName, false,
       type: DriftSqlType.double,
       requiredDuringInsert: false,
-      defaultValue: const Constant(0.0));
+      defaultValue: const Constant(0));
   static const VerificationMeta _orderIndexMeta =
       const VerificationMeta('orderIndex');
   @override

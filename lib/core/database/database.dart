@@ -1,5 +1,5 @@
 import 'package:drift/drift.dart';
-import 'seed_data.dart';
+import 'package:gym_corpus/core/database/seed_data.dart';
 
 // Dopo aver runnato build_runner questo file verrà generato
 part 'database.g.dart';
@@ -39,7 +39,7 @@ class RoutineExercises extends Table {
   IntColumn get exerciseId => integer().references(Exercises, #id)();
   IntColumn get sets => integer().withDefault(const Constant(3))();
   IntColumn get reps => integer().withDefault(const Constant(10))();
-  RealColumn get weight => real().withDefault(const Constant(0.0))();
+  RealColumn get weight => real().withDefault(const Constant(0))();
   IntColumn get orderIndex => integer().withDefault(const Constant(0))();
   TextColumn get setsData => text().nullable()(); // Nuova colonna per JSON serie
 }
@@ -109,19 +109,23 @@ class AppDatabase extends _$AppDatabase {
       
       // Crea una routine di esempio con Distensioni su panca piana
       if (exercise.name.value == 'Distensioni su panca piana (Bilanciere)') {
-         final routineId = await into(routines).insert(const RoutinesCompanion(
+        final routineId = await into(routines).insert(
+          const RoutinesCompanion(
             title: Value('Powerbuilding A'),
             estimatedDuration: Value(60),
-         ));
-         
-         await into(routineExercises).insert(RoutineExercisesCompanion(
-           routineId: Value(routineId),
-           exerciseId: Value(id),
-           sets: const Value(5),
-           reps: const Value(5),
-           weight: const Value(80.0),
-           orderIndex: const Value(0),
-         ));
+          ),
+        );
+
+        await into(routineExercises).insert(
+          RoutineExercisesCompanion(
+            routineId: Value(routineId),
+            exerciseId: Value(id),
+            sets: const Value(5),
+            reps: const Value(5),
+            weight: const Value(80),
+            orderIndex: const Value(0),
+          ),
+        );
       }
     }
 
@@ -161,6 +165,7 @@ class AppDatabase extends _$AppDatabase {
     (update(appSettings)..where((t) => t.key.equals(key))).write(AppSettingsCompanion(value: Value(value)));
 
   // Favorites
-  Future<void> toggleExerciseFavorite(int id, bool isFavorite) =>
-      (update(exercises)..where((e) => e.id.equals(id))).write(ExercisesCompanion(isFavorite: Value(isFavorite)));
+  Future<void> toggleExerciseFavorite(int id, {required bool isFavorite}) =>
+      (update(exercises)..where((e) => e.id.equals(id)))
+          .write(ExercisesCompanion(isFavorite: Value(isFavorite)));
 }

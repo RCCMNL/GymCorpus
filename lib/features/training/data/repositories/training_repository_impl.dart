@@ -1,16 +1,19 @@
-import 'package:gym_corpus/features/training/domain/repositories/training_repository.dart';
-import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
-import 'package:gym_corpus/features/training/domain/entities/routine.dart';
-import 'package:gym_corpus/features/training/domain/entities/body_weight.dart';
-import 'package:gym_corpus/core/database/database.dart';
-import 'package:gym_corpus/core/error/failures.dart';
 import 'package:dartz/dartz.dart';
 import 'package:drift/drift.dart';
+import 'package:gym_corpus/core/database/database.dart';
+import 'package:gym_corpus/core/error/failures.dart';
+import 'package:gym_corpus/features/training/domain/entities/body_weight.dart';
+import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
+import 'package:gym_corpus/features/training/domain/entities/routine.dart';
+import 'package:gym_corpus/features/training/domain/repositories/training_repository.dart';
 
+import 'package:injectable/injectable.dart';
+
+@LazySingleton(as: TrainingRepository)
 class TrainingRepositoryImpl implements TrainingRepository {
-  final AppDatabase database;
-
   TrainingRepositoryImpl({required this.database});
+
+  final AppDatabase database;
 
   @override
   Stream<List<ExerciseEntity>> watchExercises() {
@@ -28,14 +31,14 @@ class TrainingRepositoryImpl implements TrainingRepository {
         tips: e.tips,
         isVector: e.isVector,
         isFavorite: e.isFavorite,
-      )).toList();
+      ),).toList();
     });
   }
 
   @override
-  Future<Either<Failure, void>> toggleExerciseFavorite(int id, bool isFavorite) async {
+  Future<Either<Failure, void>> toggleExerciseFavorite(int id, {required bool isFavorite}) async {
     try {
-      await database.toggleExerciseFavorite(id, isFavorite);
+      await database.toggleExerciseFavorite(id, isFavorite: isFavorite);
       return const Right(null);
     } catch (e) {
       return Left(DatabaseFailure(e.toString()));
@@ -45,7 +48,7 @@ class TrainingRepositoryImpl implements TrainingRepository {
   @override
   Stream<List<RoutineEntity>> watchRoutines() {
     return database.select(database.routines).watch().asyncMap((routinesList) async {
-       final List<RoutineEntity> routineEntities = [];
+       final routineEntities = <RoutineEntity>[];
        
        for (final routineData in routinesList) {
          // Get exercises for this routine
@@ -55,7 +58,7 @@ class TrainingRepositoryImpl implements TrainingRepository {
          
          final rows = await exercisesQuery.get();
          
-         final List<RoutineExerciseEntity> routineExercises = rows.map((row) {
+         final routineExercises = rows.map((row) {
             final reData = row.readTable(database.routineExercises);
             final exData = row.readTable(database.exercises);
             
@@ -90,7 +93,8 @@ class TrainingRepositoryImpl implements TrainingRepository {
            estimatedDuration: routineData.estimatedDuration,
            createdAt: routineData.createdAt,
            exercises: routineExercises,
-         ));
+         ),
+       );
        }
        
        return routineEntities;
@@ -105,7 +109,7 @@ class TrainingRepositoryImpl implements TrainingRepository {
           title: Value(title),
           estimatedDuration: Value(estDuration),
           createdAt: Value(DateTime.now()),
-        ));
+        ),);
         
         for (final re in routineExercises) {
            await database.into(database.routineExercises).insert(RoutineExercisesCompanion(
@@ -116,7 +120,7 @@ class TrainingRepositoryImpl implements TrainingRepository {
              weight: Value(re.weight),
              orderIndex: Value(re.orderIndex),
              setsData: Value(re.setsData), // Salvataggio JSON serie
-           ));
+           ),);
         }
         return Right(routineId);
       });
@@ -150,7 +154,7 @@ class TrainingRepositoryImpl implements TrainingRepository {
              weight: Value(re.weight),
              orderIndex: Value(re.orderIndex),
              setsData: Value(re.setsData),
-           ));
+           ),);
         }
       });
       return const Right(null);
@@ -180,7 +184,7 @@ class TrainingRepositoryImpl implements TrainingRepository {
         weight: s.weight,
         rpe: s.rpe,
         timestamp: s.timestamp,
-      )).toList();
+      ),).toList();
     });
   }
 
@@ -194,7 +198,7 @@ class TrainingRepositoryImpl implements TrainingRepository {
   }) async {
     try {
       if (reps < 0 || weight < 0) {
-        return const Left(DatabaseFailure("Negative weight or reps are invalid."));
+        return const Left(DatabaseFailure('Negative weight or reps are invalid.'));
       }
 
       await database.insertSet(WorkoutSetsCompanion(
@@ -204,7 +208,7 @@ class TrainingRepositoryImpl implements TrainingRepository {
         weight: Value(weight),
         rpe: Value(rpe),
         timestamp: Value(DateTime.now()),
-      ));
+      ),);
       return const Right(null);
     } catch (e) {
       return Left(DatabaseFailure(e.toString()));
@@ -218,7 +222,7 @@ class TrainingRepositoryImpl implements TrainingRepository {
         id: l.id,
         weight: l.weight,
         date: l.date,
-      )).toList();
+      ),).toList();
     });
   }
 
@@ -228,7 +232,7 @@ class TrainingRepositoryImpl implements TrainingRepository {
       final id = await database.insertWeightLog(WeightLogsCompanion(
         weight: Value(weight),
         date: Value(DateTime.now()),
-      ));
+      ),);
       return Right(id);
     } catch (e) {
        return Left(DatabaseFailure(e.toString()));
@@ -243,7 +247,7 @@ class TrainingRepositoryImpl implements TrainingRepository {
   @override
   Stream<Map<String, String>> watchAllSettings() {
     return database.watchAllSettings().map((settings) {
-      return {for (var s in settings) s.key: s.value};
+      return {for (final s in settings) s.key: s.value};
     });
   }
 

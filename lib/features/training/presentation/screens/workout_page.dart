@@ -1,17 +1,19 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gym_corpus/core/widgets/gym_header.dart';
+import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
+import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
-import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
-import 'package:gym_corpus/features/training/domain/entities/routine.dart';
-import 'package:gym_corpus/core/widgets/gym_header.dart';
 
 class WorkoutPage extends StatefulWidget {
+  const WorkoutPage({this.routineToEdit, super.key});
+
   final RoutineEntity? routineToEdit;
-  const WorkoutPage({super.key, this.routineToEdit});
 
   @override
   State<WorkoutPage> createState() => _WorkoutPageState();
@@ -43,7 +45,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
   }
 
   void _saveRoutine() {
-    String routineName = _nameController.text.trim();
+    var routineName = _nameController.text.trim();
     if (routineName.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please enter a routine name')),
@@ -94,7 +96,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
           children: [
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24.0),
+                padding: const EdgeInsets.all(24),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -120,8 +122,11 @@ class _WorkoutPageState extends State<WorkoutPage> {
                                 .withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(16),
                           ),
-                          child: Icon(Icons.mode_edit_outline,
-                              color: theme.colorScheme.primary, size: 24),
+                          child: Icon(
+                            Icons.mode_edit_outline,
+                            color: theme.colorScheme.primary,
+                            size: 24,
+                          ),
                         ),
                       ],
                     ),
@@ -143,8 +148,10 @@ class _WorkoutPageState extends State<WorkoutPage> {
                           decoration: InputDecoration(
                             hintText: 'Nome workout',
                             hintStyle: TextStyle(
-                                color: theme.colorScheme.outline
-                                    .withValues(alpha: 0.2)),
+                              color: theme.colorScheme.outline.withValues(
+                                alpha: 0.2,
+                              ),
+                            ),
                             border: InputBorder.none,
                             contentPadding: EdgeInsets.zero,
                           ),
@@ -191,27 +198,34 @@ class _WorkoutPageState extends State<WorkoutPage> {
                             Text(
                               '${_selectedExercises.length} esercizi aggiunti',
                               style: theme.textTheme.bodySmall?.copyWith(
-                                  color: theme.colorScheme.outline
-                                      .withValues(alpha: 0.6)),
+                                color: theme.colorScheme.outline.withValues(
+                                  alpha: 0.6,
+                                ),
+                              ),
                             ),
                           ],
                         ),
                         FilledButton.icon(
                           onPressed: () => _showExercisePicker(context),
                           icon: const Icon(Icons.add, size: 16),
-                          label: const Text('Aggiungi',
-                              style: TextStyle(fontSize: 12)),
+                          label: const Text(
+                            'Aggiungi',
+                            style: TextStyle(fontSize: 12),
+                          ),
                           style: FilledButton.styleFrom(
                             backgroundColor: theme.colorScheme.primary
                                 .withValues(alpha: 0.1),
                             foregroundColor: theme.colorScheme.primary,
                             elevation: 0,
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 8),
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
                             minimumSize: Size.zero,
                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                             shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10)),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
                           ),
                         ),
                       ],
@@ -224,10 +238,13 @@ class _WorkoutPageState extends State<WorkoutPage> {
                           padding: const EdgeInsets.symmetric(vertical: 40),
                           child: Column(
                             children: [
-                              Icon(Icons.fitness_center_outlined,
-                                  size: 48,
-                                  color: theme.colorScheme.outline
-                                      .withValues(alpha: 0.3)),
+                              Icon(
+                                Icons.fitness_center_outlined,
+                                size: 48,
+                                color: theme.colorScheme.outline.withValues(
+                                  alpha: 0.3,
+                                ),
+                              ),
                               const SizedBox(height: 16),
                               Text(
                                 'Nessun esercizio aggiunto',
@@ -243,7 +260,8 @@ class _WorkoutPageState extends State<WorkoutPage> {
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
                         itemCount: _selectedExercises.length,
-                        onReorder: (oldIndex, newIndex) {
+                        onReorder: (oldIndex, originalNewIndex) {
+                          var newIndex = originalNewIndex;
                           setState(() {
                             if (newIndex > oldIndex) newIndex -= 1;
                             final item = _selectedExercises.removeAt(oldIndex);
@@ -272,7 +290,15 @@ class _WorkoutPageState extends State<WorkoutPage> {
                                     reps: newSets.first.reps,
                                     weight: newSets.first.weight,
                                     orderIndex: re.orderIndex,
-                                    setsData: jsonEncode(newSets.map((s) => {'weight': s.weight, 'reps': s.reps}).toList()),
+                                    setsData: jsonEncode(
+                                      newSets
+                                          .map((s) => {
+                                                'weight': s.weight,
+                                                'reps': s.reps,
+                                                },
+                                              )
+                                          .toList(),
+                                    ),
                                   );
                                 }
                               });
@@ -307,11 +333,16 @@ class _WorkoutPageState extends State<WorkoutPage> {
                     foregroundColor: theme.colorScheme.onPrimary,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16)),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                   ),
-                  child: const Text('SALVA ROUTINE',
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+                  child: const Text(
+                    'SALVA ROUTINE',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -335,7 +366,9 @@ class _WorkoutPageState extends State<WorkoutPage> {
             reps: 0,
             weight: 0,
             orderIndex: _selectedExercises.length,
-            setsData: jsonEncode([{'weight': 0.0, 'reps': 0}]),
+            setsData: jsonEncode([
+              {'weight': 0, 'reps': 0},
+            ],),
           ),
         );
       }
@@ -343,7 +376,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
   }
 
   void _showExercisePicker(BuildContext context) {
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -356,18 +389,18 @@ class _WorkoutPageState extends State<WorkoutPage> {
 }
 
 class _SelectedExerciseTile extends StatefulWidget {
-  final RoutineExerciseEntity exercise;
-  final VoidCallback onRemove;
-  final Function(List<ExerciseSet>) onSetsUpdated;
-  final int index;
-
   const _SelectedExerciseTile({
-    super.key,
     required this.exercise,
     required this.onRemove,
     required this.onSetsUpdated,
     required this.index,
+    super.key,
   });
+
+  final RoutineExerciseEntity exercise;
+  final VoidCallback onRemove;
+  final void Function(List<ExerciseSet>) onSetsUpdated;
+  final int index;
 
   @override
   State<_SelectedExerciseTile> createState() => _SelectedExerciseTileState();
@@ -385,11 +418,17 @@ class _SelectedExerciseTileState extends State<_SelectedExerciseTile> {
     sets = [];
     if (widget.exercise.setsData != null) {
       try {
-        final List<dynamic> decoded = jsonDecode(widget.exercise.setsData!);
-        sets = decoded.map((s) => ExerciseSet(
-          weight: (s['weight'] as num).toDouble(),
-          reps: s['reps'] as int,
-        )).toList();
+        final decoded =
+            jsonDecode(widget.exercise.setsData!) as List<dynamic>;
+        sets = decoded
+            .map((dynamic s) {
+              final map = s as Map<String, dynamic>;
+              return ExerciseSet(
+                weight: (map['weight'] as num).toDouble(),
+                reps: map['reps'] as int,
+              );
+            })
+            .toList();
       } catch (e) {
         sets = [ExerciseSet(weight: 0, reps: 0)];
       }
@@ -412,10 +451,10 @@ class _SelectedExerciseTileState extends State<_SelectedExerciseTile> {
 
   @override
   void dispose() {
-    for (var c in weightControllers) {
+    for (final c in weightControllers) {
       c.dispose();
     }
-    for (var c in repsControllers) {
+    for (final c in repsControllers) {
       c.dispose();
     }
     super.dispose();
@@ -426,8 +465,16 @@ class _SelectedExerciseTileState extends State<_SelectedExerciseTile> {
       final lastWeight = sets.last.weight;
       final lastReps = sets.last.reps;
       sets.add(ExerciseSet(weight: lastWeight, reps: lastReps));
-      weightControllers.add(TextEditingController(text: lastWeight == 0 ? '' : lastWeight.toString()));
-      repsControllers.add(TextEditingController(text: lastReps == 0 ? '' : lastReps.toString()));
+      weightControllers.add(
+        TextEditingController(
+          text: lastWeight == 0 ? '' : lastWeight.toString(),
+        ),
+      );
+      repsControllers.add(
+        TextEditingController(
+          text: lastReps == 0 ? '' : lastReps.toString(),
+        ),
+      );
       widget.onSetsUpdated(sets);
     });
   }
@@ -453,15 +500,15 @@ class _SelectedExerciseTileState extends State<_SelectedExerciseTile> {
         color: theme.colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-            color: theme.colorScheme.outline.withValues(alpha: 0.05)),
+          color: theme.colorScheme.outline.withValues(alpha: 0.05),
+        ),
       ),
       child: Column(
         children: [
           // Header Esercizio
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(16),
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 GestureDetector(
                   onTap: () => setState(() => isCollapsed = !isCollapsed),
@@ -479,8 +526,11 @@ class _SelectedExerciseTileState extends State<_SelectedExerciseTile> {
                     color: theme.colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Icon(Icons.fitness_center,
-                      color: theme.colorScheme.primary, size: 20),
+                  child: Icon(
+                    Icons.fitness_center,
+                    color: theme.colorScheme.primary,
+                    size: 20,
+                  ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -500,8 +550,9 @@ class _SelectedExerciseTileState extends State<_SelectedExerciseTile> {
                       Text(
                         '${sets.length} serie',
                         style: theme.textTheme.labelSmall?.copyWith(
-                            color: theme.colorScheme.outline,
-                            letterSpacing: 0.5),
+                          color: theme.colorScheme.outline,
+                          letterSpacing: 0.5,
+                        ),
                       ),
                     ],
                   ),
@@ -511,8 +562,11 @@ class _SelectedExerciseTileState extends State<_SelectedExerciseTile> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     IconButton(
-                      icon: Icon(Icons.delete_outline,
-                          color: theme.colorScheme.error.withValues(alpha: 0.6), size: 22),
+                      icon: Icon(
+                        Icons.delete_outline,
+                        color: theme.colorScheme.error.withValues(alpha: 0.6),
+                        size: 22,
+                      ),
                       onPressed: widget.onRemove,
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),
@@ -520,9 +574,11 @@ class _SelectedExerciseTileState extends State<_SelectedExerciseTile> {
                     const SizedBox(width: 8),
                     ReorderableDragStartListener(
                       index: widget.index,
-                      child: Icon(Icons.reorder,
-                          color: theme.colorScheme.outline.withValues(alpha: 0.3),
-                          size: 22),
+                      child: Icon(
+                        Icons.reorder,
+                        color: theme.colorScheme.outline.withValues(alpha: 0.3),
+                        size: 22,
+                      ),
                     ),
                   ],
                 ),
@@ -540,7 +596,7 @@ class _SelectedExerciseTileState extends State<_SelectedExerciseTile> {
                   const SizedBox(height: 16),
                   ...List.generate(sets.length, (index) {
                     return Padding(
-                      padding: const EdgeInsets.only(bottom: 10.0),
+                      padding: const EdgeInsets.only(bottom: 10),
                       child: Row(
                         children: [
                           Container(
@@ -599,10 +655,18 @@ class _SelectedExerciseTileState extends State<_SelectedExerciseTile> {
                     child: ElevatedButton.icon(
                       onPressed: _addSet,
                       icon: const Icon(Icons.add, size: 18),
-                      label: const Text('AGGIUNGI UNA SERIE', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, letterSpacing: 0.5)),
+                      label: const Text(
+                        'AGGIUNGI UNA SERIE',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
                       style: ElevatedButton.styleFrom(
                         foregroundColor: theme.colorScheme.primary,
-                        backgroundColor: theme.colorScheme.primary.withValues(alpha: 0.08),
+                        backgroundColor:
+                            theme.colorScheme.primary.withValues(alpha: 0.08),
                         elevation: 0,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
@@ -622,15 +686,15 @@ class _SelectedExerciseTileState extends State<_SelectedExerciseTile> {
 }
 
 class _SetInputCell extends StatelessWidget {
-  final TextEditingController controller;
-  final String label;
-  final Function(String) onChanged;
-
   const _SetInputCell({
     required this.controller,
     required this.label,
     required this.onChanged,
   });
+
+  final TextEditingController controller;
+  final String label;
+  final void Function(String) onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -678,19 +742,20 @@ class _SetInputCell extends StatelessWidget {
 }
 
 class ExerciseSet {
+  ExerciseSet({required this.weight, required this.reps});
+
   double weight;
   int reps;
-  ExerciseSet({required this.weight, required this.reps});
 }
 
 class _ExercisePickerModal extends StatefulWidget {
-  final Function(List<ExerciseEntity>) onConfirm;
-  final List<ExerciseEntity> alreadySelected;
-
   const _ExercisePickerModal({
     required this.onConfirm,
     required this.alreadySelected,
   });
+
+  final void Function(List<ExerciseEntity>) onConfirm;
+  final List<ExerciseEntity> alreadySelected;
 
   @override
   State<_ExercisePickerModal> createState() => _ExercisePickerModalState();
@@ -737,13 +802,15 @@ class _ExercisePickerModalState extends State<_ExercisePickerModal> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(24.0),
+                padding: const EdgeInsets.all(24),
                 child: Column(
                   children: [
                     Text(
                       'Scegli Esercizi',
                       style: theme.textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold, fontFamily: 'Lexend'),
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Lexend',
+                      ),
                     ),
                     const SizedBox(height: 16),
                     TextField(
@@ -754,8 +821,9 @@ class _ExercisePickerModalState extends State<_ExercisePickerModal> {
                         filled: true,
                         fillColor: theme.colorScheme.surfaceContainerHigh,
                         border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16),
-                            borderSide: BorderSide.none),
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide.none,
+                        ),
                       ),
                     ),
                   ],
@@ -773,9 +841,10 @@ class _ExercisePickerModalState extends State<_ExercisePickerModal> {
                               e.name
                                   .toLowerCase()
                                   .contains(_searchQuery.toLowerCase()) ||
-                              e.targetMuscle
-                                  .toLowerCase()
-                                  .contains(_searchQuery.toLowerCase()))
+                              e.targetMuscle.toLowerCase().contains(
+                                    _searchQuery.toLowerCase(),
+                                  ),
+                              )
                           .toList();
 
                       return ListView.separated(
@@ -806,10 +875,11 @@ class _ExercisePickerModalState extends State<_ExercisePickerModal> {
                                     : theme.colorScheme.surfaceContainerHigh,
                                 borderRadius: BorderRadius.circular(16),
                                 border: Border.all(
-                                    color: isSelected && !isAlreadyAdded
-                                        ? theme.colorScheme.primary
-                                        : theme.colorScheme.outline
-                                            .withValues(alpha: 0.05)),
+                                  color: isSelected && !isAlreadyAdded
+                                      ? theme.colorScheme.primary
+                                      : theme.colorScheme.outline
+                                          .withValues(alpha: 0.05),
+                                ),
                               ),
                               child: Row(
                                 children: [
@@ -825,7 +895,8 @@ class _ExercisePickerModalState extends State<_ExercisePickerModal> {
                                         size: 24,
                                         color: isSelected
                                             ? theme.colorScheme.primary
-                                            : const Color(0xFF94AAFF)),
+                                            : const Color(0xFF94AAFF),
+                                      ),
                                   ),
                                   const SizedBox(width: 16),
                                   Expanded(
@@ -840,9 +911,9 @@ class _ExercisePickerModalState extends State<_ExercisePickerModal> {
                                                   fontWeight: FontWeight.bold,
                                                   fontSize: 16,
                                                   color: isAlreadyAdded
-                                                      ? theme
-                                                          .colorScheme.outline
-                                                      : null),
+                                                      ? theme.colorScheme.outline
+                                                      : null,
+                                                ),
                                         ),
                                         const SizedBox(height: 4),
                                         Row(
@@ -851,8 +922,8 @@ class _ExercisePickerModalState extends State<_ExercisePickerModal> {
                                                 size: 12,
                                                 color: isSelected
                                                     ? theme.colorScheme.primary
-                                                    : theme
-                                                        .colorScheme.outline),
+                                                    : theme.colorScheme.outline,
+                                              ),
                                             const SizedBox(width: 4),
                                             Text(
                                               isAlreadyAdded
@@ -875,15 +946,16 @@ class _ExercisePickerModalState extends State<_ExercisePickerModal> {
                                     ),
                                   ),
                                   Icon(
-                                      isAlreadyAdded
-                                          ? Icons.check_circle
-                                          : (isSelected
-                                              ? Icons.check_circle
-                                              : Icons.add_circle),
-                                      color: isSelected
-                                          ? theme.colorScheme.primary
-                                          : theme.colorScheme.primary
-                                              .withValues(alpha: 0.4)),
+                                    isAlreadyAdded
+                                        ? Icons.check_circle
+                                        : (isSelected
+                                            ? Icons.check_circle
+                                            : Icons.add_circle),
+                                    color: isSelected
+                                        ? theme.colorScheme.primary
+                                        : theme.colorScheme.primary
+                                            .withValues(alpha: 0.4),
+                                  ),
                                 ],
                               ),
                             ),
@@ -904,7 +976,11 @@ class _ExercisePickerModalState extends State<_ExercisePickerModal> {
                 child: Container(
                   color: theme.colorScheme.surface,
                   padding: const EdgeInsets.fromLTRB(
-                      24, 0, 24, 10), // Spazio generoso per la navbar
+                    24,
+                    0,
+                    24,
+                    10,
+                  ), // Spazio generoso per la navbar
                   child: ElevatedButton(
                     onPressed: () {
                       widget.onConfirm(_tempSelected);
@@ -918,7 +994,8 @@ class _ExercisePickerModalState extends State<_ExercisePickerModal> {
                       shadowColor:
                           theme.colorScheme.primary.withValues(alpha: 0.4),
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20)),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
                     ),
                     child: Text(
                       'AGGIUNGI ${_tempSelected.length} ESERCIZI',

@@ -6,9 +6,9 @@ import 'package:gym_corpus/features/training/presentation/bloc/training_event.da
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
 
 class ExerciseDetailScreen extends StatelessWidget {
-  final ExerciseEntity exercise;
+  const ExerciseDetailScreen({required this.exercise, super.key});
 
-  const ExerciseDetailScreen({super.key, required this.exercise});
+  final ExerciseEntity exercise;
 
   @override
   Widget build(BuildContext context) {
@@ -18,12 +18,15 @@ class ExerciseDetailScreen extends StatelessWidget {
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         leading: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(8),
           child: CircleAvatar(
             backgroundColor: Colors.white.withValues(alpha: 0.1),
             child: IconButton(
-              icon: const Icon(Icons.arrow_back,
-                  color: Color(0xFF94AAFF), size: 18),
+              icon: const Icon(
+                Icons.arrow_back,
+                color: Color(0xFF94AAFF),
+                size: 18,
+              ),
               onPressed: () => Navigator.of(context).pop(),
             ),
           ),
@@ -47,7 +50,7 @@ class ExerciseDetailScreen extends StatelessWidget {
         actions: [
           BlocBuilder<TrainingBloc, TrainingState>(
             builder: (context, state) {
-              bool isFavorite = exercise.isFavorite;
+              var isFavorite = exercise.isFavorite;
               if (state is TrainingLoaded) {
                 final currentExercise = state.exercises.firstWhere(
                   (e) => e.id == exercise.id,
@@ -57,7 +60,7 @@ class ExerciseDetailScreen extends StatelessWidget {
               }
 
               return Padding(
-                padding: const EdgeInsets.only(right: 8.0),
+                padding: const EdgeInsets.only(right: 8),
                 child: CircleAvatar(
                   backgroundColor: Colors.white.withValues(alpha: 0.1),
                   child: IconButton(
@@ -68,7 +71,7 @@ class ExerciseDetailScreen extends StatelessWidget {
                     ),
                     onPressed: () {
                       context.read<TrainingBloc>().add(
-                        ToggleExerciseFavoriteEvent(exercise.id, !isFavorite),
+                        ToggleExerciseFavoriteEvent(exercise.id, isFavorite: !isFavorite),
                       );
                     },
                   ),
@@ -96,8 +99,9 @@ class ExerciseDetailScreen extends StatelessWidget {
                       : Center(
                           child: Icon(Icons.fitness_center,
                               size: 80,
-                              color: theme.colorScheme.primary
-                                  .withValues(alpha: 0.2)),
+                              color: theme.colorScheme.primary.withValues(
+                                alpha: 0.2,
+                              ),),
                         ),
                 ),
                 Positioned.fill(
@@ -126,7 +130,9 @@ class ExerciseDetailScreen extends StatelessWidget {
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 4),
+                            horizontal: 12,
+                            vertical: 4,
+                          ),
                         decoration: BoxDecoration(
                           color: theme.colorScheme.tertiary,
                           borderRadius: BorderRadius.circular(20),
@@ -158,7 +164,7 @@ class ExerciseDetailScreen extends StatelessWidget {
             ),
 
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -192,17 +198,22 @@ class ExerciseDetailScreen extends StatelessWidget {
 
                   // Preparation
                   _SectionHeader(
-                      title: 'Preparazione', color: theme.colorScheme.primary),
+                    title: 'Preparazione',
+                    color: theme.colorScheme.primary,
+                  ),
                   const SizedBox(height: 16),
                   _NumberedList(
-                      content: exercise.preparation ??
-                          'Sdraiati sulla schiena con le ginocchia piegate e i piedi appoggiati a terra. Posiziona le mani dietro la testa o incrociate sul petto.'),
+                    content: exercise.preparation ??
+                        'Sdraiati sulla schiena con le ginocchia piegate e i piedi appoggiati a terra. Posiziona le mani dietro la testa o incrociate sul petto.',
+                  ),
 
                   const SizedBox(height: 40),
 
                   // Execution
                   _SectionHeader(
-                      title: 'Esecuzione', color: theme.colorScheme.tertiary),
+                    title: 'Esecuzione',
+                    color: theme.colorScheme.tertiary,
+                  ),
                   const SizedBox(height: 16),
                   Row(
                     children: [
@@ -249,17 +260,17 @@ class ExerciseDetailScreen extends StatelessWidget {
 }
 
 class _BentoCard extends StatelessWidget {
-  final String title;
-  final String content;
-  final IconData icon;
-  final Color iconColor;
-
   const _BentoCard({
     required this.title,
     required this.content,
     required this.icon,
     required this.iconColor,
   });
+
+  final String title;
+  final String content;
+  final IconData icon;
+  final Color iconColor;
 
   @override
   Widget build(BuildContext context) {
@@ -270,7 +281,10 @@ class _BentoCard extends StatelessWidget {
         color: theme.colorScheme.surfaceContainer,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-            color: theme.colorScheme.outline.withValues(alpha: 0.05)),
+          color: theme.colorScheme.outline.withValues(
+            alpha: 0.05,
+          ),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -305,10 +319,10 @@ class _BentoCard extends StatelessWidget {
 }
 
 class _SectionHeader extends StatelessWidget {
+  const _SectionHeader({required this.title, required this.color});
+
   final String title;
   final Color color;
-
-  const _SectionHeader({required this.title, required this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -332,9 +346,9 @@ class _SectionHeader extends StatelessWidget {
 }
 
 class _NumberedList extends StatelessWidget {
-  final String content;
-
   const _NumberedList({required this.content});
+
+  final String content;
 
   @override
   Widget build(BuildContext context) {
@@ -358,8 +372,11 @@ class _NumberedList extends StatelessWidget {
               border: index != steps.length - 1
                   ? Border(
                       bottom: BorderSide(
-                          color:
-                              theme.colorScheme.outline.withValues(alpha: 0.1)))
+                        color: theme.colorScheme.outline.withValues(
+                          alpha: 0.1,
+                        ),
+                      ),
+                    )
                   : null,
             ),
             child: Row(
@@ -390,17 +407,17 @@ class _NumberedList extends StatelessWidget {
 }
 
 class _ExecutionCard extends StatelessWidget {
-  final String title;
-  final String content;
-  final String label;
-  final Color color;
-
   const _ExecutionCard({
     required this.title,
     required this.content,
     required this.label,
     required this.color,
   });
+
+  final String title;
+  final String content;
+  final String label;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
@@ -411,7 +428,7 @@ class _ExecutionCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(16),
-        border: Border(left: BorderSide(color: color, width: 4)),
+        border: Border(left: BorderSide(color: color, width: 4),),
       ),
       child: Stack(
         children: [
@@ -433,9 +450,12 @@ class _ExecutionCard extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title,
-                  style: theme.textTheme.titleSmall
-                      ?.copyWith(fontWeight: FontWeight.bold)),
+              Text(
+                title,
+                style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               const SizedBox(height: 8),
               Expanded(
                 child: Text(
@@ -455,9 +475,9 @@ class _ExecutionCard extends StatelessWidget {
 }
 
 class _ExpertTipsCard extends StatelessWidget {
-  final String tip;
-
   const _ExpertTipsCard({required this.tip});
+
+  final String tip;
 
   @override
   Widget build(BuildContext context) {
@@ -468,7 +488,7 @@ class _ExpertTipsCard extends StatelessWidget {
         color: theme.colorScheme.primary.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(24),
         border:
-            Border.all(color: theme.colorScheme.primary.withValues(alpha: 0.2)),
+            Border.all(color: theme.colorScheme.primary.withValues(alpha: 0.2),),
       ),
       child: Stack(
         clipBehavior: Clip.none,
@@ -477,7 +497,10 @@ class _ExpertTipsCard extends StatelessWidget {
             top: -40,
             left: 0,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 6,
+              ),
               decoration: BoxDecoration(
                 color: theme.colorScheme.primary,
                 borderRadius: BorderRadius.circular(20),
@@ -498,18 +521,26 @@ class _ExpertTipsCard extends StatelessWidget {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.tips_and_updates,
-                      color: theme.colorScheme.primary),
+                  Icon(
+                    Icons.tips_and_updates,
+                    color: theme.colorScheme.primary,
+                  ),
                   const SizedBox(width: 16),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Consiglio Esperto',
-                            style: theme.textTheme.titleSmall
-                                ?.copyWith(fontWeight: FontWeight.bold)),
+                        Text(
+                          'Consiglio Esperto',
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                         const SizedBox(height: 4),
-                        Text(tip, style: theme.textTheme.bodySmall),
+                        Text(
+                          tip,
+                          style: theme.textTheme.bodySmall,
+                        ),
                       ],
                     ),
                   ),

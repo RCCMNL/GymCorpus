@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
+import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:gym_corpus/features/auth/presentation/bloc/auth_event.dart';
+import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -12,7 +16,7 @@ class ProfileScreen extends StatelessWidget {
       appBar: const GymHeader(),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -33,7 +37,7 @@ class ProfileScreen extends StatelessWidget {
                   Text(
                     'APP PREFERENCES & ACCOUNT',
                     style: theme.textTheme.labelSmall?.copyWith(
-                      letterSpacing: 2.0,
+                      letterSpacing: 2,
                       color: theme.colorScheme.outline,
                     ),
                   ),
@@ -81,24 +85,32 @@ class ProfileScreen extends StatelessWidget {
                     ),
                     const SizedBox(width: 24),
                     Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Atleta Gym',
-                            style: theme.textTheme.headlineSmall?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'Lexend',
-                            ),
-                          ),
-                          Text(
-                            'LIVELLO 1 • IN SVILUPPO',
-                            style: theme.textTheme.labelSmall?.copyWith(
-                              color: theme.colorScheme.outline,
-                              letterSpacing: 1.2,
-                            ),
-                          ),
-                        ],
+                      child: BlocBuilder<AuthBloc, AuthState>(
+                        builder: (context, state) {
+                          final userName = state.maybeWhen(
+                            authenticated: (user) => user.name,
+                            orElse: () => 'Guest',
+                          );
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                userName,
+                                style: theme.textTheme.headlineSmall?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'Lexend',
+                                ),
+                              ),
+                              Text(
+                                'LIVELLO 1 • IN SVILUPPO',
+                                style: theme.textTheme.labelSmall?.copyWith(
+                                  color: theme.colorScheme.outline,
+                                  letterSpacing: 1.2,
+                                ),
+                              ),
+                            ],
+                          );
+                        },
                       ),
                     ),
                   ],
@@ -179,7 +191,9 @@ class ProfileScreen extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: TextButton.icon(
-                  onPressed: () {},
+                  onPressed: () {
+                    context.read<AuthBloc>().add(const AuthEvent.logoutRequested());
+                  },
                   icon: const Icon(Icons.logout),
                   label: const Text('LOGOUT'),
                   style: TextButton.styleFrom(
@@ -192,7 +206,7 @@ class ProfileScreen extends StatelessWidget {
                     ),
                     textStyle: const TextStyle(
                       fontWeight: FontWeight.bold,
-                      letterSpacing: 2.0,
+                      letterSpacing: 2,
                       fontFamily: 'Lexend',
                     ),
                   ),
@@ -209,10 +223,10 @@ class ProfileScreen extends StatelessWidget {
 }
 
 class _ProfileSection extends StatelessWidget {
+  const _ProfileSection({required this.title, required this.items});
+
   final String title;
   final List<_ProfileItem> items;
-
-  const _ProfileSection({required this.title, required this.items});
 
   @override
   Widget build(BuildContext context) {
@@ -223,13 +237,13 @@ class _ProfileSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.only(left: 8.0, bottom: 16),
+            padding: const EdgeInsets.only(left: 8, bottom: 16),
             child: Text(
               title.toUpperCase(),
               style: theme.textTheme.labelSmall?.copyWith(
                 color: theme.colorScheme.outline,
                 fontWeight: FontWeight.w900,
-                letterSpacing: 2.0,
+                letterSpacing: 2,
               ),
             ),
           ),
@@ -253,15 +267,6 @@ class _ProfileSection extends StatelessWidget {
 }
 
 class _ProfileItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String? trailingText;
-  final bool isBadge;
-  final bool isExternal;
-  final bool hasSwitch;
-  final bool switchValue;
-  final VoidCallback? onEdit;
-
   const _ProfileItem({
     required this.icon,
     required this.label,
@@ -272,6 +277,15 @@ class _ProfileItem extends StatelessWidget {
     this.switchValue = false,
     this.onEdit,
   });
+
+  final IconData icon;
+  final String label;
+  final String? trailingText;
+  final bool isBadge;
+  final bool isExternal;
+  final bool hasSwitch;
+  final bool switchValue;
+  final VoidCallback? onEdit;
 
   @override
   Widget build(BuildContext context) {

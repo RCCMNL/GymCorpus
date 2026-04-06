@@ -1,12 +1,12 @@
-import 'package:gym_corpus/features/training/domain/entities/routine.dart';
-import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
-import 'package:gym_corpus/features/training/domain/entities/body_weight.dart';
-import 'package:gym_corpus/core/error/failures.dart';
 import 'package:dartz/dartz.dart';
+import 'package:gym_corpus/core/error/failures.dart';
+import 'package:gym_corpus/features/training/domain/entities/body_weight.dart';
+import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
+import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 
 abstract class TrainingRepository {
   Stream<List<ExerciseEntity>> watchExercises();
-  Future<Either<Failure, void>> toggleExerciseFavorite(int id, bool isFavorite);
+  Future<Either<Failure, void>> toggleExerciseFavorite(int id, {required bool isFavorite});
   
   // Routines CRUD
   Stream<List<RoutineEntity>> watchRoutines();

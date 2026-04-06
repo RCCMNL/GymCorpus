@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
-
-import 'package:gym_corpus/core/widgets/gym_header.dart';
 
 class AnalyticsScreen extends StatefulWidget {
   const AnalyticsScreen({super.key});
@@ -17,8 +16,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   @override
   void initState() {
     super.initState();
-    context.read<TrainingBloc>().add(LoadWeightLogsEvent());
-    context.read<TrainingBloc>().add(LoadBodyWeightLogsEvent());
+    context.read<TrainingBloc>()
+      ..add(LoadWeightLogsEvent())
+      ..add(LoadBodyWeightLogsEvent());
   }
 
   @override
@@ -30,24 +30,29 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
       body: SafeArea(
         child: BlocBuilder<TrainingBloc, TrainingState>(
           builder: (context, state) {
-            int sessionsCount = 0;
-            double totalWeight = 0;
-            int monthSessions = 0;
-            double monthWeight = 0;
+            var sessionsCount = 0;
+            var totalWeight = 0.0;
+            var monthSessions = 0;
+            var monthWeight = 0.0;
 
             if (state is TrainingLoaded) {
               final logs = state.weightLogs;
               sessionsCount = logs.map((e) => e.workoutId).toSet().length;
-              totalWeight = logs.fold(0.0, (sum, e) => sum + (e.weight * e.reps));
-              
+              totalWeight = logs.fold(0, (sum, e) => sum + (e.weight * e.reps));
+
               final now = DateTime.now();
-              final monthLogs = logs.where((e) => e.timestamp.month == now.month && e.timestamp.year == now.year).toList();
+              final monthLogs = logs
+                  .where((e) =>
+                      e.timestamp.month == now.month &&
+                      e.timestamp.year == now.year,
+                  )
+                  .toList();
               monthSessions = monthLogs.map((e) => e.workoutId).toSet().length;
-              monthWeight = monthLogs.fold(0.0, (sum, e) => sum + (e.weight * e.reps));
+              monthWeight = monthLogs.fold(0, (sum, e) => sum + (e.weight * e.reps));
             }
 
             return SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -68,7 +73,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                       Text(
                         'PERFORMANCE TRACKING & VOLUME INSIGHTS',
                         style: theme.textTheme.labelSmall?.copyWith(
-                          letterSpacing: 2.0,
+                          letterSpacing: 2,
                           color: theme.colorScheme.outline,
                         ),
                       ),
@@ -81,9 +86,21 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                     title: 'All-Time Stats',
                     color: theme.colorScheme.primary,
                     stats: [
-                      _StatItem(icon: Icons.fitness_center, value: sessionsCount.toString(), label: 'Workouts'),
-                      _StatItem(icon: Icons.schedule, value: '${(sessionsCount * 0.8).toStringAsFixed(1)}h', label: 'Time Spent'),
-                      _StatItem(icon: Icons.scale, value: '${(totalWeight / 1000).toStringAsFixed(1)}k', label: 'Volume (kg)'),
+                      _StatItem(
+                        icon: Icons.fitness_center,
+                        value: sessionsCount.toString(),
+                        label: 'Workouts',
+                      ),
+                      _StatItem(
+                        icon: Icons.schedule,
+                        value: '${(sessionsCount * 0.8).toStringAsFixed(1)}h',
+                        label: 'Time Spent',
+                      ),
+                      _StatItem(
+                        icon: Icons.scale,
+                        value: '${(totalWeight / 1000).toStringAsFixed(1)}k',
+                        label: 'Volume (kg)',
+                      ),
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -91,26 +108,38 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                     title: 'This Month',
                     color: theme.colorScheme.tertiary,
                     stats: [
-                      _StatItem(icon: Icons.calendar_month, value: monthSessions.toString(), label: 'Workouts'),
-                      _StatItem(icon: Icons.timer, value: '${(monthSessions * 0.8).toStringAsFixed(1)}h', label: 'Time spent'),
-                      _StatItem(icon: Icons.trending_up, value: '${(monthWeight / 1000).toStringAsFixed(1)}k', label: 'Volume (kg)'),
+                      _StatItem(
+                        icon: Icons.calendar_month,
+                        value: monthSessions.toString(),
+                        label: 'Workouts',
+                      ),
+                      _StatItem(
+                        icon: Icons.timer,
+                        value: '${(monthSessions * 0.8).toStringAsFixed(1)}h',
+                        label: 'Time spent',
+                      ),
+                      _StatItem(
+                        icon: Icons.trending_up,
+                        value: '${(monthWeight / 1000).toStringAsFixed(1)}k',
+                        label: 'Volume (kg)',
+                      ),
                     ],
                   ),
 
                   const SizedBox(height: 24),
 
                   // This Week Activity Card
-                  _ActivityCard(),
+                  const _ActivityCard(),
 
                   const SizedBox(height: 24),
 
                   // Weight Tracking Card
-                  _WeightTrackingCard(),
+                  const _WeightTrackingCard(),
 
                   const SizedBox(height: 24),
 
                   // BMI Card
-                  _BMICard(),
+                  const _BMICard(),
 
                   const SizedBox(height: 100), // Bottom padding for navbar
                 ],
@@ -124,11 +153,15 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
 }
 
 class _StatSection extends StatelessWidget {
+  const _StatSection({
+    required this.title,
+    required this.color,
+    required this.stats,
+  });
+
   final String title;
   final Color color;
   final List<_StatItem> stats;
-
-  const _StatSection({required this.title, required this.color, required this.stats});
 
   @override
   Widget build(BuildContext context) {
@@ -162,11 +195,15 @@ class _StatSection extends StatelessWidget {
 }
 
 class _StatItem extends StatelessWidget {
+  const _StatItem({
+    required this.icon,
+    required this.value,
+    required this.label,
+  });
+
   final IconData icon;
   final String value;
   final String label;
-
-  const _StatItem({required this.icon, required this.value, required this.label});
 
   @override
   Widget build(BuildContext context) {
@@ -196,6 +233,8 @@ class _StatItem extends StatelessWidget {
 }
 
 class _ActivityCard extends StatelessWidget {
+  const _ActivityCard();
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -207,7 +246,9 @@ class _ActivityCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(16),
-        border: Border(left: BorderSide(color: theme.colorScheme.secondary, width: 4)),
+        border: Border(
+          left: BorderSide(color: theme.colorScheme.secondary, width: 4),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -228,19 +269,31 @@ class _ActivityCard extends StatelessWidget {
                     width: 32,
                     height: 32,
                     decoration: BoxDecoration(
-                      color: isDone 
-                          ? theme.colorScheme.secondary 
+                      color: isDone
+                          ? theme.colorScheme.secondary
                           : theme.colorScheme.surfaceContainerHighest,
                       shape: BoxShape.circle,
-                      border: isToday ? Border.all(color: theme.colorScheme.primary, width: 2) : (isDone ? null : Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.2))),
-                      boxShadow: isDone ? [
-                        BoxShadow(
-                          color: theme.colorScheme.secondary.withValues(alpha: 0.4),
-                          blurRadius: 12,
-                        )
-                      ] : null,
+                      border: isToday
+                          ? Border.all(color: theme.colorScheme.primary, width: 2)
+                          : (isDone
+                              ? null
+                              : Border.all(
+                                  color: theme.colorScheme.outline
+                                      .withValues(alpha: 0.2),
+                                )),
+                      boxShadow: isDone
+                          ? [
+                              BoxShadow(
+                                color: theme.colorScheme.secondary
+                                    .withValues(alpha: 0.4),
+                                blurRadius: 12,
+                              ),
+                            ]
+                          : null,
                     ),
-                    child: isDone ? const Icon(Icons.check, size: 16, color: Colors.white) : null,
+                    child: isDone
+                        ? const Icon(Icons.check, size: 16, color: Colors.white)
+                        : null,
                   ),
                   const SizedBox(height: 8),
                   Text(
@@ -248,7 +301,10 @@ class _ActivityCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 9,
                       fontWeight: FontWeight.bold,
-                      color: isToday ? theme.colorScheme.primary : theme.colorScheme.onSurfaceVariant.withValues(alpha: isDone ? 1.0 : 0.6),
+                      color: isToday
+                          ? theme.colorScheme.primary
+                          : theme.colorScheme.onSurfaceVariant
+                              .withValues(alpha: isDone ? 1 : 0.6),
                     ),
                   ),
                 ],
@@ -262,16 +318,18 @@ class _ActivityCard extends StatelessWidget {
 }
 
 class _WeightTrackingCard extends StatelessWidget {
+  const _WeightTrackingCard();
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     
     return BlocBuilder<TrainingBloc, TrainingState>(
       builder: (context, state) {
-        String current = '--';
-        String max = '--';
-        String min = '--';
-        List<double> trendPoints = [];
+        var current = '--';
+        var max = '--';
+        var min = '--';
+        var trendPoints = <double>[];
 
         if (state is TrainingLoaded && state.bodyWeightLogs.isNotEmpty) {
           final logs = state.bodyWeightLogs;
@@ -310,7 +368,7 @@ class _WeightTrackingCard extends StatelessWidget {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: theme.colorScheme.primary,
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                     ),
                   ),
@@ -354,7 +412,7 @@ class _WeightTrackingCard extends StatelessWidget {
 
   void _showAddWeightDialog(BuildContext context) {
     final controller = TextEditingController();
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Add Body Weight'),
@@ -382,12 +440,17 @@ class _WeightTrackingCard extends StatelessWidget {
 }
 
 class _WeightItem extends StatelessWidget {
+  const _WeightItem({
+    required this.label,
+    required this.value,
+    required this.unit,
+    required this.color,
+  });
+
   final String label;
   final String value;
   final String unit;
   final Color color;
-
-  const _WeightItem({required this.label, required this.value, required this.unit, required this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -424,10 +487,9 @@ class _WeightItem extends StatelessWidget {
 }
 
 class _TrendLinePainter extends CustomPainter {
+  const _TrendLinePainter({required this.color, this.dataPoints = const []});
   final Color color;
   final List<double> dataPoints;
-
-  _TrendLinePainter({required this.color, this.dataPoints = const []});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -440,22 +502,25 @@ class _TrendLinePainter extends CustomPainter {
       ..strokeCap = StrokeCap.round;
 
     final path = Path();
-    final stepX = size.width / (dataPoints.length > 1 ? dataPoints.length - 1 : 1);
-    
+    final stepX =
+        size.width / (dataPoints.length > 1 ? dataPoints.length - 1 : 1);
+
     final maxWeight = dataPoints.reduce((a, b) => a > b ? a : b);
     final minWeight = dataPoints.reduce((a, b) => a < b ? a : b);
-    final range = (maxWeight - minWeight).abs() < 0.1 ? 1.0 : (maxWeight - minWeight);
+    final range =
+        (maxWeight - minWeight).abs() < 0.1 ? 1 : (maxWeight - minWeight);
 
-    for (int i = 0; i < dataPoints.length; i++) {
-        final x = i * stepX;
-        final normalizedY = (dataPoints[i] - minWeight) / range;
-        final y = size.height - (normalizedY * size.height * 0.8 + size.height * 0.1);
-        
-        if (i == 0) {
-            path.moveTo(x, y);
-        } else {
-            path.lineTo(x, y);
-        }
+    for (var i = 0; i < dataPoints.length; i++) {
+      final x = i * stepX;
+      final normalizedY = (dataPoints[i] - minWeight) / range;
+      final y =
+          size.height - (normalizedY * size.height * 0.8 + size.height * 0.1);
+
+      if (i == 0) {
+        path.moveTo(x, y);
+      } else {
+        path.lineTo(x, y);
+      }
     }
 
     canvas.drawPath(path, paint);
@@ -464,19 +529,22 @@ class _TrendLinePainter extends CustomPainter {
     if (dataPoints.isNotEmpty) {
       final lastX = size.width;
       final normalizedY = (dataPoints.last - minWeight) / range;
-      final lastY = size.height - (normalizedY * size.height * 0.8 + size.height * 0.1);
-      
+      final lastY =
+          size.height - (normalizedY * size.height * 0.8 + size.height * 0.1);
+
       final dotPaint = Paint()..color = color;
       canvas.drawCircle(Offset(lastX, lastY), 4, dotPaint);
     }
   }
 
   @override
-  bool shouldRepaint(covariant _TrendLinePainter oldDelegate) => 
-    oldDelegate.dataPoints != dataPoints;
+  bool shouldRepaint(covariant _TrendLinePainter oldDelegate) =>
+      oldDelegate.dataPoints != dataPoints;
 }
 
 class _BMICard extends StatelessWidget {
+  const _BMICard();
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -484,15 +552,15 @@ class _BMICard extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
           colors: [
             theme.colorScheme.surfaceContainerHigh,
             theme.colorScheme.surfaceContainer,
           ],
         ),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.1)),
+        border: Border.all(
+          color: theme.colorScheme.outline.withValues(alpha: 0.1),
+        ),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -506,16 +574,24 @@ class _BMICard extends StatelessWidget {
                   color: theme.colorScheme.tertiary.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(Icons.person_search, color: theme.colorScheme.tertiary),
+                child:
+                    Icon(Icons.person_search, color: theme.colorScheme.tertiary),
               ),
               const SizedBox(width: 16),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Indice BMI', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                  Text(
+                    'Indice BMI',
+                    style: theme.textTheme.titleMedium
+                        ?.copyWith(fontWeight: FontWeight.bold),
+                  ),
                   Text(
                     'BODY MASS INDEX',
-                    style: theme.textTheme.labelSmall?.copyWith(fontSize: 8, color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      fontSize: 8,
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                    ),
                   ),
                 ],
               ),

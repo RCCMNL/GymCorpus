@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 class GymHeader extends StatelessWidget implements PreferredSizeWidget {
-  final String? title;
   const GymHeader({super.key, this.title});
+  final String? title;
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +13,7 @@ class GymHeader extends StatelessWidget implements PreferredSizeWidget {
       backgroundColor: theme.colorScheme.surface,
       elevation: 0,
       leading: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8),
         child: Icon(Icons.bolt, color: theme.colorScheme.primary, size: 28),
       ),
       title: Text(

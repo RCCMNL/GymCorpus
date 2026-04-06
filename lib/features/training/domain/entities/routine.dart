@@ -2,34 +2,25 @@ import 'package:equatable/equatable.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 
 class RoutineEntity extends Equatable {
+  const RoutineEntity({
+    required this.id,
+    required this.title,
+    required this.createdAt,
+    this.estimatedDuration,
+    this.exercises = const [],
+  });
+
   final int id;
   final String title;
   final int? estimatedDuration;
   final DateTime createdAt;
   final List<RoutineExerciseEntity> exercises;
 
-  const RoutineEntity({
-    required this.id,
-    required this.title,
-    this.estimatedDuration,
-    required this.createdAt,
-    this.exercises = const [],
-  });
-
   @override
   List<Object?> get props => [id, title, estimatedDuration, createdAt, exercises];
 }
 
 class RoutineExerciseEntity extends Equatable {
-  final int id;
-  final int routineId;
-  final ExerciseEntity exercise;
-  final int sets;
-  final int reps;
-  final double weight;
-  final int orderIndex;
-  final String? setsData; // JSON string with detailed sets
-
   const RoutineExerciseEntity({
     required this.id,
     required this.routineId,
@@ -40,6 +31,15 @@ class RoutineExerciseEntity extends Equatable {
     required this.orderIndex,
     this.setsData,
   });
+
+  final int id;
+  final int routineId;
+  final ExerciseEntity exercise;
+  final int sets;
+  final int reps;
+  final double weight;
+  final int orderIndex;
+  final String? setsData; // JSON string with detailed sets
 
   RoutineExerciseEntity copyWith({
     int? id,

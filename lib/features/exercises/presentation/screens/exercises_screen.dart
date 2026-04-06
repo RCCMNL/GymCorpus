@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gym_corpus/core/widgets/gym_header.dart';
+import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
-import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
-import 'package:gym_corpus/core/widgets/gym_header.dart';
 
 class ExercisesScreen extends StatefulWidget {
   const ExercisesScreen({super.key});
@@ -30,7 +30,7 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
 
             // Search Bar
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Container(
                 decoration: BoxDecoration(
                   color: theme.colorScheme.surfaceContainerHigh,
@@ -54,7 +54,7 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
             BlocBuilder<TrainingBloc, TrainingState>(
               builder: (context, state) {
                 if (state is TrainingLoaded) {
-                  final muscleGroups = ['Tutti', 'Preferiti', ...{for (var e in state.exercises) e.targetMuscle}.toList()..sort()];
+                  final muscleGroups = ['Tutti', 'Preferiti', ...{for (final e in state.exercises) e.targetMuscle}.toList()..sort()];
                   return SizedBox(
                     height: 50,
                     child: ListView.builder(
@@ -177,9 +177,9 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
 }
 
 class _ExerciseTile extends StatelessWidget {
-  final ExerciseEntity exercise;
-
   const _ExerciseTile({required this.exercise});
+
+  final ExerciseEntity exercise;
 
   @override
   Widget build(BuildContext context) {

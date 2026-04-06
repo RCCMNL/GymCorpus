@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gym_corpus/core/widgets/gym_header.dart';
+import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
-import 'package:gym_corpus/core/widgets/gym_header.dart';
-import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 
 class CustomWorkoutsScreen extends StatefulWidget {
   const CustomWorkoutsScreen({super.key});
@@ -38,7 +38,7 @@ class _CustomWorkoutsScreenState extends State<CustomWorkoutsScreen> {
               final routines = state.routines;
 
               return SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -68,7 +68,9 @@ class _CustomWorkoutsScreenState extends State<CustomWorkoutsScreen> {
                               const SizedBox(height: 12),
                               Container(
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 10, vertical: 4),
+                                  horizontal: 10,
+                                  vertical: 4,
+                                ),
                                 decoration: BoxDecoration(
                                   color: theme.colorScheme.primaryContainer
                                       .withValues(alpha: 0.3),
@@ -110,11 +112,13 @@ class _CustomWorkoutsScreenState extends State<CustomWorkoutsScreen> {
                     if (routines.isEmpty)
                       Center(
                         child: Padding(
-                          padding: const EdgeInsets.all(40.0),
+                          padding: const EdgeInsets.all(40),
                           child: Text(
-                            "Non hai ancora routine personalizzate.",
+                            'Non hai ancora routine personalizzate.',
                             textAlign: TextAlign.center,
-                            style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.outline),
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.colorScheme.outline,
+                            ),
                           ),
                         ),
                       )
@@ -123,12 +127,15 @@ class _CustomWorkoutsScreenState extends State<CustomWorkoutsScreen> {
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
                         itemCount: routines.length,
-                        separatorBuilder: (context, index) => const SizedBox(height: 16),
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(height: 16),
                         itemBuilder: (context, index) {
                           final routine = routines[index];
                           return _WorkoutCard(
                             routine: routine,
-                            color: index % 2 == 0 ? theme.colorScheme.primary : theme.colorScheme.tertiary,
+                            color: index.isEven
+                                ? theme.colorScheme.primary
+                                : theme.colorScheme.tertiary,
                           );
                         },
                       ),
@@ -173,24 +180,27 @@ class _CustomWorkoutsScreenState extends State<CustomWorkoutsScreen> {
 }
 
 class _WorkoutCard extends StatelessWidget {
-  final RoutineEntity routine;
-  final Color color;
-
   const _WorkoutCard({
     required this.routine,
     required this.color,
   });
 
+  final RoutineEntity routine;
+  final Color color;
+
   void _showDeleteDialog(BuildContext context) {
     final theme = Theme.of(context);
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: theme.colorScheme.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: Text('Elimina Routine?',
-            style: theme.textTheme.titleLarge
-                ?.copyWith(fontWeight: FontWeight.bold)),
+        title: Text(
+          'Elimina Routine?',
+          style: theme.textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         content: Text(
           'Sei sicuro di voler eliminare "${routine.title}"? Questa azione non può essere annullata.',
           style: theme.textTheme.bodyMedium,
@@ -198,8 +208,10 @@ class _WorkoutCard extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('ANNULLA',
-                style: TextStyle(color: theme.colorScheme.outline)),
+            child: Text(
+              'ANNULLA',
+              style: TextStyle(color: theme.colorScheme.outline),
+            ),
           ),
           ElevatedButton(
             onPressed: () {
@@ -217,7 +229,8 @@ class _WorkoutCard extends StatelessWidget {
               backgroundColor: theme.colorScheme.error,
               foregroundColor: theme.colorScheme.onError,
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             child: const Text('ELIMINA'),
           ),
@@ -267,8 +280,11 @@ class _WorkoutCard extends StatelessWidget {
                           // Row 1: Manubrio + N. Esercizi
                           Row(
                             children: [
-                              Icon(Icons.fitness_center,
-                                  size: 14, color: color),
+                              Icon(
+                                Icons.fitness_center,
+                                size: 14,
+                                color: color,
+                              ),
                               const SizedBox(width: 8),
                               Text(
                                 '${routine.exercises.length} esercizi'
@@ -286,9 +302,11 @@ class _WorkoutCard extends StatelessWidget {
                           // Row 2: Orologio + Durata
                           Row(
                             children: [
-                              Icon(Icons.timer_outlined,
-                                  size: 14,
-                                  color: theme.colorScheme.tertiary),
+                              Icon(
+                                Icons.timer_outlined,
+                                size: 14,
+                                color: theme.colorScheme.tertiary,
+                              ),
                               const SizedBox(width: 8),
                               Text(
                                 'Est. ${routine.estimatedDuration ?? "--"}m'
@@ -310,18 +328,26 @@ class _WorkoutCard extends StatelessWidget {
                       children: [
                         IconButton(
                           onPressed: () => context.push('/custom/edit', extra: routine),
-                          icon: Icon(Icons.mode_edit_outline,
-                              color: theme.colorScheme.primary.withValues(alpha: 0.5),
-                              size: 20),
+                          icon: Icon(
+                            Icons.mode_edit_outline,
+                            color: theme.colorScheme.primary.withValues(
+                              alpha: 0.5,
+                            ),
+                            size: 20,
+                          ),
                           padding: EdgeInsets.zero,
                           constraints: const BoxConstraints(),
                         ),
                         const SizedBox(width: 12),
                         IconButton(
                           onPressed: () => _showDeleteDialog(context),
-                          icon: Icon(Icons.delete_outline,
-                              color: theme.colorScheme.error.withValues(alpha: 0.5),
-                              size: 22),
+                          icon: Icon(
+                            Icons.delete_outline,
+                            color: theme.colorScheme.error.withValues(
+                              alpha: 0.5,
+                            ),
+                            size: 22,
+                          ),
                           padding: EdgeInsets.zero,
                           constraints: const BoxConstraints(),
                         ),
@@ -337,5 +363,3 @@ class _WorkoutCard extends StatelessWidget {
     );
   }
 }
-
-

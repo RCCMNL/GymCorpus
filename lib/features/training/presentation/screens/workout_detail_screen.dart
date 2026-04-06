@@ -9,9 +9,9 @@ import 'package:gym_corpus/features/training/presentation/bloc/training_event.da
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
 
 class WorkoutDetailScreen extends StatelessWidget {
-  final RoutineEntity routine;
+  const WorkoutDetailScreen({required this.routine, super.key});
 
-  const WorkoutDetailScreen({super.key, required this.routine});
+  final RoutineEntity routine;
 
   void _removeSingleExercise(BuildContext context, RoutineExerciseEntity exerciseToRemove, RoutineEntity currentRoutine) {
     final updatedList =
@@ -27,7 +27,7 @@ class WorkoutDetailScreen extends StatelessWidget {
   }
 
   void _showEditExerciseSheet(BuildContext context, RoutineExerciseEntity re, RoutineEntity currentRoutine) {
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -36,12 +36,13 @@ class WorkoutDetailScreen extends StatelessWidget {
   }
 
   void _showDeleteDialog(BuildContext context) {
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Elimina Routine'),
         content: const Text(
-            'Sei sicuro di voler eliminare questa routine? Questa azione non può essere annullata.'),
+            'Sei sicuro di voler eliminare questa routine? Questa azione non può essere annullata.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -65,10 +66,12 @@ class WorkoutDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<TrainingBloc, TrainingState>(
       builder: (context, state) {
-        RoutineEntity currentRoutine = routine;
+        var currentRoutine = routine;
         if (state is TrainingLoaded) {
           try {
-            currentRoutine = state.routines.firstWhere((r) => r.id == routine.id);
+            currentRoutine = state.routines.firstWhere(
+              (r) => r.id == routine.id,
+            );
           } catch (_) {}
         }
 
@@ -141,17 +144,19 @@ class WorkoutDetailScreen extends StatelessWidget {
                   Center(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 40),
-                      child: Text("Nessun esercizio in questa routine.",
-                          style: TextStyle(color: theme.colorScheme.outline)),
+                      child: Text(
+                        'Nessun esercizio in questa routine.',
+                        style: TextStyle(color: theme.colorScheme.outline),
+                      ),
                     ),
                   )
                 else
                   Column(
                     children: exercises.map((re) {
-                      List<dynamic> setsList = [];
+                      var setsList = <dynamic>[];
                       if (re.setsData != null) {
                         try {
-                          setsList = jsonDecode(re.setsData!);
+                          setsList = jsonDecode(re.setsData!) as List<dynamic>;
                         } catch (e) {
                           setsList = [];
                         }
@@ -164,7 +169,9 @@ class WorkoutDetailScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(20),
                           border: Border(
                             left: BorderSide(
-                                color: theme.colorScheme.primary, width: 4),
+                              color: theme.colorScheme.primary,
+                              width: 4,
+                            ),
                           ),
                           boxShadow: [
                             BoxShadow(
@@ -179,7 +186,9 @@ class WorkoutDetailScreen extends StatelessWidget {
                           children: [
                             ListTile(
                               contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 12),
+                                horizontal: 16,
+                                vertical: 12,
+                              ),
                               leading: Container(
                                 width: 52,
                                 height: 52,
@@ -187,8 +196,11 @@ class WorkoutDetailScreen extends StatelessWidget {
                                   color: theme.colorScheme.surfaceContainerHigh,
                                   borderRadius: BorderRadius.circular(12),
                                 ),
-                                child: Icon(Icons.fitness_center,
-                                    color: theme.colorScheme.primary, size: 24),
+                                child: Icon(
+                                  Icons.fitness_center,
+                                  color: theme.colorScheme.primary,
+                                  size: 24,
+                                ),
                               ),
                               title: Text(
                                 re.exercise.name,
@@ -198,18 +210,25 @@ class WorkoutDetailScreen extends StatelessWidget {
                               subtitle: Text(
                                 '${setsList.length} serie • ${re.exercise.targetMuscle.toUpperCase()}',
                                 style: TextStyle(
-                                    fontSize: 11,
-                                    color: theme.colorScheme.outline,
-                                    fontWeight: FontWeight.bold),
+                                  fontSize: 11,
+                                  color: theme.colorScheme.outline,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                               trailing: PopupMenuButton<String>(
                                 onSelected: (val) {
                                   if (val == 'edit') {
                                     _showEditExerciseSheet(
-                                        context, re, currentRoutine);
+                                      context,
+                                      re,
+                                      currentRoutine,
+                                    );
                                   } else if (val == 'remove_exercise') {
                                     _removeSingleExercise(
-                                        context, re, currentRoutine);
+                                      context,
+                                      re,
+                                      currentRoutine,
+                                    );
                                   } else if (val == 'delete_routine') {
                                     _showDeleteDialog(context);
                                   }
@@ -224,8 +243,10 @@ class WorkoutDetailScreen extends StatelessWidget {
                                       children: [
                                         Icon(Icons.edit_note, size: 18),
                                         SizedBox(width: 12),
-                                        Text('Modifica esercizio',
-                                            style: TextStyle(fontSize: 13)),
+                                        Text(
+                                          'Modifica esercizio',
+                                          style: TextStyle(fontSize: 13),
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -233,13 +254,19 @@ class WorkoutDetailScreen extends StatelessWidget {
                                     value: 'remove_exercise',
                                     child: Row(
                                       children: [
-                                        Icon(Icons.remove_circle_outline,
-                                            color: Colors.orange, size: 18),
+                                        Icon(
+                                          Icons.remove_circle_outline,
+                                          color: Colors.orange,
+                                          size: 18,
+                                        ),
                                         SizedBox(width: 12),
-                                        Text('Elimina esercizio',
-                                            style: TextStyle(
-                                                color: Colors.orange,
-                                                fontSize: 13)),
+                                        Text(
+                                          'Elimina esercizio',
+                                          style: TextStyle(
+                                            color: Colors.orange,
+                                            fontSize: 13,
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -247,13 +274,19 @@ class WorkoutDetailScreen extends StatelessWidget {
                                     value: 'delete_routine',
                                     child: Row(
                                       children: [
-                                        Icon(Icons.delete_outline,
-                                            color: Colors.red, size: 18),
+                                        Icon(
+                                          Icons.delete_outline,
+                                          color: Colors.red,
+                                          size: 18,
+                                        ),
                                         SizedBox(width: 12),
-                                        Text('Elimina intera routine',
-                                            style: TextStyle(
-                                                color: Colors.red,
-                                                fontSize: 13)),
+                                        Text(
+                                          'Elimina intera routine',
+                                          style: TextStyle(
+                                            color: Colors.red,
+                                            fontSize: 13,
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -270,10 +303,11 @@ class WorkoutDetailScreen extends StatelessWidget {
                                     const SizedBox(height: 12),
                                     ...setsList.asMap().entries.map((entry) {
                                       final idx = entry.key;
-                                      final setData = entry.value;
+                                      final setData =
+                                          entry.value as Map<String, dynamic>;
                                       return Padding(
                                         padding:
-                                            const EdgeInsets.only(bottom: 8.0),
+                                            const EdgeInsets.only(bottom: 8),
                                         child: Row(
                                           children: [
                                             Text('SERIE ${idx + 1}',
@@ -282,18 +316,23 @@ class WorkoutDetailScreen extends StatelessWidget {
                                                     ?.copyWith(
                                                         fontWeight:
                                                             FontWeight.w900,
-                                                        color: theme.colorScheme
-                                                            .primary)),
+                                                        color: theme.colorScheme.primary,
+                                                      ),
+                                             ),
                                             const Spacer(),
-                                            Text('${setData['weight']} KG',
-                                                style: const TextStyle(
-                                                    fontWeight:
-                                                        FontWeight.bold)),
+                                            Text(
+                                              '${setData['weight']} KG',
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
                                             const SizedBox(width: 16),
-                                            Text('${setData['reps']} RIP.',
-                                                style: const TextStyle(
-                                                    fontWeight:
-                                                        FontWeight.bold)),
+                                            Text(
+                                              '${setData['reps']} RIP.',
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
                                           ],
                                         ),
                                       );
@@ -369,15 +408,15 @@ class _QuickTipBox extends StatelessWidget {
 }
 
 class _HeaderTag extends StatelessWidget {
-  final String label;
-  final Color color;
-  final Color textColor;
-
   const _HeaderTag({
     required this.label,
     required this.color,
     required this.textColor,
   });
+
+  final String label;
+  final Color color;
+  final Color textColor;
 
   @override
   Widget build(BuildContext context) {
@@ -403,10 +442,10 @@ class _HeaderTag extends StatelessWidget {
 }
 
 class _QuickExerciseEditPanel extends StatefulWidget {
+  const _QuickExerciseEditPanel({required this.re, required this.routine});
+
   final RoutineExerciseEntity re;
   final RoutineEntity routine;
-
-  const _QuickExerciseEditPanel({required this.re, required this.routine});
 
   @override
   State<_QuickExerciseEditPanel> createState() => _QuickExerciseEditPanelState();
@@ -426,10 +465,13 @@ class _QuickExerciseEditPanelState extends State<_QuickExerciseEditPanel> {
       try {
         final decoded = jsonDecode(widget.re.setsData!);
         sets = (decoded as List)
-            .map((s) => _ExerciseSetData(
-                  weight: (s['weight'] as num).toDouble(),
-                  reps: s['reps'] as int,
-                ))
+            .map((dynamic s) {
+              final map = s as Map<String, dynamic>;
+              return _ExerciseSetData(
+                weight: (map['weight'] as num).toDouble(),
+                reps: map['reps'] as int,
+              );
+            })
             .toList();
       } catch (_) {
         sets = [_ExerciseSetData(weight: 0, reps: 0)];
@@ -441,21 +483,27 @@ class _QuickExerciseEditPanelState extends State<_QuickExerciseEditPanel> {
 
   void _initControllers() {
     weightControllers = sets
-        .map((s) => TextEditingController(
-            text: s.weight == 0 ? '' : s.weight.toString()))
+        .map(
+          (s) => TextEditingController(
+            text: s.weight == 0 ? '' : s.weight.toString(),
+          ),
+        )
         .toList();
     repsControllers = sets
-        .map((s) => TextEditingController(
-            text: s.reps == 0 ? '' : s.reps.toString()))
+        .map(
+          (s) => TextEditingController(
+            text: s.reps == 0 ? '' : s.reps.toString(),
+          ),
+        )
         .toList();
   }
 
   @override
   void dispose() {
-    for (var c in weightControllers) {
+    for (final c in weightControllers) {
       c.dispose();
     }
-    for (var c in repsControllers) {
+    for (final c in repsControllers) {
       c.dispose();
     }
     super.dispose();
@@ -464,12 +512,15 @@ class _QuickExerciseEditPanelState extends State<_QuickExerciseEditPanel> {
   Future<void> _save() async {
     setState(() => isSaving = true);
     
-    final updatedSetsJson = jsonEncode(sets
-        .map((s) => {
-              'weight': s.weight,
-              'reps': s.reps,
-            })
-        .toList());
+    final updatedSetsJson = jsonEncode(
+      sets
+          .map((s) => {
+                'weight': s.weight,
+                'reps': s.reps,
+                },
+              )
+          .toList(),
+    );
 
     final updatedExercise = widget.re.copyWith(
       sets: sets.length,
@@ -492,7 +543,7 @@ class _QuickExerciseEditPanelState extends State<_QuickExerciseEditPanel> {
         );
         
     // Breve attesa per permettere al DB di scrivere e al Bloc di emettere
-    await Future.delayed(const Duration(milliseconds: 300));
+    await Future<void>.delayed(const Duration(milliseconds: 300));
     
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -511,10 +562,11 @@ class _QuickExerciseEditPanelState extends State<_QuickExerciseEditPanel> {
     final theme = Theme.of(context);
     return Container(
       padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom + 24,
-          left: 24,
-          right: 24,
-          top: 24),
+        bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+        left: 24,
+        right: 24,
+        top: 24,
+      ),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
@@ -526,11 +578,13 @@ class _QuickExerciseEditPanelState extends State<_QuickExerciseEditPanel> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
-                child: Text('Modifica ${widget.re.exercise.name}',
-                    style: theme.textTheme.titleMedium
-                        ?.copyWith(fontWeight: FontWeight.bold),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis),
+                child: Text(
+                  'Modifica ${widget.re.exercise.name}',
+                  style: theme.textTheme.titleMedium
+                      ?.copyWith(fontWeight: FontWeight.bold),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
               IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close)),
             ],
@@ -547,27 +601,36 @@ class _QuickExerciseEditPanelState extends State<_QuickExerciseEditPanel> {
                       child: Row(
                         children: [
                           CircleAvatar(
-                              radius: 12,
-                              child: Text('${idx + 1}',
-                                  style: const TextStyle(fontSize: 10))),
+                            radius: 12,
+                            child: Text(
+                              '${idx + 1}',
+                              style: const TextStyle(fontSize: 10),
+                            ),
+                          ),
                           const SizedBox(width: 12),
                           Expanded(
                             child: _MiniInput(
-                                controller: weightControllers[idx],
-                                label: 'KG',
-                                onChanged: (v) =>
-                                    sets[idx].weight = double.tryParse(v) ?? 0),
+                              controller: weightControllers[idx],
+                              label: 'KG',
+                              onChanged: (v) =>
+                                  sets[idx].weight = double.tryParse(v) ?? 0,
+                            ),
                           ),
                           const SizedBox(width: 8),
                           Expanded(
                             child: _MiniInput(
-                                controller: repsControllers[idx],
-                                label: 'RIP.',
-                                onChanged: (v) =>
-                                    sets[idx].reps = int.tryParse(v) ?? 0),
+                              controller: repsControllers[idx],
+                              label: 'RIP.',
+                              onChanged: (v) =>
+                                  sets[idx].reps = int.tryParse(v) ?? 0,
+                            ),
                           ),
                           IconButton(
-                            icon: const Icon(Icons.remove_circle_outline, size: 20, color: Colors.grey),
+                            icon: const Icon(
+                              Icons.remove_circle_outline,
+                              size: 20,
+                              color: Colors.grey,
+                            ),
                             onPressed: () => setState(() {
                               if (sets.length > 1) {
                                 sets.removeAt(idx);
@@ -583,17 +646,24 @@ class _QuickExerciseEditPanelState extends State<_QuickExerciseEditPanel> {
                     );
                   }),
                   TextButton.icon(
-                      onPressed: () => setState(() {
-                            final lastW = sets.last.weight;
-                            final lastR = sets.last.reps;
-                            sets.add(_ExerciseSetData(weight: lastW, reps: lastR));
-                            weightControllers.add(TextEditingController(
-                                text: lastW == 0 ? '' : lastW.toString()));
-                            repsControllers.add(TextEditingController(
-                                text: lastR == 0 ? '' : lastR.toString()));
-                          }),
-                      icon: const Icon(Icons.add),
-                      label: const Text('AGGIUNGI SERIE')),
+                    onPressed: () => setState(() {
+                      final lastW = sets.last.weight;
+                      final lastR = sets.last.reps;
+                      sets.add(_ExerciseSetData(weight: lastW, reps: lastR));
+                      weightControllers.add(
+                        TextEditingController(
+                          text: lastW == 0 ? '' : lastW.toString(),
+                        ),
+                      );
+                      repsControllers.add(
+                        TextEditingController(
+                          text: lastR == 0 ? '' : lastR.toString(),
+                        ),
+                      );
+                    }),
+                    icon: const Icon(Icons.add),
+                    label: const Text('AGGIUNGI SERIE'),
+                  ),
                 ],
               ),
             ),
@@ -604,12 +674,25 @@ class _QuickExerciseEditPanelState extends State<_QuickExerciseEditPanel> {
             child: ElevatedButton(
               onPressed: isSaving ? null : _save,
               style: ElevatedButton.styleFrom(
-                  backgroundColor: theme.colorScheme.primary,
-                  foregroundColor: theme.colorScheme.onPrimary,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
-              child: isSaving 
-                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                : const Text('SALVA MODIFICHE', style: TextStyle(fontWeight: FontWeight.bold)),
+                backgroundColor: theme.colorScheme.primary,
+                foregroundColor: theme.colorScheme.onPrimary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+              child: isSaving
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : const Text(
+                      'SALVA MODIFICHE',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
             ),
           ),
         ],
@@ -619,12 +702,15 @@ class _QuickExerciseEditPanelState extends State<_QuickExerciseEditPanel> {
 }
 
 class _MiniInput extends StatelessWidget {
+  const _MiniInput({
+    required this.controller,
+    required this.label,
+    required this.onChanged,
+  });
+
   final TextEditingController controller;
   final String label;
-  final Function(String) onChanged;
-
-  const _MiniInput(
-      {required this.controller, required this.label, required this.onChanged});
+  final void Function(String) onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -644,7 +730,8 @@ class _MiniInput extends StatelessWidget {
 }
 
 class _ExerciseSetData {
+  _ExerciseSetData({required this.weight, required this.reps});
+
   double weight;
   int reps;
-  _ExerciseSetData({required this.weight, required this.reps});
 }

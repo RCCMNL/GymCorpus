@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "996703301991",
+    "project_id": "gymcorpus-project",
+    "storage_bucket": "gymcorpus-project.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:996703301991:android:7005bdeceb97f161947fc2",
+        "android_client_info": {
+          "package_name": "com.example.gym_corpus"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAm3se1v64P8NpSOwSnQccfVf3SjRJ0s9o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

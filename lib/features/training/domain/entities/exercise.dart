@@ -1,19 +1,6 @@
 import 'package:equatable/equatable.dart';
 
 class ExerciseEntity extends Equatable {
-  final int id;
-  final String name;
-  final String targetMuscle;
-  final String? referenceVideoUrl;
-  final String? imageUrl;
-  final String? equipment;
-  final String? focusArea;
-  final String? preparation;
-  final String? execution;
-  final String? tips;
-  final bool isVector;
-  final bool isFavorite;
-
   const ExerciseEntity({
     required this.id,
     required this.name,
@@ -28,6 +15,19 @@ class ExerciseEntity extends Equatable {
     this.isVector = false,
     this.isFavorite = false,
   });
+
+  final int id;
+  final String name;
+  final String targetMuscle;
+  final String? referenceVideoUrl;
+  final String? imageUrl;
+  final String? equipment;
+  final String? focusArea;
+  final String? preparation;
+  final String? execution;
+  final String? tips;
+  final bool isVector;
+  final bool isFavorite;
 
   @override
   List<Object?> get props => [
@@ -47,6 +47,16 @@ class ExerciseEntity extends Equatable {
 }
 
 class WorkoutSetEntity extends Equatable {
+  const WorkoutSetEntity({
+    required this.id,
+    required this.workoutId,
+    required this.exerciseId,
+    required this.reps,
+    required this.weight,
+    required this.timestamp,
+    this.rpe,
+  });
+
   final int id;
   final int workoutId;
   final int exerciseId;
@@ -54,16 +64,6 @@ class WorkoutSetEntity extends Equatable {
   final double weight;
   final int? rpe;
   final DateTime timestamp;
-
-  const WorkoutSetEntity({
-    required this.id,
-    required this.workoutId,
-    required this.exerciseId,
-    required this.reps,
-    required this.weight,
-    this.rpe,
-    required this.timestamp,
-  });
 
   @override
   List<Object?> get props => [id, workoutId, exerciseId, reps, weight, rpe, timestamp];

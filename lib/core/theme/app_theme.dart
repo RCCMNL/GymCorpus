@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/stitch_colors.dart';
+import 'package:gym_corpus/core/theme/stitch_spacing.dart';
 
 class AppTheme {
   // Stitch Design System - Deep Navy & Neon Blue
@@ -18,6 +20,10 @@ class AppTheme {
       useMaterial3: true,
       brightness: Brightness.dark,
       scaffoldBackgroundColor: _background,
+      extensions: const [
+        StitchColors.dark,
+        StitchSpacing.standard,
+      ],
       colorScheme: const ColorScheme.dark(
         primary: _primary,
         onPrimary: Color(0xFF00257B),
@@ -81,7 +87,7 @@ class AppTheme {
           fontFamily: 'Lexend',
           fontWeight: FontWeight.w900,
           color: _primary,
-          letterSpacing: -1.0,
+          letterSpacing: -1,
         ),
         headlineMedium: TextStyle(
           fontFamily: 'Lexend',
