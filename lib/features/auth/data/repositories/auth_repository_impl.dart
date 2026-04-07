@@ -29,6 +29,7 @@ class AuthRepositoryImpl implements AuthRepository {
       id: user.uid,
       name: user.displayName ?? 'Atleta Gym',
       email: user.email ?? '',
+      photoUrl: user.photoURL,
     );
   }
 
@@ -178,6 +179,111 @@ class AuthRepositoryImpl implements AuthRepository {
         return Right(user);
       }
       return const Left(AuthFailure('Impossibile accedere con Apple'));
+    } catch (e) {
+      return Left(AuthFailure(e.toString()));
+    }
+  }
+  @override
+  Future<Either<Failure, UserEntity>> updateProfileImage(String filePath) async {
+    try {
+      final user = _firebaseAuth.currentUser;
+      if (user != null) {
+        await user.updatePhotoURL(filePath);
+        await user.reload();
+        
+        final currentUser = await _localDataSource.getUserSession() ?? _mapFirebaseUser(user);
+        final updatedUser = UserEntity(
+          id: currentUser.id,
+          name: currentUser.name,
+          email: currentUser.email,
+          photoUrl: filePath,
+          username: currentUser.username,
+          weight: currentUser.weight,
+          height: currentUser.height,
+          birthDate: currentUser.birthDate,
+          trainingObjective: currentUser.trainingObjective,
+        );
+        
+        await _localDataSource.saveUserSession(updatedUser);
+        return Right(updatedUser);
+      }
+      return const Left(AuthFailure('Utente non autenticato'));
+    } catch (e) {
+      return Left(AuthFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, UserEntity>> updateProfileDetails({
+    String? name,
+    String? username,
+    double? weight,
+    double? height,
+    DateTime? birthDate,
+    String? trainingObjective,
+  }) async {
+    try {
+      final user = _firebaseAuth.currentUser;
+      if (user != null) {
+        if (name != null) {
+          await user.updateDisplayName(name);
+        }
+        
+        final currentUser = await _localDataSource.getUserSession() ?? _mapFirebaseUser(user);
+        
+        final updatedUser = UserEntity(
+          id: currentUser.id,
+          name: name ?? currentUser.name,
+          email: currentUser.email,
+          photoUrl: currentUser.photoUrl,
+          username: username ?? currentUser.username,
+          weight: weight ?? currentUser.weight,
+          height: height ?? currentUser.height,
+          birthDate: birthDate ?? currentUser.birthDate,
+          trainingObjective: trainingObjective ?? currentUser.trainingObjective,
+        );
+        
+        await _localDataSource.saveUserSession(updatedUser);
+        return Right(updatedUser);
+      }
+      return const Left(AuthFailure('Utente non autenticato'));
+    } catch (e) {
+      return Left(AuthFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> changePassword(String currentPassword, String newPassword) async {
+    try {
+      final user = _firebaseAuth.currentUser;
+      if (user == null) return const Left(AuthFailure('Nessun utente autenticato'));
+      
+      final email = user.email!;
+      final cred = EmailAuthProvider.credential(email: email, password: currentPassword);
+      
+      await user.reauthenticateWithCredential(cred);
+      await user.updatePassword(newPassword);
+      
+      return const Right(null);
+    } on FirebaseAuthException catch (e) {
+      return Left(AuthFailure(e.message ?? 'Errore cambio password'));
+    } catch (e) {
+      return Left(AuthFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> deleteAccount() async {
+    try {
+      final user = _firebaseAuth.currentUser;
+      if (user == null) return const Left(AuthFailure('Nessun utente autenticato'));
+      
+      await user.delete();
+      await _localDataSource.clearSession();
+      
+      return const Right(null);
+    } on FirebaseAuthException catch (e) {
+      return Left(AuthFailure(e.message ?? 'Errore eliminazione account'));
     } catch (e) {
       return Left(AuthFailure(e.toString()));
     }

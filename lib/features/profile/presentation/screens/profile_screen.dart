@@ -1,9 +1,15 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_event.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
+import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
+import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
+import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -25,7 +31,7 @@ class ProfileScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Settings',
+                    'Profilo',
                     style: theme.textTheme.headlineLarge?.copyWith(
                       fontSize: 26,
                       fontWeight: FontWeight.bold,
@@ -53,45 +59,81 @@ class ProfileScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(24),
                   border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.1)),
                 ),
-                child: Row(
-                  children: [
-                    Stack(
+                child: BlocBuilder<AuthBloc, AuthState>(
+                  builder: (context, state) {
+                    final user = state.maybeWhen(
+                      authenticated: (user) => user,
+                      orElse: () => null,
+                    );
+                    final userName = user?.name ?? 'Guest';
+                    final photoUrl = user?.photoUrl;
+
+                    return Row(
                       children: [
-                        Container(
-                          width: 80,
-                          height: 80,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: theme.colorScheme.surfaceContainerHighest,
-                            border: Border.all(color: theme.colorScheme.primary, width: 2),
+                        GestureDetector(
+                          onTap: () async {
+                            final picker = ImagePicker();
+                            final image = await picker.pickImage(
+                              source: ImageSource.gallery,
+                              maxWidth: 512,
+                              maxHeight: 512,
+                              imageQuality: 75,
+                            );
+
+                            if (image != null && context.mounted) {
+                              context.read<AuthBloc>().add(
+                                    AuthEvent.updateProfileImageRequested(
+                                      filePath: image.path,
+                                    ),
+                                  );
+                            }
+                          },
+                          child: Stack(
+                            children: [
+                              Container(
+                                width: 80,
+                                height: 80,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: theme.colorScheme.surfaceContainerHighest,
+                                  border: Border.all(color: theme.colorScheme.primary, width: 2),
+                                  image: photoUrl != null
+                                      ? DecorationImage(
+                                          image: photoUrl.startsWith('http')
+                                              ? NetworkImage(photoUrl)
+                                              : FileImage(File(photoUrl)) as ImageProvider,
+                                          fit: BoxFit.cover,
+                                        )
+                                      : null,
+                                ),
+                                child: photoUrl == null
+                                    ? Icon(Icons.person, color: theme.colorScheme.primary, size: 40)
+                                    : null,
+                              ),
+                              Positioned(
+                                bottom: 0,
+                                right: 0,
+                                child: Container(
+                                  width: 28,
+                                  height: 28,
+                                  decoration: BoxDecoration(
+                                    color: theme.colorScheme.tertiary,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(color: theme.colorScheme.surface, width: 4),
+                                  ),
+                                  child: Icon(
+                                    photoUrl != null ? Icons.edit : Icons.add_a_photo,
+                                    size: 12,
+                                    color: theme.colorScheme.onTertiaryContainer,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                          child: Icon(Icons.person, color: theme.colorScheme.primary, size: 40),
                         ),
-                        Positioned(
-                          bottom: 0,
-                          right: 0,
-                          child: Container(
-                            width: 28,
-                            height: 28,
-                            decoration: BoxDecoration(
-                              color: theme.colorScheme.tertiary,
-                              shape: BoxShape.circle,
-                              border: Border.all(color: theme.colorScheme.surface, width: 4),
-                            ),
-                            child: Icon(Icons.verified, size: 12, color: theme.colorScheme.onTertiaryContainer),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(width: 24),
-                    Expanded(
-                      child: BlocBuilder<AuthBloc, AuthState>(
-                        builder: (context, state) {
-                          final userName = state.maybeWhen(
-                            authenticated: (user) => user.name,
-                            orElse: () => 'Guest',
-                          );
-                          return Column(
+                        const SizedBox(width: 24),
+                        Expanded(
+                          child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
@@ -100,32 +142,42 @@ class ProfileScreen extends StatelessWidget {
                                   fontWeight: FontWeight.bold,
                                   fontFamily: 'Lexend',
                                 ),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
                               ),
                               Text(
-                                'LIVELLO 1 • IN SVILUPPO',
+                                user?.username != null ? '@${user!.username}' : 'LIVELLO 1',
                                 style: theme.textTheme.labelSmall?.copyWith(
                                   color: theme.colorScheme.outline,
                                   letterSpacing: 1.2,
                                 ),
                               ),
                             ],
-                          );
-                        },
-                      ),
-                    ),
-                  ],
+                          ),
+                        ),
+                      ],
+                    );
+                  },
                 ),
               ),
 
               const SizedBox(height: 32),
 
               // Account Section
-              const _ProfileSection(
-                title: 'Account (In Sviluppo)',
+              _ProfileSection(
+                title: 'Account',
                 items: [
-                  _ProfileItem(icon: Icons.person, label: 'Modifica Profilo'),
-                  _ProfileItem(icon: Icons.lock, label: 'Sicurezza'),
                   _ProfileItem(
+                    icon: Icons.person, 
+                    label: 'Modifica Profilo',
+                    onTap: () => context.push('/profile/edit'),
+                  ),
+                  _ProfileItem(
+                    icon: Icons.lock, 
+                    label: 'Sicurezza',
+                    onTap: () => context.push('/profile/security'),
+                  ),
+                  const _ProfileItem(
                     icon: Icons.workspace_premium,
                     label: 'Abbonamento',
                     trailingText: 'FREE',
@@ -135,27 +187,38 @@ class ProfileScreen extends StatelessWidget {
               ),
 
               // Training Settings
-              _ProfileSection(
-                title: 'Impostazioni Allenamento',
-                items: [
-                  _ProfileItem(
-                    icon: Icons.timer,
-                    label: 'Timer di Recupero',
-                    trailingText: '90s (Legacy)',
-                    onEdit: () {},
-                  ),
-                  const _ProfileItem(
-                    icon: Icons.straighten,
-                    label: 'Units',
-                    trailingText: 'Metric / KG',
-                  ),
-                  const _ProfileItem(
-                    icon: Icons.sync,
-                    label: 'Sync with Health Apps',
-                    hasSwitch: true,
-                    switchValue: true,
-                  ),
-                ],
+              BlocBuilder<TrainingBloc, TrainingState>(
+                builder: (context, state) {
+                  final settings = state is TrainingLoaded ? state.settings : <String, String>{};
+                  final restTimer = settings['rest_timer'] ?? '90';
+                  final unit = settings['units'] ?? 'KG';
+
+                  return _ProfileSection(
+                    title: 'Impostazioni Allenamento',
+                    items: [
+                      _ProfileItem(
+                        icon: Icons.timer,
+                        label: 'Timer di Recupero',
+                        trailingText: '${restTimer}s',
+                        onEdit: () => _showTimerDialog(context, restTimer),
+                      ),
+                      _ProfileItem(
+                        icon: Icons.straighten,
+                        label: 'Unità di Misura',
+                        trailingText: 'Metric / $unit',
+                        onTap: () {
+                           final nextUnit = unit == 'KG' ? 'LB' : 'KG';
+                           context.read<TrainingBloc>().add(UpdatePreferenceEvent('units', nextUnit));
+                        },
+                      ),
+                      _ProfileItem(
+                        icon: Icons.sync,
+                        label: 'Integrazioni Salute',
+                        onTap: () => context.push('/profile/integrations'),
+                      ),
+                    ],
+                  );
+                },
               ),
 
               // App Preferences
@@ -171,7 +234,7 @@ class ProfileScreen extends StatelessWidget {
                   _ProfileItem(
                     icon: Icons.language,
                     label: 'Language',
-                    trailingText: 'English',
+                    trailingText: 'Italiano',
                   ),
                 ],
               ),
@@ -220,6 +283,34 @@ class ProfileScreen extends StatelessWidget {
       ),
     );
   }
+
+  void _showTimerDialog(BuildContext context, String currentTimer) {
+    final controller = TextEditingController(text: currentTimer);
+    final theme = Theme.of(context);
+    
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: theme.colorScheme.surface,
+        title: const Text('Timer di Recupero', style: TextStyle(fontFamily: 'Lexend')),
+        content: TextField(
+          controller: controller,
+          keyboardType: TextInputType.number,
+          decoration: const InputDecoration(suffixText: 'secondi'),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('ANNULLA')),
+          ElevatedButton(
+            onPressed: () {
+              context.read<TrainingBloc>().add(UpdatePreferenceEvent('rest_timer', controller.text));
+              Navigator.pop(context);
+            },
+            child: const Text('SALVA'),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _ProfileSection extends StatelessWidget {
@@ -256,7 +347,7 @@ class _ProfileSection extends StatelessWidget {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: items.length,
-              separatorBuilder: (context, index) => const SizedBox(height: 0), // No-Line rule: No visible dividers.
+              separatorBuilder: (context, index) => const SizedBox(height: 0),
               itemBuilder: (context, index) => items[index],
             ),
           ),
@@ -273,9 +364,8 @@ class _ProfileItem extends StatelessWidget {
     this.trailingText,
     this.isBadge = false,
     this.isExternal = false,
-    this.hasSwitch = false,
-    this.switchValue = false,
     this.onEdit,
+    this.onTap,
   });
 
   final IconData icon;
@@ -283,9 +373,8 @@ class _ProfileItem extends StatelessWidget {
   final String? trailingText;
   final bool isBadge;
   final bool isExternal;
-  final bool hasSwitch;
-  final bool switchValue;
   final VoidCallback? onEdit;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -293,7 +382,7 @@ class _ProfileItem extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: hasSwitch ? null : () {},
+        onTap: onTap ?? onEdit,
         borderRadius: BorderRadius.circular(20),
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -340,13 +429,7 @@ class _ProfileItem extends StatelessWidget {
                   color: theme.colorScheme.outline,
                   onPressed: onEdit,
                 ),
-              if (hasSwitch)
-                Switch(
-                  value: switchValue,
-                  onChanged: (v) {},
-                  activeThumbColor: theme.colorScheme.primary,
-                ),
-              if (!hasSwitch && !isBadge && onEdit == null)
+              if (onEdit == null && !isBadge)
                 Icon(
                   isExternal ? Icons.open_in_new : Icons.chevron_right,
                   color: theme.colorScheme.outline,

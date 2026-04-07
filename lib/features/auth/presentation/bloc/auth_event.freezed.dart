@@ -57,6 +57,11 @@ extension AuthEventPatterns on AuthEvent {
     TResult Function(_GoogleSignInRequested value)? googleSignInRequested,
     TResult Function(_AppleSignInRequested value)? appleSignInRequested,
     TResult Function(_LogoutRequested value)? logoutRequested,
+    TResult Function(_UpdateProfileImageRequested value)?
+        updateProfileImageRequested,
+    TResult Function(_UpdateProfileRequested value)? updateProfileRequested,
+    TResult Function(_ChangePasswordRequested value)? changePasswordRequested,
+    TResult Function(_DeleteAccountRequested value)? deleteAccountRequested,
     required TResult orElse(),
   }) {
     final _that = this;
@@ -75,6 +80,15 @@ extension AuthEventPatterns on AuthEvent {
         return appleSignInRequested(_that);
       case _LogoutRequested() when logoutRequested != null:
         return logoutRequested(_that);
+      case _UpdateProfileImageRequested()
+          when updateProfileImageRequested != null:
+        return updateProfileImageRequested(_that);
+      case _UpdateProfileRequested() when updateProfileRequested != null:
+        return updateProfileRequested(_that);
+      case _ChangePasswordRequested() when changePasswordRequested != null:
+        return changePasswordRequested(_that);
+      case _DeleteAccountRequested() when deleteAccountRequested != null:
+        return deleteAccountRequested(_that);
       case _:
         return orElse();
     }
@@ -105,6 +119,14 @@ extension AuthEventPatterns on AuthEvent {
         googleSignInRequested,
     required TResult Function(_AppleSignInRequested value) appleSignInRequested,
     required TResult Function(_LogoutRequested value) logoutRequested,
+    required TResult Function(_UpdateProfileImageRequested value)
+        updateProfileImageRequested,
+    required TResult Function(_UpdateProfileRequested value)
+        updateProfileRequested,
+    required TResult Function(_ChangePasswordRequested value)
+        changePasswordRequested,
+    required TResult Function(_DeleteAccountRequested value)
+        deleteAccountRequested,
   }) {
     final _that = this;
     switch (_that) {
@@ -122,6 +144,14 @@ extension AuthEventPatterns on AuthEvent {
         return appleSignInRequested(_that);
       case _LogoutRequested():
         return logoutRequested(_that);
+      case _UpdateProfileImageRequested():
+        return updateProfileImageRequested(_that);
+      case _UpdateProfileRequested():
+        return updateProfileRequested(_that);
+      case _ChangePasswordRequested():
+        return changePasswordRequested(_that);
+      case _DeleteAccountRequested():
+        return deleteAccountRequested(_that);
       case _:
         throw StateError('Unexpected subclass');
     }
@@ -148,6 +178,11 @@ extension AuthEventPatterns on AuthEvent {
     TResult? Function(_GoogleSignInRequested value)? googleSignInRequested,
     TResult? Function(_AppleSignInRequested value)? appleSignInRequested,
     TResult? Function(_LogoutRequested value)? logoutRequested,
+    TResult? Function(_UpdateProfileImageRequested value)?
+        updateProfileImageRequested,
+    TResult? Function(_UpdateProfileRequested value)? updateProfileRequested,
+    TResult? Function(_ChangePasswordRequested value)? changePasswordRequested,
+    TResult? Function(_DeleteAccountRequested value)? deleteAccountRequested,
   }) {
     final _that = this;
     switch (_that) {
@@ -165,6 +200,15 @@ extension AuthEventPatterns on AuthEvent {
         return appleSignInRequested(_that);
       case _LogoutRequested() when logoutRequested != null:
         return logoutRequested(_that);
+      case _UpdateProfileImageRequested()
+          when updateProfileImageRequested != null:
+        return updateProfileImageRequested(_that);
+      case _UpdateProfileRequested() when updateProfileRequested != null:
+        return updateProfileRequested(_that);
+      case _ChangePasswordRequested() when changePasswordRequested != null:
+        return changePasswordRequested(_that);
+      case _DeleteAccountRequested() when deleteAccountRequested != null:
+        return deleteAccountRequested(_that);
       case _:
         return null;
     }
@@ -191,6 +235,13 @@ extension AuthEventPatterns on AuthEvent {
     TResult Function()? googleSignInRequested,
     TResult Function()? appleSignInRequested,
     TResult Function()? logoutRequested,
+    TResult Function(String filePath)? updateProfileImageRequested,
+    TResult Function(String? name, String? username, double? weight,
+            double? height, DateTime? birthDate, String? trainingObjective)?
+        updateProfileRequested,
+    TResult Function(String currentPassword, String newPassword)?
+        changePasswordRequested,
+    TResult Function()? deleteAccountRequested,
     required TResult orElse(),
   }) {
     final _that = this;
@@ -209,6 +260,17 @@ extension AuthEventPatterns on AuthEvent {
         return appleSignInRequested();
       case _LogoutRequested() when logoutRequested != null:
         return logoutRequested();
+      case _UpdateProfileImageRequested()
+          when updateProfileImageRequested != null:
+        return updateProfileImageRequested(_that.filePath);
+      case _UpdateProfileRequested() when updateProfileRequested != null:
+        return updateProfileRequested(_that.name, _that.username, _that.weight,
+            _that.height, _that.birthDate, _that.trainingObjective);
+      case _ChangePasswordRequested() when changePasswordRequested != null:
+        return changePasswordRequested(
+            _that.currentPassword, _that.newPassword);
+      case _DeleteAccountRequested() when deleteAccountRequested != null:
+        return deleteAccountRequested();
       case _:
         return orElse();
     }
@@ -236,6 +298,13 @@ extension AuthEventPatterns on AuthEvent {
     required TResult Function() googleSignInRequested,
     required TResult Function() appleSignInRequested,
     required TResult Function() logoutRequested,
+    required TResult Function(String filePath) updateProfileImageRequested,
+    required TResult Function(String? name, String? username, double? weight,
+            double? height, DateTime? birthDate, String? trainingObjective)
+        updateProfileRequested,
+    required TResult Function(String currentPassword, String newPassword)
+        changePasswordRequested,
+    required TResult Function() deleteAccountRequested,
   }) {
     final _that = this;
     switch (_that) {
@@ -253,6 +322,16 @@ extension AuthEventPatterns on AuthEvent {
         return appleSignInRequested();
       case _LogoutRequested():
         return logoutRequested();
+      case _UpdateProfileImageRequested():
+        return updateProfileImageRequested(_that.filePath);
+      case _UpdateProfileRequested():
+        return updateProfileRequested(_that.name, _that.username, _that.weight,
+            _that.height, _that.birthDate, _that.trainingObjective);
+      case _ChangePasswordRequested():
+        return changePasswordRequested(
+            _that.currentPassword, _that.newPassword);
+      case _DeleteAccountRequested():
+        return deleteAccountRequested();
       case _:
         throw StateError('Unexpected subclass');
     }
@@ -279,6 +358,13 @@ extension AuthEventPatterns on AuthEvent {
     TResult? Function()? googleSignInRequested,
     TResult? Function()? appleSignInRequested,
     TResult? Function()? logoutRequested,
+    TResult? Function(String filePath)? updateProfileImageRequested,
+    TResult? Function(String? name, String? username, double? weight,
+            double? height, DateTime? birthDate, String? trainingObjective)?
+        updateProfileRequested,
+    TResult? Function(String currentPassword, String newPassword)?
+        changePasswordRequested,
+    TResult? Function()? deleteAccountRequested,
   }) {
     final _that = this;
     switch (_that) {
@@ -296,6 +382,17 @@ extension AuthEventPatterns on AuthEvent {
         return appleSignInRequested();
       case _LogoutRequested() when logoutRequested != null:
         return logoutRequested();
+      case _UpdateProfileImageRequested()
+          when updateProfileImageRequested != null:
+        return updateProfileImageRequested(_that.filePath);
+      case _UpdateProfileRequested() when updateProfileRequested != null:
+        return updateProfileRequested(_that.name, _that.username, _that.weight,
+            _that.height, _that.birthDate, _that.trainingObjective);
+      case _ChangePasswordRequested() when changePasswordRequested != null:
+        return changePasswordRequested(
+            _that.currentPassword, _that.newPassword);
+      case _DeleteAccountRequested() when deleteAccountRequested != null:
+        return deleteAccountRequested();
       case _:
         return null;
     }
@@ -588,6 +685,284 @@ class _LogoutRequested implements AuthEvent {
   @override
   String toString() {
     return 'AuthEvent.logoutRequested()';
+  }
+}
+
+/// @nodoc
+
+class _UpdateProfileImageRequested implements AuthEvent {
+  const _UpdateProfileImageRequested({required this.filePath});
+
+  final String filePath;
+
+  /// Create a copy of AuthEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  _$UpdateProfileImageRequestedCopyWith<_UpdateProfileImageRequested>
+      get copyWith => __$UpdateProfileImageRequestedCopyWithImpl<
+          _UpdateProfileImageRequested>(this, _$identity);
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _UpdateProfileImageRequested &&
+            (identical(other.filePath, filePath) ||
+                other.filePath == filePath));
+  }
+
+  @override
+  int get hashCode => Object.hash(runtimeType, filePath);
+
+  @override
+  String toString() {
+    return 'AuthEvent.updateProfileImageRequested(filePath: $filePath)';
+  }
+}
+
+/// @nodoc
+abstract mixin class _$UpdateProfileImageRequestedCopyWith<$Res>
+    implements $AuthEventCopyWith<$Res> {
+  factory _$UpdateProfileImageRequestedCopyWith(
+          _UpdateProfileImageRequested value,
+          $Res Function(_UpdateProfileImageRequested) _then) =
+      __$UpdateProfileImageRequestedCopyWithImpl;
+  @useResult
+  $Res call({String filePath});
+}
+
+/// @nodoc
+class __$UpdateProfileImageRequestedCopyWithImpl<$Res>
+    implements _$UpdateProfileImageRequestedCopyWith<$Res> {
+  __$UpdateProfileImageRequestedCopyWithImpl(this._self, this._then);
+
+  final _UpdateProfileImageRequested _self;
+  final $Res Function(_UpdateProfileImageRequested) _then;
+
+  /// Create a copy of AuthEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  $Res call({
+    Object? filePath = null,
+  }) {
+    return _then(_UpdateProfileImageRequested(
+      filePath: null == filePath
+          ? _self.filePath
+          : filePath // ignore: cast_nullable_to_non_nullable
+              as String,
+    ));
+  }
+}
+
+/// @nodoc
+
+class _UpdateProfileRequested implements AuthEvent {
+  const _UpdateProfileRequested(
+      {this.name,
+      this.username,
+      this.weight,
+      this.height,
+      this.birthDate,
+      this.trainingObjective});
+
+  final String? name;
+  final String? username;
+  final double? weight;
+  final double? height;
+  final DateTime? birthDate;
+  final String? trainingObjective;
+
+  /// Create a copy of AuthEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  _$UpdateProfileRequestedCopyWith<_UpdateProfileRequested> get copyWith =>
+      __$UpdateProfileRequestedCopyWithImpl<_UpdateProfileRequested>(
+          this, _$identity);
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _UpdateProfileRequested &&
+            (identical(other.name, name) || other.name == name) &&
+            (identical(other.username, username) ||
+                other.username == username) &&
+            (identical(other.weight, weight) || other.weight == weight) &&
+            (identical(other.height, height) || other.height == height) &&
+            (identical(other.birthDate, birthDate) ||
+                other.birthDate == birthDate) &&
+            (identical(other.trainingObjective, trainingObjective) ||
+                other.trainingObjective == trainingObjective));
+  }
+
+  @override
+  int get hashCode => Object.hash(runtimeType, name, username, weight, height,
+      birthDate, trainingObjective);
+
+  @override
+  String toString() {
+    return 'AuthEvent.updateProfileRequested(name: $name, username: $username, weight: $weight, height: $height, birthDate: $birthDate, trainingObjective: $trainingObjective)';
+  }
+}
+
+/// @nodoc
+abstract mixin class _$UpdateProfileRequestedCopyWith<$Res>
+    implements $AuthEventCopyWith<$Res> {
+  factory _$UpdateProfileRequestedCopyWith(_UpdateProfileRequested value,
+          $Res Function(_UpdateProfileRequested) _then) =
+      __$UpdateProfileRequestedCopyWithImpl;
+  @useResult
+  $Res call(
+      {String? name,
+      String? username,
+      double? weight,
+      double? height,
+      DateTime? birthDate,
+      String? trainingObjective});
+}
+
+/// @nodoc
+class __$UpdateProfileRequestedCopyWithImpl<$Res>
+    implements _$UpdateProfileRequestedCopyWith<$Res> {
+  __$UpdateProfileRequestedCopyWithImpl(this._self, this._then);
+
+  final _UpdateProfileRequested _self;
+  final $Res Function(_UpdateProfileRequested) _then;
+
+  /// Create a copy of AuthEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  $Res call({
+    Object? name = freezed,
+    Object? username = freezed,
+    Object? weight = freezed,
+    Object? height = freezed,
+    Object? birthDate = freezed,
+    Object? trainingObjective = freezed,
+  }) {
+    return _then(_UpdateProfileRequested(
+      name: freezed == name
+          ? _self.name
+          : name // ignore: cast_nullable_to_non_nullable
+              as String?,
+      username: freezed == username
+          ? _self.username
+          : username // ignore: cast_nullable_to_non_nullable
+              as String?,
+      weight: freezed == weight
+          ? _self.weight
+          : weight // ignore: cast_nullable_to_non_nullable
+              as double?,
+      height: freezed == height
+          ? _self.height
+          : height // ignore: cast_nullable_to_non_nullable
+              as double?,
+      birthDate: freezed == birthDate
+          ? _self.birthDate
+          : birthDate // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      trainingObjective: freezed == trainingObjective
+          ? _self.trainingObjective
+          : trainingObjective // ignore: cast_nullable_to_non_nullable
+              as String?,
+    ));
+  }
+}
+
+/// @nodoc
+
+class _ChangePasswordRequested implements AuthEvent {
+  const _ChangePasswordRequested(
+      {required this.currentPassword, required this.newPassword});
+
+  final String currentPassword;
+  final String newPassword;
+
+  /// Create a copy of AuthEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  _$ChangePasswordRequestedCopyWith<_ChangePasswordRequested> get copyWith =>
+      __$ChangePasswordRequestedCopyWithImpl<_ChangePasswordRequested>(
+          this, _$identity);
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _ChangePasswordRequested &&
+            (identical(other.currentPassword, currentPassword) ||
+                other.currentPassword == currentPassword) &&
+            (identical(other.newPassword, newPassword) ||
+                other.newPassword == newPassword));
+  }
+
+  @override
+  int get hashCode => Object.hash(runtimeType, currentPassword, newPassword);
+
+  @override
+  String toString() {
+    return 'AuthEvent.changePasswordRequested(currentPassword: $currentPassword, newPassword: $newPassword)';
+  }
+}
+
+/// @nodoc
+abstract mixin class _$ChangePasswordRequestedCopyWith<$Res>
+    implements $AuthEventCopyWith<$Res> {
+  factory _$ChangePasswordRequestedCopyWith(_ChangePasswordRequested value,
+          $Res Function(_ChangePasswordRequested) _then) =
+      __$ChangePasswordRequestedCopyWithImpl;
+  @useResult
+  $Res call({String currentPassword, String newPassword});
+}
+
+/// @nodoc
+class __$ChangePasswordRequestedCopyWithImpl<$Res>
+    implements _$ChangePasswordRequestedCopyWith<$Res> {
+  __$ChangePasswordRequestedCopyWithImpl(this._self, this._then);
+
+  final _ChangePasswordRequested _self;
+  final $Res Function(_ChangePasswordRequested) _then;
+
+  /// Create a copy of AuthEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  $Res call({
+    Object? currentPassword = null,
+    Object? newPassword = null,
+  }) {
+    return _then(_ChangePasswordRequested(
+      currentPassword: null == currentPassword
+          ? _self.currentPassword
+          : currentPassword // ignore: cast_nullable_to_non_nullable
+              as String,
+      newPassword: null == newPassword
+          ? _self.newPassword
+          : newPassword // ignore: cast_nullable_to_non_nullable
+              as String,
+    ));
+  }
+}
+
+/// @nodoc
+
+class _DeleteAccountRequested implements AuthEvent {
+  const _DeleteAccountRequested();
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType && other is _DeleteAccountRequested);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  String toString() {
+    return 'AuthEvent.deleteAccountRequested()';
   }
 }
 

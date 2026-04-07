@@ -16,6 +16,18 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         googleSignInRequested: (e) async => _onGoogleSignIn(emit),
         appleSignInRequested: (e) async => _onAppleSignIn(emit),
         logoutRequested: (e) async => _onLogout(emit),
+        updateProfileImageRequested: (e) async => _onUpdateProfileImage(e.filePath, emit),
+        updateProfileRequested: (e) async => _onUpdateProfile(
+          name: e.name,
+          username: e.username,
+          weight: e.weight,
+          height: e.height,
+          birthDate: e.birthDate,
+          trainingObjective: e.trainingObjective,
+          emit: emit,
+        ),
+        changePasswordRequested: (e) async => _onChangePassword(e.currentPassword, e.newPassword, emit),
+        deleteAccountRequested: (e) async => _onDeleteAccount(emit),
       );
     });
   }
@@ -77,8 +89,61 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   Future<void> _onLogout(Emitter<AuthState> emit) async {
-    emit(const AuthState.loading());
     await _repository.logout();
     emit(const AuthState.unauthenticated());
+  }
+
+  Future<void> _onUpdateProfileImage(String filePath, Emitter<AuthState> emit) async {
+    emit(const AuthState.loading());
+    final result = await _repository.updateProfileImage(filePath);
+    result.fold(
+      (failure) => emit(AuthState.error(failure.props.first.toString())),
+      (user) => emit(AuthState.authenticated(user)),
+    );
+  }
+
+  Future<void> _onUpdateProfile({
+    required Emitter<AuthState> emit,
+    String? name,
+    String? username,
+    double? weight,
+    double? height,
+    DateTime? birthDate,
+    String? trainingObjective,
+  }) async {
+    emit(const AuthState.loading());
+    final result = await _repository.updateProfileDetails(
+      name: name,
+      username: username,
+      weight: weight,
+      height: height,
+      birthDate: birthDate,
+      trainingObjective: trainingObjective,
+    );
+    result.fold(
+      (failure) => emit(AuthState.error(failure.props.first.toString())),
+      (user) => emit(AuthState.authenticated(user)),
+    );
+  }
+
+  Future<void> _onChangePassword(String currentPassword, String newPassword, Emitter<AuthState> emit) async {
+    emit(const AuthState.loading());
+    final result = await _repository.changePassword(currentPassword, newPassword);
+    result.fold(
+      (failure) => emit(AuthState.error(failure.props.first.toString())),
+      (_) {
+        // Success - stay authenticated or re-login? Usually stay.
+        add(const AuthEvent.checkSessionRequested());
+      },
+    );
+  }
+
+  Future<void> _onDeleteAccount(Emitter<AuthState> emit) async {
+    emit(const AuthState.loading());
+    final result = await _repository.deleteAccount();
+    result.fold(
+      (failure) => emit(AuthState.error(failure.props.first.toString())),
+      (_) => emit(const AuthState.unauthenticated()),
+    );
   }
 }

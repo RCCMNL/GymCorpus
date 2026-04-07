@@ -10,4 +10,15 @@ abstract class AuthRepository {
   Future<Either<Failure, void>> resetPassword(String email);
   Future<Either<Failure, UserEntity>> signInWithGoogle();
   Future<Either<Failure, UserEntity>> signInWithApple();
+  Future<Either<Failure, UserEntity>> updateProfileImage(String filePath);
+  Future<Either<Failure, UserEntity>> updateProfileDetails({
+    String? name,
+    String? username,
+    double? weight,
+    double? height,
+    DateTime? birthDate,
+    String? trainingObjective,
+  });
+  Future<Either<Failure, void>> changePassword(String currentPassword, String newPassword);
+  Future<Either<Failure, void>> deleteAccount();
 }

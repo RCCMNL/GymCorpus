@@ -22,4 +22,21 @@ class AuthEvent with _$AuthEvent {
   const factory AuthEvent.appleSignInRequested() = _AppleSignInRequested;
 
   const factory AuthEvent.logoutRequested() = _LogoutRequested;
+  const factory AuthEvent.updateProfileImageRequested({required String filePath}) = _UpdateProfileImageRequested;
+
+  const factory AuthEvent.updateProfileRequested({
+    String? name,
+    String? username,
+    double? weight,
+    double? height,
+    DateTime? birthDate,
+    String? trainingObjective,
+  }) = _UpdateProfileRequested;
+
+  const factory AuthEvent.changePasswordRequested({
+    required String currentPassword,
+    required String newPassword,
+  }) = _ChangePasswordRequested;
+
+  const factory AuthEvent.deleteAccountRequested() = _DeleteAccountRequested;
 }

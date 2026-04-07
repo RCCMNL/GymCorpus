@@ -16,7 +16,10 @@ import 'package:gym_corpus/features/auth/presentation/screens/sign_up_screen.dar
 import 'package:gym_corpus/features/auth/presentation/screens/splash_screen.dart';
 import 'package:gym_corpus/features/exercises/presentation/screens/exercise_detail_screen.dart';
 import 'package:gym_corpus/features/exercises/presentation/screens/exercises_screen.dart';
+import 'package:gym_corpus/features/profile/presentation/screens/edit_profile_screen.dart';
+import 'package:gym_corpus/features/profile/presentation/screens/integrations_screen.dart';
 import 'package:gym_corpus/features/profile/presentation/screens/profile_screen.dart';
+import 'package:gym_corpus/features/profile/presentation/screens/security_screen.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
@@ -188,6 +191,20 @@ class _GymAppState extends State<GymApp> {
             GoRoute(
               path: '/profile',
               builder: (context, state) => const ProfileScreen(),
+              routes: [
+                GoRoute(
+                  path: 'edit',
+                  builder: (context, state) => const EditProfileScreen(),
+                ),
+                GoRoute(
+                  path: 'security',
+                  builder: (context, state) => const SecurityScreen(),
+                ),
+                GoRoute(
+                  path: 'integrations',
+                  builder: (context, state) => const IntegrationsScreen(),
+                ),
+              ],
             ),
           ],
         ),
