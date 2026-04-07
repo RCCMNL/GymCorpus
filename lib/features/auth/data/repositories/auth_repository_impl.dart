@@ -91,11 +91,20 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<Failure, UserEntity>> checkSession() async {
     final firebaseUser = _firebaseAuth.currentUser;
+    final cachedUser = await _localDataSource.getUserSession();
+
     if (firebaseUser != null) {
-      return Right(_mapFirebaseUser(firebaseUser));
+      final baseUser = _mapFirebaseUser(firebaseUser);
+      if (cachedUser != null && cachedUser.id == baseUser.id) {
+        // Merge Firebase status with local extended profile
+        return Right(cachedUser.copyWith(
+          name: firebaseUser.displayName ?? cachedUser.name,
+          photoUrl: firebaseUser.photoURL ?? cachedUser.photoUrl,
+        ));
+      }
+      return Right(baseUser);
     }
 
-    final cachedUser = await _localDataSource.getUserSession();
     if (cachedUser != null) {
       return Right(cachedUser);
     }

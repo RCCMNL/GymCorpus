@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
+import 'package:gym_corpus/features/auth/domain/entities/user_entity.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_event.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
@@ -49,11 +50,11 @@ class ProfileScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 12),
 
               // User Profile Quick Card
               Container(
-                padding: const EdgeInsets.all(24),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                 decoration: BoxDecoration(
                   color: theme.colorScheme.surfaceContainerLow,
                   borderRadius: BorderRadius.circular(24),
@@ -131,7 +132,7 @@ class ProfileScreen extends StatelessWidget {
                             ],
                           ),
                         ),
-                        const SizedBox(width: 24),
+                        const SizedBox(width: 12),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -141,13 +142,32 @@ class ProfileScreen extends StatelessWidget {
                                 style: theme.textTheme.headlineSmall?.copyWith(
                                   fontWeight: FontWeight.bold,
                                   fontFamily: 'Lexend',
+                                  fontSize: 22, // Increased for better readability
                                 ),
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
+                                maxLines: 2,
+                                softWrap: true,
                               ),
+                              const SizedBox(height: 8),
+                              _buildPhysicalStats(context, theme, user),
+                              const SizedBox(height: 12),
+                              if (user?.username != null) ...[
+                                Text(
+                                  '@${user!.username}',
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 13,
+                                    fontFamily: 'Lexend',
+                                    color: theme.colorScheme.primary,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                              ],
                               Text(
-                                user?.username != null ? '@${user!.username}' : 'LIVELLO 1',
-                                style: theme.textTheme.labelSmall?.copyWith(
+                                'LIVELLO 1',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 13,
+                                  fontFamily: 'Lexend',
                                   color: theme.colorScheme.outline,
                                   letterSpacing: 1.2,
                                 ),
@@ -159,9 +179,7 @@ class ProfileScreen extends StatelessWidget {
                     );
                   },
                 ),
-              ),
-
-              const SizedBox(height: 32),
+              ), const SizedBox(height: 32),
 
               // Account Section
               _ProfileSection(
@@ -309,6 +327,58 @@ class ProfileScreen extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildPhysicalStats(BuildContext context, ThemeData theme, UserEntity? user) {
+    if (user == null) return const SizedBox.shrink();
+
+    final weight = user.weight != null ? '${user.weight}kg' : '? kg';
+    final heightValue = user.height;
+    final height = heightValue != null ? '${heightValue.toInt()}cm' : '? cm';
+    
+    String age = '? anni';
+    if (user.birthDate != null) {
+      final now = DateTime.now();
+      final birthDate = user.birthDate!;
+      int calculatedAge = now.year - birthDate.year;
+      if (now.month < birthDate.month || (now.month == birthDate.month && now.day < birthDate.day)) {
+        calculatedAge--;
+      }
+      age = '$calculatedAge anni';
+    }
+
+    final hasMissingData = user.weight == null || user.height == null || user.birthDate == null;
+
+    return GestureDetector(
+      onTap: hasMissingData ? () => context.push('/profile/edit') : null,
+      child: Wrap(
+        spacing: 12,
+        runSpacing: 4,
+        children: [
+          _buildStatItem(Icons.monitor_weight_outlined, weight, theme),
+          _buildStatItem(Icons.height, height, theme),
+          _buildStatItem(Icons.cake_outlined, age, theme),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatItem(IconData icon, String value, ThemeData theme) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 16, color: theme.colorScheme.primary.withValues(alpha: 0.7)),
+        const SizedBox(width: 4),
+        Text(
+          value,
+          style: theme.textTheme.bodySmall?.copyWith(
+            fontWeight: FontWeight.w600,
+            fontSize: 13,
+            fontFamily: 'Lexend',
+          ),
+        ),
+      ],
     );
   }
 }
