@@ -117,33 +117,58 @@ class RootScreen extends StatelessWidget {
   Widget _buildNavItem(BuildContext context, int index, IconData icon, String label, int selectedIndex) {
     final theme = Theme.of(context);
     final isSelected = index == selectedIndex;
+    final isTraining = label.toUpperCase() == 'TRAINING';
     
     return GestureDetector(
       onTap: () => _onItemTapped(index, context),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOutCubic,
+        padding: EdgeInsets.symmetric(
+          horizontal: isTraining ? 14 : 10, 
+          vertical: isTraining ? 4 : 6,
+        ),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF3367FF).withValues(alpha: 0.2) : Colors.transparent,
-          borderRadius: BorderRadius.circular(24),
+          color: isSelected 
+              ? (isTraining 
+                  ? const Color(0xFF3367FF) 
+                  : const Color(0xFF3367FF).withValues(alpha: 0.2)) 
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(isTraining ? 20 : 24),
+          boxShadow: isSelected && isTraining ? [
+            BoxShadow(
+              color: const Color(0xFF3367FF).withValues(alpha: 0.4),
+              blurRadius: 15,
+              offset: const Offset(0, 4),
+            ),
+          ] : null,
+          gradient: isSelected && isTraining ? const LinearGradient(
+            colors: [Color(0xFF3367FF), Color(0xFF94AAFF)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ) : null,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               icon,
-              color: isSelected ? const Color(0xFF94AAFF) : theme.colorScheme.outline,
-              size: 22,
+              color: isSelected 
+                  ? (isTraining ? Colors.white : const Color(0xFF94AAFF)) 
+                  : theme.colorScheme.outline.withValues(alpha: isTraining ? 0.8 : 0.5),
+              size: isTraining ? 26 : 22,
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: isTraining ? 2 : 4),
             Text(
               label.toUpperCase(),
               style: TextStyle(
                 fontFamily: 'Lexend',
                 fontSize: 8,
-                fontWeight: FontWeight.w500,
+                fontWeight: isSelected ? FontWeight.w900 : FontWeight.w500,
                 letterSpacing: 0.8,
-                color: isSelected ? const Color(0xFF94AAFF) : theme.colorScheme.outline,
+                color: isSelected 
+                    ? (isTraining ? Colors.white : const Color(0xFF94AAFF)) 
+                    : theme.colorScheme.outline.withValues(alpha: isTraining ? 0.8 : 0.5),
               ),
             ),
           ],

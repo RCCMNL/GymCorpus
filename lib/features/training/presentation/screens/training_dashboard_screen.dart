@@ -24,7 +24,7 @@ class TrainingDashboardScreen extends StatelessWidget {
             return SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
               child: Padding(
-                padding: const EdgeInsets.all(20.0),
+                padding: const EdgeInsets.all(20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -200,8 +200,8 @@ class TrainingDashboardScreen extends StatelessWidget {
       height: 64,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        gradient: LinearGradient(
-          colors: [const Color(0xFF3367FF), const Color(0xFF94AAFF)],
+        gradient: const LinearGradient(
+          colors: [Color(0xFF3367FF), Color(0xFF94AAFF)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -380,7 +380,7 @@ class _WorkoutSelectorModal extends StatelessWidget {
                       final routines = state.routines;
                       if (routines.isEmpty) {
                         return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 60.0, horizontal: 40.0),
+                          padding: const EdgeInsets.symmetric(vertical: 60, horizontal: 40),
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -431,7 +431,7 @@ class _WorkoutSelectorModal extends StatelessWidget {
                     }
                     return const Center(
                       child: Padding(
-                        padding: EdgeInsets.all(60.0),
+                        padding: EdgeInsets.all(60),
                         child: CircularProgressIndicator(),
                       ),
                     );
@@ -542,5 +542,3 @@ class _RoutineCard extends StatelessWidget {
     );
   }
 }
-
-
