@@ -19,16 +19,27 @@ class GymHeader extends StatelessWidget implements PreferredSizeWidget {
             )
           : Padding(
               padding: const EdgeInsets.all(8),
-              child: Icon(Icons.bolt, color: theme.colorScheme.primary, size: 28),
+              child: ShaderMask(
+                shaderCallback: (bounds) => LinearGradient(
+                  colors: [theme.colorScheme.primary, theme.colorScheme.tertiary],
+                ).createShader(bounds),
+                child: const Icon(Icons.bolt, color: Colors.white, size: 28),
+              ),
             ),
-      title: Text(
-        'Gym Corpus',
-        style: theme.textTheme.headlineSmall?.copyWith(
-          fontWeight: FontWeight.w900,
-          letterSpacing: -0.5,
-          fontStyle: FontStyle.italic,
-          fontFamily: 'Lexend',
-          fontSize: 22,
+      title: ShaderMask(
+        shaderCallback: (bounds) => LinearGradient(
+          colors: [theme.colorScheme.primary, theme.colorScheme.tertiary],
+        ).createShader(bounds),
+        child: Text(
+          'Gym Corpus',
+          style: theme.textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.w900,
+            letterSpacing: -0.5,
+            fontStyle: FontStyle.italic,
+            fontFamily: 'Lexend',
+            fontSize: 22,
+            color: Colors.white,
+          ),
         ),
       ),
       centerTitle: false,

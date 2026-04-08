@@ -219,9 +219,40 @@ class _WorkoutCard extends StatelessWidget {
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text('Routine "${routine.title}" eliminata'),
-                  backgroundColor: theme.colorScheme.error,
+                  backgroundColor: Colors.transparent,
+                  elevation: 0,
                   behavior: SnackBarBehavior.floating,
+                  content: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.error,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: theme.colorScheme.error.withValues(alpha: 0.3),
+                          blurRadius: 15,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.delete_forever_rounded, color: Colors.white, size: 24),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            'Routine "${routine.title}" eliminata',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w900,
+                              fontFamily: 'Lexend',
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               );
             },

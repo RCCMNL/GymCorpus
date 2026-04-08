@@ -426,9 +426,41 @@ class _ChangePasswordSheetState extends State<_ChangePasswordSheet> {
     if (mounted) {
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Password aggiornata con successo'),
-          backgroundColor: Colors.green,
+        SnackBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          behavior: SnackBarBehavior.floating,
+          content: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: Colors.green.shade700,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.green.withValues(alpha: 0.3),
+                  blurRadius: 15,
+                  offset: const Offset(0, 5),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.check_circle_outline_rounded, color: Colors.white, size: 24),
+                const SizedBox(width: 12),
+                const Expanded(
+                  child: Text(
+                    'Password aggiornata con successo',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w900,
+                      fontFamily: 'Lexend',
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       );
     }

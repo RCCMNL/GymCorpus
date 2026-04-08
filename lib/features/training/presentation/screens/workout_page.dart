@@ -49,7 +49,33 @@ class _WorkoutPageState extends State<WorkoutPage> {
     var routineName = _nameController.text.trim();
     if (routineName.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a routine name')),
+        SnackBar(
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          behavior: SnackBarBehavior.floating,
+          content: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(colors: [Colors.orangeAccent, Colors.deepOrange]),
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(color: Colors.orangeAccent.withValues(alpha: 0.3), blurRadius: 15, offset: const Offset(0, 5)),
+              ],
+            ),
+            child: const Row(
+              children: [
+                Icon(Icons.warning_amber_rounded, color: Colors.white, size: 24),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Inserisci il nome della routine',
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontFamily: 'Lexend', fontSize: 13),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       );
       return;
     }
@@ -60,7 +86,33 @@ class _WorkoutPageState extends State<WorkoutPage> {
 
     if (_selectedExercises.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please add at least one exercise')),
+        SnackBar(
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          behavior: SnackBarBehavior.floating,
+          content: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(colors: [Colors.orangeAccent, Colors.deepOrange]),
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(color: Colors.orangeAccent.withValues(alpha: 0.3), blurRadius: 15, offset: const Offset(0, 5)),
+              ],
+            ),
+            child: const Row(
+              children: [
+                Icon(Icons.fitness_center_rounded, color: Colors.white, size: 24),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Aggiungi almeno un esercizio',
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontFamily: 'Lexend', fontSize: 13),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       );
       return;
     }
@@ -482,7 +534,7 @@ class _SelectedExerciseTileState extends State<_SelectedExerciseTile> {
 
   void _initControllers() {
     weightControllers = sets
-        .map((s) => TextEditingController(text: s.weight == 0 ? '' : s.weight.toString()))
+        .map((s) => TextEditingController(text: s.weight == 0 ? '' : s.weight.toStringAsFixed(1)))
         .toList();
     repsControllers = sets
         .map((s) => TextEditingController(text: s.reps == 0 ? '' : s.reps.toString()))
@@ -507,7 +559,7 @@ class _SelectedExerciseTileState extends State<_SelectedExerciseTile> {
       sets.add(ExerciseSet(weight: lastWeight, reps: lastReps));
       weightControllers.add(
         TextEditingController(
-          text: lastWeight == 0 ? '' : lastWeight.toString(),
+          text: lastWeight == 0 ? '' : lastWeight.toStringAsFixed(1),
         ),
       );
       repsControllers.add(

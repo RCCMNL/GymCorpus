@@ -162,14 +162,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           width: 24,
                                           height: 24,
                                           decoration: BoxDecoration(
-                                            color: theme.colorScheme.tertiary,
+                                            color: Colors.orangeAccent,
                                             shape: BoxShape.circle,
-                                            border: Border.all(color: theme.colorScheme.surface, width: 3),
+                                            border: Border.all(color: theme.colorScheme.surface, width: 2),
                                           ),
                                           child: Icon(
-                                            photoUrl != null ? Icons.edit : Icons.add_a_photo,
-                                            size: 10,
-                                            color: theme.colorScheme.onTertiaryContainer,
+                                            photoUrl != null ? Icons.edit_rounded : Icons.add_a_photo_rounded,
+                                            size: 11,
+                                            color: Colors.white,
                                           ),
                                         ),
                                       ),
@@ -362,12 +362,71 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ],
                   ),
 
-                  // Support & Legal
-                  const _ProfileSection(
-                    title: 'Support & Legal',
+                  // Community & Feedback
+                  _ProfileSection(
+                    title: 'Community & Feedback',
                     items: [
-                      _ProfileItem(icon: Icons.help, label: 'Help Center', isExternal: true),
-                      _ProfileItem(icon: Icons.gavel, label: 'Terms of Service'),
+                      _ProfileItem(
+                        icon: Icons.star_rounded, 
+                        label: 'Valuta GymCorpus',
+                        onTap: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              backgroundColor: Colors.transparent,
+                              elevation: 0,
+                              behavior: SnackBarBehavior.floating,
+                              content: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                decoration: BoxDecoration(
+                                  gradient: const LinearGradient(
+                                    colors: [Colors.orangeAccent, Colors.deepOrange],
+                                  ),
+                                  borderRadius: BorderRadius.circular(20),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.orange.withValues(alpha: 0.3),
+                                      blurRadius: 15,
+                                      offset: const Offset(0, 5),
+                                    ),
+                                  ],
+                                ),
+                                child: const Row(
+                                  children: [
+                                    Icon(Icons.star_rounded, color: Colors.white, size: 24),
+                                    SizedBox(width: 12),
+                                    Expanded(
+                                      child: Text(
+                                        'Grazie per il supporto! La valutazione Store sarà disponibile a breve.',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w900,
+                                          fontFamily: 'Lexend',
+                                          fontSize: 13,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                      _ProfileItem(
+                        icon: Icons.bug_report_rounded, 
+                        label: 'Segnala un Problema',
+                        onTap: () {},
+                      ),
+                      _ProfileItem(
+                        icon: Icons.gavel_rounded, 
+                        label: 'Termini di Servizio',
+                        onTap: () {},
+                      ),
+                      _ProfileItem(
+                        icon: Icons.privacy_tip_rounded, 
+                        label: 'Privacy Policy',
+                        onTap: () {},
+                      ),
                     ],
                   ),
 
@@ -642,7 +701,7 @@ class _ProfileItem extends StatelessWidget {
                 icon, 
                 color: label == 'Sicurezza' || label == 'Esercizi Preferiti' 
                     ? theme.colorScheme.tertiary 
-                    : theme.colorScheme.primary, 
+                    : (label == 'Valuta GymCorpus' ? Colors.orangeAccent : theme.colorScheme.primary), 
                 size: 24
               ),
               const SizedBox(width: 16),

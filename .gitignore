@@ -1,3 +1,7 @@
+# ----------------------------------------------------------------------------
+# GYMCORPUS - PROFESSIONAL FLUTTER GITIGNORE
+# ----------------------------------------------------------------------------
+
 # Miscellaneous
 *.class
 *.log
@@ -10,36 +14,84 @@
 .history
 .svn/
 .swiftpm/
-migrate_working_dir/
+.project
+.settings/
+.classpath
 
 # IntelliJ related
 *.iml
 *.ipr
 *.iws
 .idea/
+out/
 
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
+# Visual Studio Code related
+.vscode/*
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/settings.json
+!.vscode/tasks.json
 
-# Flutter/Dart/Pub related
-**/doc/api/
-**/ios/Flutter/.last_build_id
+# Flutter / Dart / Pub related
 .dart_tool/
+.flutter-plugins
 .flutter-plugins-dependencies
+.packages
 .pub-cache/
 .pub/
-/build/
-/coverage/
+build/
+coverage/
+lib/generated/
+lib/*.freezed.dart
+lib/*.g.dart
+# Se preferisci committare il codice generato (drift/freezed), commenta le due righe sopra.
 
-# Symbolication related
+# Android related
+android/**/gradle-wrapper.jar
+android/.gradle/
+android/app/local.properties
+android/app/**/generated/
+android/app/src/main/res/generated/
+android/captures/
+android/app/google-services.json
+!android/app/src/main/google-services.json # Mantieni config Firebase se pubblico
+
+# iOS related
+ios/Runner/Generated.xcconfig
+ios/Runner/flutter_export_environment.sh
+ios/Flutter/App.framework
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Flutter/Generated.xcconfig
+ios/Flutter/app.flx
+ios/Flutter/app.zip
+ios/Flutter/flutter_assets/
+ios/Flutter/flutter_export_environment.sh
+ios/ServiceDefinitions.json
+ios/Pods/
+ios/.symlinks/
+ios/Flash/Generated.xcconfig
+ios/Runner/GoogleService-Info.plist
+!ios/Runner/GoogleService-Info.plist # Mantieni config Firebase se pubblico
+.xcworkspace/
+
+# Secrets & Keys (CRITICAL)
+*.keystore
+*.jks
+*.p12
+*.pem
+google-services.json
+GoogleService-Info.plist
+.env*
+secrets.yaml
+
+# Symbolication & Obfuscation
 app.*.symbols
-
-# Obfuscation related
 app.*.map.json
 
-# Android Studio will place build artifacts here
-/android/app/debug
-/android/app/profile
-/android/app/release
+# Web related
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.web/

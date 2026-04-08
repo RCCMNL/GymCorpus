@@ -16,6 +16,17 @@ class ExercisesScreen extends StatefulWidget {
 class _ExercisesScreenState extends State<ExercisesScreen> {
   String _searchQuery = '';
   String _selectedMuscle = 'Tutti';
+  final Set<String> _expandedCategories = {};
+
+  void _toggleCategory(String category) {
+    setState(() {
+      if (_expandedCategories.contains(category)) {
+        _expandedCategories.remove(category);
+      } else {
+        _expandedCategories.add(category);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,17 +44,35 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Container(
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.surfaceContainerHigh,
-                  borderRadius: BorderRadius.circular(16),
+                  gradient: LinearGradient(
+                    colors: [
+                      theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.8),
+                      theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: theme.colorScheme.primary.withValues(alpha: 0.2),
+                    width: 1.5,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: theme.colorScheme.primary.withValues(alpha: 0.05),
+                      blurRadius: 20,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
                 child: TextField(
                   onChanged: (value) => setState(() => _searchQuery = value),
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                   decoration: InputDecoration(
                     hintText: 'Cerca esercizi...',
-                    prefixIcon: Icon(Icons.search, color: theme.colorScheme.outline),
+                    hintStyle: TextStyle(color: theme.colorScheme.outline.withValues(alpha: 0.6)),
+                    prefixIcon: Icon(Icons.search, color: theme.colorScheme.primary),
                     border: InputBorder.none,
                     isDense: true,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 14),
                   ),
                 ),
               ),
@@ -129,38 +158,97 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
                       itemCount: sections.length,
                       itemBuilder: (context, index) {
                         final section = sections[index];
-                        final exercises = grouped[section]!;
+                        final exercises = grouped[section] ?? [];
+                        final isExpanded = _expandedCategories.contains(section);
+                        final displayedExercises = isExpanded ? exercises : exercises.take(3).toList();
+                        
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Padding(
-                              padding: const EdgeInsets.only(bottom: 12, top: 16),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      section,
-                                      style: theme.textTheme.titleLarge?.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 24,
+                              padding: const EdgeInsets.only(bottom: 12, top: 24),
+                              child: InkWell(
+                                onTap: () => _toggleCategory(section),
+                                highlightColor: Colors.transparent,
+                                splashColor: Colors.transparent,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Row(
+                                        children: [
+                                          Container(
+                                            width: 4,
+                                            height: 18,
+                                            decoration: BoxDecoration(
+                                              gradient: const LinearGradient(
+                                                begin: Alignment.topCenter,
+                                                end: Alignment.bottomCenter,
+                                                colors: [Colors.orangeAccent, Colors.deepOrange],
+                                              ),
+                                              borderRadius: BorderRadius.circular(2),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 12),
+                                          Flexible(
+                                            child: ShaderMask(
+                                              shaderCallback: (bounds) => LinearGradient(
+                                                colors: [theme.colorScheme.primary, theme.colorScheme.tertiary],
+                                              ).createShader(bounds),
+                                              child: Text(
+                                                section,
+                                                style: theme.textTheme.titleLarge?.copyWith(
+                                                  fontWeight: FontWeight.w900,
+                                                  fontSize: 22,
+                                                  fontFamily: 'Lexend',
+                                                  color: Colors.white,
+                                                  letterSpacing: -0.5,
+                                                ),
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                      overflow: TextOverflow.ellipsis,
                                     ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    'Vedi tutti ${exercises.length}',
-                                    style: TextStyle(
-                                      color: theme.colorScheme.primary,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
+                                    if (exercises.length > 3) ...[
+                                      const SizedBox(width: 8),
+                                      Row(
+                                        children: [
+                                          Text(
+                                            isExpanded ? 'MOSTRA MENO' : 'VEDI TUTTI ${exercises.length}',
+                                            style: TextStyle(
+                                              color: theme.colorScheme.primary.withValues(alpha: 0.8),
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.w900,
+                                              letterSpacing: 1.2,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 4),
+                                          Icon(
+                                            isExpanded ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded,
+                                            size: 14,
+                                            color: theme.colorScheme.primary,
+                                          ),
+                                        ],
+                                      ),
+                                    ] else ...[
+                                      Text(
+                                        '${exercises.length} ESERCIZI',
+                                        style: TextStyle(
+                                          color: theme.colorScheme.outline.withValues(alpha: 0.5),
+                                          fontSize: 9,
+                                          fontWeight: FontWeight.w900,
+                                          letterSpacing: 1.0,
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
                               ),
                             ),
-                            ...exercises.map((e) => _ExerciseTile(exercise: e)),
+                            ...displayedExercises.map((e) => _ExerciseTile(exercise: e)),
                           ],
                         );
                       },
@@ -189,23 +277,43 @@ class _ExerciseTile extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 12),
       child: InkWell(
         onTap: () => context.push('/exercises/detail', extra: exercise),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
         child: Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: theme.colorScheme.surfaceContainer,
-            borderRadius: BorderRadius.circular(16),
+            color: theme.colorScheme.surfaceContainer.withValues(alpha: 0.4),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.05)),
           ),
           child: Row(
             children: [
               Container(
-                width: 80,
-                height: 80,
+                width: 70,
+                height: 70,
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.surfaceContainerHigh,
-                  borderRadius: BorderRadius.circular(12),
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      theme.colorScheme.surfaceContainerHigh,
+                      theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: theme.colorScheme.primary.withValues(alpha: 0.05),
+                      blurRadius: 10,
+                    ),
+                  ],
                 ),
-                child: const Icon(Icons.fitness_center, size: 32, color: Color(0xFF94AAFF)),
+                child: Icon(
+                  Icons.fitness_center_rounded, 
+                  size: 28, 
+                  color: exercise.targetMuscle.contains('Petto') 
+                      ? Colors.orangeAccent 
+                      : (exercise.targetMuscle.contains('Schiena') ? theme.colorScheme.tertiary : theme.colorScheme.primary)
+                ),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -215,28 +323,46 @@ class _ExerciseTile extends StatelessWidget {
                     Text(
                       exercise.name,
                       style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w900,
+                        fontFamily: 'Lexend',
+                        fontSize: 15,
+                        letterSpacing: -0.2,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Icon(Icons.home_outlined, size: 14, color: theme.colorScheme.outline),
-                        const SizedBox(width: 4),
-                        Expanded(
-                          child: Text(
-                            exercise.equipment ?? 'Corpo libero',
-                            style: theme.textTheme.labelSmall,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                    const SizedBox(height: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.orangeAccent.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.flash_on_rounded, size: 12, color: Colors.orangeAccent),
+                          const SizedBox(width: 4),
+                          Flexible(
+                            child: Text(
+                              exercise.equipment?.toUpperCase() ?? 'CORPO LIBERO',
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                color: Colors.orangeAccent,
+                                fontSize: 9,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 0.5,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ],
                 ),
               ),
-              Icon(Icons.chevron_right, color: theme.colorScheme.outline),
+              Icon(Icons.chevron_right_rounded, color: theme.colorScheme.outline.withValues(alpha: 0.4)),
             ],
           ),
         ),

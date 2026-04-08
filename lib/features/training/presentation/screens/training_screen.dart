@@ -176,7 +176,7 @@ class _TrainingScreenState extends State<TrainingScreen> {
                           child: _MetricCard(
                             label: 'CARICO (${currentUnit.toUpperCase()})',
                             // In a real app this value 85 would be converted if LB
-                            value: currentUnit == 'LB' ? UnitConverter.kgToLb(85).round().toString() : '85',
+                            value: currentUnit == 'LB' ? UnitConverter.kgToLb(85).toStringAsFixed(1) : '85.0',
                             theme: theme,
                           ),
                         ),
