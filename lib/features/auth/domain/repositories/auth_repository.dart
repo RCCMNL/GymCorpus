@@ -21,4 +21,6 @@ abstract class AuthRepository {
   });
   Future<Either<Failure, void>> changePassword(String currentPassword, String newPassword);
   Future<Either<Failure, void>> deleteAccount();
+  Future<bool> isBiometricEnabled();
+  Future<void> setBiometricEnabled({required bool enabled});
 }

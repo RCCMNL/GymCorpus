@@ -94,10 +94,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   Future<void> _onUpdateProfileImage(String filePath, Emitter<AuthState> emit) async {
-    emit(const AuthState.loading());
+    final currentUser = state.maybeWhen(
+      authenticated: (user) => user, 
+      loading: (prev) => prev,
+      error: (msg, prev) => prev,
+      orElse: () => null,
+    );
+    emit(AuthState.loading(previousUser: currentUser));
     final result = await _repository.updateProfileImage(filePath);
     result.fold(
-      (failure) => emit(AuthState.error(failure.props.first.toString())),
+      (failure) => emit(AuthState.error(failure.props.first.toString(), previousUser: currentUser)),
       (user) => emit(AuthState.authenticated(user)),
     );
   }
@@ -111,7 +117,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     DateTime? birthDate,
     String? trainingObjective,
   }) async {
-    emit(const AuthState.loading());
+    // Do NOT emit loading — it triggers the router and causes crashes
+    // during navigation. Just update silently in the background.
     final result = await _repository.updateProfileDetails(
       name: name,
       username: username,
@@ -121,28 +128,41 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       trainingObjective: trainingObjective,
     );
     result.fold(
-      (failure) => emit(AuthState.error(failure.props.first.toString())),
+      (failure) {
+        // Silently fail — data is already saved locally
+        // The user already navigated back, no point showing an error
+      },
       (user) => emit(AuthState.authenticated(user)),
     );
   }
 
   Future<void> _onChangePassword(String currentPassword, String newPassword, Emitter<AuthState> emit) async {
-    emit(const AuthState.loading());
     final result = await _repository.changePassword(currentPassword, newPassword);
     result.fold(
-      (failure) => emit(AuthState.error(failure.props.first.toString())),
+      (failure) {
+        // Handle failure locally in UI instead of emitting state, as the UI stays open
+        final currentUser = state.maybeWhen(
+          authenticated: (user) => user, 
+          orElse: () => null,
+        );
+        emit(AuthState.error(failure.props.first.toString(), previousUser: currentUser));
+      },
       (_) {
-        // Success - stay authenticated or re-login? Usually stay.
-        add(const AuthEvent.checkSessionRequested());
+        // Success - UI will close itself, state remains authenticated
       },
     );
   }
 
   Future<void> _onDeleteAccount(Emitter<AuthState> emit) async {
-    emit(const AuthState.loading());
     final result = await _repository.deleteAccount();
     result.fold(
-      (failure) => emit(AuthState.error(failure.props.first.toString())),
+      (failure) {
+        final currentUser = state.maybeWhen(
+          authenticated: (user) => user, 
+          orElse: () => null,
+        );
+        emit(AuthState.error(failure.props.first.toString(), previousUser: currentUser));
+      },
       (_) => emit(const AuthState.unauthenticated()),
     );
   }

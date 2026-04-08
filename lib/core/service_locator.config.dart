@@ -9,6 +9,7 @@
 // coverage:ignore-file
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'package:cloud_firestore/cloud_firestore.dart' as _i974;
 import 'package:firebase_auth/firebase_auth.dart' as _i59;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart' as _i558;
 import 'package:get_it/get_it.dart' as _i174;
@@ -16,6 +17,8 @@ import 'package:gym_corpus/core/database/database.dart' as _i158;
 import 'package:gym_corpus/core/di/database_module.dart' as _i696;
 import 'package:gym_corpus/features/auth/data/datasources/auth_local_data_source.dart'
     as _i975;
+import 'package:gym_corpus/features/auth/data/datasources/auth_remote_data_source.dart'
+    as _i701;
 import 'package:gym_corpus/features/auth/data/repositories/auth_repository_impl.dart'
     as _i328;
 import 'package:gym_corpus/features/auth/domain/repositories/auth_repository.dart'
@@ -46,15 +49,19 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i558.FlutterSecureStorage>(
         () => databaseModule.secureStorage);
     gh.lazySingleton<_i59.FirebaseAuth>(() => databaseModule.firebaseAuth);
+    gh.lazySingleton<_i974.FirebaseFirestore>(() => databaseModule.firestore);
     gh.lazySingleton<_i949.TrainingRepository>(
         () => _i871.TrainingRepositoryImpl(database: gh<_i158.AppDatabase>()));
     gh.factory<_i195.TrainingBloc>(
         () => _i195.TrainingBloc(repository: gh<_i949.TrainingRepository>()));
     gh.lazySingleton<_i975.AuthLocalDataSource>(
         () => _i975.AuthLocalDataSourceImpl(gh<_i558.FlutterSecureStorage>()));
+    gh.lazySingleton<_i701.AuthRemoteDataSource>(
+        () => _i701.AuthRemoteDataSourceImpl(gh<_i974.FirebaseFirestore>()));
     gh.lazySingleton<_i25.AuthRepository>(() => _i328.AuthRepositoryImpl(
           gh<_i59.FirebaseAuth>(),
           gh<_i975.AuthLocalDataSource>(),
+          gh<_i701.AuthRemoteDataSource>(),
         ));
     gh.factory<_i312.AuthBloc>(() => _i312.AuthBloc(gh<_i25.AuthRepository>()));
     return this;

@@ -22,8 +22,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late TextEditingController _heightController;
   DateTime? _birthDate;
   String? _selectedObjective;
+  bool _isSaving = false;
 
-  final List<String> _objectives = ['Massa', 'Definizione', 'Forza', 'Mantenimento'];
+  final List<String> _objectives = [
+    'Massa',
+    'Definizione',
+    'Forza',
+    'Mantenimento',
+  ];
 
   @override
   void initState() {
@@ -35,8 +41,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     _nameController = TextEditingController(text: user?.name ?? '');
     _usernameController = TextEditingController(text: user?.username ?? '');
-    _weightController = TextEditingController(text: user?.weight?.toString() ?? '');
-    _heightController = TextEditingController(text: user?.height?.toString() ?? '');
+    _weightController = TextEditingController(
+      text: user?.weight?.toString() ?? '',
+    );
+    _heightController = TextEditingController(
+      text: user?.height?.toString() ?? '',
+    );
     _birthDate = user?.birthDate;
     _selectedObjective = user?.trainingObjective;
   }
@@ -76,8 +86,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
-  void _saveProfile() {
+  Future<void> _saveProfile() async {
     if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isSaving = true;
+      });
+
+      // Dispatch the update — BLoC handles save in background
       context.read<AuthBloc>().add(
             AuthEvent.updateProfileRequested(
               name: _nameController.text,
@@ -88,7 +103,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               trainingObjective: _selectedObjective,
             ),
           );
-      context.pop();
+
+      // Wait 500ms for user feedback and to allow background save to kick in
+      await Future<void>.delayed(const Duration(milliseconds: 1000));
+
+      if (mounted) {
+        context.pop();
+      }
     }
   }
 
@@ -114,23 +135,22 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   ),
                 ),
                 const SizedBox(height: 32),
-                
                 _buildTextField(
                   controller: _nameController,
                   label: 'NOME COMPLETO',
                   hint: 'Inserisci il tuo nome',
                   theme: theme,
+                  enabled: !_isSaving,
                 ),
                 const SizedBox(height: 20),
-                
                 _buildTextField(
                   controller: _usernameController,
                   label: 'USERNAME',
                   hint: '@username',
                   theme: theme,
+                  enabled: !_isSaving,
                 ),
                 const SizedBox(height: 20),
-
                 Row(
                   children: [
                     Expanded(
@@ -140,6 +160,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         hint: '0.0',
                         keyboardType: TextInputType.number,
                         theme: theme,
+                        enabled: !_isSaving,
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -150,40 +171,48 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         hint: '0',
                         keyboardType: TextInputType.number,
                         theme: theme,
+                        enabled: !_isSaving,
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 20),
-
                 _buildLabel('DATA DI NASCITA', theme),
                 const SizedBox(height: 8),
                 InkWell(
-                  onTap: () => _selectDate(context),
+                  onTap: _isSaving ? null : () => _selectDate(context),
                   borderRadius: BorderRadius.circular(16),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 16,
+                    ),
                     decoration: BoxDecoration(
                       color: theme.colorScheme.surfaceContainerHigh,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.1)),
+                      border: Border.all(
+                        color: theme.colorScheme.outline.withValues(alpha: 0.1),
+                      ),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          _birthDate == null 
-                              ? 'Seleziona data' 
+                          _birthDate == null
+                              ? 'Seleziona data'
                               : DateFormat('dd/MM/yyyy').format(_birthDate!),
                           style: theme.textTheme.bodyLarge,
                         ),
-                        Icon(Icons.calendar_today, size: 18, color: theme.colorScheme.primary),
+                        Icon(
+                          Icons.calendar_today,
+                          size: 18,
+                          color: theme.colorScheme.primary,
+                        ),
                       ],
                     ),
                   ),
                 ),
                 const SizedBox(height: 24),
-
                 _buildLabel('OBIETTIVO DI ALLENAMENTO', theme),
                 const SizedBox(height: 12),
                 Wrap(
@@ -194,46 +223,67 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     return ChoiceChip(
                       label: Text(obj),
                       selected: isSelected,
-                      onSelected: (selected) {
-                        setState(() {
-                          _selectedObjective = selected ? obj : null;
-                        });
-                      },
-                      selectedColor: theme.colorScheme.primary.withValues(alpha: 0.2),
+                      onSelected: _isSaving
+                          ? null
+                          : (selected) {
+                              setState(() {
+                                _selectedObjective = selected ? obj : null;
+                              });
+                            },
+                      selectedColor: theme.colorScheme.primary.withValues(
+                        alpha: 0.2,
+                      ),
                       labelStyle: TextStyle(
-                        color: isSelected ? theme.colorScheme.primary : theme.colorScheme.onSurface,
-                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                        color: isSelected
+                            ? theme.colorScheme.primary
+                            : theme.colorScheme.onSurface,
+                        fontWeight:
+                            isSelected ? FontWeight.bold : FontWeight.normal,
                       ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                         side: BorderSide(
-                          color: isSelected ? theme.colorScheme.primary : theme.colorScheme.outline.withValues(alpha: 0.2),
+                          color: isSelected
+                              ? theme.colorScheme.primary
+                              : theme.colorScheme.outline.withValues(
+                                  alpha: 0.2,
+                                ),
                         ),
                       ),
                       backgroundColor: theme.colorScheme.surfaceContainerHigh,
                     );
                   }).toList(),
                 ),
-
                 const SizedBox(height: 48),
-
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: _saveProfile,
+                    onPressed: _isSaving ? null : _saveProfile,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: theme.colorScheme.primary,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 18),
+                      disabledBackgroundColor:
+                          theme.colorScheme.primary.withValues(alpha: 0.5),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
                       elevation: 0,
                     ),
-                    child: const Text(
-                      'SALVA MODIFICHE',
-                      style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2),
-                    ),
+                    child: _isSaving
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                                color: Colors.white, strokeWidth: 2),
+                          )
+                        : const Text(
+                            'SALVA MODIFICHE',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1.2,
+                            ),
+                          ),
                   ),
                 ),
               ],
@@ -261,6 +311,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     required String hint,
     required ThemeData theme,
     TextInputType keyboardType = TextInputType.text,
+    bool enabled = true,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -270,6 +321,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         TextFormField(
           controller: controller,
           keyboardType: keyboardType,
+          enabled: enabled,
           style: theme.textTheme.bodyLarge,
           decoration: InputDecoration(
             hintText: hint,
@@ -277,15 +329,25 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             fillColor: theme.colorScheme.surfaceContainerHigh,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.1)),
+              borderSide: BorderSide(
+                color: theme.colorScheme.outline.withValues(alpha: 0.1),
+              ),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.1)),
+              borderSide: BorderSide(
+                color: theme.colorScheme.outline.withValues(alpha: 0.1),
+              ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
               borderSide: BorderSide(color: theme.colorScheme.primary),
+            ),
+            disabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: BorderSide(
+                color: theme.colorScheme.outline.withValues(alpha: 0.05),
+              ),
             ),
           ),
         ),

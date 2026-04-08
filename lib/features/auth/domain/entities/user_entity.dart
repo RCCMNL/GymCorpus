@@ -15,6 +15,8 @@ class UserEntity extends Equatable {
     this.height,
     this.birthDate,
     this.trainingObjective,
+    this.lastLoginDate,
+    this.lastLoginDevice,
   });
 
   factory UserEntity.fromJson(Map<String, dynamic> json) => UserEntity(
@@ -27,6 +29,8 @@ class UserEntity extends Equatable {
         height: (json['height'] as num?)?.toDouble(),
         birthDate: json['birthDate'] != null ? DateTime.parse(json['birthDate'] as String) : null,
         trainingObjective: json['trainingObjective'] as String?,
+        lastLoginDate: json['lastLoginDate'] != null ? DateTime.parse(json['lastLoginDate'] as String) : null,
+        lastLoginDevice: json['lastLoginDevice'] as String?,
       );
 
   Map<String, dynamic> toJson() => <String, dynamic>{
@@ -39,6 +43,8 @@ class UserEntity extends Equatable {
         'height': height,
         'birthDate': birthDate?.toIso8601String(),
         'trainingObjective': trainingObjective,
+        'lastLoginDate': lastLoginDate?.toIso8601String(),
+        'lastLoginDevice': lastLoginDevice,
       };
 
   final String id;
@@ -50,6 +56,8 @@ class UserEntity extends Equatable {
   final double? height;
   final DateTime? birthDate;
   final String? trainingObjective;
+  final DateTime? lastLoginDate;
+  final String? lastLoginDevice;
 
   UserEntity copyWith({
     String? id,
@@ -61,6 +69,8 @@ class UserEntity extends Equatable {
     double? height,
     DateTime? birthDate,
     String? trainingObjective,
+    DateTime? lastLoginDate,
+    String? lastLoginDevice,
   }) {
     return UserEntity(
       id: id ?? this.id,
@@ -72,6 +82,8 @@ class UserEntity extends Equatable {
       height: height ?? this.height,
       birthDate: birthDate ?? this.birthDate,
       trainingObjective: trainingObjective ?? this.trainingObjective,
+      lastLoginDate: lastLoginDate ?? this.lastLoginDate,
+      lastLoginDevice: lastLoginDevice ?? this.lastLoginDevice,
     );
   }
 
@@ -86,5 +98,7 @@ class UserEntity extends Equatable {
         height,
         birthDate,
         trainingObjective,
+        lastLoginDate,
+        lastLoginDevice,
       ];
 }

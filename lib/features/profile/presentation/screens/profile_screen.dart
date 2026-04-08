@@ -64,6 +64,8 @@ class ProfileScreen extends StatelessWidget {
                   builder: (context, state) {
                     final user = state.maybeWhen(
                       authenticated: (user) => user,
+                      loading: (previousUser) => previousUser,
+                      error: (message, previousUser) => previousUser,
                       orElse: () => null,
                     );
                     final userName = user?.name ?? 'Guest';
@@ -218,7 +220,7 @@ class ProfileScreen extends StatelessWidget {
                         icon: Icons.timer,
                         label: 'Timer di Recupero',
                         trailingText: '${restTimer}s',
-                        onEdit: () => _showTimerDialog(context, restTimer),
+                        onTap: () => _showTimerPickerSheet(context, restTimer),
                       ),
                       _ProfileItem(
                         icon: Icons.straighten,
@@ -302,31 +304,12 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  void _showTimerDialog(BuildContext context, String currentTimer) {
-    final controller = TextEditingController(text: currentTimer);
-    final theme = Theme.of(context);
-    
-    showDialog<void>(
+  void _showTimerPickerSheet(BuildContext context, String currentTimer) {
+    showModalBottomSheet<void>(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: theme.colorScheme.surface,
-        title: const Text('Timer di Recupero', style: TextStyle(fontFamily: 'Lexend')),
-        content: TextField(
-          controller: controller,
-          keyboardType: TextInputType.number,
-          decoration: const InputDecoration(suffixText: 'secondi'),
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('ANNULLA')),
-          ElevatedButton(
-            onPressed: () {
-              context.read<TrainingBloc>().add(UpdatePreferenceEvent('rest_timer', controller.text));
-              Navigator.pop(context);
-            },
-            child: const Text('SALVA'),
-          ),
-        ],
-      ),
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => _TimerPickerSheet(initialValue: currentTimer),
     );
   }
 
@@ -434,7 +417,6 @@ class _ProfileItem extends StatelessWidget {
     this.trailingText,
     this.isBadge = false,
     this.isExternal = false,
-    this.onEdit,
     this.onTap,
   });
 
@@ -443,7 +425,6 @@ class _ProfileItem extends StatelessWidget {
   final String? trailingText;
   final bool isBadge;
   final bool isExternal;
-  final VoidCallback? onEdit;
   final VoidCallback? onTap;
 
   @override
@@ -452,7 +433,7 @@ class _ProfileItem extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: onTap ?? onEdit,
+        onTap: onTap,
         borderRadius: BorderRadius.circular(20),
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -493,13 +474,7 @@ class _ProfileItem extends StatelessWidget {
                     ),
                   ),
               ],
-              if (onEdit != null)
-                IconButton(
-                  icon: const Icon(Icons.edit, size: 16),
-                  color: theme.colorScheme.outline,
-                  onPressed: onEdit,
-                ),
-              if (onEdit == null && !isBadge)
+              if (!isBadge)
                 Icon(
                   isExternal ? Icons.open_in_new : Icons.chevron_right,
                   color: theme.colorScheme.outline,
@@ -508,6 +483,232 @@ class _ProfileItem extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+class _TimerPickerSheet extends StatefulWidget {
+  const _TimerPickerSheet({required this.initialValue});
+  final String initialValue;
+
+  @override
+  State<_TimerPickerSheet> createState() => _TimerPickerSheetState();
+}
+
+class _TimerPickerSheetState extends State<_TimerPickerSheet> {
+  late int _value;
+  final List<int> _quickPresets = [30, 45, 60, 90, 120, 180];
+
+  @override
+  void initState() {
+    super.initState();
+    _value = int.tryParse(widget.initialValue) ?? 90;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.2),
+            blurRadius: 20,
+            offset: const Offset(0, -5),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(height: 12),
+          Container(
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: theme.colorScheme.outline.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          const SizedBox(height: 24),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Timer di Recupero',
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Lexend',
+                  ),
+                ),
+                IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(Icons.close),
+                  style: IconButton.styleFrom(
+                    backgroundColor: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 32),
+          // Large Timer Display
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primary.withValues(alpha: 0.05),
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                width: 2,
+              ),
+            ),
+            child: Column(
+              children: [
+                Text(
+                  _value.toString(),
+                  style: theme.textTheme.displayLarge?.copyWith(
+                    fontWeight: FontWeight.w900,
+                    color: theme.colorScheme.primary,
+                    fontFamily: 'Lexend',
+                    fontSize: 72,
+                  ),
+                ),
+                Text(
+                  'SECONDI',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    letterSpacing: 2,
+                    fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.primary.withValues(alpha: 0.6),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 40),
+          // Presets
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              alignment: WrapAlignment.center,
+              children: _quickPresets.map((preset) {
+                final isSelected = _value == preset;
+                return ChoiceChip(
+                  label: Text('${preset}s'),
+                  selected: isSelected,
+                  onSelected: (selected) {
+                    if (selected) setState(() => _value = preset);
+                  },
+                  selectedColor: theme.colorScheme.primary,
+                  labelStyle: TextStyle(
+                    color: isSelected ? Colors.white : theme.colorScheme.onSurface,
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    fontFamily: 'Lexend',
+                  ),
+                  backgroundColor: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    side: BorderSide.none,
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  showCheckmark: false,
+                );
+              }).toList(),
+            ),
+          ),
+          const SizedBox(height: 32),
+          // Precision Slider
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: Row(
+              children: [
+                _CircularBtn(
+                  icon: Icons.remove,
+                  onPressed: () => setState(() => _value = (_value - 5).clamp(5, 600)),
+                  theme: theme,
+                ),
+                Expanded(
+                  child: SliderTheme(
+                    data: SliderTheme.of(context).copyWith(
+                      activeTrackColor: theme.colorScheme.primary,
+                      inactiveTrackColor: theme.colorScheme.surfaceContainerHighest,
+                      thumbColor: theme.colorScheme.primary,
+                      overlayColor: theme.colorScheme.primary.withValues(alpha: 0.1),
+                      trackHeight: 8,
+                      thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 12, elevation: 4),
+                    ),
+                    child: Slider(
+                      value: _value.toDouble(),
+                      min: 5,
+                      max: 300,
+                      divisions: 59,
+                      onChanged: (val) => setState(() => _value = val.toInt()),
+                    ),
+                  ),
+                ),
+                _CircularBtn(
+                  icon: Icons.add,
+                  onPressed: () => setState(() => _value = (_value + 5).clamp(5, 600)),
+                  theme: theme,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 48),
+          // Save Button
+          Padding(
+            padding: EdgeInsets.fromLTRB(24, 0, 24, 24 + bottomPadding),
+            child: SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  context.read<TrainingBloc>().add(UpdatePreferenceEvent('rest_timer', _value.toString()));
+                  Navigator.pop(context);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: theme.colorScheme.primary,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 20),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  elevation: 0,
+                ),
+                child: const Text(
+                  'APPLICA MODIFICHE',
+                  style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1.5, fontSize: 16),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CircularBtn extends StatelessWidget {
+  const _CircularBtn({required this.icon, required this.onPressed, required this.theme});
+  final IconData icon;
+  final VoidCallback onPressed;
+  final ThemeData theme;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+        shape: BoxShape.circle,
+      ),
+      child: IconButton(
+        icon: Icon(icon, color: theme.colorScheme.primary, size: 20),
+        onPressed: onPressed,
       ),
     );
   }

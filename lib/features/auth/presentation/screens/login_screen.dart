@@ -1,10 +1,17 @@
+import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gym_corpus/features/auth/domain/repositories/auth_repository.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_event.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
+import 'package:gym_corpus/core/widgets/social_icons.dart';
+import 'package:local_auth/error_codes.dart' as auth_error;
+import 'package:local_auth/local_auth.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -16,6 +23,52 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  bool _showBiometricButton = false;
+
+  @override
+  void initState() {
+    super.initState();
+    unawaited(_checkBiometricSupport());
+  }
+
+  Future<void> _checkBiometricSupport() async {
+    final repo = GetIt.I<AuthRepository>();
+    final isEnabled = await repo.isBiometricEnabled();
+    if (!isEnabled) return;
+
+    final auth = LocalAuthentication();
+    final canCheck = await auth.canCheckBiometrics || await auth.isDeviceSupported();
+    
+    if (canCheck) {
+      setState(() {
+        _showBiometricButton = true;
+      });
+      // Optionally auto-trigger biometric login on screen entry
+      _onBiometricLogin();
+    }
+  }
+
+  Future<void> _onBiometricLogin() async {
+    final auth = LocalAuthentication();
+    try {
+      final didAuthenticate = await auth.authenticate(
+        localizedReason: 'Accedi a GymCorpus',
+        options: const AuthenticationOptions(
+          stickyAuth: true,
+          biometricOnly: true,
+        ),
+      );
+
+      if (didAuthenticate && mounted) {
+        // Trigger checkSessionRequested to use the cached credential
+        context.read<AuthBloc>().add(const AuthEvent.checkSessionRequested());
+      }
+    } on PlatformException catch (e) {
+      if (e.code == auth_error.notAvailable) {
+        // Handle not available
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -75,7 +128,7 @@ class _LoginScreenState extends State<LoginScreen> {
         },
         builder: (context, state) {
           final isLoading =
-              state.maybeWhen(loading: () => true, orElse: () => false);
+              state.maybeWhen(loading: (_) => true, orElse: () => false);
           return Stack(
             children: [
               SafeArea(
@@ -220,7 +273,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     Expanded(
                                       child: _buildSocialButton(
                                         theme,
-                                        Icons.g_mobiledata,
+                                        const GoogleLogo(size: 20),
                                         'Google',
                                         onTap: () => context.read<AuthBloc>().add(
                                               const AuthEvent.googleSignInRequested(),
@@ -233,7 +286,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                         opacity: 0.5,
                                         child: _buildSocialButton(
                                           theme,
-                                          Icons.apple,
+                                          const AppleLogo(size: 22),
                                           'Apple',
                                           onTap: () {
                                             ScaffoldMessenger.of(context).showSnackBar(
@@ -248,6 +301,30 @@ class _LoginScreenState extends State<LoginScreen> {
                                     ),
                                   ],
                                 ),
+                                if (_showBiometricButton) ...[
+                                  const SizedBox(height: 24),
+                                  Center(
+                                    child: IconButton.filledTonal(
+                                      onPressed: isLoading ? null : _onBiometricLogin,
+                                      icon: const Icon(Icons.fingerprint, size: 32),
+                                      padding: const EdgeInsets.all(16),
+                                      style: IconButton.styleFrom(
+                                        backgroundColor: theme.colorScheme.primary.withValues(alpha: 0.1),
+                                        foregroundColor: theme.colorScheme.primary,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Center(
+                                    child: Text(
+                                      'Accedi con Biometria',
+                                      style: theme.textTheme.labelSmall?.copyWith(
+                                        color: theme.colorScheme.primary,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ],
                             ),
                           ),
@@ -351,7 +428,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Widget _buildSocialButton(
     ThemeData theme,
-    IconData icon,
+    Widget logo,
     String text, {
     VoidCallback? onTap,
   }) {
@@ -369,7 +446,7 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 24, color: theme.colorScheme.onSurface),
+            logo,
             const SizedBox(width: 8),
             Text(text, style: const TextStyle(fontWeight: FontWeight.w500)),
           ],

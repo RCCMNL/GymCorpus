@@ -18,6 +18,10 @@ UserEntity _$UserEntityFromJson(Map<String, dynamic> json) => UserEntity(
           ? null
           : DateTime.parse(json['birthDate'] as String),
       trainingObjective: json['trainingObjective'] as String?,
+      lastLoginDate: json['lastLoginDate'] == null
+          ? null
+          : DateTime.parse(json['lastLoginDate'] as String),
+      lastLoginDevice: json['lastLoginDevice'] as String?,
     );
 
 Map<String, dynamic> _$UserEntityToJson(UserEntity instance) =>
@@ -31,4 +35,6 @@ Map<String, dynamic> _$UserEntityToJson(UserEntity instance) =>
       'height': instance.height,
       'birthDate': instance.birthDate?.toIso8601String(),
       'trainingObjective': instance.trainingObjective,
+      'lastLoginDate': instance.lastLoginDate?.toIso8601String(),
+      'lastLoginDevice': instance.lastLoginDevice,
     };

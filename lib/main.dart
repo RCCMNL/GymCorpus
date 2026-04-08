@@ -109,12 +109,20 @@ class _GymAppState extends State<GymApp> {
             }
             return null;
           },
-          error: (_) {
+          error: (_, previousUser) {
+            // If we have a previousUser, the user was authenticated
+            // before the error — don't redirect to login
+            if (previousUser != null) return null;
+            
             if (state.matchedLocation != '/login' && 
                 state.matchedLocation != '/signup' && 
                 state.matchedLocation != '/splash') {
               return '/login';
             }
+            return null;
+          },
+          loading: (previousUser) {
+            // During loading, don't redirect anywhere
             return null;
           },
           orElse: () => null,
@@ -195,14 +203,17 @@ class _GymAppState extends State<GymApp> {
               routes: [
                 GoRoute(
                   path: 'edit',
+                  parentNavigatorKey: _rootNavigatorKey,
                   builder: (context, state) => const EditProfileScreen(),
                 ),
                 GoRoute(
                   path: 'security',
+                  parentNavigatorKey: _rootNavigatorKey,
                   builder: (context, state) => const SecurityScreen(),
                 ),
                 GoRoute(
                   path: 'integrations',
+                  parentNavigatorKey: _rootNavigatorKey,
                   builder: (context, state) => const IntegrationsScreen(),
                 ),
               ],

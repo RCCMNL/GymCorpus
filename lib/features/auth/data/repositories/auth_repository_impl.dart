@@ -1,10 +1,13 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:dartz/dartz.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:gym_corpus/core/error/failures.dart';
 import 'package:gym_corpus/features/auth/data/datasources/auth_local_data_source.dart';
+import 'package:gym_corpus/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:gym_corpus/features/auth/domain/entities/user_entity.dart';
 import 'package:gym_corpus/features/auth/domain/repositories/auth_repository.dart';
 import 'package:injectable/injectable.dart';
@@ -19,10 +22,15 @@ class AuthFailure extends Failure {
 
 @LazySingleton(as: AuthRepository)
 class AuthRepositoryImpl implements AuthRepository {
-  AuthRepositoryImpl(this._firebaseAuth, this._localDataSource);
+  AuthRepositoryImpl(
+    this._firebaseAuth,
+    this._localDataSource,
+    this._remoteDataSource,
+  );
 
   final FirebaseAuth _firebaseAuth;
   final AuthLocalDataSource _localDataSource;
+  final AuthRemoteDataSource _remoteDataSource;
 
   UserEntity _mapFirebaseUser(User user) {
     return UserEntity(
@@ -31,6 +39,32 @@ class AuthRepositoryImpl implements AuthRepository {
       email: user.email ?? '',
       photoUrl: user.photoURL,
     );
+  }
+
+  Future<String> _getDeviceInfo() async {
+    try {
+      final deviceInfo = DeviceInfoPlugin();
+      if (Platform.isAndroid) {
+        final androidInfo = await deviceInfo.androidInfo;
+        return '${androidInfo.manufacturer} ${androidInfo.model}'.trim();
+      } else if (Platform.isIOS) {
+        final iosInfo = await deviceInfo.iosInfo;
+        return iosInfo.name;
+      }
+    } catch (_) {}
+    return 'Dispositivo Sconosciuto';
+  }
+
+  Future<UserEntity> _updateLoginHistory(UserEntity user) async {
+    final device = await _getDeviceInfo();
+    final updatedUser = user.copyWith(
+      lastLoginDate: DateTime.now(),
+      lastLoginDevice: device,
+    );
+    // Silent update to remote and local
+    unawaited(_remoteDataSource.saveUserProfile(updatedUser));
+    unawaited(_localDataSource.saveUserSession(updatedUser));
+    return updatedUser;
   }
 
   @override
@@ -43,9 +77,12 @@ class AuthRepositoryImpl implements AuthRepository {
       );
 
       if (credential.user != null) {
-        final user = _mapFirebaseUser(credential.user!);
-        await _localDataSource.saveUserSession(user);
-        return Right(user);
+        final baseUser = _mapFirebaseUser(credential.user!);
+        final remoteUser = await _remoteDataSource.getUserProfile(baseUser.id);
+        final user = remoteUser ?? baseUser;
+        
+        final finalUser = await _updateLoginHistory(user);
+        return Right(finalUser);
       }
       return const Left(
         AuthFailure('Errore durante il login: utente non trovato'),
@@ -68,8 +105,8 @@ class AuthRepositoryImpl implements AuthRepository {
 
       if (credential.user != null) {
         final user = _mapFirebaseUser(credential.user!);
-        await _localDataSource.saveUserSession(user);
-        return Right(user);
+        final finalUser = await _updateLoginHistory(user);
+        return Right(finalUser);
       }
       return const Left(
         AuthFailure("Errore durante la creazione dell'account"),
@@ -95,18 +132,32 @@ class AuthRepositoryImpl implements AuthRepository {
 
     if (firebaseUser != null) {
       final baseUser = _mapFirebaseUser(firebaseUser);
-      if (cachedUser != null && cachedUser.id == baseUser.id) {
-        // Merge Firebase status with local extended profile
-        return Right(cachedUser.copyWith(
-          name: firebaseUser.displayName ?? cachedUser.name,
-          photoUrl: firebaseUser.photoURL ?? cachedUser.photoUrl,
-        ));
+      
+      // Try local cache first for instant UI response
+      UserEntity? mergedUser = cachedUser != null && cachedUser.id == baseUser.id ? cachedUser : baseUser;
+
+      try {
+        final remoteUser = await _remoteDataSource.getUserProfile(baseUser.id).timeout(const Duration(seconds: 5));
+        if (remoteUser != null) {
+          mergedUser = remoteUser;
+          await _localDataSource.saveUserSession(remoteUser);
+        }
+      } catch (e) {
+        // Fallback to local/base if remote fails, logging could go here
       }
-      return Right(baseUser);
+
+      final finalUser = mergedUser!;
+      final updatedSessionUser = finalUser.copyWith(
+        name: firebaseUser.displayName ?? finalUser.name,
+        photoUrl: firebaseUser.photoURL ?? finalUser.photoUrl,
+      );
+      final finalSessionUser = await _updateLoginHistory(updatedSessionUser);
+      return Right(finalSessionUser);
     }
 
     if (cachedUser != null) {
-      return Right(cachedUser);
+      final finalSessionUser = await _updateLoginHistory(cachedUser);
+      return Right(finalSessionUser);
     }
 
     return const Left(AuthFailure('Nessuna sessione attiva'));
@@ -149,9 +200,12 @@ class AuthRepositoryImpl implements AuthRepository {
       final userCredential =
           await _firebaseAuth.signInWithCredential(credential);
       if (userCredential.user != null) {
-        final user = _mapFirebaseUser(userCredential.user!);
-        await _localDataSource.saveUserSession(user);
-        return Right(user);
+        final baseUser = _mapFirebaseUser(userCredential.user!);
+        final remoteUser = await _remoteDataSource.getUserProfile(baseUser.id);
+        final user = remoteUser ?? baseUser;
+        
+        final finalUser = await _updateLoginHistory(user);
+        return Right(finalUser);
       }
       return const Left(AuthFailure('Impossibile accedere con Google'));
     } on FirebaseAuthException catch (e) {
@@ -183,9 +237,12 @@ class AuthRepositoryImpl implements AuthRepository {
       final userCredential =
           await _firebaseAuth.signInWithCredential(credential);
       if (userCredential.user != null) {
-        final user = _mapFirebaseUser(userCredential.user!);
-        await _localDataSource.saveUserSession(user);
-        return Right(user);
+        final baseUser = _mapFirebaseUser(userCredential.user!);
+        final remoteUser = await _remoteDataSource.getUserProfile(baseUser.id);
+        final user = remoteUser ?? baseUser;
+        
+        final finalUser = await _updateLoginHistory(user);
+        return Right(finalUser);
       }
       return const Left(AuthFailure('Impossibile accedere con Apple'));
     } catch (e) {
@@ -233,31 +290,33 @@ class AuthRepositoryImpl implements AuthRepository {
   }) async {
     try {
       final user = _firebaseAuth.currentUser;
-      if (user != null) {
-        if (name != null) {
-          await user.updateDisplayName(name);
-        }
-        
-        final currentUser = await _localDataSource.getUserSession() ?? _mapFirebaseUser(user);
-        
-        final updatedUser = UserEntity(
-          id: currentUser.id,
-          name: name ?? currentUser.name,
-          email: currentUser.email,
-          photoUrl: currentUser.photoUrl,
-          username: username ?? currentUser.username,
-          weight: weight ?? currentUser.weight,
-          height: height ?? currentUser.height,
-          birthDate: birthDate ?? currentUser.birthDate,
-          trainingObjective: trainingObjective ?? currentUser.trainingObjective,
-        );
-        
-        await _localDataSource.saveUserSession(updatedUser);
-        return Right(updatedUser);
+      if (user == null) return const Left(AuthFailure('Utente non autenticato'));
+
+      if (name != null && name.isNotEmpty) {
+        await user.updateDisplayName(name).timeout(const Duration(seconds: 5));
       }
-      return const Left(AuthFailure('Utente non autenticato'));
+      
+      final localUser = await _localDataSource.getUserSession();
+      final remoteUser = await _remoteDataSource.getUserProfile(user.uid).timeout(const Duration(seconds: 5));
+      final currentUser = localUser ?? remoteUser ?? _mapFirebaseUser(user);
+      
+      final updatedUser = currentUser.copyWith(
+        name: (name != null && name.isNotEmpty) ? name : currentUser.name,
+        username: (username != null && username.isNotEmpty) ? username : currentUser.username,
+        weight: weight ?? currentUser.weight,
+        height: height ?? currentUser.height,
+        birthDate: birthDate ?? currentUser.birthDate,
+        trainingObjective: trainingObjective ?? currentUser.trainingObjective,
+      );
+      
+      // Save locally first for speed
+      await _localDataSource.saveUserSession(updatedUser);
+      // Then sync to remote
+      await _remoteDataSource.saveUserProfile(updatedUser).timeout(const Duration(seconds: 5));
+      
+      return Right(updatedUser);
     } catch (e) {
-      return Left(AuthFailure(e.toString()));
+      return Left(AuthFailure('Errore durante aggiornamento: $e'));
     }
   }
 
@@ -287,6 +346,9 @@ class AuthRepositoryImpl implements AuthRepository {
       final user = _firebaseAuth.currentUser;
       if (user == null) return const Left(AuthFailure('Nessun utente autenticato'));
       
+      // Eliminiamo PRIMA i dati in firestore
+      await _remoteDataSource.deleteUser(user.uid);
+      
       await user.delete();
       await _localDataSource.clearSession();
       
@@ -296,5 +358,15 @@ class AuthRepositoryImpl implements AuthRepository {
     } catch (e) {
       return Left(AuthFailure(e.toString()));
     }
+  }
+
+  @override
+  Future<bool> isBiometricEnabled() async {
+    return _localDataSource.isBiometricEnabled();
+  }
+
+  @override
+  Future<void> setBiometricEnabled({required bool enabled}) async {
+    await _localDataSource.setBiometricEnabled(enabled: enabled);
   }
 }

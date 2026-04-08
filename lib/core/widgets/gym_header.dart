@@ -12,10 +12,15 @@ class GymHeader extends StatelessWidget implements PreferredSizeWidget {
       toolbarHeight: 50,
       backgroundColor: theme.colorScheme.surface,
       elevation: 0,
-      leading: Padding(
-        padding: const EdgeInsets.all(8),
-        child: Icon(Icons.bolt, color: theme.colorScheme.primary, size: 28),
-      ),
+      leading: Navigator.canPop(context)
+          ? IconButton(
+              icon: Icon(Icons.arrow_back_ios_new, color: theme.colorScheme.primary, size: 24),
+              onPressed: () => Navigator.maybePop(context),
+            )
+          : Padding(
+              padding: const EdgeInsets.all(8),
+              child: Icon(Icons.bolt, color: theme.colorScheme.primary, size: 28),
+            ),
       title: Text(
         'Gym Corpus',
         style: theme.textTheme.headlineSmall?.copyWith(

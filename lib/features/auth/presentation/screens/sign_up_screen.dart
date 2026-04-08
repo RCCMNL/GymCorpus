@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_event.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
+import 'package:gym_corpus/core/widgets/social_icons.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -73,7 +74,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           );
         },
         builder: (context, state) {
-          final isLoading = state.maybeWhen(loading: () => true, orElse: () => false);
+          final isLoading = state.maybeWhen(loading: (_) => true, orElse: () => false);
           return Stack(
             children: [
               SafeArea(
@@ -194,11 +195,47 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                           ),
                                   ),
                                 ),
-                              ],
+                                  const SizedBox(height: 32),
+                                  _buildDivider(theme),
+                                  const SizedBox(height: 24),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: _buildSocialButton(
+                                          theme,
+                                          const GoogleLogo(size: 20),
+                                          'Google',
+                                          onTap: () => context.read<AuthBloc>().add(
+                                                const AuthEvent.googleSignInRequested(),
+                                              ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      Expanded(
+                                        child: Opacity(
+                                          opacity: 0.5,
+                                          child: _buildSocialButton(
+                                            theme,
+                                            const AppleLogo(size: 22),
+                                            'Apple',
+                                            onTap: () {
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                const SnackBar(
+                                                  content: Text('Apple Sign-In coming soon!'),
+                                                  duration: Duration(seconds: 2),
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
-                      ),
                       const SizedBox(height: 32),
                       Center(
                         child: GestureDetector(
@@ -272,6 +309,51 @@ class _SignUpScreenState extends State<SignUpScreen> {
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide.none,
+        ),
+      ),
+    );
+  }
+  Widget _buildDivider(ThemeData theme) {
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        Divider(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.2)),
+        Container(
+          color: theme.colorScheme.surfaceContainer,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Text(
+            'OR JOIN WITH',
+            style: theme.textTheme.labelSmall,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSocialButton(
+    ThemeData theme,
+    Widget logo,
+    String text, {
+    VoidCallback? onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surfaceContainerHigh,
+          border: Border.all(
+            color: theme.colorScheme.outlineVariant.withValues(alpha: 0.1),
+          ),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            logo,
+            const SizedBox(width: 8),
+            Text(text, style: const TextStyle(fontWeight: FontWeight.w500)),
+          ],
         ),
       ),
     );

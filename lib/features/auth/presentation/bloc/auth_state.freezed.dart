@@ -164,10 +164,10 @@ extension AuthStatePatterns on AuthState {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? initial,
-    TResult Function()? loading,
+    TResult Function(UserEntity? previousUser)? loading,
     TResult Function(UserEntity user)? authenticated,
     TResult Function()? unauthenticated,
-    TResult Function(String message)? error,
+    TResult Function(String message, UserEntity? previousUser)? error,
     required TResult orElse(),
   }) {
     final _that = this;
@@ -175,13 +175,13 @@ extension AuthStatePatterns on AuthState {
       case _Initial() when initial != null:
         return initial();
       case _Loading() when loading != null:
-        return loading();
+        return loading(_that.previousUser);
       case _Authenticated() when authenticated != null:
         return authenticated(_that.user);
       case _Unauthenticated() when unauthenticated != null:
         return unauthenticated();
       case _Error() when error != null:
-        return error(_that.message);
+        return error(_that.message, _that.previousUser);
       case _:
         return orElse();
     }
@@ -203,23 +203,23 @@ extension AuthStatePatterns on AuthState {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() initial,
-    required TResult Function() loading,
+    required TResult Function(UserEntity? previousUser) loading,
     required TResult Function(UserEntity user) authenticated,
     required TResult Function() unauthenticated,
-    required TResult Function(String message) error,
+    required TResult Function(String message, UserEntity? previousUser) error,
   }) {
     final _that = this;
     switch (_that) {
       case _Initial():
         return initial();
       case _Loading():
-        return loading();
+        return loading(_that.previousUser);
       case _Authenticated():
         return authenticated(_that.user);
       case _Unauthenticated():
         return unauthenticated();
       case _Error():
-        return error(_that.message);
+        return error(_that.message, _that.previousUser);
       case _:
         throw StateError('Unexpected subclass');
     }
@@ -240,23 +240,23 @@ extension AuthStatePatterns on AuthState {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? initial,
-    TResult? Function()? loading,
+    TResult? Function(UserEntity? previousUser)? loading,
     TResult? Function(UserEntity user)? authenticated,
     TResult? Function()? unauthenticated,
-    TResult? Function(String message)? error,
+    TResult? Function(String message, UserEntity? previousUser)? error,
   }) {
     final _that = this;
     switch (_that) {
       case _Initial() when initial != null:
         return initial();
       case _Loading() when loading != null:
-        return loading();
+        return loading(_that.previousUser);
       case _Authenticated() when authenticated != null:
         return authenticated(_that.user);
       case _Unauthenticated() when unauthenticated != null:
         return unauthenticated();
       case _Error() when error != null:
-        return error(_that.message);
+        return error(_that.message, _that.previousUser);
       case _:
         return null;
     }
@@ -286,20 +286,63 @@ class _Initial implements AuthState {
 /// @nodoc
 
 class _Loading implements AuthState {
-  const _Loading();
+  const _Loading({this.previousUser});
+
+  final UserEntity? previousUser;
+
+  /// Create a copy of AuthState
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  _$LoadingCopyWith<_Loading> get copyWith =>
+      __$LoadingCopyWithImpl<_Loading>(this, _$identity);
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is _Loading);
+        (other.runtimeType == runtimeType &&
+            other is _Loading &&
+            (identical(other.previousUser, previousUser) ||
+                other.previousUser == previousUser));
   }
 
   @override
-  int get hashCode => runtimeType.hashCode;
+  int get hashCode => Object.hash(runtimeType, previousUser);
 
   @override
   String toString() {
-    return 'AuthState.loading()';
+    return 'AuthState.loading(previousUser: $previousUser)';
+  }
+}
+
+/// @nodoc
+abstract mixin class _$LoadingCopyWith<$Res>
+    implements $AuthStateCopyWith<$Res> {
+  factory _$LoadingCopyWith(_Loading value, $Res Function(_Loading) _then) =
+      __$LoadingCopyWithImpl;
+  @useResult
+  $Res call({UserEntity? previousUser});
+}
+
+/// @nodoc
+class __$LoadingCopyWithImpl<$Res> implements _$LoadingCopyWith<$Res> {
+  __$LoadingCopyWithImpl(this._self, this._then);
+
+  final _Loading _self;
+  final $Res Function(_Loading) _then;
+
+  /// Create a copy of AuthState
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  $Res call({
+    Object? previousUser = freezed,
+  }) {
+    return _then(_Loading(
+      previousUser: freezed == previousUser
+          ? _self.previousUser
+          : previousUser // ignore: cast_nullable_to_non_nullable
+              as UserEntity?,
+    ));
   }
 }
 
@@ -390,9 +433,10 @@ class _Unauthenticated implements AuthState {
 /// @nodoc
 
 class _Error implements AuthState {
-  const _Error(this.message);
+  const _Error(this.message, {this.previousUser});
 
   final String message;
+  final UserEntity? previousUser;
 
   /// Create a copy of AuthState
   /// with the given fields replaced by the non-null parameter values.
@@ -406,15 +450,17 @@ class _Error implements AuthState {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _Error &&
-            (identical(other.message, message) || other.message == message));
+            (identical(other.message, message) || other.message == message) &&
+            (identical(other.previousUser, previousUser) ||
+                other.previousUser == previousUser));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, message);
+  int get hashCode => Object.hash(runtimeType, message, previousUser);
 
   @override
   String toString() {
-    return 'AuthState.error(message: $message)';
+    return 'AuthState.error(message: $message, previousUser: $previousUser)';
   }
 }
 
@@ -423,7 +469,7 @@ abstract mixin class _$ErrorCopyWith<$Res> implements $AuthStateCopyWith<$Res> {
   factory _$ErrorCopyWith(_Error value, $Res Function(_Error) _then) =
       __$ErrorCopyWithImpl;
   @useResult
-  $Res call({String message});
+  $Res call({String message, UserEntity? previousUser});
 }
 
 /// @nodoc
@@ -438,12 +484,17 @@ class __$ErrorCopyWithImpl<$Res> implements _$ErrorCopyWith<$Res> {
   @pragma('vm:prefer-inline')
   $Res call({
     Object? message = null,
+    Object? previousUser = freezed,
   }) {
     return _then(_Error(
       null == message
           ? _self.message
           : message // ignore: cast_nullable_to_non_nullable
               as String,
+      previousUser: freezed == previousUser
+          ? _self.previousUser
+          : previousUser // ignore: cast_nullable_to_non_nullable
+              as UserEntity?,
     ));
   }
 }

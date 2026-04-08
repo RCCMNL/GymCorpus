@@ -74,7 +74,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
           state.maybeWhen(
             authenticated: (_) => context.go('/training'),
             unauthenticated: () => context.go('/login'),
-            error: (_) => context.go('/login'),
+            error: (_, __) => context.go('/login'),
             orElse: () {},
           );
         });

@@ -8,7 +8,9 @@ environment:
   sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
+  cloud_firestore: ^6.2.0
   dartz: ^0.10.1
+  device_info_plus: ^12.4.0
   drift: ^2.14.0
   equatable: ^2.0.5
   firebase_auth: ^6.3.0
@@ -31,7 +33,7 @@ dependencies:
   injectable: any
   intl: ^0.20.2
   json_annotation: any
-  local_auth: ^3.0.1
+  local_auth: 2.3.0
   path: ^1.8.3
   path_provider: ^2.1.1
   pdf: ^3.12.0
