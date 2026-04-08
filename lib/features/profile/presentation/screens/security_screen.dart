@@ -220,7 +220,15 @@ class _SecurityScreenState extends State<SecurityScreen> {
               _SecurityItem(
                 leading: const GoogleLogo(size: 20),
                 label: 'Google Account',
-                trailing: Text('ATTIVO / NON COLLEGATO', style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.outline, fontWeight: FontWeight.bold)),
+                trailing: Text(
+                  currentUser?.authProviders.contains('google.com') == true ? 'COLLEGATO' : 'NON COLLEGATO',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: currentUser?.authProviders.contains('google.com') == true
+                        ? theme.colorScheme.primary
+                        : theme.colorScheme.outline,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
               
               const SizedBox(height: 32),

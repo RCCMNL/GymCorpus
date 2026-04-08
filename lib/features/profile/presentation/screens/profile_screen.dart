@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
+import 'package:gym_corpus/core/widgets/radial_timer_picker.dart';
 import 'package:gym_corpus/features/auth/domain/entities/user_entity.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_event.dart';
@@ -497,12 +498,11 @@ class _TimerPickerSheet extends StatefulWidget {
 
 class _TimerPickerSheetState extends State<_TimerPickerSheet> {
   late int _value;
-  final List<int> _quickPresets = [30, 45, 60, 90, 120, 180];
-
   @override
   void initState() {
     super.initState();
-    _value = int.tryParse(widget.initialValue) ?? 90;
+    // Clamp initial value to handle potential 0 or out of range values
+    _value = (int.tryParse(widget.initialValue) ?? 90).clamp(1, 300);
   }
 
   @override
@@ -558,114 +558,17 @@ class _TimerPickerSheetState extends State<_TimerPickerSheet> {
             ),
           ),
           const SizedBox(height: 32),
-          // Large Timer Display
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.primary.withValues(alpha: 0.05),
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: theme.colorScheme.primary.withValues(alpha: 0.1),
-                width: 2,
-              ),
-            ),
-            child: Column(
-              children: [
-                Text(
-                  _value.toString(),
-                  style: theme.textTheme.displayLarge?.copyWith(
-                    fontWeight: FontWeight.w900,
-                    color: theme.colorScheme.primary,
-                    fontFamily: 'Lexend',
-                    fontSize: 72,
-                  ),
-                ),
-                Text(
-                  'SECONDI',
-                  style: theme.textTheme.labelSmall?.copyWith(
-                    letterSpacing: 2,
-                    fontWeight: FontWeight.bold,
-                    color: theme.colorScheme.primary.withValues(alpha: 0.6),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 40),
-          // Presets
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Wrap(
-              spacing: 12,
-              runSpacing: 12,
-              alignment: WrapAlignment.center,
-              children: _quickPresets.map((preset) {
-                final isSelected = _value == preset;
-                return ChoiceChip(
-                  label: Text('${preset}s'),
-                  selected: isSelected,
-                  onSelected: (selected) {
-                    if (selected) setState(() => _value = preset);
-                  },
-                  selectedColor: theme.colorScheme.primary,
-                  labelStyle: TextStyle(
-                    color: isSelected ? Colors.white : theme.colorScheme.onSurface,
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                    fontFamily: 'Lexend',
-                  ),
-                  backgroundColor: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    side: BorderSide.none,
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  showCheckmark: false,
-                );
-              }).toList(),
-            ),
+          RadialTimerPicker(
+            initialSeconds: _value,
+            size: 260,
+            onChanged: (val) {
+              setState(() => _value = val);
+            },
           ),
           const SizedBox(height: 32),
-          // Precision Slider
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 32),
-            child: Row(
-              children: [
-                _CircularBtn(
-                  icon: Icons.remove,
-                  onPressed: () => setState(() => _value = (_value - 5).clamp(5, 600)),
-                  theme: theme,
-                ),
-                Expanded(
-                  child: SliderTheme(
-                    data: SliderTheme.of(context).copyWith(
-                      activeTrackColor: theme.colorScheme.primary,
-                      inactiveTrackColor: theme.colorScheme.surfaceContainerHighest,
-                      thumbColor: theme.colorScheme.primary,
-                      overlayColor: theme.colorScheme.primary.withValues(alpha: 0.1),
-                      trackHeight: 8,
-                      thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 12, elevation: 4),
-                    ),
-                    child: Slider(
-                      value: _value.toDouble(),
-                      min: 5,
-                      max: 300,
-                      divisions: 59,
-                      onChanged: (val) => setState(() => _value = val.toInt()),
-                    ),
-                  ),
-                ),
-                _CircularBtn(
-                  icon: Icons.add,
-                  onPressed: () => setState(() => _value = (_value + 5).clamp(5, 600)),
-                  theme: theme,
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 48),
           // Save Button
           Padding(
-            padding: EdgeInsets.fromLTRB(24, 0, 24, 24 + bottomPadding),
+            padding: EdgeInsets.fromLTRB(48, 0, 48, 24 + bottomPadding),
             child: SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -676,39 +579,18 @@ class _TimerPickerSheetState extends State<_TimerPickerSheet> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: theme.colorScheme.primary,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 20),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   elevation: 0,
                 ),
                 child: const Text(
                   'APPLICA MODIFICHE',
-                  style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1.5, fontSize: 16),
+                  style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1.1, fontSize: 13),
                 ),
               ),
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _CircularBtn extends StatelessWidget {
-  const _CircularBtn({required this.icon, required this.onPressed, required this.theme});
-  final IconData icon;
-  final VoidCallback onPressed;
-  final ThemeData theme;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-        shape: BoxShape.circle,
-      ),
-      child: IconButton(
-        icon: Icon(icon, color: theme.colorScheme.primary, size: 20),
-        onPressed: onPressed,
       ),
     );
   }

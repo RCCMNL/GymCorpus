@@ -38,6 +38,7 @@ class AuthRepositoryImpl implements AuthRepository {
       name: user.displayName ?? 'Atleta Gym',
       email: user.email ?? '',
       photoUrl: user.photoURL,
+      authProviders: user.providerData.map((info) => info.providerId).toList(),
     );
   }
 

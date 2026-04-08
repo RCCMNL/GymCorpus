@@ -17,6 +17,7 @@ class UserEntity extends Equatable {
     this.trainingObjective,
     this.lastLoginDate,
     this.lastLoginDevice,
+    this.authProviders = const [],
   });
 
   factory UserEntity.fromJson(Map<String, dynamic> json) => UserEntity(
@@ -31,6 +32,7 @@ class UserEntity extends Equatable {
         trainingObjective: json['trainingObjective'] as String?,
         lastLoginDate: json['lastLoginDate'] != null ? DateTime.parse(json['lastLoginDate'] as String) : null,
         lastLoginDevice: json['lastLoginDevice'] as String?,
+        authProviders: (json['authProviders'] as List<dynamic>?)?.map((e) => e as String).toList() ?? const [],
       );
 
   Map<String, dynamic> toJson() => <String, dynamic>{
@@ -45,6 +47,7 @@ class UserEntity extends Equatable {
         'trainingObjective': trainingObjective,
         'lastLoginDate': lastLoginDate?.toIso8601String(),
         'lastLoginDevice': lastLoginDevice,
+        'authProviders': authProviders,
       };
 
   final String id;
@@ -58,6 +61,7 @@ class UserEntity extends Equatable {
   final String? trainingObjective;
   final DateTime? lastLoginDate;
   final String? lastLoginDevice;
+  final List<String> authProviders;
 
   UserEntity copyWith({
     String? id,
@@ -71,6 +75,7 @@ class UserEntity extends Equatable {
     String? trainingObjective,
     DateTime? lastLoginDate,
     String? lastLoginDevice,
+    List<String>? authProviders,
   }) {
     return UserEntity(
       id: id ?? this.id,
@@ -84,6 +89,7 @@ class UserEntity extends Equatable {
       trainingObjective: trainingObjective ?? this.trainingObjective,
       lastLoginDate: lastLoginDate ?? this.lastLoginDate,
       lastLoginDevice: lastLoginDevice ?? this.lastLoginDevice,
+      authProviders: authProviders ?? this.authProviders,
     );
   }
 
@@ -100,5 +106,6 @@ class UserEntity extends Equatable {
         trainingObjective,
         lastLoginDate,
         lastLoginDevice,
+        authProviders,
       ];
 }
