@@ -35,9 +35,9 @@ class GymHeader extends StatelessWidget implements PreferredSizeWidget {
       actions: [
         IconButton(
           onPressed: () {
-            // Potrebbe navigare alla pagina profilo/settings se non siamo già lì
+            // Placeholder: Notifiche UI
           },
-          icon: const Icon(Icons.settings, size: 20),
+          icon: const Icon(Icons.notifications_none_rounded, size: 24),
         ),
         const SizedBox(width: 4),
       ],

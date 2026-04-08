@@ -1,21 +1,31 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
+
+import 'package:gym_corpus/core/utils/unit_converter.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/core/widgets/radial_timer_picker.dart';
-import 'package:gym_corpus/core/utils/unit_converter.dart';
 import 'package:gym_corpus/features/auth/domain/entities/user_entity.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_event.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
+import 'package:gym_corpus/features/profile/presentation/widgets/custom_segmented_control.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
-import 'package:image_picker/image_picker.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  int _selectedTab = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -35,21 +45,27 @@ class ProfileScreen extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Profilo',
-                        style: theme.textTheme.headlineLarge?.copyWith(
-                          fontSize: 26,
-                          fontWeight: FontWeight.bold,
-                          color: theme.colorScheme.onSurface,
-                          fontFamily: 'Lexend',
+                      ShaderMask(
+                        shaderCallback: (bounds) => LinearGradient(
+                          colors: [theme.colorScheme.primary, theme.colorScheme.tertiary],
+                        ).createShader(bounds),
+                        child: Text(
+                          'Profilo',
+                          style: theme.textTheme.headlineLarge?.copyWith(
+                            fontSize: 32,
+                            fontWeight: FontWeight.w900,
+                            color: Colors.white,
+                            fontFamily: 'Lexend',
+                          ),
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         'APP PREFERENCES & ACCOUNT',
                         style: theme.textTheme.labelSmall?.copyWith(
-                          letterSpacing: 2,
-                          color: theme.colorScheme.outline,
+                          letterSpacing: 2.5,
+                          color: theme.colorScheme.primary.withValues(alpha: 0.5),
+                          fontWeight: FontWeight.w900,
                         ),
                       ),
                     ],
@@ -60,9 +76,26 @@ class ProfileScreen extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                     decoration: BoxDecoration(
-                      color: theme.colorScheme.surfaceContainerLow,
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.1)),
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          theme.colorScheme.primary.withValues(alpha: 0.1),
+                          theme.colorScheme.tertiary.withValues(alpha: 0.08),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(32),
+                      border: Border.all(
+                        color: theme.colorScheme.primary.withValues(alpha: 0.15),
+                        width: 1.5,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: theme.colorScheme.primary.withValues(alpha: 0.05),
+                          blurRadius: 30,
+                          offset: const Offset(0, 10),
+                        ),
+                      ],
                     ),
                     child: BlocBuilder<AuthBloc, AuthState>(
                       builder: (context, state) {
@@ -75,121 +108,220 @@ class ProfileScreen extends StatelessWidget {
                         final userName = user?.name ?? 'Guest';
                         final photoUrl = user?.photoUrl;
 
-                        return Row(
+                        return Column(
                           children: [
-                            GestureDetector(
-                              onTap: () async {
-                                final picker = ImagePicker();
-                                final image = await picker.pickImage(
-                                  source: ImageSource.gallery,
-                                  maxWidth: 512,
-                                  maxHeight: 512,
-                                  imageQuality: 75,
-                                );
+                            Row(
+                              children: [
+                                GestureDetector(
+                                  onTap: () async {
+                                    final picker = ImagePicker();
+                                    final image = await picker.pickImage(
+                                      source: ImageSource.gallery,
+                                      maxWidth: 512,
+                                      maxHeight: 512,
+                                      imageQuality: 75,
+                                    );
 
-                                if (image != null && context.mounted) {
-                                  context.read<AuthBloc>().add(
-                                        AuthEvent.updateProfileImageRequested(
-                                          filePath: image.path,
+                                    if (image != null && context.mounted) {
+                                      context.read<AuthBloc>().add(
+                                            AuthEvent.updateProfileImageRequested(
+                                              filePath: image.path,
+                                            ),
+                                          );
+                                    }
+                                  },
+                                  child: Stack(
+                                    children: [
+                                      Container(
+                                        width: 72,
+                                        height: 72,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: theme.colorScheme.surfaceContainerHighest,
+                                          border: Border.all(
+                                            color: theme.colorScheme.tertiary, 
+                                            width: 2.5,
+                                          ),
+                                          image: photoUrl != null
+                                              ? DecorationImage(
+                                                  image: photoUrl.startsWith('http')
+                                                      ? NetworkImage(photoUrl)
+                                                      : FileImage(File(photoUrl)) as ImageProvider,
+                                                  fit: BoxFit.cover,
+                                                )
+                                              : null,
                                         ),
-                                      );
-                                }
-                              },
-                              child: Stack(
-                                children: [
-                                  Container(
-                                    width: 80,
-                                    height: 80,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: theme.colorScheme.surfaceContainerHighest,
-                                      border: Border.all(color: theme.colorScheme.primary, width: 2),
-                                      image: photoUrl != null
-                                          ? DecorationImage(
-                                              image: photoUrl.startsWith('http')
-                                                  ? NetworkImage(photoUrl)
-                                                  : FileImage(File(photoUrl)) as ImageProvider,
-                                              fit: BoxFit.cover,
-                                            )
-                                          : null,
-                                    ),
-                                    child: photoUrl == null
-                                        ? Icon(Icons.person, color: theme.colorScheme.primary, size: 40)
-                                        : null,
-                                  ),
-                                  Positioned(
-                                    bottom: 0,
-                                    right: 0,
-                                    child: Container(
-                                      width: 28,
-                                      height: 28,
-                                      decoration: BoxDecoration(
-                                        color: theme.colorScheme.tertiary,
-                                        shape: BoxShape.circle,
-                                        border: Border.all(color: theme.colorScheme.surface, width: 4),
+                                        child: photoUrl == null
+                                            ? Icon(Icons.person, color: theme.colorScheme.primary, size: 36)
+                                            : null,
                                       ),
-                                      child: Icon(
-                                        photoUrl != null ? Icons.edit : Icons.add_a_photo,
-                                        size: 12,
-                                        color: theme.colorScheme.onTertiaryContainer,
+                                      Positioned(
+                                        bottom: 0,
+                                        right: 0,
+                                        child: Container(
+                                          width: 24,
+                                          height: 24,
+                                          decoration: BoxDecoration(
+                                            color: theme.colorScheme.tertiary,
+                                            shape: BoxShape.circle,
+                                            border: Border.all(color: theme.colorScheme.surface, width: 3),
+                                          ),
+                                          child: Icon(
+                                            photoUrl != null ? Icons.edit : Icons.add_a_photo,
+                                            size: 10,
+                                            color: theme.colorScheme.onTertiaryContainer,
+                                          ),
+                                        ),
                                       ),
-                                    ),
+                                    ],
                                   ),
-                                ],
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        userName,
+                                        style: theme.textTheme.headlineSmall?.copyWith(
+                                          fontWeight: FontWeight.w900,
+                                          fontFamily: 'Lexend',
+                                          fontSize: 22,
+                                          letterSpacing: -0.5,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      if (user?.username != null)
+                                        Text(
+                                          '@${user!.username}',
+                                          style: theme.textTheme.bodySmall?.copyWith(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 13,
+                                            color: theme.colorScheme.outline,
+                                          ),
+                                        ),
+                                      const SizedBox(height: 8),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                        decoration: BoxDecoration(
+                                          color: theme.colorScheme.tertiary.withValues(alpha: 0.1),
+                                          borderRadius: BorderRadius.circular(8),
+                                          border: Border.all(color: theme.colorScheme.tertiary.withValues(alpha: 0.2)),
+                                        ),
+                                        child: Text(
+                                          'LIVELLO 1',
+                                          style: theme.textTheme.labelSmall?.copyWith(
+                                            color: theme.colorScheme.tertiary,
+                                            fontWeight: FontWeight.w900,
+                                            fontSize: 10,
+                                            letterSpacing: 1.1,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 20),
+                              child: Divider(
+                                color: theme.colorScheme.outline.withValues(alpha: 0.1),
+                                height: 1,
                               ),
                             ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    userName,
-                                    style: theme.textTheme.headlineSmall?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      fontFamily: 'Lexend',
-                                      fontSize: 22,
-                                    ),
-                                    maxLines: 2,
-                                    softWrap: true,
-                                  ),
-                                  const SizedBox(height: 8),
-                                  _buildPhysicalStats(context, theme, user, trainingState),
-                                  const SizedBox(height: 12),
-                                  if (user?.username != null) ...[
-                                    Text(
-                                      '@${user!.username}',
-                                      style: theme.textTheme.bodySmall?.copyWith(
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 13,
-                                        fontFamily: 'Lexend',
-                                        color: theme.colorScheme.primary,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 2),
-                                  ],
-                                  Text(
-                                    'LIVELLO 1',
-                                    style: theme.textTheme.bodySmall?.copyWith(
-                                      fontWeight: FontWeight.w900,
-                                      fontSize: 13,
-                                      fontFamily: 'Lexend',
-                                      color: theme.colorScheme.outline,
-                                      letterSpacing: 1.2,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                            _buildPhysicalStats(context, theme, user, trainingState),
                           ],
                         );
                       },
                     ),
-                  ), const SizedBox(height: 32),
+                  ), 
+                  const SizedBox(height: 24),
 
-                  // Account Section
-                  _ProfileSection(
-                    title: 'Account',
+                  // Segmented Control
+                  CustomSegmentedControl(
+                    selectedIndex: _selectedTab,
+                    onChanged: (index) {
+                      setState(() {
+                        _selectedTab = index;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Ultra-fast Snappy Transition
+                  AnimatedCrossFade(
+                    firstChild: _buildProfileMenu(context, theme),
+                    secondChild: _buildSettingsMenu(context, theme, trainingState),
+                    crossFadeState: _selectedTab == 0 ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+                    duration: const Duration(milliseconds: 150),
+                    sizeCurve: Curves.easeOutCubic,
+                    firstCurve: Curves.easeInOut,
+                    secondCurve: Curves.easeInOut,
+                  ),
+
+                  const SizedBox(height: 100), // Space for nav
+                ],
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProfileMenu(BuildContext context, ThemeData theme) {
+    return Column(
+      key: const ValueKey('profile_menu'),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _ProfileSection(
+          title: 'Performance & Dati',
+          items: [
+            _ProfileItem(icon: Icons.track_changes, label: 'Obiettivi', onTap: () {}),
+            _ProfileItem(icon: Icons.trending_up, label: 'Progressi', onTap: () {}),
+            _ProfileItem(icon: Icons.emoji_events, label: 'Record', onTap: () {}),
+          ],
+        ),
+        _ProfileSection(
+          title: 'Allenamento',
+          items: [
+            _ProfileItem(icon: Icons.calendar_month, label: 'Programma attuale', onTap: () {}),
+            _ProfileItem(icon: Icons.favorite, label: 'Esercizi Preferiti', onTap: () {}),
+          ],
+        ),
+        _ProfileSection(
+          title: 'Community & Gamification',
+          items: [
+            _ProfileItem(icon: Icons.leaderboard, label: 'Classifica Utenti', onTap: () {}),
+            _ProfileItem(icon: Icons.campaign, label: 'Sfide Community', onTap: () {}),
+            _ProfileItem(icon: Icons.military_tech, label: 'Bacheca Trofei & Livelli', onTap: () {}),
+          ],
+        ),
+        _ProfileSection(
+          title: 'Palestra',
+          items: [
+            const _ProfileItem(
+              icon: Icons.workspace_premium,
+              label: 'Abbonamento',
+              trailingText: 'FREE',
+              isBadge: true,
+            ),
+            _ProfileItem(icon: Icons.qr_code, label: 'QR Check-in', onTap: () {}),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSettingsMenu(BuildContext context, ThemeData theme, TrainingState trainingState) {
+    return Column(
+      key: const ValueKey('settings_menu'),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Account Section
+        _ProfileSection(
+          title: 'Account',
                     items: [
                       _ProfileItem(
                         icon: Icons.person, 
@@ -202,8 +334,8 @@ class ProfileScreen extends StatelessWidget {
                         onTap: () => context.push('/profile/security'),
                       ),
                       const _ProfileItem(
-                        icon: Icons.workspace_premium,
-                        label: 'Abbonamento',
+                        icon: Icons.payments_outlined,
+                        label: 'Gestione pagamenti',
                         trailingText: 'FREE',
                         isBadge: true,
                       ),
@@ -244,37 +376,43 @@ class ProfileScreen extends StatelessWidget {
                   // Logout Button
                   SizedBox(
                     width: double.infinity,
-                    child: TextButton.icon(
-                      onPressed: () {
-                        context.read<AuthBloc>().add(const AuthEvent.logoutRequested());
-                      },
-                      icon: const Icon(Icons.logout),
-                      label: const Text('LOGOUT'),
-                      style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 20),
-                        backgroundColor: theme.colorScheme.errorContainer.withValues(alpha: 0.1),
-                        foregroundColor: theme.colorScheme.error,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                          side: BorderSide(color: theme.colorScheme.errorContainer.withValues(alpha: 0.2)),
-                        ),
-                        textStyle: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 2,
-                          fontFamily: 'Lexend',
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: [
+                          BoxShadow(
+                            color: theme.colorScheme.error.withValues(alpha: 0.1),
+                            blurRadius: 20,
+                            offset: const Offset(0, 10),
+                          ),
+                        ],
+                      ),
+                      child: TextButton.icon(
+                        onPressed: () {
+                          context.read<AuthBloc>().add(const AuthEvent.logoutRequested());
+                        },
+                        icon: const Icon(Icons.logout_rounded, size: 20),
+                        label: const Text('DISCONNETTI ACCOUNT'),
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 22),
+                          backgroundColor: theme.colorScheme.errorContainer.withValues(alpha: 0.1),
+                          foregroundColor: theme.colorScheme.error,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(24),
+                            side: BorderSide(color: theme.colorScheme.errorContainer.withValues(alpha: 0.3)),
+                          ),
+                          textStyle: const TextStyle(
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 1.5,
+                            fontSize: 13,
+                            fontFamily: 'Lexend',
+                          ),
                         ),
                       ),
                     ),
                   ),
-
-                  const SizedBox(height: 100), // Space for nav
                 ],
-              ),
-            );
-          },
-        ),
-      ),
-    );
+              );
   }
 
   void _showTimerPickerSheet(BuildContext context, String currentTimer) {
@@ -306,20 +444,20 @@ class ProfileScreen extends StatelessWidget {
     final settings = trainingState is TrainingLoaded ? trainingState.settings : <String, String>{};
     final isImperial = (settings['units'] ?? 'KG') == 'LB';
 
-    String weightLabel = '? kg';
+    var weightLabel = '? kg';
     if (user.weight != null) {
       final value = isImperial ? UnitConverter.kgToLb(user.weight!) : user.weight!;
       weightLabel = '${value.toStringAsFixed(1)}${isImperial ? 'lb' : 'kg'}';
     }
 
-    String heightLabel = '? cm';
+    var heightLabel = '? cm';
     final heightValue = user.height;
     if (heightValue != null) {
       final value = isImperial ? UnitConverter.cmToInch(heightValue) : heightValue;
       heightLabel = '${value.toInt()}${isImperial ? 'in' : 'cm'}';
     }
     
-    String age = '? anni';
+    var age = '? anni';
     if (user.birthDate != null) {
       final now = DateTime.now();
       final birthDate = user.birthDate!;
@@ -334,9 +472,8 @@ class ProfileScreen extends StatelessWidget {
 
     return GestureDetector(
       onTap: hasMissingData ? () => context.push('/profile/edit') : null,
-      child: Wrap(
-        spacing: 12,
-        runSpacing: 4,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           _buildStatItem(Icons.monitor_weight_outlined, weightLabel, theme),
           _buildStatItem(Icons.height, heightLabel, theme),
@@ -376,20 +513,35 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Widget _buildStatItem(IconData icon, String value, ThemeData theme) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 16, color: theme.colorScheme.primary.withValues(alpha: 0.7)),
-        const SizedBox(width: 4),
-        Text(
-          value,
-          style: theme.textTheme.bodySmall?.copyWith(
-            fontWeight: FontWeight.w600,
-            fontSize: 13,
-            fontFamily: 'Lexend',
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface.withValues(alpha: 0.4),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.1)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon, 
+            size: 14, 
+            color: icon == Icons.monitor_weight_outlined 
+                ? theme.colorScheme.primary 
+                : (icon == Icons.height ? theme.colorScheme.tertiary : Colors.orangeAccent)
           ),
-        ),
-      ],
+          const SizedBox(width: 6),
+          Text(
+            value,
+            style: theme.textTheme.bodySmall?.copyWith(
+              fontWeight: FontWeight.w700,
+              fontSize: 12,
+              fontFamily: 'Lexend',
+              color: theme.colorScheme.onSurface,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -410,19 +562,38 @@ class _ProfileSection extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.only(left: 8, bottom: 16),
-            child: Text(
-              title.toUpperCase(),
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: theme.colorScheme.outline,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 2,
-              ),
+            child: Row(
+              children: [
+                Container(
+                  width: 4,
+                  height: 16,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [theme.colorScheme.primary, theme.colorScheme.tertiary],
+                    ),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  title.toUpperCase(),
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1.5,
+                    fontSize: 11,
+                  ),
+                ),
+              ],
             ),
           ),
           Container(
             decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceContainerHigh,
-              borderRadius: BorderRadius.circular(20),
+              color: theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.4),
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.05)),
             ),
             child: ListView.separated(
               shrinkWrap: true,
@@ -467,7 +638,13 @@ class _ProfileItem extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
-              Icon(icon, color: theme.colorScheme.primary, size: 24),
+              Icon(
+                icon, 
+                color: label == 'Sicurezza' || label == 'Esercizi Preferiti' 
+                    ? theme.colorScheme.tertiary 
+                    : theme.colorScheme.primary, 
+                size: 24
+              ),
               const SizedBox(width: 16),
               Expanded(
                 child: Text(
@@ -605,10 +782,11 @@ class _TimerPickerSheetState extends State<_TimerPickerSheet> {
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: theme.colorScheme.primary,
-                  foregroundColor: Colors.white,
+                  foregroundColor: theme.colorScheme.onPrimary,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  elevation: 0,
+                  elevation: 8,
+                  shadowColor: theme.colorScheme.primary.withValues(alpha: 0.4),
                 ),
                 child: const Text(
                   'APPLICA MODIFICHE',
