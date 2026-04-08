@@ -80,7 +80,7 @@ class AuthRepositoryImpl implements AuthRepository {
       if (credential.user != null) {
         final baseUser = _mapFirebaseUser(credential.user!);
         final remoteUser = await _remoteDataSource.getUserProfile(baseUser.id);
-        final user = remoteUser ?? baseUser;
+        final user = (remoteUser ?? baseUser).copyWith(authProviders: baseUser.authProviders);
         
         final finalUser = await _updateLoginHistory(user);
         return Right(finalUser);
@@ -151,6 +151,7 @@ class AuthRepositoryImpl implements AuthRepository {
       final updatedSessionUser = finalUser.copyWith(
         name: firebaseUser.displayName ?? finalUser.name,
         photoUrl: firebaseUser.photoURL ?? finalUser.photoUrl,
+        authProviders: baseUser.authProviders,
       );
       final finalSessionUser = await _updateLoginHistory(updatedSessionUser);
       return Right(finalSessionUser);
@@ -203,7 +204,7 @@ class AuthRepositoryImpl implements AuthRepository {
       if (userCredential.user != null) {
         final baseUser = _mapFirebaseUser(userCredential.user!);
         final remoteUser = await _remoteDataSource.getUserProfile(baseUser.id);
-        final user = remoteUser ?? baseUser;
+        final user = (remoteUser ?? baseUser).copyWith(authProviders: baseUser.authProviders);
         
         final finalUser = await _updateLoginHistory(user);
         return Right(finalUser);
@@ -240,7 +241,7 @@ class AuthRepositoryImpl implements AuthRepository {
       if (userCredential.user != null) {
         final baseUser = _mapFirebaseUser(userCredential.user!);
         final remoteUser = await _remoteDataSource.getUserProfile(baseUser.id);
-        final user = remoteUser ?? baseUser;
+        final user = (remoteUser ?? baseUser).copyWith(authProviders: baseUser.authProviders);
         
         final finalUser = await _updateLoginHistory(user);
         return Right(finalUser);

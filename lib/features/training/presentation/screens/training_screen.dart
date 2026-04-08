@@ -7,6 +7,7 @@ import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
+import 'package:gym_corpus/core/utils/unit_converter.dart';
 
 class TrainingScreen extends StatefulWidget {
 
@@ -77,9 +78,12 @@ class _TrainingScreenState extends State<TrainingScreen> {
 
     return BlocBuilder<TrainingBloc, TrainingState>(
       builder: (context, state) {
+        String currentUnit = 'KG';
         if (state is TrainingLoaded) {
           final dbDuration =
               int.tryParse(state.settings['rest_timer'] ?? '90') ?? 90;
+          currentUnit = state.settings['units'] ?? 'KG';
+
           if (_totalRestSeconds != dbDuration) {
             _totalRestSeconds = dbDuration;
             if (!_isRunning) _remainingSeconds = dbDuration;
@@ -170,8 +174,9 @@ class _TrainingScreenState extends State<TrainingScreen> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: _MetricCard(
-                            label: 'CARICO (KG)',
-                            value: '85',
+                            label: 'CARICO (${currentUnit.toUpperCase()})',
+                            // In a real app this value 85 would be converted if LB
+                            value: currentUnit == 'LB' ? UnitConverter.kgToLb(85).round().toString() : '85',
                             theme: theme,
                           ),
                         ),

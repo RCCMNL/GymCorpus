@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
+import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
+import 'package:gym_corpus/core/utils/unit_converter.dart';
 
 class AnalyticsScreen extends StatefulWidget {
   const AnalyticsScreen({super.key});
@@ -35,10 +38,12 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             var monthSessions = 0;
             var monthWeight = 0.0;
 
+            var currentUnit = 'KG';
             if (state is TrainingLoaded) {
+              currentUnit = state.settings['units'] ?? 'KG';
               final logs = state.weightLogs;
               sessionsCount = logs.map((e) => e.workoutId).toSet().length;
-              totalWeight = logs.fold(0, (sum, e) => sum + (e.weight * e.reps));
+              totalWeight = logs.fold(0.0, (sum, e) => sum + (e.weight * e.reps));
 
               final now = DateTime.now();
               final monthLogs = logs
@@ -48,8 +53,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   )
                   .toList();
               monthSessions = monthLogs.map((e) => e.workoutId).toSet().length;
-              monthWeight = monthLogs.fold(0, (sum, e) => sum + (e.weight * e.reps));
+              monthWeight = monthLogs.fold(0.0, (sum, e) => sum + (e.weight * e.reps));
             }
+            final isImperial = currentUnit == 'LB';
 
             return SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -98,8 +104,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                       ),
                       _StatItem(
                         icon: Icons.scale,
-                        value: '${(totalWeight / 1000).toStringAsFixed(1)}k',
-                        label: 'Volume (kg)',
+                        value: isImperial 
+                          ? '${(UnitConverter.kgToLb(totalWeight) / 1000).toStringAsFixed(1)}k'
+                          : '${(totalWeight / 1000).toStringAsFixed(1)}k',
+                        label: isImperial ? 'Volume (lb)' : 'Volume (kg)',
                       ),
                     ],
                   ),
@@ -120,8 +128,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                       ),
                       _StatItem(
                         icon: Icons.trending_up,
-                        value: '${(monthWeight / 1000).toStringAsFixed(1)}k',
-                        label: 'Volume (kg)',
+                        value: isImperial
+                          ? '${(UnitConverter.kgToLb(monthWeight) / 1000).toStringAsFixed(1)}k'
+                          : '${(monthWeight / 1000).toStringAsFixed(1)}k',
+                        label: isImperial ? 'Volume (lb)' : 'Volume (kg)',
                       ),
                     ],
                   ),
@@ -331,13 +341,26 @@ class _WeightTrackingCard extends StatelessWidget {
         var min = '--';
         var trendPoints = <double>[];
 
+        final trainingState = context.read<TrainingBloc>().state;
+        final settings = trainingState is TrainingLoaded ? trainingState.settings : <String, String>{};
+        final isImperial = (settings['units'] ?? 'KG') == 'LB';
+
         if (state is TrainingLoaded && state.bodyWeightLogs.isNotEmpty) {
-          final logs = state.bodyWeightLogs;
-          current = logs.first.weight.toStringAsFixed(1);
-          max = logs.map((e) => e.weight).reduce((a, b) => a > b ? a : b).toStringAsFixed(1);
-          min = logs.map((e) => e.weight).reduce((a, b) => a < b ? a : b).toStringAsFixed(1);
-          trendPoints = logs.map((e) => e.weight).toList().reversed.toList();
+          var logs = state.bodyWeightLogs;
+          if (isImperial) {
+            current = UnitConverter.kgToLb(logs.first.weight).toStringAsFixed(1);
+            max = logs.map((e) => UnitConverter.kgToLb(e.weight)).reduce((a, b) => a > b ? a : b).toStringAsFixed(1);
+            min = logs.map((e) => UnitConverter.kgToLb(e.weight)).reduce((a, b) => a < b ? a : b).toStringAsFixed(1);
+            trendPoints = logs.map((e) => UnitConverter.kgToLb(e.weight)).toList().reversed.toList();
+          } else {
+            current = logs.first.weight.toStringAsFixed(1);
+            max = logs.map((e) => e.weight).reduce((a, b) => a > b ? a : b).toStringAsFixed(1);
+            min = logs.map((e) => e.weight).reduce((a, b) => a < b ? a : b).toStringAsFixed(1);
+            trendPoints = logs.map((e) => e.weight).toList().reversed.toList();
+          }
         }
+
+        final unitText = isImperial ? 'lb' : 'kg';
 
         return Container(
           padding: const EdgeInsets.all(24),
@@ -377,11 +400,11 @@ class _WeightTrackingCard extends StatelessWidget {
               const SizedBox(height: 24),
               Row(
                 children: [
-                  _WeightItem(label: 'Current', value: current, unit: 'kg', color: theme.colorScheme.onSurface),
+                  _WeightItem(label: 'Current', value: current, unit: unitText, color: theme.colorScheme.onSurface),
                   const SizedBox(width: 8),
-                  _WeightItem(label: 'Maximum', value: max, unit: 'kg', color: theme.colorScheme.error),
+                  _WeightItem(label: 'Maximum', value: max, unit: unitText, color: theme.colorScheme.error),
                   const SizedBox(width: 8),
-                  _WeightItem(label: 'Minimum', value: min, unit: 'kg', color: theme.colorScheme.tertiary),
+                  _WeightItem(label: 'Minimum', value: min, unit: unitText, color: theme.colorScheme.tertiary),
                 ],
               ),
               const SizedBox(height: 32),
@@ -412,6 +435,10 @@ class _WeightTrackingCard extends StatelessWidget {
 
   void _showAddWeightDialog(BuildContext context) {
     final controller = TextEditingController();
+    final trainingState = context.read<TrainingBloc>().state;
+    final settings = trainingState is TrainingLoaded ? trainingState.settings : <String, String>{};
+    final isImperial = (settings['units'] ?? 'KG') == 'LB';
+
     showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
@@ -419,14 +446,19 @@ class _WeightTrackingCard extends StatelessWidget {
         content: TextField(
           controller: controller,
           keyboardType: TextInputType.number,
-          decoration: const InputDecoration(labelText: 'Weight (kg)'),
+          decoration: InputDecoration(
+            labelText: isImperial ? 'Weight (lb)' : 'Weight (kg)',
+          ),
         ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () {
-              final weight = double.tryParse(controller.text);
+              double? weight = double.tryParse(controller.text);
               if (weight != null) {
+                if (isImperial) {
+                  weight = UnitConverter.lbToKg(weight);
+                }
                 context.read<TrainingBloc>().add(AddBodyWeightLogEvent(weight));
                 Navigator.pop(context);
               }
@@ -548,92 +580,123 @@ class _BMICard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            theme.colorScheme.surfaceContainerHigh,
-            theme.colorScheme.surfaceContainer,
-          ],
-        ),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: theme.colorScheme.outline.withValues(alpha: 0.1),
-        ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.tertiary.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child:
-                    Icon(Icons.person_search, color: theme.colorScheme.tertiary),
-              ),
-              const SizedBox(width: 16),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Indice BMI',
-                    style: theme.textTheme.titleMedium
-                        ?.copyWith(fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    'BODY MASS INDEX',
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      fontSize: 8,
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+    return BlocBuilder<AuthBloc, AuthState>(
+      builder: (context, state) {
+        double? bmi;
+        String category = 'N/A';
+        Color categoryColor = theme.colorScheme.outline;
+
+        final user = state.maybeWhen(
+          authenticated: (u) => u,
+          orElse: () => null,
+        );
+
+        if (user != null && user.weight != null && user.height != null) {
+          final hMetri = user.height! / 100;
+          bmi = user.weight! / (hMetri * hMetri);
+
+          if (bmi < 18.5) {
+            category = 'UNDERWEIGHT';
+            categoryColor = Colors.lightBlue;
+          } else if (bmi < 25) {
+            category = 'NORMAL';
+            categoryColor = theme.colorScheme.tertiary;
+          } else if (bmi < 30) {
+            category = 'OVERWEIGHT';
+            categoryColor = Colors.orange;
+          } else {
+            category = 'OBESE';
+            categoryColor = Colors.red;
+          }
+        }
+
+        return Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                theme.colorScheme.surfaceContainerHigh,
+                theme.colorScheme.surfaceContainer,
+              ],
+            ),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: theme.colorScheme.outline.withValues(alpha: 0.1),
+            ),
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                '23.4',
-                style: theme.textTheme.headlineLarge?.copyWith(
-                  color: theme.colorScheme.tertiary,
-                  fontFamily: 'Lexend',
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
               Row(
                 children: [
                   Container(
-                    width: 7,
-                    height: 7,
+                    width: 48,
+                    height: 48,
                     decoration: BoxDecoration(
-                      color: theme.colorScheme.tertiary,
-                      shape: BoxShape.circle,
+                      color: categoryColor.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(Icons.person_search, color: categoryColor),
+                  ),
+                  const SizedBox(width: 16),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Indice BMI',
+                        style: theme.textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        'BODY MASS INDEX',
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          fontSize: 8,
+                          color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    bmi != null ? bmi.toStringAsFixed(1) : '--',
+                    style: theme.textTheme.headlineLarge?.copyWith(
+                      color: categoryColor,
+                      fontFamily: 'Lexend',
+                      fontWeight: FontWeight.w900,
                     ),
                   ),
-                  const SizedBox(width: 6),
-                  Text(
-                    'NORMAL',
-                    style: TextStyle(
-                      color: theme.colorScheme.tertiary,
-                      fontSize: 9,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 1.2,
-                    ),
+                  Row(
+                    children: [
+                      Container(
+                        width: 7,
+                        height: 7,
+                        decoration: BoxDecoration(
+                          color: categoryColor,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        category,
+                        style: TextStyle(
+                          color: categoryColor,
+                          fontSize: 9,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

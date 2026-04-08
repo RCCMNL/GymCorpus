@@ -9,6 +9,7 @@ import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
+import 'package:gym_corpus/core/utils/unit_converter.dart';
 
 class WorkoutPage extends StatefulWidget {
   const WorkoutPage({this.routineToEdit, super.key});
@@ -64,12 +65,40 @@ class _WorkoutPageState extends State<WorkoutPage> {
       return;
     }
 
+    final trainingState = context.read<TrainingBloc>().state;
+    final settings = trainingState is TrainingLoaded ? trainingState.settings : <String, String>{};
+    final isImperial = (settings['units'] ?? 'KG') == 'LB';
+
+    // Se siamo in imperiale, riconvertiamo tutto in KG per il database
+    final exercisesToSave = _selectedExercises.map((re) {
+      if (!isImperial) return re;
+      
+      List<dynamic> setsList = [];
+      try {
+        setsList = jsonDecode(re.setsData!) as List<dynamic>;
+        final convertedSets = setsList.map((s) {
+          final w = (s['weight'] as num).toDouble();
+          return {
+            'weight': UnitConverter.lbToKg(w),
+            'reps': s['reps'],
+          };
+        }).toList();
+        
+        return re.copyWith(
+          weight: UnitConverter.lbToKg(re.weight),
+          setsData: jsonEncode(convertedSets),
+        );
+      } catch (_) {
+        return re;
+      }
+    }).toList();
+
     if (widget.routineToEdit != null) {
       context.read<TrainingBloc>().add(
             UpdateRoutineEvent(
               id: widget.routineToEdit!.id,
               title: routineName,
-              exercises: _selectedExercises,
+              exercises: exercisesToSave,
               estDuration: widget.routineToEdit!.estimatedDuration,
             ),
           );
@@ -77,7 +106,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
       context.read<TrainingBloc>().add(
             AddRoutineEvent(
               title: routineName,
-              exercises: _selectedExercises,
+              exercises: exercisesToSave,
             ),
           );
     }
@@ -437,6 +466,17 @@ class _SelectedExerciseTileState extends State<_SelectedExerciseTile> {
     if (sets.isEmpty) {
       sets = [ExerciseSet(weight: 0, reps: 0)];
     }
+
+    final trainingState = context.read<TrainingBloc>().state;
+    final settings = trainingState is TrainingLoaded ? trainingState.settings : <String, String>{};
+    final isImperial = (settings['units'] ?? 'KG') == 'LB';
+
+    if (isImperial) {
+      for (final s in sets) {
+        s.weight = UnitConverter.kgToLb(s.weight);
+      }
+    }
+
     _initControllers();
   }
 
@@ -620,7 +660,9 @@ class _SelectedExerciseTileState extends State<_SelectedExerciseTile> {
                           Expanded(
                             child: _SetInputCell(
                               controller: weightControllers[index],
-                              label: 'KG',
+                              label: (context.read<TrainingBloc>().state is TrainingLoaded && 
+                                      (context.read<TrainingBloc>().state as TrainingLoaded).settings['units'] == 'LB') 
+                                      ? 'LB' : 'KG',
                               onChanged: (v) {
                                 sets[index].weight = double.tryParse(v) ?? 0;
                                 widget.onSetsUpdated(sets);

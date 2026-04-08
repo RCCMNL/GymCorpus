@@ -5,6 +5,9 @@ import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_event.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
+import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
+import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
+import 'package:gym_corpus/core/utils/unit_converter.dart';
 import 'package:intl/intl.dart';
 
 class EditProfileScreen extends StatefulWidget {
@@ -23,6 +26,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   DateTime? _birthDate;
   String? _selectedObjective;
   bool _isSaving = false;
+  bool _isImperial = false;
 
   final List<String> _objectives = [
     'Massa',
@@ -39,13 +43,23 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           orElse: () => null,
         );
 
+    final trainingState = context.read<TrainingBloc>().state;
+    final settings = trainingState is TrainingLoaded ? trainingState.settings : <String, String>{};
+    _isImperial = (settings['units'] ?? 'KG') == 'LB';
+
+    double? w = user?.weight;
+    if (w != null && _isImperial) w = UnitConverter.kgToLb(w);
+    
+    double? h = user?.height;
+    if (h != null && _isImperial) h = UnitConverter.cmToInch(h);
+
     _nameController = TextEditingController(text: user?.name ?? '');
     _usernameController = TextEditingController(text: user?.username ?? '');
     _weightController = TextEditingController(
-      text: user?.weight?.toString() ?? '',
+      text: w != null ? w.toStringAsFixed(1) : '',
     );
     _heightController = TextEditingController(
-      text: user?.height?.toString() ?? '',
+      text: h != null ? h.round().toString() : '',
     );
     _birthDate = user?.birthDate;
     _selectedObjective = user?.trainingObjective;
@@ -92,13 +106,23 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         _isSaving = true;
       });
 
+      double? finalWeight = double.tryParse(_weightController.text);
+      if (finalWeight != null && _isImperial) {
+        finalWeight = UnitConverter.lbToKg(finalWeight);
+      }
+
+      double? finalHeight = double.tryParse(_heightController.text);
+      if (finalHeight != null && _isImperial) {
+        finalHeight = UnitConverter.inchToCm(finalHeight);
+      }
+
       // Dispatch the update — BLoC handles save in background
       context.read<AuthBloc>().add(
             AuthEvent.updateProfileRequested(
               name: _nameController.text,
               username: _usernameController.text,
-              weight: double.tryParse(_weightController.text),
-              height: double.tryParse(_heightController.text),
+              weight: finalWeight,
+              height: finalHeight,
               birthDate: _birthDate,
               trainingObjective: _selectedObjective,
             ),
@@ -156,7 +180,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     Expanded(
                       child: _buildTextField(
                         controller: _weightController,
-                        label: 'PESO (KG)',
+                        label: _isImperial ? 'PESO (LB)' : 'PESO (KG)',
                         hint: '0.0',
                         keyboardType: TextInputType.number,
                         theme: theme,
@@ -167,7 +191,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     Expanded(
                       child: _buildTextField(
                         controller: _heightController,
-                        label: 'ALTEZZA (CM)',
+                        label: _isImperial ? 'ALTEZZA (IN)' : 'ALTEZZA (CM)',
                         hint: '0',
                         keyboardType: TextInputType.number,
                         theme: theme,

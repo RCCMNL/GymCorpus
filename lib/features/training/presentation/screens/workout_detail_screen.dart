@@ -7,6 +7,7 @@ import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
+import 'package:gym_corpus/core/utils/unit_converter.dart';
 
 class WorkoutDetailScreen extends StatelessWidget {
   const WorkoutDetailScreen({required this.routine, super.key});
@@ -67,13 +68,16 @@ class WorkoutDetailScreen extends StatelessWidget {
     return BlocBuilder<TrainingBloc, TrainingState>(
       builder: (context, state) {
         var currentRoutine = routine;
+        String currentUnit = 'KG';
         if (state is TrainingLoaded) {
           try {
             currentRoutine = state.routines.firstWhere(
               (r) => r.id == routine.id,
             );
           } catch (_) {}
+          currentUnit = state.settings['units'] ?? 'KG';
         }
+        final isImperial = currentUnit == 'LB';
 
         final theme = Theme.of(context);
         final exercises = currentRoutine.exercises;
@@ -321,7 +325,9 @@ class WorkoutDetailScreen extends StatelessWidget {
                                              ),
                                             const Spacer(),
                                             Text(
-                                              '${setData['weight']} KG',
+                                              isImperial 
+                                                ? '${UnitConverter.kgToLb((setData['weight'] as num).toDouble()).toStringAsFixed(1)} LB' 
+                                                : '${setData['weight']} KG',
                                               style: const TextStyle(
                                                 fontWeight: FontWeight.bold,
                                               ),
@@ -478,6 +484,17 @@ class _QuickExerciseEditPanelState extends State<_QuickExerciseEditPanel> {
       }
     }
     if (sets.isEmpty) sets = [_ExerciseSetData(weight: 0, reps: 0)];
+
+    final trainingState = context.read<TrainingBloc>().state;
+    final settings = trainingState is TrainingLoaded ? trainingState.settings : <String, String>{};
+    final isImperial = (settings['units'] ?? 'KG') == 'LB';
+
+    if (isImperial) {
+      for (final s in sets) {
+        s.weight = UnitConverter.kgToLb(s.weight);
+      }
+    }
+
     _initControllers();
   }
 
@@ -512,19 +529,27 @@ class _QuickExerciseEditPanelState extends State<_QuickExerciseEditPanel> {
   Future<void> _save() async {
     setState(() => isSaving = true);
     
-    final updatedSetsJson = jsonEncode(
-      sets
-          .map((s) => {
-                'weight': s.weight,
-                'reps': s.reps,
-                },
-              )
-          .toList(),
-    );
+    final trainingState = context.read<TrainingBloc>().state;
+    final settings = trainingState is TrainingLoaded ? trainingState.settings : <String, String>{};
+    final isImperial = (settings['units'] ?? 'KG') == 'LB';
+
+    final setsToSave = sets.map((s) {
+      double w = s.weight;
+      if (isImperial) w = UnitConverter.lbToKg(w);
+      return {
+        'weight': w,
+        'reps': s.reps,
+      };
+    }).toList();
+
+    final updatedSetsJson = jsonEncode(setsToSave);
+
+    double firstWeight = sets.first.weight;
+    if (isImperial) firstWeight = UnitConverter.lbToKg(firstWeight);
 
     final updatedExercise = widget.re.copyWith(
       sets: sets.length,
-      weight: sets.first.weight,
+      weight: firstWeight,
       reps: sets.first.reps,
       setsData: updatedSetsJson,
     );
@@ -611,7 +636,9 @@ class _QuickExerciseEditPanelState extends State<_QuickExerciseEditPanel> {
                           Expanded(
                             child: _MiniInput(
                               controller: weightControllers[idx],
-                              label: 'KG',
+                              label: (context.read<TrainingBloc>().state is TrainingLoaded && 
+                                      (context.read<TrainingBloc>().state as TrainingLoaded).settings['units'] == 'LB') 
+                                      ? 'LB' : 'KG',
                               onChanged: (v) =>
                                   sets[idx].weight = double.tryParse(v) ?? 0,
                             ),

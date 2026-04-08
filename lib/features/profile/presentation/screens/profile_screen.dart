@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/core/widgets/radial_timer_picker.dart';
+import 'package:gym_corpus/core/utils/unit_converter.dart';
 import 'package:gym_corpus/features/auth/domain/entities/user_entity.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_event.dart';
@@ -23,283 +24,254 @@ class ProfileScreen extends StatelessWidget {
     return Scaffold(
       appBar: const GymHeader(),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header
-              Column(
+        child: BlocBuilder<TrainingBloc, TrainingState>(
+          builder: (context, trainingState) {
+            return SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Profilo',
-                    style: theme.textTheme.headlineLarge?.copyWith(
-                      fontSize: 26,
-                      fontWeight: FontWeight.bold,
-                      color: theme.colorScheme.onSurface,
-                      fontFamily: 'Lexend',
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'APP PREFERENCES & ACCOUNT',
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      letterSpacing: 2,
-                      color: theme.colorScheme.outline,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-
-              // User Profile Quick Card
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.surfaceContainerLow,
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.1)),
-                ),
-                child: BlocBuilder<AuthBloc, AuthState>(
-                  builder: (context, state) {
-                    final user = state.maybeWhen(
-                      authenticated: (user) => user,
-                      loading: (previousUser) => previousUser,
-                      error: (message, previousUser) => previousUser,
-                      orElse: () => null,
-                    );
-                    final userName = user?.name ?? 'Guest';
-                    final photoUrl = user?.photoUrl;
-
-                    return Row(
-                      children: [
-                        GestureDetector(
-                          onTap: () async {
-                            final picker = ImagePicker();
-                            final image = await picker.pickImage(
-                              source: ImageSource.gallery,
-                              maxWidth: 512,
-                              maxHeight: 512,
-                              imageQuality: 75,
-                            );
-
-                            if (image != null && context.mounted) {
-                              context.read<AuthBloc>().add(
-                                    AuthEvent.updateProfileImageRequested(
-                                      filePath: image.path,
-                                    ),
-                                  );
-                            }
-                          },
-                          child: Stack(
-                            children: [
-                              Container(
-                                width: 80,
-                                height: 80,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: theme.colorScheme.surfaceContainerHighest,
-                                  border: Border.all(color: theme.colorScheme.primary, width: 2),
-                                  image: photoUrl != null
-                                      ? DecorationImage(
-                                          image: photoUrl.startsWith('http')
-                                              ? NetworkImage(photoUrl)
-                                              : FileImage(File(photoUrl)) as ImageProvider,
-                                          fit: BoxFit.cover,
-                                        )
-                                      : null,
-                                ),
-                                child: photoUrl == null
-                                    ? Icon(Icons.person, color: theme.colorScheme.primary, size: 40)
-                                    : null,
-                              ),
-                              Positioned(
-                                bottom: 0,
-                                right: 0,
-                                child: Container(
-                                  width: 28,
-                                  height: 28,
-                                  decoration: BoxDecoration(
-                                    color: theme.colorScheme.tertiary,
-                                    shape: BoxShape.circle,
-                                    border: Border.all(color: theme.colorScheme.surface, width: 4),
-                                  ),
-                                  child: Icon(
-                                    photoUrl != null ? Icons.edit : Icons.add_a_photo,
-                                    size: 12,
-                                    color: theme.colorScheme.onTertiaryContainer,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+                  // Header
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Profilo',
+                        style: theme.textTheme.headlineLarge?.copyWith(
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                          color: theme.colorScheme.onSurface,
+                          fontFamily: 'Lexend',
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                userName,
-                                style: theme.textTheme.headlineSmall?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: 'Lexend',
-                                  fontSize: 22, // Increased for better readability
-                                ),
-                                maxLines: 2,
-                                softWrap: true,
-                              ),
-                              const SizedBox(height: 8),
-                              _buildPhysicalStats(context, theme, user),
-                              const SizedBox(height: 12),
-                              if (user?.username != null) ...[
-                                Text(
-                                  '@${user!.username}',
-                                  style: theme.textTheme.bodySmall?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 13,
-                                    fontFamily: 'Lexend',
-                                    color: theme.colorScheme.primary,
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                              ],
-                              Text(
-                                'LIVELLO 1',
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  fontWeight: FontWeight.w900,
-                                  fontSize: 13,
-                                  fontFamily: 'Lexend',
-                                  color: theme.colorScheme.outline,
-                                  letterSpacing: 1.2,
-                                ),
-                              ),
-                            ],
-                          ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'APP PREFERENCES & ACCOUNT',
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          letterSpacing: 2,
+                          color: theme.colorScheme.outline,
                         ),
-                      ],
-                    );
-                  },
-                ),
-              ), const SizedBox(height: 32),
-
-              // Account Section
-              _ProfileSection(
-                title: 'Account',
-                items: [
-                  _ProfileItem(
-                    icon: Icons.person, 
-                    label: 'Modifica Profilo',
-                    onTap: () => context.push('/profile/edit'),
-                  ),
-                  _ProfileItem(
-                    icon: Icons.lock, 
-                    label: 'Sicurezza',
-                    onTap: () => context.push('/profile/security'),
-                  ),
-                  const _ProfileItem(
-                    icon: Icons.workspace_premium,
-                    label: 'Abbonamento',
-                    trailingText: 'FREE',
-                    isBadge: true,
-                  ),
-                ],
-              ),
-
-              // Training Settings
-              BlocBuilder<TrainingBloc, TrainingState>(
-                builder: (context, state) {
-                  final settings = state is TrainingLoaded ? state.settings : <String, String>{};
-                  final restTimer = settings['rest_timer'] ?? '90';
-                  final unit = settings['units'] ?? 'KG';
-
-                  return _ProfileSection(
-                    title: 'Impostazioni Allenamento',
-                    items: [
-                      _ProfileItem(
-                        icon: Icons.timer,
-                        label: 'Timer di Recupero',
-                        trailingText: '${restTimer}s',
-                        onTap: () => _showTimerPickerSheet(context, restTimer),
-                      ),
-                      _ProfileItem(
-                        icon: Icons.straighten,
-                        label: 'Unità di Misura',
-                        trailingText: 'Metric / $unit',
-                        onTap: () {
-                           final nextUnit = unit == 'KG' ? 'LB' : 'KG';
-                           context.read<TrainingBloc>().add(UpdatePreferenceEvent('units', nextUnit));
-                        },
-                      ),
-                      _ProfileItem(
-                        icon: Icons.sync,
-                        label: 'Integrazioni Salute',
-                        onTap: () => context.push('/profile/integrations'),
                       ),
                     ],
-                  );
-                },
-              ),
+                  ),
+                  const SizedBox(height: 12),
 
-              // App Preferences
-              const _ProfileSection(
-                title: 'App Preferences',
-                items: [
-                  _ProfileItem(
-                    icon: Icons.dark_mode,
-                    label: 'Dark Mode',
-                    trailingText: 'ALWAYS ON',
+                  // User Profile Quick Card
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.surfaceContainerLow,
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.1)),
+                    ),
+                    child: BlocBuilder<AuthBloc, AuthState>(
+                      builder: (context, state) {
+                        final user = state.maybeWhen(
+                          authenticated: (user) => user,
+                          loading: (previousUser) => previousUser,
+                          error: (message, previousUser) => previousUser,
+                          orElse: () => null,
+                        );
+                        final userName = user?.name ?? 'Guest';
+                        final photoUrl = user?.photoUrl;
+
+                        return Row(
+                          children: [
+                            GestureDetector(
+                              onTap: () async {
+                                final picker = ImagePicker();
+                                final image = await picker.pickImage(
+                                  source: ImageSource.gallery,
+                                  maxWidth: 512,
+                                  maxHeight: 512,
+                                  imageQuality: 75,
+                                );
+
+                                if (image != null && context.mounted) {
+                                  context.read<AuthBloc>().add(
+                                        AuthEvent.updateProfileImageRequested(
+                                          filePath: image.path,
+                                        ),
+                                      );
+                                }
+                              },
+                              child: Stack(
+                                children: [
+                                  Container(
+                                    width: 80,
+                                    height: 80,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: theme.colorScheme.surfaceContainerHighest,
+                                      border: Border.all(color: theme.colorScheme.primary, width: 2),
+                                      image: photoUrl != null
+                                          ? DecorationImage(
+                                              image: photoUrl.startsWith('http')
+                                                  ? NetworkImage(photoUrl)
+                                                  : FileImage(File(photoUrl)) as ImageProvider,
+                                              fit: BoxFit.cover,
+                                            )
+                                          : null,
+                                    ),
+                                    child: photoUrl == null
+                                        ? Icon(Icons.person, color: theme.colorScheme.primary, size: 40)
+                                        : null,
+                                  ),
+                                  Positioned(
+                                    bottom: 0,
+                                    right: 0,
+                                    child: Container(
+                                      width: 28,
+                                      height: 28,
+                                      decoration: BoxDecoration(
+                                        color: theme.colorScheme.tertiary,
+                                        shape: BoxShape.circle,
+                                        border: Border.all(color: theme.colorScheme.surface, width: 4),
+                                      ),
+                                      child: Icon(
+                                        photoUrl != null ? Icons.edit : Icons.add_a_photo,
+                                        size: 12,
+                                        color: theme.colorScheme.onTertiaryContainer,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    userName,
+                                    style: theme.textTheme.headlineSmall?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: 'Lexend',
+                                      fontSize: 22,
+                                    ),
+                                    maxLines: 2,
+                                    softWrap: true,
+                                  ),
+                                  const SizedBox(height: 8),
+                                  _buildPhysicalStats(context, theme, user, trainingState),
+                                  const SizedBox(height: 12),
+                                  if (user?.username != null) ...[
+                                    Text(
+                                      '@${user!.username}',
+                                      style: theme.textTheme.bodySmall?.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 13,
+                                        fontFamily: 'Lexend',
+                                        color: theme.colorScheme.primary,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                  ],
+                                  Text(
+                                    'LIVELLO 1',
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      fontWeight: FontWeight.w900,
+                                      fontSize: 13,
+                                      fontFamily: 'Lexend',
+                                      color: theme.colorScheme.outline,
+                                      letterSpacing: 1.2,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  ), const SizedBox(height: 32),
+
+                  // Account Section
+                  _ProfileSection(
+                    title: 'Account',
+                    items: [
+                      _ProfileItem(
+                        icon: Icons.person, 
+                        label: 'Modifica Profilo',
+                        onTap: () => context.push('/profile/edit'),
+                      ),
+                      _ProfileItem(
+                        icon: Icons.lock, 
+                        label: 'Sicurezza',
+                        onTap: () => context.push('/profile/security'),
+                      ),
+                      const _ProfileItem(
+                        icon: Icons.workspace_premium,
+                        label: 'Abbonamento',
+                        trailingText: 'FREE',
+                        isBadge: true,
+                      ),
+                    ],
                   ),
-                  _ProfileItem(icon: Icons.notifications, label: 'Notifications'),
-                  _ProfileItem(
-                    icon: Icons.language,
-                    label: 'Language',
-                    trailingText: 'Italiano',
+
+                  // Training Settings
+                  _buildTrainingSettings(context, trainingState),
+                  // App Preferences
+                  const _ProfileSection(
+                    title: 'App Preferences',
+                    items: [
+                      _ProfileItem(
+                        icon: Icons.dark_mode,
+                        label: 'Dark Mode',
+                        trailingText: 'ALWAYS ON',
+                      ),
+                      _ProfileItem(icon: Icons.notifications, label: 'Notifications'),
+                      _ProfileItem(
+                        icon: Icons.language,
+                        label: 'Language',
+                        trailingText: 'Italiano',
+                      ),
+                    ],
                   ),
+
+                  // Support & Legal
+                  const _ProfileSection(
+                    title: 'Support & Legal',
+                    items: [
+                      _ProfileItem(icon: Icons.help, label: 'Help Center', isExternal: true),
+                      _ProfileItem(icon: Icons.gavel, label: 'Terms of Service'),
+                    ],
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // Logout Button
+                  SizedBox(
+                    width: double.infinity,
+                    child: TextButton.icon(
+                      onPressed: () {
+                        context.read<AuthBloc>().add(const AuthEvent.logoutRequested());
+                      },
+                      icon: const Icon(Icons.logout),
+                      label: const Text('LOGOUT'),
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        backgroundColor: theme.colorScheme.errorContainer.withValues(alpha: 0.1),
+                        foregroundColor: theme.colorScheme.error,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          side: BorderSide(color: theme.colorScheme.errorContainer.withValues(alpha: 0.2)),
+                        ),
+                        textStyle: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 2,
+                          fontFamily: 'Lexend',
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 100), // Space for nav
                 ],
               ),
-
-              // Support & Legal
-              const _ProfileSection(
-                title: 'Support & Legal',
-                items: [
-                  _ProfileItem(icon: Icons.help, label: 'Help Center', isExternal: true),
-                  _ProfileItem(icon: Icons.gavel, label: 'Terms of Service'),
-                ],
-              ),
-
-              const SizedBox(height: 24),
-
-              // Logout Button
-              SizedBox(
-                width: double.infinity,
-                child: TextButton.icon(
-                  onPressed: () {
-                    context.read<AuthBloc>().add(const AuthEvent.logoutRequested());
-                  },
-                  icon: const Icon(Icons.logout),
-                  label: const Text('LOGOUT'),
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 20),
-                    backgroundColor: theme.colorScheme.errorContainer.withValues(alpha: 0.1),
-                    foregroundColor: theme.colorScheme.error,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                      side: BorderSide(color: theme.colorScheme.errorContainer.withValues(alpha: 0.2)),
-                    ),
-                    textStyle: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 2,
-                      fontFamily: 'Lexend',
-                    ),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 100), // Space for nav
-            ],
-          ),
+            );
+          },
         ),
       ),
     );
@@ -314,12 +286,38 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildPhysicalStats(BuildContext context, ThemeData theme, UserEntity? user) {
+  void _showUnitPickerSheet(BuildContext context, String currentUnit) {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => _UnitPickerSheet(initialUnit: currentUnit),
+    );
+  }
+
+  Widget _buildPhysicalStats(
+    BuildContext context, 
+    ThemeData theme, 
+    UserEntity? user, 
+    TrainingState trainingState,
+  ) {
     if (user == null) return const SizedBox.shrink();
 
-    final weight = user.weight != null ? '${user.weight}kg' : '? kg';
+    final settings = trainingState is TrainingLoaded ? trainingState.settings : <String, String>{};
+    final isImperial = (settings['units'] ?? 'KG') == 'LB';
+
+    String weightLabel = '? kg';
+    if (user.weight != null) {
+      final value = isImperial ? UnitConverter.kgToLb(user.weight!) : user.weight!;
+      weightLabel = '${value.toStringAsFixed(1)}${isImperial ? 'lb' : 'kg'}';
+    }
+
+    String heightLabel = '? cm';
     final heightValue = user.height;
-    final height = heightValue != null ? '${heightValue.toInt()}cm' : '? cm';
+    if (heightValue != null) {
+      final value = isImperial ? UnitConverter.cmToInch(heightValue) : heightValue;
+      heightLabel = '${value.toInt()}${isImperial ? 'in' : 'cm'}';
+    }
     
     String age = '? anni';
     if (user.birthDate != null) {
@@ -340,11 +338,40 @@ class ProfileScreen extends StatelessWidget {
         spacing: 12,
         runSpacing: 4,
         children: [
-          _buildStatItem(Icons.monitor_weight_outlined, weight, theme),
-          _buildStatItem(Icons.height, height, theme),
+          _buildStatItem(Icons.monitor_weight_outlined, weightLabel, theme),
+          _buildStatItem(Icons.height, heightLabel, theme),
           _buildStatItem(Icons.cake_outlined, age, theme),
         ],
       ),
+    );
+  }
+
+  Widget _buildTrainingSettings(BuildContext context, TrainingState state) {
+    final settings = state is TrainingLoaded ? state.settings : <String, String>{};
+    final restTimer = settings['rest_timer'] ?? '90';
+    final unit = settings['units'] ?? 'KG';
+
+    return _ProfileSection(
+      title: 'Impostazioni Allenamento',
+      items: [
+        _ProfileItem(
+          icon: Icons.timer,
+          label: 'Timer di Recupero',
+          trailingText: '${restTimer}s',
+          onTap: () => _showTimerPickerSheet(context, restTimer),
+        ),
+        _ProfileItem(
+          icon: Icons.straighten,
+          label: 'Unità di Misura',
+          trailingText: unit == 'LB' ? 'Lb / inch' : 'Kg / cm',
+          onTap: () => _showUnitPickerSheet(context, unit),
+        ),
+        _ProfileItem(
+          icon: Icons.sync,
+          label: 'Integrazioni Salute',
+          onTap: () => context.push('/profile/integrations'),
+        ),
+      ],
     );
   }
 
@@ -591,6 +618,195 @@ class _TimerPickerSheetState extends State<_TimerPickerSheet> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _UnitPickerSheet extends StatefulWidget {
+  const _UnitPickerSheet({required this.initialUnit});
+  final String initialUnit;
+
+  @override
+  State<_UnitPickerSheet> createState() => _UnitPickerSheetState();
+}
+
+class _UnitPickerSheetState extends State<_UnitPickerSheet> {
+  late String _selectedUnit;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedUnit = widget.initialUnit.toUpperCase();
+    if (_selectedUnit != 'KG' && _selectedUnit != 'LB') {
+      _selectedUnit = 'KG';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.2),
+            blurRadius: 20,
+            offset: const Offset(0, -5),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(height: 12),
+          Container(
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: theme.colorScheme.outline.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          const SizedBox(height: 24),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Unità di Misura',
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Lexend',
+                  ),
+                ),
+                IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(Icons.close),
+                  style: IconButton.styleFrom(
+                    backgroundColor: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Row(
+              children: [
+                 Expanded(
+                   child: _UnitCard(
+                     title: 'Metrico',
+                     subtitle: 'Kg / cm',
+                     isSelected: _selectedUnit == 'KG',
+                     onTap: () => setState(() => _selectedUnit = 'KG'),
+                     theme: theme,
+                   ),
+                 ),
+                 const SizedBox(width: 16),
+                 Expanded(
+                   child: _UnitCard(
+                     title: 'Imperiale',
+                     subtitle: 'Lb / inch',
+                     isSelected: _selectedUnit == 'LB',
+                     onTap: () => setState(() => _selectedUnit = 'LB'),
+                     theme: theme,
+                   ),
+                 ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 32),
+          // Save Button
+          Padding(
+            padding: EdgeInsets.fromLTRB(48, 0, 48, 24 + bottomPadding),
+            child: SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  context.read<TrainingBloc>().add(UpdatePreferenceEvent('units', _selectedUnit));
+                  Navigator.pop(context);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: theme.colorScheme.primary,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  elevation: 0,
+                ),
+                child: const Text(
+                  'APPLICA MODIFICHE',
+                  style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1.1, fontSize: 13),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _UnitCard extends StatelessWidget {
+  const _UnitCard({
+    required this.title,
+    required this.subtitle,
+    required this.isSelected,
+    required this.onTap,
+    required this.theme,
+  });
+
+  final String title;
+  final String subtitle;
+  final bool isSelected;
+  final VoidCallback onTap;
+  final ThemeData theme;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 24),
+        decoration: BoxDecoration(
+          color: isSelected ? theme.colorScheme.primaryContainer : theme.colorScheme.surfaceContainerHigh,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? theme.colorScheme.primary : theme.colorScheme.outline.withValues(alpha: 0.1),
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Column(
+          children: [
+            Icon(
+              isSelected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+              color: isSelected ? theme.colorScheme.primary : theme.colorScheme.outline,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              title,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: isSelected ? theme.colorScheme.onPrimaryContainer : theme.colorScheme.onSurface,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              subtitle,
+              style: theme.textTheme.labelMedium?.copyWith(
+                color: isSelected ? theme.colorScheme.onPrimaryContainer.withValues(alpha: 0.7) : theme.colorScheme.outline,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -42,7 +42,8 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
                     hintText: 'Cerca esercizi...',
                     prefixIcon: Icon(Icons.search, color: theme.colorScheme.outline),
                     border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                    isDense: true,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 12),
                   ),
                 ),
               ),
@@ -90,7 +91,7 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
               },
             ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 8),
 
             // Exercise List
             Expanded(
@@ -133,7 +134,7 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Padding(
-                              padding: const EdgeInsets.only(bottom: 16, top: 24),
+                              padding: const EdgeInsets.only(bottom: 12, top: 16),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
