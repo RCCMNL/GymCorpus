@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:gym_corpus/features/training/domain/entities/body_weight.dart';
+import 'package:gym_corpus/features/training/domain/entities/body_measurement.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_session.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
@@ -90,6 +91,58 @@ class AddBodyWeightLogEvent extends TrainingEvent {
 
   @override
   List<Object?> get props => [weight];
+}
+
+class DeleteBodyWeightLogEvent extends TrainingEvent {
+  const DeleteBodyWeightLogEvent(this.id);
+
+  final int id;
+
+  @override
+  List<Object?> get props => [id];
+}
+
+class UpdateBodyWeightLogEvent extends TrainingEvent {
+  const UpdateBodyWeightLogEvent(this.id, this.weight);
+
+  final int id;
+  final double weight;
+
+  @override
+  List<Object?> get props => [id, weight];
+}
+
+class ReseedWeightHistoryEvent extends TrainingEvent {}
+
+class LoadBodyMeasurementsEvent extends TrainingEvent {}
+
+class AddBodyMeasurementEvent extends TrainingEvent {
+  const AddBodyMeasurementEvent(this.part, this.value);
+
+  final String part;
+  final double value;
+
+  @override
+  List<Object?> get props => [part, value];
+}
+
+class DeleteBodyMeasurementEvent extends TrainingEvent {
+  const DeleteBodyMeasurementEvent(this.id);
+
+  final int id;
+
+  @override
+  List<Object?> get props => [id];
+}
+
+class UpdateBodyMeasurementEvent extends TrainingEvent {
+  const UpdateBodyMeasurementEvent(this.id, this.value);
+
+  final int id;
+  final double value;
+
+  @override
+  List<Object?> get props => [id, value];
 }
 
 class SaveCardioSessionEvent extends TrainingEvent {
@@ -197,6 +250,15 @@ class UpdateSettingsList extends TrainingEvent {
 
   @override
   List<Object?> get props => [settings];
+}
+
+class UpdateBodyMeasurementsList extends TrainingEvent {
+  const UpdateBodyMeasurementsList(this.bodyMeasurements);
+
+  final List<BodyMeasurementEntity> bodyMeasurements;
+
+  @override
+  List<Object?> get props => [bodyMeasurements];
 }
 
 class StreamErrorEvent extends TrainingEvent {

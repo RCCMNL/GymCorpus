@@ -1,18 +1,17 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_map/flutter_map.dart';
+import 'package:go_router/go_router.dart';
+import 'package:gym_corpus/core/utils/unit_converter.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:gym_corpus/features/auth/presentation/bloc/auth_event.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
+import 'package:gym_corpus/features/training/domain/entities/body_weight.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_session.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
-import 'package:gym_corpus/core/utils/unit_converter.dart';
-import 'package:go_router/go_router.dart';
-import 'package:latlong2/latlong.dart' hide Path;
 
 class AnalyticsScreen extends StatefulWidget {
   const AnalyticsScreen({super.key});
@@ -41,26 +40,28 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
         child: BlocBuilder<TrainingBloc, TrainingState>(
           builder: (context, state) {
             var sessionsCount = 0;
-            var totalWeight = 0.0;
+            double totalWeight = 0;
             var monthSessions = 0;
-            var monthWeight = 0.0;
+            double monthWeight = 0;
 
             var currentUnit = 'KG';
             if (state is TrainingLoaded) {
               currentUnit = state.settings['units'] ?? 'KG';
               final logs = state.weightLogs;
               sessionsCount = logs.map((e) => e.workoutId).toSet().length;
-              totalWeight = logs.fold(0.0, (sum, e) => sum + (e.weight * e.reps));
+              totalWeight = logs.fold(0, (sum, e) => sum + (e.weight * e.reps));
 
               final now = DateTime.now();
               final monthLogs = logs
-                  .where((e) =>
-                      e.timestamp.month == now.month &&
-                      e.timestamp.year == now.year,
+                  .where(
+                    (e) =>
+                        e.timestamp.month == now.month &&
+                        e.timestamp.year == now.year,
                   )
                   .toList();
               monthSessions = monthLogs.map((e) => e.workoutId).toSet().length;
-              monthWeight = monthLogs.fold(0.0, (sum, e) => sum + (e.weight * e.reps));
+              monthWeight =
+                  monthLogs.fold(0, (sum, e) => sum + (e.weight * e.reps));
             }
             final isImperial = currentUnit == 'LB';
 
@@ -115,9 +116,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                       ),
                       _StatItem(
                         icon: Icons.scale,
-                        value: isImperial 
-                          ? '${(UnitConverter.kgToLb(totalWeight) / 1000).toStringAsFixed(1)}k'
-                          : '${(totalWeight / 1000).toStringAsFixed(1)}k',
+                        value: isImperial
+                            ? '${(UnitConverter.kgToLb(totalWeight) / 1000).toStringAsFixed(1)}k'
+                            : '${(totalWeight / 1000).toStringAsFixed(1)}k',
                         label: isImperial ? 'Volume (lb)' : 'Volume (kg)',
                       ),
                     ],
@@ -140,8 +141,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                       _StatItem(
                         icon: Icons.trending_up,
                         value: isImperial
-                          ? '${(UnitConverter.kgToLb(monthWeight) / 1000).toStringAsFixed(1)}k'
-                          : '${(monthWeight / 1000).toStringAsFixed(1)}k',
+                            ? '${(UnitConverter.kgToLb(monthWeight) / 1000).toStringAsFixed(1)}k'
+                            : '${(monthWeight / 1000).toStringAsFixed(1)}k',
                         label: isImperial ? 'Volume (lb)' : 'Volume (kg)',
                       ),
                     ],
@@ -203,7 +204,8 @@ class _InsightsSection extends StatelessWidget {
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: theme.colorScheme.primary.withValues(alpha: 0.1)),
+        border:
+            Border.all(color: theme.colorScheme.primary.withValues(alpha: 0.1)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -212,41 +214,52 @@ class _InsightsSection extends StatelessWidget {
             children: [
               ShaderMask(
                 shaderCallback: (bounds) => LinearGradient(
-                  colors: [theme.colorScheme.primary, theme.colorScheme.tertiary],
+                  colors: [
+                    theme.colorScheme.primary,
+                    theme.colorScheme.tertiary,
+                  ],
                 ).createShader(bounds),
-                child: const Icon(Icons.auto_awesome, color: Colors.white, size: 20),
+                child: const Icon(
+                  Icons.auto_awesome,
+                  color: Colors.white,
+                  size: 20,
+                ),
               ),
               const SizedBox(width: 10),
               Text(
                 'INSIGHTS',
                 style: theme.textTheme.labelSmall?.copyWith(
-                  fontWeight: FontWeight.w900, letterSpacing: 2, fontSize: 11,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 2,
+                  fontSize: 11,
                   color: theme.colorScheme.primary,
                 ),
               ),
             ],
           ),
           const SizedBox(height: 16),
-          ...insights.map((insight) => Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(insight.icon, size: 16, color: insight.color),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    insight.text,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 13,
-                      height: 1.4,
+          ...insights.map(
+            (insight) => Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(insight.icon, size: 16, color: insight.color),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      insight.text,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                        height: 1.4,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          )),
+          ),
         ],
       ),
     );
@@ -261,14 +274,19 @@ class _InsightsSection extends StatelessWidget {
 
     // Weight stability insight
     if (loaded.bodyWeightLogs.length >= 3) {
-      final recent3 = loaded.bodyWeightLogs.take(3).map((e) => e.weight).toList();
-      final range = recent3.reduce((a, b) => a > b ? a : b) - recent3.reduce((a, b) => a < b ? a : b);
+      final recent3 =
+          loaded.bodyWeightLogs.take(3).map((e) => e.weight).toList();
+      final range = recent3.reduce((a, b) => a > b ? a : b) -
+          recent3.reduce((a, b) => a < b ? a : b);
       if (range < 0.5) {
-        insights.add(_Insight(
-          icon: Icons.balance,
-          text: 'Il tuo peso è stabile da ${loaded.bodyWeightLogs.length >= 7 ? "3" : "2"} settimane. Ottimo lavoro!',
-          color: theme.colorScheme.tertiary,
-        ));
+        insights.add(
+          _Insight(
+            icon: Icons.balance,
+            text:
+                'Il tuo peso è stabile da ${loaded.bodyWeightLogs.length >= 7 ? "3" : "2"} settimane. Ottimo lavoro!',
+            color: theme.colorScheme.tertiary,
+          ),
+        );
       }
     }
 
@@ -276,26 +294,48 @@ class _InsightsSection extends StatelessWidget {
     final logs = loaded.weightLogs;
     if (logs.isNotEmpty) {
       final now = DateTime.now();
-      final last30 = logs.where((e) => e.timestamp.isAfter(now.subtract(const Duration(days: 30)))).toList();
-      final prev30 = logs.where((e) => e.timestamp.isAfter(now.subtract(const Duration(days: 60))) && e.timestamp.isBefore(now.subtract(const Duration(days: 30)))).toList();
-    
+      final last30 = logs
+          .where(
+            (e) => e.timestamp.isAfter(
+              now.subtract(const Duration(days: 30)),
+            ),
+          )
+          .toList();
+      final prev30 = logs
+          .where(
+            (e) =>
+                e.timestamp.isAfter(now.subtract(const Duration(days: 60))) &&
+                e.timestamp.isBefore(
+                  now.subtract(const Duration(days: 30)),
+                ),
+          )
+          .toList();
+
       if (last30.isNotEmpty && prev30.isNotEmpty) {
-        final volLast = last30.fold(0.0, (sum, e) => sum + e.weight * e.reps);
-        final volPrev = prev30.fold(0.0, (sum, e) => sum + e.weight * e.reps);
+        final volLast =
+            last30.fold<double>(0, (sum, e) => sum + e.weight * e.reps);
+        final volPrev =
+            prev30.fold<double>(0, (sum, e) => sum + e.weight * e.reps);
         if (volPrev > 0) {
           final change = ((volLast - volPrev) / volPrev * 100).round();
           if (change > 0) {
-            insights.add(_Insight(
-              icon: Icons.trending_up,
-              text: 'Hai aumentato il volume totale del $change% negli ultimi 30 giorni.',
-              color: theme.colorScheme.primary,
-            ));
+            insights.add(
+              _Insight(
+                icon: Icons.trending_up,
+                text:
+                    'Hai aumentato il volume totale del $change% negli ultimi 30 giorni.',
+                color: theme.colorScheme.primary,
+              ),
+            );
           } else if (change < -5) {
-            insights.add(_Insight(
-              icon: Icons.trending_down,
-              text: 'Il volume totale è calato del ${change.abs()}% rispetto al mese precedente.',
-              color: Colors.orangeAccent,
-            ));
+            insights.add(
+              _Insight(
+                icon: Icons.trending_down,
+                text:
+                    'Il volume totale è calato del ${change.abs()}% rispetto al mese precedente.',
+                color: Colors.orangeAccent,
+              ),
+            );
           }
         }
       }
@@ -303,12 +343,16 @@ class _InsightsSection extends StatelessWidget {
 
     // Cardio sessions insight
     if (loaded.cardioSessions.isNotEmpty) {
-      final totalKm = loaded.cardioSessions.fold(0.0, (sum, e) => sum + e.distance);
-      insights.add(_Insight(
-        icon: Icons.directions_run,
-        text: 'Hai percorso ${totalKm.toStringAsFixed(1)} km in ${loaded.cardioSessions.length} sessioni cardio.',
-        color: const Color(0xFFFF9494),
-      ));
+      final totalKm =
+          loaded.cardioSessions.fold<double>(0, (sum, e) => sum + e.distance);
+      insights.add(
+        _Insight(
+          icon: Icons.directions_run,
+          text:
+              'Hai percorso ${totalKm.toStringAsFixed(1)} km in ${loaded.cardioSessions.length} sessioni cardio.',
+          color: const Color(0xFFFF9494),
+        ),
+      );
     }
 
     return insights.take(3).toList();
@@ -448,7 +492,10 @@ class _ActivityCard extends StatelessWidget {
                           : theme.colorScheme.surfaceContainerHighest,
                       shape: BoxShape.circle,
                       border: isToday
-                          ? Border.all(color: theme.colorScheme.primary, width: 2)
+                          ? Border.all(
+                              color: theme.colorScheme.primary,
+                              width: 2,
+                            )
                           : (isDone
                               ? null
                               : Border.all(
@@ -493,13 +540,20 @@ class _ActivityCard extends StatelessWidget {
 
 // ─── WEIGHT TRACKING ───────────────────────────────────────────────────────
 
-class _WeightTrackingCard extends StatelessWidget {
+class _WeightTrackingCard extends StatefulWidget {
   const _WeightTrackingCard();
+
+  @override
+  State<_WeightTrackingCard> createState() => _WeightTrackingCardState();
+}
+
+class _WeightTrackingCardState extends State<_WeightTrackingCard> {
+  int? _selectedIndex;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return BlocBuilder<TrainingBloc, TrainingState>(
       builder: (context, state) {
         var current = '--';
@@ -508,128 +562,393 @@ class _WeightTrackingCard extends StatelessWidget {
         var trendPoints = <double>[];
 
         final trainingState = context.read<TrainingBloc>().state;
-        final settings = trainingState is TrainingLoaded ? trainingState.settings : <String, String>{};
+        final settings = trainingState is TrainingLoaded
+            ? trainingState.settings
+            : <String, String>{};
         final isImperial = (settings['units'] ?? 'KG') == 'LB';
-
-        if (state is TrainingLoaded && state.bodyWeightLogs.isNotEmpty) {
-          var logs = state.bodyWeightLogs;
-          if (isImperial) {
-            current = UnitConverter.kgToLb(logs.first.weight).toStringAsFixed(1);
-            max = logs.map((e) => UnitConverter.kgToLb(e.weight)).reduce((a, b) => a > b ? a : b).toStringAsFixed(1);
-            min = logs.map((e) => UnitConverter.kgToLb(e.weight)).reduce((a, b) => a < b ? a : b).toStringAsFixed(1);
-            trendPoints = logs.map((e) => UnitConverter.kgToLb(e.weight)).toList().reversed.toList();
-          } else {
-            current = logs.first.weight.toStringAsFixed(1);
-            max = logs.map((e) => e.weight).reduce((a, b) => a > b ? a : b).toStringAsFixed(1);
-            min = logs.map((e) => e.weight).reduce((a, b) => a < b ? a : b).toStringAsFixed(1);
-            trendPoints = logs.map((e) => e.weight).toList().reversed.toList();
-          }
-        }
-
         final unitText = isImperial ? 'lb' : 'kg';
 
-        return Container(
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surfaceContainer,
-            borderRadius: BorderRadius.circular(24),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Weight Tracking', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
-                      Text(
-                        'LAST 30 DAYS TREND',
-                        style: theme.textTheme.labelSmall?.copyWith(fontSize: 9),
-                      ),
-                    ],
-                  ),
-                  ElevatedButton.icon(
-                    onPressed: () => _showAddWeightDialog(context),
-                    icon: const Icon(Icons.add, size: 14),
-                    label: const Text('Add Weight', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: theme.colorScheme.primary,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        if (state is TrainingLoaded) {
+          final now = DateTime.now();
+          final today = DateTime(now.year, now.month, now.day);
+          final startDate = today.subtract(const Duration(days: 29));
+
+          final logs = state.bodyWeightLogs;
+          final dayMap = <DateTime, double>{};
+          final actualDataDays = <int>{};
+          final dates = <DateTime>[];
+          final points = <double>[];
+
+          if (logs.isNotEmpty) {
+            for (final log in logs) {
+              final d = DateTime(log.date.year, log.date.month, log.date.day);
+              if (!dayMap.containsKey(d)) {
+                dayMap[d] = log.weight;
+              }
+            }
+
+            var lastWeight =
+                logs.reduce((a, b) => a.date.isBefore(b.date) ? a : b).weight;
+
+            for (var i = 0; i < 30; i++) {
+              final d = startDate.add(Duration(days: i));
+              dates.add(d);
+              if (dayMap.containsKey(d)) {
+                lastWeight = dayMap[d] ?? lastWeight;
+                actualDataDays.add(i);
+              }
+
+              points.add(
+                isImperial ? UnitConverter.kgToLb(lastWeight) : lastWeight,
+              );
+            }
+            trendPoints = points;
+
+            // Stats
+            final latestWeightValue = logs.first.weight;
+            current = (isImperial
+                    ? UnitConverter.kgToLb(latestWeightValue)
+                    : latestWeightValue)
+                .toStringAsFixed(1);
+
+            final allProcessedWeights = logs
+                .map(
+                  (e) => isImperial ? UnitConverter.kgToLb(e.weight) : e.weight,
+                )
+                .toList();
+            max = allProcessedWeights
+                .reduce((a, b) => a > b ? a : b)
+                .toStringAsFixed(1);
+            min = allProcessedWeights
+                .reduce((a, b) => a < b ? a : b)
+                .toStringAsFixed(1);
+          } else {
+            // Empty state defaults
+            for (int i = 0; i < 30; i++) {
+              dates.add(startDate.add(Duration(days: i)));
+              points.add(0);
+            }
+            trendPoints = points;
+          }
+
+          // Calculate change
+          double change = 0;
+          if (points.length >= 2) {
+            change = points.last - points.first;
+          }
+          final changeText =
+              (change >= 0 ? '+' : '') + change.toStringAsFixed(1);
+          final changeColor = change <= 0
+              ? theme.colorScheme.tertiary
+              : theme.colorScheme.error;
+
+          return Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surfaceContainer,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                color: theme.colorScheme.outline.withValues(alpha: 0.05),
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Progresso Peso',
+                            style: theme.textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.w900,
+                                fontFamily: 'Lexend',
+                              ),
+                            ),
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: changeColor.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                '$changeText $unitText',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                  color: changeColor,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'ULTIMI 30 GIORNI',
+                              style: theme.textTheme.labelSmall
+                                  ?.copyWith(fontSize: 9, letterSpacing: 1),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-              Row(
-                children: [
-                  _WeightItem(label: 'Current', value: current, unit: unitText, color: theme.colorScheme.onSurface),
-                  const SizedBox(width: 8),
-                  _WeightItem(label: 'Maximum', value: max, unit: unitText, color: theme.colorScheme.error),
-                  const SizedBox(width: 8),
-                  _WeightItem(label: 'Minimum', value: min, unit: unitText, color: theme.colorScheme.tertiary),
-                ],
-              ),
-              const SizedBox(height: 32),
-              SizedBox(
-                height: 100,
-                width: double.infinity,
-                child: CustomPaint(
-                  painter: _TrendLinePainter(
-                    color: theme.colorScheme.primary,
-                    dataPoints: trendPoints,
-                  ),
+                    Row(
+                      children: [
+                        IconButton.filled(
+                          onPressed: () => _showAddWeightDialog(context),
+                          icon: const Icon(Icons.add_rounded, size: 24),
+                          style: IconButton.styleFrom(
+                            backgroundColor: theme.colorScheme.primary,
+                            foregroundColor: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('30 DAYS AGO', style: theme.textTheme.labelSmall?.copyWith(fontSize: 8, color: theme.colorScheme.outline.withValues(alpha: 0.5))),
-                  Text('TODAY', style: theme.textTheme.labelSmall?.copyWith(fontSize: 8, color: theme.colorScheme.outline.withValues(alpha: 0.5))),
-                ],
-              ),
-            ],
-          ),
-        );
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    _WeightItem(
+                        label: 'Attuale',
+                        value: current,
+                        unit: unitText,
+                        color: theme.colorScheme.primary,
+                      ),
+                    const SizedBox(width: 8),
+                    _WeightItem(
+                        label: 'Max',
+                        value: max,
+                        unit: unitText,
+                        color:
+                            theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                      ),
+                    const SizedBox(width: 8),
+                    _WeightItem(
+                        label: 'Min',
+                        value: min,
+                        unit: unitText,
+                        color:
+                            theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 32),
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final graphWidth = constraints.maxWidth;
+                    return GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onPanUpdate: (details) => _handleTouch(
+                          details.localPosition, trendPoints.length, graphWidth,
+                          isDrag: true,
+                          actualIndices: actualDataDays,
+                        ),
+                      onTapDown: (details) => _handleTouch(
+                          details.localPosition, trendPoints.length, graphWidth,
+                          isTap: true,
+                          actualIndices: actualDataDays,
+                        ),
+                      child: Stack(
+                        children: [
+                          // Grid lines
+                          Column(
+                            children: List.generate(
+                                4,
+                                (index) => Padding(
+                                      padding:
+                                          const EdgeInsets.only(bottom: 22),
+                                      child: Divider(
+                                        color: theme.colorScheme.outline
+                                            .withValues(alpha: 0.05),
+                                        height: 1,
+                                      ),
+                                    )),
+                          ),
+                          SizedBox(
+                            height: 100,
+                            width: double.infinity,
+                            child: CustomPaint(
+                              painter: _TrendLinePainter(
+                                color: theme.colorScheme.primary,
+                                dataPoints: trendPoints,
+                                actualDataIndices: actualDataDays,
+                                accentColor: theme.colorScheme.tertiary,
+                                selectedIndex: _selectedIndex,
+                                selectedDate: _selectedIndex != null
+                                    ? dates[_selectedIndex!]
+                                    : null,
+                                unitText: unitText,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      '${startDate.day} ${UnitConverter.monthName(startDate.month)}'
+                          .toUpperCase(),
+                      style: theme.textTheme.labelSmall?.copyWith(
+                          fontSize: 8,
+                          color: theme.colorScheme.outline,
+                        ),
+                    ),
+                    // Week indicators
+                    ...List.generate(3, (index) {
+                      final weekNum = 3 - index;
+                      return Text(
+                        '-$weekNum SET',
+                        style: theme.textTheme.labelSmall?.copyWith(
+                            fontSize: 7,
+                            color: theme.colorScheme.outline
+                                .withValues(alpha: 0.4),
+                          ),
+                      );
+                    }),
+                    Text(
+                      'OGGI',
+                      style: theme.textTheme.labelSmall?.copyWith(
+                          fontSize: 8,
+                          fontWeight: FontWeight.w900,
+                          color: theme.colorScheme.primary,
+                        ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        }
+        return const SizedBox.shrink();
       },
     );
   }
 
+  void _handleTouch(Offset localPosition, int pointsCount, double graphWidth,
+      {required Set<int> actualIndices,
+      bool isTap = false,
+      bool isDrag = false,
+    }) {
+    if (pointsCount == 0 || graphWidth <= 0 || actualIndices.isEmpty) return;
+    final stepX = graphWidth / (pointsCount - 1);
+    final touchX = localPosition.dx;
+
+    // Magnetic logic: find the NEAREST point that actually has data
+    var closestActualIndex = -1;
+    var minDistance = double.infinity;
+
+    for (final i in actualIndices) {
+      final pointX = i * stepX;
+      final distance = (touchX - pointX).abs();
+      if (distance < minDistance) {
+        minDistance = distance;
+        closestActualIndex = i;
+      }
+    }
+
+    // Always include the last point (Today) in the magnetic search if it's not already in actualIndices
+    // (In case the last point is always shown but doesn't have a "log" for today yet,
+    // though usually today is part of the plot)
+    final lastPointX = (pointsCount - 1) * stepX;
+    final distToLast = (touchX - lastPointX).abs();
+    if (distToLast < minDistance) {
+      minDistance = distToLast;
+      closestActualIndex = pointsCount - 1;
+    }
+
+    // Threshold for activation (increased to 45 for better UX)
+    if (closestActualIndex != -1 && minDistance < 45) {
+      if (isTap && _selectedIndex == closestActualIndex) {
+        // Toggle off if tapping the same point
+        setState(() => _selectedIndex = null);
+      } else if (_selectedIndex != closestActualIndex) {
+        HapticFeedback.selectionClick();
+        setState(() => _selectedIndex = closestActualIndex);
+      }
+    } else {
+      // Clear selection if tapping/dragging far away
+      if (_selectedIndex != null) {
+        setState(() => _selectedIndex = null);
+      }
+    }
+  }
+
   void _showAddWeightDialog(BuildContext context) {
-    final controller = TextEditingController();
+    _showWeightDialog(context);
+  }
+
+  void _showWeightDialog(BuildContext context, {BodyWeightLogEntity? log}) {
+    final controller =
+        TextEditingController(text: log != null ? log.weight.toString() : '');
     final trainingState = context.read<TrainingBloc>().state;
-    final settings = trainingState is TrainingLoaded ? trainingState.settings : <String, String>{};
+    final settings = trainingState is TrainingLoaded
+        ? trainingState.settings
+        : <String, String>{};
     final isImperial = (settings['units'] ?? 'KG') == 'LB';
+
+    if (log != null) {
+      final w = isImperial ? UnitConverter.kgToLb(log.weight) : log.weight;
+      controller.text = w.toStringAsFixed(1);
+    }
 
     showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Add Body Weight'),
+        title: Text(log == null ? 'Registra Peso' : 'Modifica Peso'),
         content: TextField(
           controller: controller,
-          keyboardType: TextInputType.number,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          autofocus: true,
           decoration: InputDecoration(
-            labelText: isImperial ? 'Weight (lb)' : 'Weight (kg)',
+            labelText: isImperial ? 'Peso (lb)' : 'Peso (kg)',
+            suffixText: isImperial ? 'lb' : 'kg',
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+                child: const Text('Annulla'),
+              ),
           ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              foregroundColor: Colors.white,
+            ),
             onPressed: () {
-              double? weight = double.tryParse(controller.text);
-              if (weight != null) {
+              final weightValue =
+                  double.tryParse(controller.text.replaceAll(',', '.'));
+              if (weightValue != null) {
+                var weight = weightValue;
                 if (isImperial) {
                   weight = UnitConverter.lbToKg(weight);
                 }
-                context.read<TrainingBloc>().add(AddBodyWeightLogEvent(weight));
+                if (log == null) {
+                  context
+                      .read<TrainingBloc>()
+                      .add(AddBodyWeightLogEvent(weight));
+                  context
+                      .read<AuthBloc>()
+                      .add(AuthEvent.updateProfileRequested(weight: weight));
+                } else {
+                  context
+                      .read<TrainingBloc>()
+                      .add(UpdateBodyWeightLogEvent(log.id!, weight));
+                }
                 Navigator.pop(context);
               }
             },
-            child: const Text('Save'),
+            child: Text(log == null ? 'Salva' : 'Aggiorna'),
           ),
         ],
       ),
@@ -657,25 +976,48 @@ class _WeightItem extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
-          color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.2),
-          borderRadius: BorderRadius.circular(12),
+          color: theme.colorScheme.surface.withValues(alpha: 0.5),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: theme.colorScheme.outline.withValues(alpha: 0.05),
+          ),
         ),
         child: Column(
           children: [
-            Text(label.toUpperCase(), style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold, color: theme.colorScheme.onSurface.withValues(alpha: 0.6))),
-            RichText(
-              text: TextSpan(
-                children: [
-                  TextSpan(
-                    text: value,
-                    style: TextStyle(fontFamily: 'Lexend', fontWeight: FontWeight.w900, fontSize: 18, color: color),
-                  ),
-                  TextSpan(
-                    text: unit,
-                    style: TextStyle(fontSize: 10, color: color.withValues(alpha: 0.6)),
-                  ),
-                ],
+            Text(
+              label.toUpperCase(),
+              style: TextStyle(
+                fontSize: 8,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 0.5,
+                color: theme.colorScheme.outline,
               ),
+            ),
+            const SizedBox(height: 4),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
+              children: [
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontFamily: 'Lexend',
+                    fontWeight: FontWeight.w900,
+                    fontSize: 18,
+                    color: color,
+                  ),
+                ),
+                const SizedBox(width: 2),
+                Text(
+                  unit,
+                  style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: color.withValues(alpha: 0.5),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -687,9 +1029,23 @@ class _WeightItem extends StatelessWidget {
 // ─── TREND PAINTER ─────────────────────────────────────────────────────────
 
 class _TrendLinePainter extends CustomPainter {
-  const _TrendLinePainter({required this.color, this.dataPoints = const []});
+  const _TrendLinePainter({
+    required this.color,
+    required this.dataPoints,
+    required this.actualDataIndices,
+    required this.accentColor,
+    this.selectedIndex,
+    this.selectedDate,
+    this.unitText = 'kg',
+  });
+
   final Color color;
+  final Color accentColor;
   final List<double> dataPoints;
+  final Set<int> actualDataIndices;
+  final int? selectedIndex;
+  final DateTime? selectedDate;
+  final String unitText;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -699,41 +1055,172 @@ class _TrendLinePainter extends CustomPainter {
       ..color = color
       ..strokeWidth = 3
       ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round;
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+
+    final fillPaint = Paint()
+      ..style = PaintingStyle.fill
+      ..shader = LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [color.withValues(alpha: 0.2), color.withValues(alpha: 0)],
+      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
 
     final path = Path();
+    final fillPath = Path();
+
     final stepX =
         size.width / (dataPoints.length > 1 ? dataPoints.length - 1 : 1);
 
-    final maxWeight = dataPoints.reduce((a, b) => a > b ? a : b);
-    final minWeight = dataPoints.reduce((a, b) => a < b ? a : b);
-    final range =
-        (maxWeight - minWeight).abs() < 0.1 ? 1 : (maxWeight - minWeight);
+    final maxVal = dataPoints.reduce((a, b) => a > b ? a : b);
+    final minVal = dataPoints.reduce((a, b) => a < b ? a : b);
+    final range = (maxVal - minVal).abs() < 0.1 ? 2.0 : (maxVal - minVal) * 1.2;
+    final center = (maxVal + minVal) / 2;
+
+    Offset getOffset(int i) {
+      final x = i * stepX;
+      final normalizedY = (dataPoints[i] - (center - range / 2)) / range;
+      final y = size.height - (normalizedY * size.height).clamp(0, size.height);
+      return Offset(x, y);
+    }
+
+    for (var i = 0; i < dataPoints.length; i++) {
+      final pos = getOffset(i);
+      if (i == 0) {
+        path.moveTo(pos.dx, pos.dy);
+        fillPath
+          ..moveTo(pos.dx, size.height)
+          ..lineTo(pos.dx, pos.dy);
+      } else {
+        path.lineTo(pos.dx, pos.dy);
+        fillPath.lineTo(pos.dx, pos.dy);
+      }
+
+      if (i == dataPoints.length - 1) {
+        fillPath
+          ..lineTo(pos.dx, size.height)
+          ..close();
+      }
+    }
+
+    canvas.drawPath(fillPath, fillPaint);
+
+    // Draw vertical day ticks
+    final tickPaint = Paint()
+      ..color = color.withValues(alpha: 0.1)
+      ..strokeWidth = 1;
 
     for (var i = 0; i < dataPoints.length; i++) {
       final x = i * stepX;
-      final normalizedY = (dataPoints[i] - minWeight) / range;
-      final y =
-          size.height - (normalizedY * size.height * 0.8 + size.height * 0.1);
-
-      if (i == 0) {
-        path.moveTo(x, y);
+      final isWeek = (dataPoints.length - 1 - i) % 7 == 0;
+      if (isWeek) {
+        canvas.drawLine(
+          Offset(x, 0),
+          Offset(x, size.height),
+          tickPaint..color = color.withValues(alpha: 0.2),
+        );
       } else {
-        path.lineTo(x, y);
+        canvas.drawLine(
+          Offset(x, size.height - 5),
+          Offset(x, size.height),
+          tickPaint..color = color.withValues(alpha: 0.1),
+        );
       }
     }
 
     canvas.drawPath(path, paint);
 
-    // Endpoint dot
-    if (dataPoints.isNotEmpty) {
-      final lastX = size.width;
-      final normalizedY = (dataPoints.last - minWeight) / range;
-      final lastY =
-          size.height - (normalizedY * size.height * 0.8 + size.height * 0.1);
+    // Draw dots for actual data points
+    for (final i in actualDataIndices) {
+      final pos = getOffset(i);
+      canvas
+        ..drawCircle(pos, 4, Paint()..color = Colors.white)
+        ..drawCircle(pos, 2.5, Paint()..color = color);
+    }
 
-      final dotPaint = Paint()..color = color;
-      canvas.drawCircle(Offset(lastX, lastY), 4, dotPaint);
+    // Endpoint dot (Today)
+    final lastPos = getOffset(dataPoints.length - 1);
+    canvas
+      ..drawCircle(lastPos, 5, Paint()..color = color)
+      ..drawCircle(lastPos, 3, Paint()..color = Colors.white);
+
+    // DRAW TOOLTIP IF SELECTED
+    if (selectedIndex != null && selectedDate != null) {
+      final pos = getOffset(selectedIndex!);
+
+      // Vertical line
+      canvas
+        ..drawLine(
+          Offset(pos.dx, 0),
+          Offset(pos.dx, size.height),
+          Paint()
+            ..color = color.withValues(alpha: 0.5)
+            ..strokeWidth = 1
+            ..style = PaintingStyle.stroke,
+        )
+        ..drawCircle(pos, 6, Paint()..color = color)
+        ..drawCircle(pos, 4, Paint()..color = Colors.white);
+
+      // Tooltip Box
+      final textWeight =
+          '${dataPoints[selectedIndex!].toStringAsFixed(1)} $unitText';
+      final textDate =
+          '${selectedDate!.day} ${UnitConverter.monthName(selectedDate!.month)}';
+
+      final textPainter = TextPainter(
+        text: TextSpan(
+          children: [
+            TextSpan(
+              text: '$textWeight\n',
+              style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 12,
+                  fontFamily: 'Lexend',
+                ),
+            ),
+            TextSpan(
+              text: textDate,
+              style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.7),
+                  fontSize: 9,
+                  fontWeight: FontWeight.bold,
+                ),
+            ),
+          ],
+        ),
+        textAlign: TextAlign.center,
+        textDirection: TextDirection.ltr,
+      )..layout();
+
+      final tooltipWidth = textPainter.width + 16;
+      final tooltipHeight = textPainter.height + 12;
+
+      var tooltipX = pos.dx - tooltipWidth / 2;
+      if (tooltipX < 0) tooltipX = 4;
+      if (tooltipX + tooltipWidth > size.width) {
+        tooltipX = size.width - tooltipWidth - 4;
+      }
+
+      // Draw tooltip above or below point
+      var tooltipY = pos.dy - tooltipHeight - 12;
+      if (tooltipY < 0) tooltipY = pos.dy + 12;
+
+      final tooltipRRect = RRect.fromRectAndRadius(
+        Rect.fromLTWH(tooltipX, tooltipY, tooltipWidth, tooltipHeight),
+        const Radius.circular(10),
+      );
+
+      canvas
+        ..drawRRect(
+          tooltipRRect,
+          Paint()
+            ..color = color
+            ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4),
+        )
+        ..drawRRect(tooltipRRect, Paint()..color = color);
+
+      textPainter.paint(canvas, Offset(tooltipX + 8, tooltipY + 6));
     }
   }
 
@@ -753,8 +1240,8 @@ class _BMICard extends StatelessWidget {
     return BlocBuilder<AuthBloc, AuthState>(
       builder: (context, state) {
         double? bmi;
-        String category = 'N/A';
-        Color categoryColor = theme.colorScheme.outline;
+        var category = 'N/A';
+        var categoryColor = theme.colorScheme.outline;
 
         final user = state.maybeWhen(
           authenticated: (u) => u,
@@ -763,15 +1250,16 @@ class _BMICard extends StatelessWidget {
 
         if (user != null && user.weight != null && user.height != null) {
           final hMetri = user.height! / 100;
-          bmi = user.weight! / (hMetri * hMetri);
+          final calculatedBmi = user.weight! / (hMetri * hMetri);
+          bmi = calculatedBmi;
 
-          if (bmi < 18.5) {
+          if (calculatedBmi < 18.5) {
             category = 'UNDERWEIGHT';
             categoryColor = Colors.lightBlue;
-          } else if (bmi < 25) {
+          } else if (calculatedBmi < 25) {
             category = 'NORMAL';
             categoryColor = theme.colorScheme.tertiary;
-          } else if (bmi < 30) {
+          } else if (calculatedBmi < 30) {
             category = 'OVERWEIGHT';
             categoryColor = Colors.orange;
           } else {
@@ -821,7 +1309,8 @@ class _BMICard extends StatelessWidget {
                         'BODY MASS INDEX',
                         style: theme.textTheme.labelSmall?.copyWith(
                           fontSize: 8,
-                          color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                          color: theme.colorScheme.onSurface
+                              .withValues(alpha: 0.6),
                         ),
                       ),
                     ],
@@ -880,8 +1369,10 @@ class _CardioHistorySection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    List<CardioSessionEntity> sessions = state is TrainingLoaded ? (state as TrainingLoaded).cardioSessions : <CardioSessionEntity>[];
-    
+    var sessions = state is TrainingLoaded
+        ? (state as TrainingLoaded).cardioSessions
+        : <CardioSessionEntity>[];
+
     // Sort by date newest first
     sessions = List<CardioSessionEntity>.from(sessions)
       ..sort((a, b) => b.date.compareTo(a.date));
@@ -897,10 +1388,12 @@ class _CardioHistorySection extends StatelessWidget {
             Row(
               children: [
                 Container(
-                  width: 4, height: 20,
+                  width: 4,
+                  height: 20,
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
-                      begin: Alignment.topCenter, end: Alignment.bottomCenter,
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
                       colors: [Color(0xFFFF9494), Colors.deepOrange],
                     ),
                     borderRadius: BorderRadius.circular(2),
@@ -910,7 +1403,9 @@ class _CardioHistorySection extends StatelessWidget {
                 Text(
                   'RECENTI CARDIO',
                   style: theme.textTheme.labelSmall?.copyWith(
-                    fontWeight: FontWeight.w900, letterSpacing: 2, fontSize: 11,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 2,
+                    fontSize: 11,
                   ),
                 ),
               ],
@@ -920,16 +1415,31 @@ class _CardioHistorySection extends StatelessWidget {
                 onPressed: () => context.push('/analytics/cardio-history'),
                 style: TextButton.styleFrom(
                   visualDensity: VisualDensity.compact,
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  backgroundColor: theme.colorScheme.primary.withValues(alpha: 0.05),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  backgroundColor:
+                      theme.colorScheme.primary.withValues(alpha: 0.05),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('GUARDA TUTTE', style: TextStyle(fontSize: 9, fontWeight: FontWeight.w900, color: theme.colorScheme.primary, letterSpacing: 0.5)),
+                    Text('GUARDA TUTTE',
+                        style: TextStyle(
+                            fontSize: 9,
+                            fontWeight: FontWeight.w900,
+                            color: theme.colorScheme.primary,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
                     const SizedBox(width: 4),
-                    Icon(Icons.arrow_forward_ios_rounded, size: 10, color: theme.colorScheme.primary),
+                    Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      size: 10,
+                      color: theme.colorScheme.primary,
+                    ),
                   ],
                 ),
               ),
@@ -941,18 +1451,21 @@ class _CardioHistorySection extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.1),
+              color: theme.colorScheme.surfaceContainerHighest
+                  .withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Center(
               child: Text(
                 'Nessuna sessione registrata',
-                style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.outline),
+                style: theme.textTheme.bodySmall
+                    ?.copyWith(color: theme.colorScheme.outline),
               ),
             ),
           )
         else
-          ...displaySessions.map((session) => _CompactCardioCard(session: session)),
+          ...displaySessions
+              .map((session) => _CompactCardioCard(session: session)),
       ],
     );
   }
@@ -963,7 +1476,20 @@ class _CompactCardioCard extends StatelessWidget {
   final CardioSessionEntity session;
 
   String _formatDate(DateTime date) {
-    final months = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
+    final months = [
+      'Gen',
+      'Feb',
+      'Mar',
+      'Apr',
+      'Mag',
+      'Giu',
+      'Lug',
+      'Ago',
+      'Set',
+      'Ott',
+      'Nov',
+      'Dic',
+    ];
     return '${date.day} ${months[date.month - 1]}';
   }
 
@@ -989,48 +1515,59 @@ class _CompactCardioCard extends StatelessWidget {
               color: accentColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(isRun ? Icons.directions_run : Icons.directions_walk, color: accentColor, size: 18),
+            child: Icon(
+              isRun ? Icons.directions_run : Icons.directions_walk,
+              color: accentColor,
+              size: 18,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(isRun ? 'Corsa' : 'Camminata', style: theme.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w900, fontFamily: 'Lexend', fontSize: 13)),
-                Text(_formatDate(session.date), style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.outline, fontSize: 10)),
+                Text(isRun ? 'Corsa' : 'Camminata',
+                    style: theme.textTheme.labelLarge?.copyWith(
+                        fontWeight: FontWeight.w900,
+                        fontFamily: 'Lexend',
+                        fontSize: 13,
+                      ),
+                    ),
+                Text(_formatDate(session.date),
+                    style: theme.textTheme.labelSmall?.copyWith(
+                        color: theme.colorScheme.outline,
+                        fontSize: 10,
+                      ),
+                    ),
               ],
             ),
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text('${session.distance.toStringAsFixed(2)} km', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13, fontFamily: 'Lexend')),
-              Text('${session.calories} kcal', style: TextStyle(fontSize: 10, color: accentColor, fontWeight: FontWeight.bold)),
+              Text('${session.distance.toStringAsFixed(2)} km',
+                  style: const TextStyle(
+                      fontWeight: FontWeight.w900,
+                      fontSize: 13,
+                      fontFamily: 'Lexend',
+                    ),
+                  ),
+              Text('${session.calories} kcal',
+                  style: TextStyle(
+                      fontSize: 10,
+                      color: accentColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
             ],
           ),
           const SizedBox(width: 8),
-          Icon(Icons.chevron_right_rounded, size: 20, color: theme.colorScheme.outline.withValues(alpha: 0.3)),
+          Icon(Icons.chevron_right_rounded,
+              size: 20,
+              color: theme.colorScheme.outline.withValues(alpha: 0.3),
+          ),
         ],
       ),
-    );
-  }
-}
-
-
-class _MiniStat extends StatelessWidget {
-  const _MiniStat({required this.label, required this.value, required this.theme});
-  final String label;
-  final String value;
-  final ThemeData theme;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(label, style: TextStyle(fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 0.5, color: theme.colorScheme.outline)),
-        const SizedBox(height: 2),
-        Text(value, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, fontFamily: 'Lexend')),
-      ],
     );
   }
 }

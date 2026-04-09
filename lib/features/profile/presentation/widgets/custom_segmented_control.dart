@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 class CustomSegmentedControl extends StatelessWidget {
   const CustomSegmentedControl({
-    super.key,
     required this.selectedIndex,
     required this.onChanged,
+    super.key,
   });
 
   final int selectedIndex;

@@ -12,8 +12,10 @@ abstract class AuthRepository {
   Future<Either<Failure, UserEntity>> signInWithApple();
   Future<Either<Failure, UserEntity>> updateProfileImage(String filePath);
   Future<Either<Failure, UserEntity>> updateProfileDetails({
-    String? name,
+    String? firstName,
+    String? lastName,
     String? username,
+    String? gender,
     double? weight,
     double? height,
     DateTime? birthDate,

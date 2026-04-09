@@ -2779,6 +2779,261 @@ class CardioSessionsCompanion extends UpdateCompanion<CardioSession> {
   }
 }
 
+class $BodyMeasurementsTable extends BodyMeasurements
+    with TableInfo<$BodyMeasurementsTable, BodyMeasurement> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $BodyMeasurementsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _partMeta = const VerificationMeta('part');
+  @override
+  late final GeneratedColumn<String> part = GeneratedColumn<String>(
+      'part', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _valueMeta = const VerificationMeta('value');
+  @override
+  late final GeneratedColumn<double> value = GeneratedColumn<double>(
+      'value', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _dateMeta = const VerificationMeta('date');
+  @override
+  late final GeneratedColumn<DateTime> date = GeneratedColumn<DateTime>(
+      'date', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [id, part, value, date];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'body_measurements';
+  @override
+  VerificationContext validateIntegrity(Insertable<BodyMeasurement> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('part')) {
+      context.handle(
+          _partMeta, part.isAcceptableOrUnknown(data['part']!, _partMeta));
+    } else if (isInserting) {
+      context.missing(_partMeta);
+    }
+    if (data.containsKey('value')) {
+      context.handle(
+          _valueMeta, value.isAcceptableOrUnknown(data['value']!, _valueMeta));
+    } else if (isInserting) {
+      context.missing(_valueMeta);
+    }
+    if (data.containsKey('date')) {
+      context.handle(
+          _dateMeta, date.isAcceptableOrUnknown(data['date']!, _dateMeta));
+    } else if (isInserting) {
+      context.missing(_dateMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  BodyMeasurement map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return BodyMeasurement(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      part: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}part'])!,
+      value: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}value'])!,
+      date: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}date'])!,
+    );
+  }
+
+  @override
+  $BodyMeasurementsTable createAlias(String alias) {
+    return $BodyMeasurementsTable(attachedDatabase, alias);
+  }
+}
+
+class BodyMeasurement extends DataClass implements Insertable<BodyMeasurement> {
+  final int id;
+  final String part;
+  final double value;
+  final DateTime date;
+  const BodyMeasurement(
+      {required this.id,
+      required this.part,
+      required this.value,
+      required this.date});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['part'] = Variable<String>(part);
+    map['value'] = Variable<double>(value);
+    map['date'] = Variable<DateTime>(date);
+    return map;
+  }
+
+  BodyMeasurementsCompanion toCompanion(bool nullToAbsent) {
+    return BodyMeasurementsCompanion(
+      id: Value(id),
+      part: Value(part),
+      value: Value(value),
+      date: Value(date),
+    );
+  }
+
+  factory BodyMeasurement.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return BodyMeasurement(
+      id: serializer.fromJson<int>(json['id']),
+      part: serializer.fromJson<String>(json['part']),
+      value: serializer.fromJson<double>(json['value']),
+      date: serializer.fromJson<DateTime>(json['date']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'part': serializer.toJson<String>(part),
+      'value': serializer.toJson<double>(value),
+      'date': serializer.toJson<DateTime>(date),
+    };
+  }
+
+  BodyMeasurement copyWith(
+          {int? id, String? part, double? value, DateTime? date}) =>
+      BodyMeasurement(
+        id: id ?? this.id,
+        part: part ?? this.part,
+        value: value ?? this.value,
+        date: date ?? this.date,
+      );
+  BodyMeasurement copyWithCompanion(BodyMeasurementsCompanion data) {
+    return BodyMeasurement(
+      id: data.id.present ? data.id.value : this.id,
+      part: data.part.present ? data.part.value : this.part,
+      value: data.value.present ? data.value.value : this.value,
+      date: data.date.present ? data.date.value : this.date,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BodyMeasurement(')
+          ..write('id: $id, ')
+          ..write('part: $part, ')
+          ..write('value: $value, ')
+          ..write('date: $date')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, part, value, date);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is BodyMeasurement &&
+          other.id == this.id &&
+          other.part == this.part &&
+          other.value == this.value &&
+          other.date == this.date);
+}
+
+class BodyMeasurementsCompanion extends UpdateCompanion<BodyMeasurement> {
+  final Value<int> id;
+  final Value<String> part;
+  final Value<double> value;
+  final Value<DateTime> date;
+  const BodyMeasurementsCompanion({
+    this.id = const Value.absent(),
+    this.part = const Value.absent(),
+    this.value = const Value.absent(),
+    this.date = const Value.absent(),
+  });
+  BodyMeasurementsCompanion.insert({
+    this.id = const Value.absent(),
+    required String part,
+    required double value,
+    required DateTime date,
+  })  : part = Value(part),
+        value = Value(value),
+        date = Value(date);
+  static Insertable<BodyMeasurement> custom({
+    Expression<int>? id,
+    Expression<String>? part,
+    Expression<double>? value,
+    Expression<DateTime>? date,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (part != null) 'part': part,
+      if (value != null) 'value': value,
+      if (date != null) 'date': date,
+    });
+  }
+
+  BodyMeasurementsCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? part,
+      Value<double>? value,
+      Value<DateTime>? date}) {
+    return BodyMeasurementsCompanion(
+      id: id ?? this.id,
+      part: part ?? this.part,
+      value: value ?? this.value,
+      date: date ?? this.date,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (part.present) {
+      map['part'] = Variable<String>(part.value);
+    }
+    if (value.present) {
+      map['value'] = Variable<double>(value.value);
+    }
+    if (date.present) {
+      map['date'] = Variable<DateTime>(date.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BodyMeasurementsCompanion(')
+          ..write('id: $id, ')
+          ..write('part: $part, ')
+          ..write('value: $value, ')
+          ..write('date: $date')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -2791,6 +3046,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $WeightLogsTable weightLogs = $WeightLogsTable(this);
   late final $AppSettingsTable appSettings = $AppSettingsTable(this);
   late final $CardioSessionsTable cardioSessions = $CardioSessionsTable(this);
+  late final $BodyMeasurementsTable bodyMeasurements =
+      $BodyMeasurementsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -2803,7 +3060,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         routineExercises,
         weightLogs,
         appSettings,
-        cardioSessions
+        cardioSessions,
+        bodyMeasurements
       ];
 }
 
@@ -5114,6 +5372,159 @@ typedef $$CardioSessionsTableProcessedTableManager = ProcessedTableManager<
     ),
     CardioSession,
     PrefetchHooks Function()>;
+typedef $$BodyMeasurementsTableCreateCompanionBuilder
+    = BodyMeasurementsCompanion Function({
+  Value<int> id,
+  required String part,
+  required double value,
+  required DateTime date,
+});
+typedef $$BodyMeasurementsTableUpdateCompanionBuilder
+    = BodyMeasurementsCompanion Function({
+  Value<int> id,
+  Value<String> part,
+  Value<double> value,
+  Value<DateTime> date,
+});
+
+class $$BodyMeasurementsTableFilterComposer
+    extends Composer<_$AppDatabase, $BodyMeasurementsTable> {
+  $$BodyMeasurementsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get part => $composableBuilder(
+      column: $table.part, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get value => $composableBuilder(
+      column: $table.value, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get date => $composableBuilder(
+      column: $table.date, builder: (column) => ColumnFilters(column));
+}
+
+class $$BodyMeasurementsTableOrderingComposer
+    extends Composer<_$AppDatabase, $BodyMeasurementsTable> {
+  $$BodyMeasurementsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get part => $composableBuilder(
+      column: $table.part, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get value => $composableBuilder(
+      column: $table.value, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get date => $composableBuilder(
+      column: $table.date, builder: (column) => ColumnOrderings(column));
+}
+
+class $$BodyMeasurementsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $BodyMeasurementsTable> {
+  $$BodyMeasurementsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get part =>
+      $composableBuilder(column: $table.part, builder: (column) => column);
+
+  GeneratedColumn<double> get value =>
+      $composableBuilder(column: $table.value, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get date =>
+      $composableBuilder(column: $table.date, builder: (column) => column);
+}
+
+class $$BodyMeasurementsTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $BodyMeasurementsTable,
+    BodyMeasurement,
+    $$BodyMeasurementsTableFilterComposer,
+    $$BodyMeasurementsTableOrderingComposer,
+    $$BodyMeasurementsTableAnnotationComposer,
+    $$BodyMeasurementsTableCreateCompanionBuilder,
+    $$BodyMeasurementsTableUpdateCompanionBuilder,
+    (
+      BodyMeasurement,
+      BaseReferences<_$AppDatabase, $BodyMeasurementsTable, BodyMeasurement>
+    ),
+    BodyMeasurement,
+    PrefetchHooks Function()> {
+  $$BodyMeasurementsTableTableManager(
+      _$AppDatabase db, $BodyMeasurementsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$BodyMeasurementsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$BodyMeasurementsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$BodyMeasurementsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> part = const Value.absent(),
+            Value<double> value = const Value.absent(),
+            Value<DateTime> date = const Value.absent(),
+          }) =>
+              BodyMeasurementsCompanion(
+            id: id,
+            part: part,
+            value: value,
+            date: date,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String part,
+            required double value,
+            required DateTime date,
+          }) =>
+              BodyMeasurementsCompanion.insert(
+            id: id,
+            part: part,
+            value: value,
+            date: date,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$BodyMeasurementsTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $BodyMeasurementsTable,
+    BodyMeasurement,
+    $$BodyMeasurementsTableFilterComposer,
+    $$BodyMeasurementsTableOrderingComposer,
+    $$BodyMeasurementsTableAnnotationComposer,
+    $$BodyMeasurementsTableCreateCompanionBuilder,
+    $$BodyMeasurementsTableUpdateCompanionBuilder,
+    (
+      BodyMeasurement,
+      BaseReferences<_$AppDatabase, $BodyMeasurementsTable, BodyMeasurement>
+    ),
+    BodyMeasurement,
+    PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -5134,4 +5545,6 @@ class $AppDatabaseManager {
       $$AppSettingsTableTableManager(_db, _db.appSettings);
   $$CardioSessionsTableTableManager get cardioSessions =>
       $$CardioSessionsTableTableManager(_db, _db.cardioSessions);
+  $$BodyMeasurementsTableTableManager get bodyMeasurements =>
+      $$BodyMeasurementsTableTableManager(_db, _db.bodyMeasurements);
 }

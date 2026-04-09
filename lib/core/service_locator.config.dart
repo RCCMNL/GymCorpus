@@ -52,8 +52,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i974.FirebaseFirestore>(() => databaseModule.firestore);
     gh.lazySingleton<_i949.TrainingRepository>(
         () => _i871.TrainingRepositoryImpl(database: gh<_i158.AppDatabase>()));
-    gh.factory<_i195.TrainingBloc>(
-        () => _i195.TrainingBloc(repository: gh<_i949.TrainingRepository>()));
     gh.lazySingleton<_i975.AuthLocalDataSource>(
         () => _i975.AuthLocalDataSourceImpl(gh<_i558.FlutterSecureStorage>()));
     gh.lazySingleton<_i701.AuthRemoteDataSource>(
@@ -64,6 +62,10 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i701.AuthRemoteDataSource>(),
         ));
     gh.factory<_i312.AuthBloc>(() => _i312.AuthBloc(gh<_i25.AuthRepository>()));
+    gh.factory<_i195.TrainingBloc>(() => _i195.TrainingBloc(
+          repository: gh<_i949.TrainingRepository>(),
+          authRepository: gh<_i25.AuthRepository>(),
+        ));
     return this;
   }
 }

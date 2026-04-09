@@ -3,13 +3,14 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+
+import 'package:gym_corpus/core/utils/unit_converter.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
-import 'package:gym_corpus/core/utils/unit_converter.dart';
 
 class WorkoutPage extends StatefulWidget {
   const WorkoutPage({this.routineToEdit, super.key});
@@ -128,11 +129,12 @@ class _WorkoutPageState extends State<WorkoutPage> {
       List<dynamic> setsList = [];
       try {
         setsList = jsonDecode(re.setsData!) as List<dynamic>;
-        final convertedSets = setsList.map((s) {
-          final w = (s['weight'] as num).toDouble();
+        final convertedSets = setsList.map((dynamic s) {
+          final map = s as Map<String, dynamic>;
+          final w = (map['weight'] as num).toDouble();
           return {
             'weight': UnitConverter.lbToKg(w),
-            'reps': s['reps'],
+            'reps': map['reps'] as int,
           };
         }).toList();
         

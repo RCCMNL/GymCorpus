@@ -105,7 +105,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           error: (message, previousUser) => previousUser,
                           orElse: () => null,
                         );
-                        final userName = user?.name ?? 'Guest';
+                        final userName = user?.fullName ?? 'Atleta';
                         final photoUrl = user?.photoUrl;
 
                         return Column(
@@ -260,7 +260,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     secondCurve: Curves.easeInOut,
                   ),
 
-                  const SizedBox(height: 100), // Space for nav
+                  const SizedBox(height: 40), // Space for nav
                 ],
               ),
             );
@@ -276,26 +276,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _ProfileSection(
-          title: 'Performance & Dati',
-          items: [
-            _ProfileItem(icon: Icons.track_changes, label: 'Obiettivi', onTap: () {}),
-            _ProfileItem(icon: Icons.trending_up, label: 'Progressi', onTap: () {}),
-            _ProfileItem(icon: Icons.emoji_events, label: 'Record', onTap: () {}),
-          ],
-        ),
-        _ProfileSection(
-          title: 'Allenamento',
-          items: [
-            _ProfileItem(icon: Icons.calendar_month, label: 'Programma attuale', onTap: () {}),
-            _ProfileItem(icon: Icons.favorite, label: 'Esercizi Preferiti', onTap: () {}),
-          ],
-        ),
-        _ProfileSection(
           title: 'Community & Gamification',
           items: [
             _ProfileItem(icon: Icons.leaderboard, label: 'Classifica Utenti', onTap: () {}),
             _ProfileItem(icon: Icons.campaign, label: 'Sfide Community', onTap: () {}),
             _ProfileItem(icon: Icons.military_tech, label: 'Bacheca Trofei & Livelli', onTap: () {}),
+          ],
+        ),
+        _ProfileSection(
+          title: 'Performance & Dati',
+          items: [
+            _ProfileItem(icon: Icons.emoji_events, label: 'Record', onTap: () {}),
+            _ProfileItem(icon: Icons.track_changes, label: 'Obiettivi', onTap: () {}),
+            _ProfileItem(icon: Icons.trending_up, label: 'Progressi', onTap: () => context.push('/profile/progress')),
+          ],
+        ),
+        _ProfileSection(
+          title: 'Allenamento',
+          items: [
+            _ProfileItem(icon: Icons.favorite, label: 'Esercizi Preferiti', onTap: () {}),
+            _ProfileItem(icon: Icons.calendar_today, label: 'Programma attuale', onTap: () {}),
+            _ProfileItem(icon: Icons.event_repeat, label: 'Calendario ciclo', onTap: () {}),
           ],
         ),
         _ProfileSection(
@@ -315,6 +316,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildSettingsMenu(BuildContext context, ThemeData theme, TrainingState trainingState) {
+    final settings = trainingState is TrainingLoaded ? trainingState.settings : <String, String>{};
+    final isAudioEnabled = settings['audio_effects'] == 'true';
+    final isVibrationEnabled = settings['vibration'] == 'true';
+
     return Column(
       key: const ValueKey('settings_menu'),
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -345,19 +350,49 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   // Training Settings
                   _buildTrainingSettings(context, trainingState),
                   // App Preferences
-                  const _ProfileSection(
-                    title: 'App Preferences',
+                  _ProfileSection(
+                    title: 'Preferenze App',
                     items: [
                       _ProfileItem(
                         icon: Icons.dark_mode,
                         label: 'Dark Mode',
                         trailingText: 'ALWAYS ON',
+                        onTap: () {},
                       ),
-                      _ProfileItem(icon: Icons.notifications, label: 'Notifications'),
                       _ProfileItem(
                         icon: Icons.language,
-                        label: 'Language',
+                        label: 'Lingua',
                         trailingText: 'Italiano',
+                        onTap: () {},
+                      ),
+                      _ProfileItem(icon: Icons.notifications, label: 'Notifiche', onTap: () {}),
+                      _ProfileItem(
+                        icon: Icons.volume_up_rounded,
+                        label: 'Effetti Audio',
+                        trailing: Transform.scale(
+                          scale: 0.8,
+                          child: Switch(
+                            value: isAudioEnabled,
+                            onChanged: (val) {
+                              context.read<TrainingBloc>().add(UpdatePreferenceEvent('audio_effects', val.toString()));
+                            },
+                            activeColor: theme.colorScheme.primary,
+                          ),
+                        ),
+                      ),
+                      _ProfileItem(
+                        icon: Icons.vibration_rounded,
+                        label: 'Vibrazione',
+                        trailing: Transform.scale(
+                          scale: 0.8,
+                          child: Switch(
+                            value: isVibrationEnabled,
+                            onChanged: (val) {
+                              context.read<TrainingBloc>().add(UpdatePreferenceEvent('vibration', val.toString()));
+                            },
+                            activeColor: theme.colorScheme.primary,
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -515,7 +550,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final value = isImperial ? UnitConverter.cmToInch(heightValue) : heightValue;
       heightLabel = '${value.toInt()}${isImperial ? 'in' : 'cm'}';
     }
-    
+
     var age = '? anni';
     if (user.birthDate != null) {
       final now = DateTime.now();
@@ -527,16 +562,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
       age = '$calculatedAge anni';
     }
 
-    final hasMissingData = user.weight == null || user.height == null || user.birthDate == null;
+    var genderLabel = 'Sesso ?';
+    IconData genderIcon = Icons.wc;
+    if (user.gender != null) {
+      genderLabel = user.gender == 'uomo' ? 'Uomo' : 'Donna';
+      genderIcon = user.gender == 'uomo' ? Icons.male_rounded : Icons.female_rounded;
+    }
+
+    final hasMissingData = user.weight == null || user.height == null || user.birthDate == null || user.gender == null;
 
     return GestureDetector(
       onTap: hasMissingData ? () => context.push('/profile/edit') : null,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Wrap(
+        alignment: WrapAlignment.spaceBetween,
+        spacing: 12,
+        runSpacing: 12,
         children: [
           _buildStatItem(Icons.monitor_weight_outlined, weightLabel, theme),
           _buildStatItem(Icons.height, heightLabel, theme),
           _buildStatItem(Icons.cake_outlined, age, theme),
+          _buildStatItem(genderIcon, genderLabel, theme),
         ],
       ),
     );
@@ -570,6 +615,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ],
     );
   }
+
 
   Widget _buildStatItem(IconData icon, String value, ThemeData theme) {
     return Container(
@@ -673,16 +719,16 @@ class _ProfileItem extends StatelessWidget {
     required this.icon,
     required this.label,
     this.trailingText,
+    this.trailing,
     this.isBadge = false,
-    this.isExternal = false,
     this.onTap,
   });
 
   final IconData icon;
   final String label;
   final String? trailingText;
+  final Widget? trailing;
   final bool isBadge;
-  final bool isExternal;
   final VoidCallback? onTap;
 
   @override
@@ -693,8 +739,9 @@ class _ProfileItem extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(20),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 60),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Row(
             children: [
               Icon(
@@ -738,11 +785,12 @@ class _ProfileItem extends StatelessWidget {
                     ),
                   ),
               ],
-              if (!isBadge)
+              if (trailing != null) trailing!,
+              if (trailingText == null && trailing == null && !isBadge)
                 Icon(
-                  isExternal ? Icons.open_in_new : Icons.chevron_right,
-                  color: theme.colorScheme.outline,
+                  Icons.chevron_right,
                   size: 20,
+                  color: theme.colorScheme.outline.withValues(alpha: 0.3),
                 ),
             ],
           ),

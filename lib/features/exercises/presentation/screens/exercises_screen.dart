@@ -240,7 +240,7 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
                                           color: theme.colorScheme.outline.withValues(alpha: 0.5),
                                           fontSize: 9,
                                           fontWeight: FontWeight.w900,
-                                          letterSpacing: 1.0,
+                                          letterSpacing: 1,
                                         ),
                                       ),
                                     ],
@@ -312,7 +312,9 @@ class _ExerciseTile extends StatelessWidget {
                   size: 28, 
                   color: exercise.targetMuscle.contains('Petto') 
                       ? Colors.orangeAccent 
-                      : (exercise.targetMuscle.contains('Schiena') ? theme.colorScheme.tertiary : theme.colorScheme.primary)
+                      : (exercise.targetMuscle.contains('Schiena')
+                          ? theme.colorScheme.tertiary
+                          : theme.colorScheme.primary),
                 ),
               ),
               const SizedBox(width: 16),

@@ -40,4 +40,13 @@ class UnitConverter {
       if(inputUnit == LengthUnit.cm) return input;
       return inchToCm(input);
   }
+
+  static String monthName(int month) {
+    const months = [
+      'GEN', 'FEB', 'MAR', 'APR', 'MAG', 'GIU',
+      'LUG', 'AGO', 'SET', 'OTT', 'NOV', 'DIC',
+    ];
+    if (month < 1 || month > 12) return '';
+    return months[month - 1];
+  }
 }

@@ -25,8 +25,10 @@ class AuthEvent with _$AuthEvent {
   const factory AuthEvent.updateProfileImageRequested({required String filePath}) = _UpdateProfileImageRequested;
 
   const factory AuthEvent.updateProfileRequested({
-    String? name,
+    String? firstName,
+    String? lastName,
     String? username,
+    String? gender,
     double? weight,
     double? height,
     DateTime? birthDate,

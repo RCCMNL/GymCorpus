@@ -236,8 +236,15 @@ extension AuthEventPatterns on AuthEvent {
     TResult Function()? appleSignInRequested,
     TResult Function()? logoutRequested,
     TResult Function(String filePath)? updateProfileImageRequested,
-    TResult Function(String? name, String? username, double? weight,
-            double? height, DateTime? birthDate, String? trainingObjective)?
+    TResult Function(
+            String? firstName,
+            String? lastName,
+            String? username,
+            String? gender,
+            double? weight,
+            double? height,
+            DateTime? birthDate,
+            String? trainingObjective)?
         updateProfileRequested,
     TResult Function(String currentPassword, String newPassword)?
         changePasswordRequested,
@@ -264,8 +271,15 @@ extension AuthEventPatterns on AuthEvent {
           when updateProfileImageRequested != null:
         return updateProfileImageRequested(_that.filePath);
       case _UpdateProfileRequested() when updateProfileRequested != null:
-        return updateProfileRequested(_that.name, _that.username, _that.weight,
-            _that.height, _that.birthDate, _that.trainingObjective);
+        return updateProfileRequested(
+            _that.firstName,
+            _that.lastName,
+            _that.username,
+            _that.gender,
+            _that.weight,
+            _that.height,
+            _that.birthDate,
+            _that.trainingObjective);
       case _ChangePasswordRequested() when changePasswordRequested != null:
         return changePasswordRequested(
             _that.currentPassword, _that.newPassword);
@@ -299,8 +313,15 @@ extension AuthEventPatterns on AuthEvent {
     required TResult Function() appleSignInRequested,
     required TResult Function() logoutRequested,
     required TResult Function(String filePath) updateProfileImageRequested,
-    required TResult Function(String? name, String? username, double? weight,
-            double? height, DateTime? birthDate, String? trainingObjective)
+    required TResult Function(
+            String? firstName,
+            String? lastName,
+            String? username,
+            String? gender,
+            double? weight,
+            double? height,
+            DateTime? birthDate,
+            String? trainingObjective)
         updateProfileRequested,
     required TResult Function(String currentPassword, String newPassword)
         changePasswordRequested,
@@ -325,8 +346,15 @@ extension AuthEventPatterns on AuthEvent {
       case _UpdateProfileImageRequested():
         return updateProfileImageRequested(_that.filePath);
       case _UpdateProfileRequested():
-        return updateProfileRequested(_that.name, _that.username, _that.weight,
-            _that.height, _that.birthDate, _that.trainingObjective);
+        return updateProfileRequested(
+            _that.firstName,
+            _that.lastName,
+            _that.username,
+            _that.gender,
+            _that.weight,
+            _that.height,
+            _that.birthDate,
+            _that.trainingObjective);
       case _ChangePasswordRequested():
         return changePasswordRequested(
             _that.currentPassword, _that.newPassword);
@@ -359,8 +387,15 @@ extension AuthEventPatterns on AuthEvent {
     TResult? Function()? appleSignInRequested,
     TResult? Function()? logoutRequested,
     TResult? Function(String filePath)? updateProfileImageRequested,
-    TResult? Function(String? name, String? username, double? weight,
-            double? height, DateTime? birthDate, String? trainingObjective)?
+    TResult? Function(
+            String? firstName,
+            String? lastName,
+            String? username,
+            String? gender,
+            double? weight,
+            double? height,
+            DateTime? birthDate,
+            String? trainingObjective)?
         updateProfileRequested,
     TResult? Function(String currentPassword, String newPassword)?
         changePasswordRequested,
@@ -386,8 +421,15 @@ extension AuthEventPatterns on AuthEvent {
           when updateProfileImageRequested != null:
         return updateProfileImageRequested(_that.filePath);
       case _UpdateProfileRequested() when updateProfileRequested != null:
-        return updateProfileRequested(_that.name, _that.username, _that.weight,
-            _that.height, _that.birthDate, _that.trainingObjective);
+        return updateProfileRequested(
+            _that.firstName,
+            _that.lastName,
+            _that.username,
+            _that.gender,
+            _that.weight,
+            _that.height,
+            _that.birthDate,
+            _that.trainingObjective);
       case _ChangePasswordRequested() when changePasswordRequested != null:
         return changePasswordRequested(
             _that.currentPassword, _that.newPassword);
@@ -759,15 +801,19 @@ class __$UpdateProfileImageRequestedCopyWithImpl<$Res>
 
 class _UpdateProfileRequested implements AuthEvent {
   const _UpdateProfileRequested(
-      {this.name,
+      {this.firstName,
+      this.lastName,
       this.username,
+      this.gender,
       this.weight,
       this.height,
       this.birthDate,
       this.trainingObjective});
 
-  final String? name;
+  final String? firstName;
+  final String? lastName;
   final String? username;
+  final String? gender;
   final double? weight;
   final double? height;
   final DateTime? birthDate;
@@ -786,9 +832,13 @@ class _UpdateProfileRequested implements AuthEvent {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _UpdateProfileRequested &&
-            (identical(other.name, name) || other.name == name) &&
+            (identical(other.firstName, firstName) ||
+                other.firstName == firstName) &&
+            (identical(other.lastName, lastName) ||
+                other.lastName == lastName) &&
             (identical(other.username, username) ||
                 other.username == username) &&
+            (identical(other.gender, gender) || other.gender == gender) &&
             (identical(other.weight, weight) || other.weight == weight) &&
             (identical(other.height, height) || other.height == height) &&
             (identical(other.birthDate, birthDate) ||
@@ -798,12 +848,12 @@ class _UpdateProfileRequested implements AuthEvent {
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, name, username, weight, height,
-      birthDate, trainingObjective);
+  int get hashCode => Object.hash(runtimeType, firstName, lastName, username,
+      gender, weight, height, birthDate, trainingObjective);
 
   @override
   String toString() {
-    return 'AuthEvent.updateProfileRequested(name: $name, username: $username, weight: $weight, height: $height, birthDate: $birthDate, trainingObjective: $trainingObjective)';
+    return 'AuthEvent.updateProfileRequested(firstName: $firstName, lastName: $lastName, username: $username, gender: $gender, weight: $weight, height: $height, birthDate: $birthDate, trainingObjective: $trainingObjective)';
   }
 }
 
@@ -815,8 +865,10 @@ abstract mixin class _$UpdateProfileRequestedCopyWith<$Res>
       __$UpdateProfileRequestedCopyWithImpl;
   @useResult
   $Res call(
-      {String? name,
+      {String? firstName,
+      String? lastName,
       String? username,
+      String? gender,
       double? weight,
       double? height,
       DateTime? birthDate,
@@ -835,21 +887,31 @@ class __$UpdateProfileRequestedCopyWithImpl<$Res>
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   $Res call({
-    Object? name = freezed,
+    Object? firstName = freezed,
+    Object? lastName = freezed,
     Object? username = freezed,
+    Object? gender = freezed,
     Object? weight = freezed,
     Object? height = freezed,
     Object? birthDate = freezed,
     Object? trainingObjective = freezed,
   }) {
     return _then(_UpdateProfileRequested(
-      name: freezed == name
-          ? _self.name
-          : name // ignore: cast_nullable_to_non_nullable
+      firstName: freezed == firstName
+          ? _self.firstName
+          : firstName // ignore: cast_nullable_to_non_nullable
+              as String?,
+      lastName: freezed == lastName
+          ? _self.lastName
+          : lastName // ignore: cast_nullable_to_non_nullable
               as String?,
       username: freezed == username
           ? _self.username
           : username // ignore: cast_nullable_to_non_nullable
+              as String?,
+      gender: freezed == gender
+          ? _self.gender
+          : gender // ignore: cast_nullable_to_non_nullable
               as String?,
       weight: freezed == weight
           ? _self.weight

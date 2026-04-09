@@ -1,6 +1,7 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:gym_corpus/features/auth/domain/repositories/auth_repository.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/domain/repositories/training_repository.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
@@ -10,13 +11,27 @@ import 'package:mocktail/mocktail.dart';
 
 class MockTrainingRepository extends Mock implements TrainingRepository {}
 
+class MockAuthRepository extends Mock implements AuthRepository {}
+
 void main() {
   late MockTrainingRepository mockRepository;
+  late MockAuthRepository mockAuthRepository;
   late TrainingBloc bloc;
 
   setUp(() {
     mockRepository = MockTrainingRepository();
-    bloc = TrainingBloc(repository: mockRepository);
+    mockAuthRepository = MockAuthRepository();
+
+    // Default stubs to prevent 'Null is not a subtype of Stream' errors
+    when(() => mockRepository.watchExercises()).thenAnswer((_) => const Stream.empty());
+    when(() => mockRepository.watchRoutines()).thenAnswer((_) => const Stream.empty());
+    when(() => mockRepository.watchWeightLogs()).thenAnswer((_) => const Stream.empty());
+    when(() => mockRepository.watchBodyWeightLogs()).thenAnswer((_) => const Stream.empty());
+    when(() => mockRepository.watchAllSettings()).thenAnswer((_) => const Stream.empty());
+    when(() => mockRepository.watchCardioSessions()).thenAnswer((_) => const Stream.empty());
+    when(() => mockRepository.watchBodyMeasurements()).thenAnswer((_) => const Stream.empty());
+
+    bloc = TrainingBloc(repository: mockRepository, authRepository: mockAuthRepository);
   });
 
   tearDown(() {

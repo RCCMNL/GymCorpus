@@ -42,10 +42,10 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
   }
 
   Future<void> _initLocation() async {
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    final serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) return;
 
-    LocationPermission permission = await Geolocator.checkPermission();
+    var permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) return;
@@ -114,7 +114,7 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
     final avgSpeed = _elapsedSeconds > 0 ? (distKm / (_elapsedSeconds / 3600)) : 0.0;
     
     // Pace: minutes per km
-    String pace = '--:--';
+    var pace = '--:--';
     if (distKm > 0) {
       final paceMinutes = (_elapsedSeconds / 60) / distKm;
       final pMins = paceMinutes.floor();
@@ -139,7 +139,7 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
         pace: pace,
         calories: calories,
         routeJson: routeJson,
-      ));
+      ),);
 
       await Future<void>.delayed(const Duration(milliseconds: 500));
       if (mounted) context.pop();
@@ -443,12 +443,17 @@ class _StatColumn extends StatelessWidget {
     return Column(
       children: [
         Text(label, style: theme.textTheme.labelSmall?.copyWith(
-          color: theme.colorScheme.outline, fontWeight: FontWeight.w900, letterSpacing: 1, fontSize: 9,
-        )),
+          color: theme.colorScheme.outline,
+          fontWeight: FontWeight.w900,
+          letterSpacing: 1,
+          fontSize: 9,
+        ),),
         const SizedBox(height: 4),
         Text(value, style: theme.textTheme.titleMedium?.copyWith(
-          fontWeight: FontWeight.w900, fontFamily: 'Lexend', fontSize: 16,
-        )),
+          fontWeight: FontWeight.w900,
+          fontFamily: 'Lexend',
+          fontSize: 16,
+        ),),
       ],
     );
   }

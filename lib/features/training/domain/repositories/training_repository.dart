@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:gym_corpus/core/error/failures.dart';
 import 'package:gym_corpus/features/training/domain/entities/body_weight.dart';
+import 'package:gym_corpus/features/training/domain/entities/body_measurement.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_session.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
@@ -28,6 +29,15 @@ abstract class TrainingRepository {
   // Body weight entries
   Stream<List<BodyWeightLogEntity>> watchBodyWeightLogs();
   Future<Either<Failure, int>> addBodyWeightLogEntry(double weight);
+  Future<Either<Failure, void>> deleteBodyWeightLogEntry(int id);
+  Future<Either<Failure, void>> updateBodyWeightLogEntry(int id, double weight);
+  Future<Either<Failure, void>> reseedWeightHistory();
+
+  // Body measurements
+  Stream<List<BodyMeasurementEntity>> watchBodyMeasurements();
+  Future<Either<Failure, int>> addBodyMeasurement(String part, double value);
+  Future<Either<Failure, void>> deleteBodyMeasurement(int id);
+  Future<Either<Failure, void>> updateBodyMeasurement(int id, double value);
 
   // Cardio sessions
   Stream<List<CardioSessionEntity>> watchCardioSessions();

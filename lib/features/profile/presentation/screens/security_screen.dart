@@ -1,12 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
+import 'package:gym_corpus/core/widgets/social_icons.dart';
 import 'package:gym_corpus/features/auth/domain/repositories/auth_repository.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_event.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
-import 'package:gym_corpus/core/widgets/social_icons.dart';
 import 'package:intl/intl.dart';
 import 'package:local_auth/local_auth.dart';
 
@@ -27,8 +29,8 @@ class _SecurityScreenState extends State<SecurityScreen> {
   @override
   void initState() {
     super.initState();
-    _checkBiometrics();
-    _loadBiometricPreference();
+    unawaited(_checkBiometrics());
+    unawaited(_loadBiometricPreference());
   }
 
   Future<void> _checkBiometrics() async {
@@ -57,10 +59,9 @@ class _SecurityScreenState extends State<SecurityScreen> {
     if (value) {
       try {
         final didAuthenticate = await _auth.authenticate(
-          localizedReason: "Autenticati per abilitare lo sblocco biometrico",
+          localizedReason: 'Autenticati per abilitare lo sblocco biometrico',
           options: const AuthenticationOptions(
             stickyAuth: true,
-            biometricOnly: false,
           ),
         );
         if (didAuthenticate) {
@@ -74,10 +75,9 @@ class _SecurityScreenState extends State<SecurityScreen> {
       // Disabling also requires authentication for security
       try {
         final didAuthenticate = await _auth.authenticate(
-          localizedReason: "Autenticati per disabilitare lo sblocco biometrico",
+          localizedReason: 'Autenticati per disabilitare lo sblocco biometrico',
           options: const AuthenticationOptions(
             stickyAuth: true,
-            biometricOnly: false,
           ),
         );
         if (didAuthenticate) {
@@ -85,10 +85,10 @@ class _SecurityScreenState extends State<SecurityScreen> {
           await _authRepository.setBiometricEnabled(enabled: false);
         } else {
           // Authentication failed, keep it enabled in UI
-          _loadBiometricPreference(); 
+          unawaited(_loadBiometricPreference()); 
         }
       } catch (e) {
-        _loadBiometricPreference();
+        unawaited(_loadBiometricPreference());
       }
     }
   }
@@ -100,7 +100,6 @@ class _SecurityScreenState extends State<SecurityScreen> {
           localizedReason: reason,
           options: const AuthenticationOptions(
             stickyAuth: true,
-            biometricOnly: false,
           ),
         );
       } catch (_) {
@@ -111,7 +110,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
   }
 
   Future<void> _showChangePasswordDialog() async {
-    final verified = await _verifyBiomanualIfEnabled("Autenticati per cambiare la password");
+    final verified = await _verifyBiomanualIfEnabled('Autenticati per cambiare la password');
     if (!verified && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Autenticazione richiesta per continuare')));
       return;
@@ -123,7 +122,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
     final newPasswordController = TextEditingController();
     final theme = Theme.of(context);
 
-    showModalBottomSheet<void>(
+    unawaited(showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -135,11 +134,11 @@ class _SecurityScreenState extends State<SecurityScreen> {
           theme: theme,
         ),
       ),
-    );
+    ),);
   }
 
   Future<void> _showDeleteAccountDialog() async {
-    final verified = await _verifyBiomanualIfEnabled("Autenticati per eliminare il tuo account");
+    final verified = await _verifyBiomanualIfEnabled('Autenticati per eliminare il tuo account');
     if (!verified && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Autenticazione richiesta per continuare')));
       return;
@@ -148,7 +147,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
     if (!mounted) return;
 
     final theme = Theme.of(context);
-    showDialog<void>(
+    unawaited(showDialog<void>(
       context: context,
       builder: (dialogContext) => AlertDialog(
         backgroundColor: theme.colorScheme.surface,
@@ -166,7 +165,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
           ),
         ],
       ),
-    );
+    ),);
   }
 
   @override
@@ -217,14 +216,14 @@ class _SecurityScreenState extends State<SecurityScreen> {
                 onTap: _showChangePasswordDialog,
               ),
               if (_canCheckBiometrics)
-                _SecurityItem(
-                  icon: Icons.fingerprint,
-                  label: 'Sblocco Biometrico',
-                  trailing: Switch(
-                    value: _isBiometricEnabled,
-                    onChanged: _toggleBiometrics,
+                  _SecurityItem(
+                    icon: Icons.fingerprint,
+                    label: 'Accesso Biometrico',
+                    trailing: Switch(
+                      value: _isBiometricEnabled,
+                      onChanged: (val) => unawaited(_toggleBiometrics(val)),
+                    ),
                   ),
-                ),
               
               const SizedBox(height: 32),
               _buildSectionTitle('LOGIN SOCIAL', theme),
@@ -235,15 +234,15 @@ class _SecurityScreenState extends State<SecurityScreen> {
                 trailing: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: currentUser?.authProviders.contains('google.com') == true
+                    color: (currentUser?.authProviders.contains('google.com') ?? false)
                         ? theme.colorScheme.primary.withValues(alpha: 0.1)
                         : theme.colorScheme.outline.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    currentUser?.authProviders.contains('google.com') == true ? 'COLLEGATO' : 'NON COLLEGATO',
+                    (currentUser?.authProviders.contains('google.com') ?? false) ? 'COLLEGATO' : 'NON COLLEGATO',
                     style: theme.textTheme.labelSmall?.copyWith(
-                      color: currentUser?.authProviders.contains('google.com') == true
+                      color: (currentUser?.authProviders.contains('google.com') ?? false)
                           ? theme.colorScheme.primary
                           : theme.colorScheme.outline,
                       fontWeight: FontWeight.w900,
@@ -294,7 +293,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
                           fontSize: 10, 
                           fontWeight: FontWeight.w900,
                           letterSpacing: 1.1,
-                        )
+                        ),
                       ),
                     ),
                   ],
@@ -356,9 +355,9 @@ class _SecurityScreenState extends State<SecurityScreen> {
 
 class _SecurityItem extends StatelessWidget {
   const _SecurityItem({
+    required this.label,
     this.icon,
     this.leading,
-    required this.label,
     this.trailing,
     this.onTap,
   });
@@ -409,7 +408,7 @@ class _ChangePasswordSheetState extends State<_ChangePasswordSheet> {
   bool _obscureCurrent = true;
   bool _obscureNew = true;
 
-  void _submit() async {
+  Future<void> _submit() async {
     if (widget.currentPasswordController.text.isEmpty || widget.newPasswordController.text.isEmpty) return;
     
     setState(() => _isLoading = true);
@@ -443,11 +442,11 @@ class _ChangePasswordSheetState extends State<_ChangePasswordSheet> {
                 ),
               ],
             ),
-            child: Row(
+            child: const Row(
               children: [
-                const Icon(Icons.check_circle_outline_rounded, color: Colors.white, size: 24),
-                const SizedBox(width: 12),
-                const Expanded(
+                Icon(Icons.check_circle_outline_rounded, color: Colors.white, size: 24),
+                SizedBox(width: 12),
+                Expanded(
                   child: Text(
                     'Password aggiornata con successo',
                     style: TextStyle(
@@ -552,7 +551,7 @@ class _ChangePasswordSheetState extends State<_ChangePasswordSheet> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: _isLoading ? null : _submit,
+                onPressed: _isLoading ? null : () => unawaited(_submit()),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: widget.theme.colorScheme.primary,
                   foregroundColor: widget.theme.colorScheme.onPrimary,

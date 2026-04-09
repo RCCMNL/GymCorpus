@@ -7,7 +7,8 @@ part 'user_entity.g.dart';
 class UserEntity extends Equatable {
   const UserEntity({
     required this.id,
-    required this.name,
+    this.firstName,
+    this.lastName,
     required this.email,
     this.photoUrl,
     this.username,
@@ -17,27 +18,46 @@ class UserEntity extends Equatable {
     this.trainingObjective,
     this.lastLoginDate,
     this.lastLoginDevice,
+    this.gender,
     this.authProviders = const [],
   });
 
-  factory UserEntity.fromJson(Map<String, dynamic> json) => UserEntity(
-        id: json['id'] as String? ?? '',
-        name: json['name'] as String? ?? 'Atleta',
-        email: json['email'] as String? ?? '',
-        photoUrl: json['photoUrl'] as String?,
-        username: json['username'] as String?,
-        weight: (json['weight'] as num?)?.toDouble(),
-        height: (json['height'] as num?)?.toDouble(),
-        birthDate: json['birthDate'] != null ? DateTime.parse(json['birthDate'] as String) : null,
-        trainingObjective: json['trainingObjective'] as String?,
-        lastLoginDate: json['lastLoginDate'] != null ? DateTime.parse(json['lastLoginDate'] as String) : null,
-        lastLoginDevice: json['lastLoginDevice'] as String?,
-        authProviders: (json['authProviders'] as List<dynamic>?)?.map((e) => e as String).toList() ?? const [],
-      );
+  factory UserEntity.fromJson(Map<String, dynamic> json) {
+    // Migration logic for old 'name' field
+    String? fName = json['firstName'] as String?;
+    String? lName = json['lastName'] as String?;
+    
+    if (fName == null && lName == null && json['name'] != null) {
+      final oldName = json['name'] as String;
+      final parts = oldName.split(' ');
+      fName = parts.first;
+      if (parts.length > 1) {
+        lName = parts.sublist(1).join(' ');
+      }
+    }
+
+    return UserEntity(
+      id: json['id'] as String? ?? '',
+      firstName: fName ?? 'Atleta',
+      lastName: lName ?? '',
+      email: json['email'] as String? ?? '',
+      photoUrl: json['photoUrl'] as String?,
+      username: json['username'] as String?,
+      weight: (json['weight'] as num?)?.toDouble(),
+      height: (json['height'] as num?)?.toDouble(),
+      birthDate: json['birthDate'] != null ? DateTime.parse(json['birthDate'] as String) : null,
+      trainingObjective: json['trainingObjective'] as String?,
+      lastLoginDate: json['lastLoginDate'] != null ? DateTime.parse(json['lastLoginDate'] as String) : null,
+      lastLoginDevice: json['lastLoginDevice'] as String?,
+      gender: json['gender'] as String?,
+      authProviders: (json['authProviders'] as List<dynamic>?)?.map((e) => e as String).toList() ?? const [],
+    );
+  }
 
   Map<String, dynamic> toJson() => <String, dynamic>{
         'id': id,
-        'name': name,
+        'firstName': firstName,
+        'lastName': lastName,
         'email': email,
         'photoUrl': photoUrl,
         'username': username,
@@ -47,11 +67,13 @@ class UserEntity extends Equatable {
         'trainingObjective': trainingObjective,
         'lastLoginDate': lastLoginDate?.toIso8601String(),
         'lastLoginDevice': lastLoginDevice,
+        'gender': gender,
         'authProviders': authProviders,
       };
 
   final String id;
-  final String name;
+  final String? firstName;
+  final String? lastName;
   final String email;
   final String? photoUrl;
   final String? username;
@@ -61,11 +83,15 @@ class UserEntity extends Equatable {
   final String? trainingObjective;
   final DateTime? lastLoginDate;
   final String? lastLoginDevice;
+  final String? gender;
   final List<String> authProviders;
+
+  String get fullName => '${firstName ?? ''} ${lastName ?? ''}'.trim();
 
   UserEntity copyWith({
     String? id,
-    String? name,
+    String? firstName,
+    String? lastName,
     String? email,
     String? photoUrl,
     String? username,
@@ -75,11 +101,13 @@ class UserEntity extends Equatable {
     String? trainingObjective,
     DateTime? lastLoginDate,
     String? lastLoginDevice,
+    String? gender,
     List<String>? authProviders,
   }) {
     return UserEntity(
       id: id ?? this.id,
-      name: name ?? this.name,
+      firstName: firstName ?? this.firstName,
+      lastName: lastName ?? this.lastName,
       email: email ?? this.email,
       photoUrl: photoUrl ?? this.photoUrl,
       username: username ?? this.username,
@@ -89,6 +117,7 @@ class UserEntity extends Equatable {
       trainingObjective: trainingObjective ?? this.trainingObjective,
       lastLoginDate: lastLoginDate ?? this.lastLoginDate,
       lastLoginDevice: lastLoginDevice ?? this.lastLoginDevice,
+      gender: gender ?? this.gender,
       authProviders: authProviders ?? this.authProviders,
     );
   }
@@ -96,7 +125,8 @@ class UserEntity extends Equatable {
   @override
   List<Object?> get props => [
         id,
-        name,
+        firstName,
+        lastName,
         email,
         photoUrl,
         username,
@@ -106,6 +136,7 @@ class UserEntity extends Equatable {
         trainingObjective,
         lastLoginDate,
         lastLoginDevice,
+        gender,
         authProviders,
       ];
 }

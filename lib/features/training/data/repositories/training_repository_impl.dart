@@ -1,14 +1,15 @@
 import 'package:dartz/dartz.dart';
 import 'package:drift/drift.dart';
+import 'package:injectable/injectable.dart';
+
 import 'package:gym_corpus/core/database/database.dart';
 import 'package:gym_corpus/core/error/failures.dart';
+import 'package:gym_corpus/features/training/domain/entities/body_measurement.dart';
 import 'package:gym_corpus/features/training/domain/entities/body_weight.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_session.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 import 'package:gym_corpus/features/training/domain/repositories/training_repository.dart';
-
-import 'package:injectable/injectable.dart';
 
 @LazySingleton(as: TrainingRepository)
 class TrainingRepositoryImpl implements TrainingRepository {
@@ -237,6 +238,95 @@ class TrainingRepositoryImpl implements TrainingRepository {
       return Right(id);
     } catch (e) {
        return Left(DatabaseFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> deleteBodyWeightLogEntry(int id) async {
+    try {
+      await database.deleteWeightLog(id);
+      return const Right(null);
+    } catch (e) {
+      return Left(DatabaseFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> updateBodyWeightLogEntry(int id, double weight) async {
+    try {
+      await database.updateWeightLog(id, weight);
+      return const Right(null);
+    } catch (e) {
+      return Left(DatabaseFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> reseedWeightHistory() async {
+    try {
+      await database.deleteAllWeightLogs();
+      
+      final now = DateTime.now();
+      final baseWeight = 80.0;
+      final variations = [0.2, -0.5, 0.8, -0.3, 0.1, -0.7, 0.4, -0.2, 0.6, -0.1];
+      
+      for (int i = 0; i < 10; i++) {
+        final date = now.subtract(Duration(days: 9 - i));
+        final weight = baseWeight + variations[i];
+        await database.insertWeightLog(WeightLogsCompanion(
+          weight: Value(weight),
+          date: Value(date),
+        ));
+      }
+      return const Right(null);
+    } catch (e) {
+      return Left(DatabaseFailure(e.toString()));
+    }
+  }
+
+  @override
+  Stream<List<BodyMeasurementEntity>> watchBodyMeasurements() {
+    return database.watchAllMeasurements().map((logs) {
+      return logs.map((l) => BodyMeasurementEntity(
+        id: l.id,
+        part: l.part,
+        value: l.value,
+        date: l.date,
+      )).toList();
+    });
+  }
+
+  @override
+  Future<Either<Failure, int>> addBodyMeasurement(String part, double value) async {
+    try {
+      final id = await database.insertMeasurement(BodyMeasurementsCompanion(
+        part: Value(part),
+        value: Value(value),
+        date: Value(DateTime.now()),
+      ));
+      return Right(id);
+    } catch (e) {
+      return Left(DatabaseFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> deleteBodyMeasurement(int id) async {
+    try {
+      await database.deleteMeasurement(id);
+      return const Right(null);
+    } catch (e) {
+      return Left(DatabaseFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> updateBodyMeasurement(int id, double value) async {
+    try {
+      await database.updateMeasurement(id, value);
+      return const Right(null);
+    } catch (e) {
+      return Left(DatabaseFailure(e.toString()));
     }
   }
 

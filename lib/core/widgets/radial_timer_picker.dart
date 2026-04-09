@@ -107,7 +107,7 @@ class _RadialTimerPickerState extends State<RadialTimerPicker> {
                 Padding(
                   padding: const EdgeInsets.only(top: 4),
                   child: Text(
-                    '${_laps} min ${currentSeconds}s',
+                    '$_laps min ${currentSeconds}s',
                     style: theme.textTheme.labelMedium?.copyWith(
                       color: theme.colorScheme.primary,
                       fontWeight: FontWeight.bold,
@@ -179,7 +179,7 @@ class _RadialPainter extends CustomPainter {
     final handlePaint = Paint()
       ..color = Colors.white
       ..style = PaintingStyle.fill;
-    
+
     final handleBorderPaint = Paint()
       ..color = color
       ..style = PaintingStyle.stroke

@@ -18,8 +18,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         logoutRequested: (e) async => _onLogout(emit),
         updateProfileImageRequested: (e) async => _onUpdateProfileImage(e.filePath, emit),
         updateProfileRequested: (e) async => _onUpdateProfile(
-          name: e.name,
+          firstName: e.firstName,
+          lastName: e.lastName,
           username: e.username,
+          gender: e.gender,
           weight: e.weight,
           height: e.height,
           birthDate: e.birthDate,
@@ -110,8 +112,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   Future<void> _onUpdateProfile({
     required Emitter<AuthState> emit,
-    String? name,
+    String? firstName,
+    String? lastName,
     String? username,
+    String? gender,
     double? weight,
     double? height,
     DateTime? birthDate,
@@ -120,8 +124,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     // Do NOT emit loading — it triggers the router and causes crashes
     // during navigation. Just update silently in the background.
     final result = await _repository.updateProfileDetails(
-      name: name,
+      firstName: firstName,
+      lastName: lastName,
       username: username,
+      gender: gender,
       weight: weight,
       height: height,
       birthDate: birthDate,

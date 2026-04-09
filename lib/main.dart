@@ -10,6 +10,7 @@ import 'package:gym_corpus/core/service_locator.dart' as di;
 import 'package:gym_corpus/core/theme/app_theme.dart';
 import 'package:gym_corpus/features/analytics/presentation/screens/analytics_screen.dart';
 import 'package:gym_corpus/features/analytics/presentation/screens/cardio_history_screen.dart';
+import 'package:gym_corpus/features/analytics/presentation/screens/progress_screen.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_event.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
@@ -231,6 +232,11 @@ class _GymAppState extends State<GymApp> {
                   path: 'integrations',
                   parentNavigatorKey: _rootNavigatorKey,
                   builder: (context, state) => const IntegrationsScreen(),
+                ),
+                GoRoute(
+                  path: 'progress',
+                  parentNavigatorKey: _rootNavigatorKey,
+                  builder: (context, state) => const ProgressScreen(),
                 ),
               ],
             ),

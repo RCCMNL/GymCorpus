@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_session.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
@@ -24,7 +23,7 @@ class CardioHistoryScreen extends StatelessWidget {
       body: BlocBuilder<TrainingBloc, TrainingState>(
         builder: (context, state) {
           final sessions = state is TrainingLoaded 
-              ? (state as TrainingLoaded).cardioSessions 
+              ? state.cardioSessions 
               : <CardioSessionEntity>[];
 
           if (sessions.isEmpty) {
@@ -81,7 +80,7 @@ class _DetailedCardioCard extends StatelessWidget {
       ? '${durationMins ~/ 60}h ${durationMins % 60}m'
       : '${durationMins}m ${durationSecs}s';
 
-    List<LatLng> route = [];
+    var route = <LatLng>[];
     if (session.routeJson != null && session.routeJson!.isNotEmpty) {
       try {
         final decoded = jsonDecode(session.routeJson!) as List;
@@ -112,7 +111,7 @@ class _DetailedCardioCard extends StatelessWidget {
               color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 4),
-            )
+            ),
           ],
         ),
         child: Column(
@@ -184,8 +183,11 @@ class _DetailedCardioCard extends StatelessWidget {
               const SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  const Text('© OpenStreetMap', style: TextStyle(fontSize: 8, color: Colors.grey)),
+                children: const [
+                  Text(
+                    '© OpenStreetMap',
+                    style: TextStyle(fontSize: 8, color: Colors.grey),
+                  ),
                 ],
               ),
             ],
@@ -247,10 +249,25 @@ class _DetailedCardioCard extends StatelessWidget {
                           children: [
                             TileLayer(urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', userAgentPackageName: 'com.gymcorpus.app'),
                             if (route.length > 1) PolylineLayer(polylines: [Polyline(points: route, color: color, strokeWidth: 5)]),
-                            MarkerLayer(markers: [
-                              Marker(point: route[0], width: 32, height: 32, child: const Icon(Icons.location_on, color: Colors.green, size: 32)),
-                              if (route.length > 1) Marker(point: route.last, width: 32, height: 32, child: const Icon(Icons.flag, color: Colors.red, size: 32)),
-                            ]),
+                            MarkerLayer(
+                              markers: [
+                                Marker(
+                                  point: route[0],
+                                  width: 32,
+                                  height: 32,
+                                  child: const Icon(Icons.location_on,
+                                      color: Colors.green, size: 32),
+                                ),
+                                if (route.length > 1)
+                                  Marker(
+                                    point: route.last,
+                                    width: 32,
+                                    height: 32,
+                                    child: const Icon(Icons.flag,
+                                        color: Colors.red, size: 32),
+                                  ),
+                              ],
+                            ),
                           ],
                         )
                       : const Center(child: Text('Mappa non disponibile')),

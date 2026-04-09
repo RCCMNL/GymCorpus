@@ -8,7 +8,8 @@ part of 'user_entity.dart';
 
 UserEntity _$UserEntityFromJson(Map<String, dynamic> json) => UserEntity(
       id: json['id'] as String,
-      name: json['name'] as String,
+      firstName: json['firstName'] as String?,
+      lastName: json['lastName'] as String?,
       email: json['email'] as String,
       photoUrl: json['photoUrl'] as String?,
       username: json['username'] as String?,
@@ -22,6 +23,7 @@ UserEntity _$UserEntityFromJson(Map<String, dynamic> json) => UserEntity(
           ? null
           : DateTime.parse(json['lastLoginDate'] as String),
       lastLoginDevice: json['lastLoginDevice'] as String?,
+      gender: json['gender'] as String?,
       authProviders: (json['authProviders'] as List<dynamic>?)
               ?.map((e) => e as String)
               .toList() ??
@@ -31,7 +33,8 @@ UserEntity _$UserEntityFromJson(Map<String, dynamic> json) => UserEntity(
 Map<String, dynamic> _$UserEntityToJson(UserEntity instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'name': instance.name,
+      'firstName': instance.firstName,
+      'lastName': instance.lastName,
       'email': instance.email,
       'photoUrl': instance.photoUrl,
       'username': instance.username,
@@ -41,5 +44,6 @@ Map<String, dynamic> _$UserEntityToJson(UserEntity instance) =>
       'trainingObjective': instance.trainingObjective,
       'lastLoginDate': instance.lastLoginDate?.toIso8601String(),
       'lastLoginDevice': instance.lastLoginDevice,
+      'gender': instance.gender,
       'authProviders': instance.authProviders,
     };

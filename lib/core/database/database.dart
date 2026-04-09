@@ -60,6 +60,13 @@ class WeightLogs extends Table {
   DateTimeColumn get date => dateTime()();
 }
 
+class BodyMeasurements extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get part => text()(); // Chest, Waist, etc.
+  RealColumn get value => real()();
+  DateTimeColumn get date => dateTime()();
+}
+
 class AppSettings extends Table {
   TextColumn get key => text()();
   TextColumn get value => text()();
@@ -79,12 +86,12 @@ class CardioSessions extends Table {
   DateTimeColumn get date => dateTime()();
 }
 
-@DriftDatabase(tables: [Workouts, Exercises, WorkoutSets, Routines, RoutineExercises, WeightLogs, AppSettings, CardioSessions])
+@DriftDatabase(tables: [Workouts, Exercises, WorkoutSets, Routines, RoutineExercises, WeightLogs, AppSettings, CardioSessions, BodyMeasurements])
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
   
   @override
-  int get schemaVersion => 9;
+  int get schemaVersion => 10;
 
   @override
   MigrationStrategy get migration {
@@ -166,6 +173,15 @@ class AppDatabase extends _$AppDatabase {
   Stream<List<WeightLog>> watchLatestWeightEntries() => 
     (select(weightLogs)..orderBy([(t) => OrderingTerm(expression: t.date, mode: OrderingMode.desc)])).watch();
   Future<int> insertWeightLog(WeightLogsCompanion entry) => into(weightLogs).insert(entry);
+  Future<void> deleteWeightLog(int id) => (delete(weightLogs)..where((t) => t.id.equals(id))).go();
+  Future<void> updateWeightLog(int id, double weight) => (update(weightLogs)..where((t) => t.id.equals(id))).write(WeightLogsCompanion(weight: Value(weight)));
+  Future<void> deleteAllWeightLogs() => delete(weightLogs).go();
+
+  // Body measurements
+  Stream<List<BodyMeasurement>> watchAllMeasurements() => (select(bodyMeasurements)..orderBy([(t) => OrderingTerm(expression: t.date, mode: OrderingMode.desc)])).watch();
+  Future<int> insertMeasurement(BodyMeasurementsCompanion entry) => into(bodyMeasurements).insert(entry);
+  Future<void> deleteMeasurement(int id) => (delete(bodyMeasurements)..where((t) => t.id.equals(id))).go();
+  Future<void> updateMeasurement(int id, double value) => (update(bodyMeasurements)..where((t) => t.id.equals(id))).write(BodyMeasurementsCompanion(value: Value(value)));
 
   // Settings management
   Stream<String?> watchSetting(String key) => 

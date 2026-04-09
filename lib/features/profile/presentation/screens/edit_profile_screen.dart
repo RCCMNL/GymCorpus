@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
+
+import 'package:gym_corpus/core/utils/unit_converter.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_event.dart';
@@ -8,8 +11,6 @@ import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
-import 'package:gym_corpus/core/utils/unit_converter.dart';
-import 'package:intl/intl.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -20,12 +21,14 @@ class EditProfileScreen extends StatefulWidget {
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
   final _formKey = GlobalKey<FormState>();
-  late TextEditingController _nameController;
+  late TextEditingController _firstNameController;
+  late TextEditingController _lastNameController;
   late TextEditingController _usernameController;
   late TextEditingController _weightController;
   late TextEditingController _heightController;
   DateTime? _birthDate;
   String? _selectedObjective;
+  String? _selectedGender;
   bool _isSaving = false;
   bool _isImperial = false;
 
@@ -48,13 +51,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final settings = trainingState is TrainingLoaded ? trainingState.settings : <String, String>{};
     _isImperial = (settings['units'] ?? 'KG') == 'LB';
 
-    double? w = user?.weight;
+    var w = user?.weight;
     if (w != null && _isImperial) w = UnitConverter.kgToLb(w);
-    
-    double? h = user?.height;
+
+    var h = user?.height;
     if (h != null && _isImperial) h = UnitConverter.cmToInch(h);
 
-    _nameController = TextEditingController(text: user?.name ?? '');
+    _firstNameController = TextEditingController(text: user?.firstName ?? '');
+    _lastNameController = TextEditingController(text: user?.lastName ?? '');
     _usernameController = TextEditingController(text: user?.username ?? '');
     _weightController = TextEditingController(
       text: w != null ? w.toStringAsFixed(1) : '',
@@ -64,11 +68,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
     _birthDate = user?.birthDate;
     _selectedObjective = user?.trainingObjective;
+    _selectedGender = user?.gender;
   }
 
   @override
   void dispose() {
-    _nameController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
     _usernameController.dispose();
     _weightController.dispose();
     _heightController.dispose();
@@ -107,12 +113,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         _isSaving = true;
       });
 
-      double? finalWeight = double.tryParse(_weightController.text);
+      var finalWeight = double.tryParse(_weightController.text);
       if (finalWeight != null && _isImperial) {
         finalWeight = UnitConverter.lbToKg(finalWeight);
       }
 
-      double? finalHeight = double.tryParse(_heightController.text);
+      var finalHeight = double.tryParse(_heightController.text);
       if (finalHeight != null && _isImperial) {
         finalHeight = UnitConverter.inchToCm(finalHeight);
       }
@@ -120,8 +126,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       // Dispatch the update — BLoC handles save in background
       context.read<AuthBloc>().add(
             AuthEvent.updateProfileRequested(
-              name: _nameController.text,
+              firstName: _firstNameController.text,
+              lastName: _lastNameController.text,
               username: _usernameController.text,
+              gender: _selectedGender,
               weight: finalWeight,
               height: finalHeight,
               birthDate: _birthDate,
@@ -165,12 +173,52 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   ),
                 ),
                 const SizedBox(height: 32),
-                _buildTextField(
-                  controller: _nameController,
-                  label: 'NOME COMPLETO',
-                  hint: 'Inserisci il tuo nome',
-                  theme: theme,
-                  enabled: !_isSaving,
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildTextField(
+                        controller: _firstNameController,
+                        label: 'NOME',
+                        hint: 'Inserisci il nome',
+                        theme: theme,
+                        enabled: !_isSaving,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: _buildTextField(
+                        controller: _lastNameController,
+                        label: 'COGNOME',
+                        hint: 'Inserisci il cognome',
+                        theme: theme,
+                        enabled: !_isSaving,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                _buildLabel('SESSO', theme),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildGenderCard(
+                        'uomo',
+                        Icons.male_rounded,
+                        'Uomo',
+                        theme,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: _buildGenderCard(
+                        'donna',
+                        Icons.female_rounded,
+                        'Donna',
+                        theme,
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 20),
                 _buildTextField(
@@ -305,7 +353,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             height: 20,
                             width: 20,
                             child: CircularProgressIndicator(
-                                color: Colors.white, strokeWidth: 2),
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
                           )
                         : const Text(
                             'SALVA MODIFICHE',
@@ -331,6 +381,47 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         letterSpacing: 1.5,
         fontWeight: FontWeight.w900,
         color: theme.colorScheme.outline,
+      ),
+    );
+  }
+
+  Widget _buildGenderCard(String value, IconData icon, String label, ThemeData theme) {
+    final isSelected = _selectedGender == value;
+    return InkWell(
+      onTap: _isSaving ? null : () => setState(() => _selectedGender = value),
+      borderRadius: BorderRadius.circular(16),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        decoration: BoxDecoration(
+          color: isSelected 
+              ? theme.colorScheme.primary.withValues(alpha: 0.1) 
+              : theme.colorScheme.surfaceContainerHigh,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isSelected 
+                ? theme.colorScheme.primary 
+                : theme.colorScheme.outline.withValues(alpha: 0.1),
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Column(
+          children: [
+            Icon(
+              icon,
+              color: isSelected ? theme.colorScheme.primary : theme.colorScheme.outline,
+              size: 28,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              label,
+              style: theme.textTheme.labelLarge?.copyWith(
+                color: isSelected ? theme.colorScheme.primary : theme.colorScheme.onSurface,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

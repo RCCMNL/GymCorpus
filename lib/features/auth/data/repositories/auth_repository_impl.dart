@@ -33,9 +33,21 @@ class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource _remoteDataSource;
 
   UserEntity _mapFirebaseUser(User user) {
+    String? firstName;
+    String? lastName;
+    
+    if (user.displayName != null) {
+      final parts = user.displayName!.split(' ');
+      firstName = parts.first;
+      if (parts.length > 1) {
+        lastName = parts.sublist(1).join(' ');
+      }
+    }
+
     return UserEntity(
       id: user.uid,
-      name: user.displayName ?? 'Atleta Gym',
+      firstName: firstName ?? 'Atleta',
+      lastName: lastName ?? '',
       email: user.email ?? '',
       photoUrl: user.photoURL,
       authProviders: user.providerData.map((info) => info.providerId).toList(),
@@ -149,7 +161,10 @@ class AuthRepositoryImpl implements AuthRepository {
 
       final finalUser = mergedUser!;
       final updatedSessionUser = finalUser.copyWith(
-        name: firebaseUser.displayName ?? finalUser.name,
+        firstName: firebaseUser.displayName != null ? firebaseUser.displayName!.split(' ').first : finalUser.firstName,
+        lastName: firebaseUser.displayName != null && firebaseUser.displayName!.contains(' ') 
+            ? firebaseUser.displayName!.split(' ').sublist(1).join(' ') 
+            : finalUser.lastName,
         photoUrl: firebaseUser.photoURL ?? finalUser.photoUrl,
         authProviders: baseUser.authProviders,
       );
@@ -260,16 +275,8 @@ class AuthRepositoryImpl implements AuthRepository {
         await user.reload();
         
         final currentUser = await _localDataSource.getUserSession() ?? _mapFirebaseUser(user);
-        final updatedUser = UserEntity(
-          id: currentUser.id,
-          name: currentUser.name,
-          email: currentUser.email,
+        final updatedUser = currentUser.copyWith(
           photoUrl: filePath,
-          username: currentUser.username,
-          weight: currentUser.weight,
-          height: currentUser.height,
-          birthDate: currentUser.birthDate,
-          trainingObjective: currentUser.trainingObjective,
         );
         
         await _localDataSource.saveUserSession(updatedUser);
@@ -283,8 +290,10 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, UserEntity>> updateProfileDetails({
-    String? name,
+    String? firstName,
+    String? lastName,
     String? username,
+    String? gender,
     double? weight,
     double? height,
     DateTime? birthDate,
@@ -294,8 +303,9 @@ class AuthRepositoryImpl implements AuthRepository {
       final user = _firebaseAuth.currentUser;
       if (user == null) return const Left(AuthFailure('Utente non autenticato'));
 
-      if (name != null && name.isNotEmpty) {
-        await user.updateDisplayName(name).timeout(const Duration(seconds: 5));
+      if (firstName != null && firstName.isNotEmpty) {
+        final fullName = '${firstName} ${lastName ?? ''}'.trim();
+        await user.updateDisplayName(fullName).timeout(const Duration(seconds: 5));
       }
       
       final localUser = await _localDataSource.getUserSession();
@@ -303,8 +313,10 @@ class AuthRepositoryImpl implements AuthRepository {
       final currentUser = localUser ?? remoteUser ?? _mapFirebaseUser(user);
       
       final updatedUser = currentUser.copyWith(
-        name: (name != null && name.isNotEmpty) ? name : currentUser.name,
+        firstName: firstName ?? currentUser.firstName,
+        lastName: lastName ?? currentUser.lastName,
         username: (username != null && username.isNotEmpty) ? username : currentUser.username,
+        gender: gender ?? currentUser.gender,
         weight: weight ?? currentUser.weight,
         height: height ?? currentUser.height,
         birthDate: birthDate ?? currentUser.birthDate,
