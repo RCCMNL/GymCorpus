@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
-import 'package:gym_corpus/features/training/domain/entities/body_weight.dart';
 import 'package:gym_corpus/features/training/domain/entities/body_measurement.dart';
+import 'package:gym_corpus/features/training/domain/entities/body_weight.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_session.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
@@ -165,7 +165,8 @@ class SaveCardioSessionEvent extends TrainingEvent {
   final String? routeJson;
 
   @override
-  List<Object?> get props => [type, distance, duration, avgSpeed, pace, calories, routeJson];
+  List<Object?> get props =>
+      [type, distance, duration, avgSpeed, pace, calories, routeJson];
 }
 
 class DeleteCardioSessionEvent extends TrainingEvent {
@@ -188,7 +189,8 @@ class UpdatePreferenceEvent extends TrainingEvent {
 }
 
 class ToggleExerciseFavoriteEvent extends TrainingEvent {
-  const ToggleExerciseFavoriteEvent(this.exerciseId, {required this.isFavorite});
+  const ToggleExerciseFavoriteEvent(this.exerciseId,
+      {required this.isFavorite});
 
   final int exerciseId;
   final bool isFavorite;

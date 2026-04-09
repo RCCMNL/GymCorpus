@@ -562,14 +562,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       age = '$calculatedAge anni';
     }
 
-    var genderLabel = 'Sesso ?';
-    IconData genderIcon = Icons.wc;
-    if (user.gender != null) {
-      genderLabel = user.gender == 'uomo' ? 'Uomo' : 'Donna';
-      genderIcon = user.gender == 'uomo' ? Icons.male_rounded : Icons.female_rounded;
-    }
-
-    final hasMissingData = user.weight == null || user.height == null || user.birthDate == null || user.gender == null;
+    final hasMissingData = user.weight == null || user.height == null || user.birthDate == null;
 
     return GestureDetector(
       onTap: hasMissingData ? () => context.push('/profile/edit') : null,
@@ -581,7 +574,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _buildStatItem(Icons.monitor_weight_outlined, weightLabel, theme),
           _buildStatItem(Icons.height, heightLabel, theme),
           _buildStatItem(Icons.cake_outlined, age, theme),
-          _buildStatItem(genderIcon, genderLabel, theme),
         ],
       ),
     );

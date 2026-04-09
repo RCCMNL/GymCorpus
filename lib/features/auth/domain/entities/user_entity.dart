@@ -7,9 +7,9 @@ part 'user_entity.g.dart';
 class UserEntity extends Equatable {
   const UserEntity({
     required this.id,
+    required this.email,
     this.firstName,
     this.lastName,
-    required this.email,
     this.photoUrl,
     this.username,
     this.weight,
@@ -24,9 +24,9 @@ class UserEntity extends Equatable {
 
   factory UserEntity.fromJson(Map<String, dynamic> json) {
     // Migration logic for old 'name' field
-    String? fName = json['firstName'] as String?;
-    String? lName = json['lastName'] as String?;
-    
+    var fName = json['firstName'] as String?;
+    var lName = json['lastName'] as String?;
+
     if (fName == null && lName == null && json['name'] != null) {
       final oldName = json['name'] as String;
       final parts = oldName.split(' ');
@@ -45,12 +45,19 @@ class UserEntity extends Equatable {
       username: json['username'] as String?,
       weight: (json['weight'] as num?)?.toDouble(),
       height: (json['height'] as num?)?.toDouble(),
-      birthDate: json['birthDate'] != null ? DateTime.parse(json['birthDate'] as String) : null,
+      birthDate: json['birthDate'] != null
+          ? DateTime.parse(json['birthDate'] as String)
+          : null,
       trainingObjective: json['trainingObjective'] as String?,
-      lastLoginDate: json['lastLoginDate'] != null ? DateTime.parse(json['lastLoginDate'] as String) : null,
+      lastLoginDate: json['lastLoginDate'] != null
+          ? DateTime.parse(json['lastLoginDate'] as String)
+          : null,
       lastLoginDevice: json['lastLoginDevice'] as String?,
       gender: json['gender'] as String?,
-      authProviders: (json['authProviders'] as List<dynamic>?)?.map((e) => e as String).toList() ?? const [],
+      authProviders: (json['authProviders'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const [],
     );
   }
 

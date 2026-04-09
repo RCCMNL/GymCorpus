@@ -6,14 +6,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
-import 'package:local_auth/error_codes.dart' as auth_error;
-import 'package:local_auth/local_auth.dart';
-
 import 'package:gym_corpus/core/widgets/social_icons.dart';
 import 'package:gym_corpus/features/auth/domain/repositories/auth_repository.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_event.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
+import 'package:local_auth/error_codes.dart' as auth_error;
+import 'package:local_auth/local_auth.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -39,8 +38,9 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!isEnabled) return;
 
     final auth = LocalAuthentication();
-    final canCheck = await auth.canCheckBiometrics || await auth.isDeviceSupported();
-    
+    final canCheck =
+        await auth.canCheckBiometrics || await auth.isDeviceSupported();
+
     if (canCheck) {
       setState(() {
         _showBiometricButton = true;
@@ -135,13 +135,15 @@ class _LoginScreenState extends State<LoginScreen> {
             children: [
               SafeArea(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       // Hero Aesthetic Section (Floating text, no card)
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 32),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -157,7 +159,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               'ELITE PERFORMANCE STARTS HERE',
                               style: theme.textTheme.labelSmall?.copyWith(
                                 letterSpacing: 1.5,
-                                color: theme.colorScheme.primary.withValues(alpha: 0.7),
+                                color: theme.colorScheme.primary
+                                    .withValues(alpha: 0.7),
                               ),
                             ),
                           ],
@@ -277,9 +280,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                         theme,
                                         const GoogleLogo(size: 20),
                                         'Google',
-                                        onTap: () => context.read<AuthBloc>().add(
-                                              const AuthEvent.googleSignInRequested(),
-                                            ),
+                                        onTap: () =>
+                                            context.read<AuthBloc>().add(
+                                                  const AuthEvent
+                                                      .googleSignInRequested(),
+                                                ),
                                       ),
                                     ),
                                     const SizedBox(width: 16),
@@ -291,9 +296,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                           const AppleLogo(size: 22),
                                           'Apple',
                                           onTap: () {
-                                            ScaffoldMessenger.of(context).showSnackBar(
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
                                               const SnackBar(
-                                                content: Text('Apple Sign-In coming soon!'),
+                                                content: Text(
+                                                    'Apple Sign-In coming soon!'),
                                                 duration: Duration(seconds: 2),
                                               ),
                                             );
@@ -307,12 +314,17 @@ class _LoginScreenState extends State<LoginScreen> {
                                   const SizedBox(height: 24),
                                   Center(
                                     child: IconButton.filledTonal(
-                                      onPressed: isLoading ? null : _onBiometricLogin,
-                                      icon: const Icon(Icons.fingerprint, size: 32),
+                                      onPressed:
+                                          isLoading ? null : _onBiometricLogin,
+                                      icon: const Icon(Icons.fingerprint,
+                                          size: 32),
                                       padding: const EdgeInsets.all(16),
                                       style: IconButton.styleFrom(
-                                        backgroundColor: theme.colorScheme.primary.withValues(alpha: 0.1),
-                                        foregroundColor: theme.colorScheme.primary,
+                                        backgroundColor: theme
+                                            .colorScheme.primary
+                                            .withValues(alpha: 0.1),
+                                        foregroundColor:
+                                            theme.colorScheme.primary,
                                       ),
                                     ),
                                   ),
@@ -320,7 +332,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                   Center(
                                     child: Text(
                                       'Accedi con Biometria',
-                                      style: theme.textTheme.labelSmall?.copyWith(
+                                      style:
+                                          theme.textTheme.labelSmall?.copyWith(
                                         color: theme.colorScheme.primary,
                                         fontWeight: FontWeight.bold,
                                       ),

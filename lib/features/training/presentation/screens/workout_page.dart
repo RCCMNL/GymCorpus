@@ -126,7 +126,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
     final exercisesToSave = _selectedExercises.map((re) {
       if (!isImperial) return re;
       
-      List<dynamic> setsList = [];
+      var setsList = <dynamic>[];
       try {
         setsList = jsonDecode(re.setsData!) as List<dynamic>;
         final convertedSets = setsList.map((dynamic s) {

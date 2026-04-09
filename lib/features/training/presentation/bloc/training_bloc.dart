@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gym_corpus/core/utils/training_calculations.dart';
+import 'package:gym_corpus/features/auth/domain/repositories/auth_repository.dart';
 import 'package:gym_corpus/features/training/domain/entities/body_measurement.dart';
 import 'package:gym_corpus/features/training/domain/entities/body_weight.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_session.dart';
@@ -10,7 +11,6 @@ import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 import 'package:gym_corpus/features/training/domain/repositories/training_repository.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
-import 'package:gym_corpus/features/auth/domain/repositories/auth_repository.dart';
 import 'package:injectable/injectable.dart';
 
 @injectable
@@ -120,9 +120,11 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
 
     on<UpdateCardioSessionsList>((event, emit) {
       if (state is TrainingLoaded) {
-        emit((state as TrainingLoaded).copyWith(cardioSessions: event.cardioSessions));
+        emit((state as TrainingLoaded)
+            .copyWith(cardioSessions: event.cardioSessions));
       } else {
-        emit(TrainingLoaded(exercises: const [], cardioSessions: event.cardioSessions));
+        emit(TrainingLoaded(
+            exercises: const [], cardioSessions: event.cardioSessions));
       }
     });
 
@@ -136,9 +138,11 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
 
     on<UpdateBodyMeasurementsList>((event, emit) {
       if (state is TrainingLoaded) {
-        emit((state as TrainingLoaded).copyWith(bodyMeasurements: event.bodyMeasurements));
+        emit((state as TrainingLoaded)
+            .copyWith(bodyMeasurements: event.bodyMeasurements));
       } else {
-        emit(TrainingLoaded(exercises: const [], bodyMeasurements: event.bodyMeasurements));
+        emit(TrainingLoaded(
+            exercises: const [], bodyMeasurements: event.bodyMeasurements));
       }
     });
 
@@ -214,14 +218,16 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
 
     on<DeleteBodyWeightLogEvent>((event, emit) async {
       final result = await repository.deleteBodyWeightLogEntry(event.id);
-      
+
       // Update profile weight if the deleted log was the latest
       if (state is TrainingLoaded) {
         final currentLogs = (state as TrainingLoaded).bodyWeightLogs;
         if (currentLogs.isNotEmpty) {
-           final updatedLogs = currentLogs.where((l) => l.id != event.id).toList();
-           final newLatestWeight = updatedLogs.isNotEmpty ? updatedLogs.first.weight : 0.0;
-           authRepository.updateProfileDetails(weight: newLatestWeight);
+          final updatedLogs =
+              currentLogs.where((l) => l.id != event.id).toList();
+          final newLatestWeight =
+              updatedLogs.isNotEmpty ? updatedLogs.first.weight : 0.0;
+          authRepository.updateProfileDetails(weight: newLatestWeight);
         }
       }
 
@@ -232,7 +238,8 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
     });
 
     on<UpdateBodyWeightLogEvent>((event, emit) async {
-      final result = await repository.updateBodyWeightLogEntry(event.id, event.weight);
+      final result =
+          await repository.updateBodyWeightLogEntry(event.id, event.weight);
       result.fold(
         (f) => emit(TrainingError(f.message)),
         (_) => null,
@@ -250,7 +257,8 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
     });
 
     on<AddBodyMeasurementEvent>((event, emit) async {
-      final result = await repository.addBodyMeasurement(event.part, event.value);
+      final result =
+          await repository.addBodyMeasurement(event.part, event.value);
       result.fold(
         (f) => emit(TrainingError(f.message)),
         (id) => null,
@@ -266,7 +274,8 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
     });
 
     on<UpdateBodyMeasurementEvent>((event, emit) async {
-      final result = await repository.updateBodyMeasurement(event.id, event.value);
+      final result =
+          await repository.updateBodyMeasurement(event.id, event.value);
       result.fold(
         (f) => emit(TrainingError(f.message)),
         (_) => null,
@@ -322,8 +331,10 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
 
     on<ReseedWeightHistoryEvent>((event, emit) async {
       // 1. Clear Firestore weight via AuthRepository
-      await authRepository.updateProfileDetails(weight: 0); // Setting to 0 as a 'clear' for now or we could use custom logic
-      
+      await authRepository.updateProfileDetails(
+          weight:
+              0); // Setting to 0 as a 'clear' for now or we could use custom logic
+
       // 2. Clear local and seed 10 days
       final result = await repository.reseedWeightHistory();
       result.fold(
@@ -339,7 +350,8 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
   StreamSubscription<List<RoutineEntity>>? _routinesSubscription;
   StreamSubscription<List<WorkoutSetEntity>>? _weightLogsSubscription;
   StreamSubscription<List<BodyWeightLogEntity>>? _bodyWeightLogsSubscription;
-  StreamSubscription<List<BodyMeasurementEntity>>? _bodyMeasurementsSubscription;
+  StreamSubscription<List<BodyMeasurementEntity>>?
+      _bodyMeasurementsSubscription;
   StreamSubscription<List<CardioSessionEntity>>? _cardioSessionsSubscription;
   StreamSubscription<Map<String, String>>? _settingsSubscription;
 

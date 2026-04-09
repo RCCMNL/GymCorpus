@@ -35,7 +35,7 @@ class AuthRepositoryImpl implements AuthRepository {
   UserEntity _mapFirebaseUser(User user) {
     String? firstName;
     String? lastName;
-    
+
     if (user.displayName != null) {
       final parts = user.displayName!.split(' ');
       firstName = parts.first;
@@ -82,7 +82,9 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, UserEntity>> login(
-      String email, String password,) async {
+    String email,
+    String password,
+  ) async {
     try {
       final credential = await _firebaseAuth.signInWithEmailAndPassword(
         email: email,
@@ -92,8 +94,9 @@ class AuthRepositoryImpl implements AuthRepository {
       if (credential.user != null) {
         final baseUser = _mapFirebaseUser(credential.user!);
         final remoteUser = await _remoteDataSource.getUserProfile(baseUser.id);
-        final user = (remoteUser ?? baseUser).copyWith(authProviders: baseUser.authProviders);
-        
+        final user = (remoteUser ?? baseUser)
+            .copyWith(authProviders: baseUser.authProviders);
+
         final finalUser = await _updateLoginHistory(user);
         return Right(finalUser);
       }
@@ -109,7 +112,9 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, UserEntity>> signUp(
-      String email, String password,) async {
+    String email,
+    String password,
+  ) async {
     try {
       final credential = await _firebaseAuth.createUserWithEmailAndPassword(
         email: email,
@@ -145,12 +150,17 @@ class AuthRepositoryImpl implements AuthRepository {
 
     if (firebaseUser != null) {
       final baseUser = _mapFirebaseUser(firebaseUser);
-      
+
       // Try local cache first for instant UI response
-      UserEntity? mergedUser = cachedUser != null && cachedUser.id == baseUser.id ? cachedUser : baseUser;
+      UserEntity? mergedUser =
+          cachedUser != null && cachedUser.id == baseUser.id
+              ? cachedUser
+              : baseUser;
 
       try {
-        final remoteUser = await _remoteDataSource.getUserProfile(baseUser.id).timeout(const Duration(seconds: 5));
+        final remoteUser = await _remoteDataSource
+            .getUserProfile(baseUser.id)
+            .timeout(const Duration(seconds: 5));
         if (remoteUser != null) {
           mergedUser = remoteUser;
           await _localDataSource.saveUserSession(remoteUser);
@@ -161,9 +171,12 @@ class AuthRepositoryImpl implements AuthRepository {
 
       final finalUser = mergedUser!;
       final updatedSessionUser = finalUser.copyWith(
-        firstName: firebaseUser.displayName != null ? firebaseUser.displayName!.split(' ').first : finalUser.firstName,
-        lastName: firebaseUser.displayName != null && firebaseUser.displayName!.contains(' ') 
-            ? firebaseUser.displayName!.split(' ').sublist(1).join(' ') 
+        firstName: firebaseUser.displayName != null
+            ? firebaseUser.displayName!.split(' ').first
+            : finalUser.firstName,
+        lastName: firebaseUser.displayName != null &&
+                firebaseUser.displayName!.contains(' ')
+            ? firebaseUser.displayName!.split(' ').sublist(1).join(' ')
             : finalUser.lastName,
         photoUrl: firebaseUser.photoURL ?? finalUser.photoUrl,
         authProviders: baseUser.authProviders,
@@ -206,7 +219,8 @@ class AuthRepositoryImpl implements AuthRepository {
       final googleAuth = googleUser.authentication;
       final idToken = googleAuth.idToken;
 
-      final authorization = await googleUser.authorizationClient.authorizationForScopes(['openid', 'email', 'profile']);
+      final authorization = await googleUser.authorizationClient
+          .authorizationForScopes(['openid', 'email', 'profile']);
       final accessToken = authorization?.accessToken;
 
       final credential = GoogleAuthProvider.credential(
@@ -219,8 +233,9 @@ class AuthRepositoryImpl implements AuthRepository {
       if (userCredential.user != null) {
         final baseUser = _mapFirebaseUser(userCredential.user!);
         final remoteUser = await _remoteDataSource.getUserProfile(baseUser.id);
-        final user = (remoteUser ?? baseUser).copyWith(authProviders: baseUser.authProviders);
-        
+        final user = (remoteUser ?? baseUser)
+            .copyWith(authProviders: baseUser.authProviders);
+
         final finalUser = await _updateLoginHistory(user);
         return Right(finalUser);
       }
@@ -256,8 +271,9 @@ class AuthRepositoryImpl implements AuthRepository {
       if (userCredential.user != null) {
         final baseUser = _mapFirebaseUser(userCredential.user!);
         final remoteUser = await _remoteDataSource.getUserProfile(baseUser.id);
-        final user = (remoteUser ?? baseUser).copyWith(authProviders: baseUser.authProviders);
-        
+        final user = (remoteUser ?? baseUser)
+            .copyWith(authProviders: baseUser.authProviders);
+
         final finalUser = await _updateLoginHistory(user);
         return Right(finalUser);
       }
@@ -266,19 +282,22 @@ class AuthRepositoryImpl implements AuthRepository {
       return Left(AuthFailure(e.toString()));
     }
   }
+
   @override
-  Future<Either<Failure, UserEntity>> updateProfileImage(String filePath) async {
+  Future<Either<Failure, UserEntity>> updateProfileImage(
+      String filePath) async {
     try {
       final user = _firebaseAuth.currentUser;
       if (user != null) {
         await user.updatePhotoURL(filePath);
         await user.reload();
-        
-        final currentUser = await _localDataSource.getUserSession() ?? _mapFirebaseUser(user);
+
+        final currentUser =
+            await _localDataSource.getUserSession() ?? _mapFirebaseUser(user);
         final updatedUser = currentUser.copyWith(
           photoUrl: filePath,
         );
-        
+
         await _localDataSource.saveUserSession(updatedUser);
         return Right(updatedUser);
       }
@@ -301,33 +320,42 @@ class AuthRepositoryImpl implements AuthRepository {
   }) async {
     try {
       final user = _firebaseAuth.currentUser;
-      if (user == null) return const Left(AuthFailure('Utente non autenticato'));
+      if (user == null)
+        return const Left(AuthFailure('Utente non autenticato'));
 
       if (firstName != null && firstName.isNotEmpty) {
-        final fullName = '${firstName} ${lastName ?? ''}'.trim();
-        await user.updateDisplayName(fullName).timeout(const Duration(seconds: 5));
+        final fullName = '$firstName ${lastName ?? ''}'.trim();
+        await user
+            .updateDisplayName(fullName)
+            .timeout(const Duration(seconds: 5));
       }
-      
+
       final localUser = await _localDataSource.getUserSession();
-      final remoteUser = await _remoteDataSource.getUserProfile(user.uid).timeout(const Duration(seconds: 5));
+      final remoteUser = await _remoteDataSource
+          .getUserProfile(user.uid)
+          .timeout(const Duration(seconds: 5));
       final currentUser = localUser ?? remoteUser ?? _mapFirebaseUser(user);
-      
+
       final updatedUser = currentUser.copyWith(
         firstName: firstName ?? currentUser.firstName,
         lastName: lastName ?? currentUser.lastName,
-        username: (username != null && username.isNotEmpty) ? username : currentUser.username,
+        username: (username != null && username.isNotEmpty)
+            ? username
+            : currentUser.username,
         gender: gender ?? currentUser.gender,
         weight: weight ?? currentUser.weight,
         height: height ?? currentUser.height,
         birthDate: birthDate ?? currentUser.birthDate,
         trainingObjective: trainingObjective ?? currentUser.trainingObjective,
       );
-      
+
       // Save locally first for speed
       await _localDataSource.saveUserSession(updatedUser);
       // Then sync to remote
-      await _remoteDataSource.saveUserProfile(updatedUser).timeout(const Duration(seconds: 5));
-      
+      await _remoteDataSource
+          .saveUserProfile(updatedUser)
+          .timeout(const Duration(seconds: 5));
+
       return Right(updatedUser);
     } catch (e) {
       return Left(AuthFailure('Errore durante aggiornamento: $e'));
@@ -335,17 +363,20 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, void>> changePassword(String currentPassword, String newPassword) async {
+  Future<Either<Failure, void>> changePassword(
+      String currentPassword, String newPassword) async {
     try {
       final user = _firebaseAuth.currentUser;
-      if (user == null) return const Left(AuthFailure('Nessun utente autenticato'));
-      
+      if (user == null)
+        return const Left(AuthFailure('Nessun utente autenticato'));
+
       final email = user.email!;
-      final cred = EmailAuthProvider.credential(email: email, password: currentPassword);
-      
+      final cred =
+          EmailAuthProvider.credential(email: email, password: currentPassword);
+
       await user.reauthenticateWithCredential(cred);
       await user.updatePassword(newPassword);
-      
+
       return const Right(null);
     } on FirebaseAuthException catch (e) {
       return Left(AuthFailure(e.message ?? 'Errore cambio password'));
@@ -358,14 +389,15 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, void>> deleteAccount() async {
     try {
       final user = _firebaseAuth.currentUser;
-      if (user == null) return const Left(AuthFailure('Nessun utente autenticato'));
-      
+      if (user == null)
+        return const Left(AuthFailure('Nessun utente autenticato'));
+
       // Eliminiamo PRIMA i dati in firestore
       await _remoteDataSource.deleteUser(user.uid);
-      
+
       await user.delete();
       await _localDataSource.clearSession();
-      
+
       return const Right(null);
     } on FirebaseAuthException catch (e) {
       return Left(AuthFailure(e.message ?? 'Errore eliminazione account'));

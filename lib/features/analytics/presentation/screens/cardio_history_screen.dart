@@ -22,8 +22,8 @@ class CardioHistoryScreen extends StatelessWidget {
       ),
       body: BlocBuilder<TrainingBloc, TrainingState>(
         builder: (context, state) {
-          final sessions = state is TrainingLoaded 
-              ? state.cardioSessions 
+          final sessions = state is TrainingLoaded
+              ? state.cardioSessions
               : <CardioSessionEntity>[];
 
           if (sessions.isEmpty) {
@@ -31,11 +31,14 @@ class CardioHistoryScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.directions_run_outlined, size: 64, color: theme.colorScheme.outline.withValues(alpha: 0.2)),
+                  Icon(Icons.directions_run_outlined,
+                      size: 64,
+                      color: theme.colorScheme.outline.withValues(alpha: 0.2)),
                   const SizedBox(height: 16),
                   Text(
                     'Ancora nessuna sessione',
-                    style: theme.textTheme.titleMedium?.copyWith(color: theme.colorScheme.outline),
+                    style: theme.textTheme.titleMedium
+                        ?.copyWith(color: theme.colorScheme.outline),
                   ),
                 ],
               ),
@@ -64,7 +67,20 @@ class _DetailedCardioCard extends StatelessWidget {
   final CardioSessionEntity session;
 
   String _formatDate(DateTime date) {
-    final months = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
+    final months = [
+      'Gen',
+      'Feb',
+      'Mar',
+      'Apr',
+      'Mag',
+      'Giu',
+      'Lug',
+      'Ago',
+      'Set',
+      'Ott',
+      'Nov',
+      'Dic'
+    ];
     return '${date.day} ${months[date.month - 1]} ${date.year} • ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
   }
 
@@ -77,8 +93,8 @@ class _DetailedCardioCard extends StatelessWidget {
     final durationMins = session.duration ~/ 60;
     final durationSecs = session.duration % 60;
     final durationStr = durationMins > 59
-      ? '${durationMins ~/ 60}h ${durationMins % 60}m'
-      : '${durationMins}m ${durationSecs}s';
+        ? '${durationMins ~/ 60}h ${durationMins % 60}m'
+        : '${durationMins}m ${durationSecs}s';
 
     var route = <LatLng>[];
     if (session.routeJson != null && session.routeJson!.isNotEmpty) {
@@ -86,7 +102,8 @@ class _DetailedCardioCard extends StatelessWidget {
         final decoded = jsonDecode(session.routeJson!) as List;
         route = decoded.map((p) {
           final map = p as Map;
-          return LatLng((map['lat'] as num).toDouble(), (map['lng'] as num).toDouble());
+          return LatLng(
+              (map['lat'] as num).toDouble(), (map['lng'] as num).toDouble());
         }).toList();
       } catch (_) {}
     }
@@ -127,25 +144,39 @@ class _DetailedCardioCard extends StatelessWidget {
                         color: accentColor.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Icon(isRun ? Icons.directions_run : Icons.directions_walk, color: accentColor, size: 20),
+                      child: Icon(
+                          isRun ? Icons.directions_run : Icons.directions_walk,
+                          color: accentColor,
+                          size: 20),
                     ),
                     const SizedBox(width: 12),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(isRun ? 'Corsa' : 'Camminata', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w900, fontFamily: 'Lexend')),
-                        Text(_formatDate(session.date), style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.outline, fontSize: 10)),
+                        Text(isRun ? 'Corsa' : 'Camminata',
+                            style: theme.textTheme.titleSmall?.copyWith(
+                                fontWeight: FontWeight.w900,
+                                fontFamily: 'Lexend')),
+                        Text(_formatDate(session.date),
+                            style: theme.textTheme.labelSmall?.copyWith(
+                                color: theme.colorScheme.outline,
+                                fontSize: 10)),
                       ],
                     ),
                   ],
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
                     color: accentColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Text('${session.calories} kcal', style: TextStyle(color: accentColor, fontWeight: FontWeight.w900, fontSize: 11)),
+                  child: Text('${session.calories} kcal',
+                      style: TextStyle(
+                          color: accentColor,
+                          fontWeight: FontWeight.w900,
+                          fontSize: 11)),
                 ),
               ],
             ),
@@ -153,9 +184,15 @@ class _DetailedCardioCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _StatItem(label: 'DISTANZA', value: '${session.distance.toStringAsFixed(2)} km', theme: theme),
+                _StatItem(
+                    label: 'DISTANZA',
+                    value: '${session.distance.toStringAsFixed(2)} km',
+                    theme: theme),
                 _StatItem(label: 'DURATA', value: durationStr, theme: theme),
-                _StatItem(label: 'VELOCITÀ', value: '${session.avgSpeed.toStringAsFixed(1)} km/h', theme: theme),
+                _StatItem(
+                    label: 'VELOCITÀ',
+                    value: '${session.avgSpeed.toStringAsFixed(1)} km/h',
+                    theme: theme),
               ],
             ),
             if (route.isNotEmpty) ...[
@@ -168,22 +205,37 @@ class _DetailedCardioCard extends StatelessWidget {
                   child: IgnorePointer(
                     child: FlutterMap(
                       options: MapOptions(
-                        initialCenter: route.length > 1 ? route[route.length ~/ 2] : route[0],
+                        initialCenter: route.length > 1
+                            ? route[route.length ~/ 2]
+                            : route[0],
                         initialZoom: 14,
-                        initialCameraFit: route.length > 1 && bounds != null ? CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(12)) : null,
+                        initialCameraFit: route.length > 1 && bounds != null
+                            ? CameraFit.bounds(
+                                bounds: bounds,
+                                padding: const EdgeInsets.all(12))
+                            : null,
                       ),
                       children: [
-                        TileLayer(urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', userAgentPackageName: 'com.gymcorpus.app'),
-                        if (route.length > 1) PolylineLayer(polylines: [Polyline(points: route, color: accentColor, strokeWidth: 4)]),
+                        TileLayer(
+                            urlTemplate:
+                                'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                            userAgentPackageName: 'com.gymcorpus.app'),
+                        if (route.length > 1)
+                          PolylineLayer(polylines: [
+                            Polyline(
+                                points: route,
+                                color: accentColor,
+                                strokeWidth: 4)
+                          ]),
                       ],
                     ),
                   ),
                 ),
               ),
               const SizedBox(height: 8),
-              Row(
+              const Row(
                 mainAxisAlignment: MainAxisAlignment.end,
-                children: const [
+                children: [
                   Text(
                     '© OpenStreetMap',
                     style: TextStyle(fontSize: 8, color: Colors.grey),
@@ -213,11 +265,19 @@ class _DetailedCardioCard extends StatelessWidget {
 
         return Container(
           height: MediaQuery.of(ctx).size.height * 0.85,
-          decoration: BoxDecoration(color: theme.colorScheme.surface, borderRadius: const BorderRadius.vertical(top: Radius.circular(32))),
+          decoration: BoxDecoration(
+              color: theme.colorScheme.surface,
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(32))),
           child: Column(
             children: [
               const SizedBox(height: 12),
-              Container(width: 40, height: 4, decoration: BoxDecoration(color: theme.colorScheme.outline.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(2))),
+              Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                      color: theme.colorScheme.outline.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(2))),
               Padding(
                 padding: const EdgeInsets.all(24),
                 child: Row(
@@ -226,11 +286,20 @@ class _DetailedCardioCard extends StatelessWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('DETTAGLIO PERCORSO', style: theme.textTheme.labelSmall?.copyWith(letterSpacing: 1.5, fontWeight: FontWeight.w900, color: color)),
-                        Text(_formatDate(session.date), style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, fontFamily: 'Lexend')),
+                        Text('DETTAGLIO PERCORSO',
+                            style: theme.textTheme.labelSmall?.copyWith(
+                                letterSpacing: 1.5,
+                                fontWeight: FontWeight.w900,
+                                color: color)),
+                        Text(_formatDate(session.date),
+                            style: theme.textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'Lexend')),
                       ],
                     ),
-                    IconButton(onPressed: () => Navigator.pop(ctx), icon: const Icon(Icons.close)),
+                    IconButton(
+                        onPressed: () => Navigator.pop(ctx),
+                        icon: const Icon(Icons.close)),
                   ],
                 ),
               ),
@@ -240,37 +309,59 @@ class _DetailedCardioCard extends StatelessWidget {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(24),
                     child: route.isNotEmpty
-                      ? FlutterMap(
-                          options: MapOptions(
-                            initialCenter: route.length > 1 ? route[route.length ~/ 2] : route[0],
-                            initialZoom: 15,
-                            initialCameraFit: route.length > 1 && bounds != null ? CameraFit.bounds(bounds: bounds, padding: const EdgeInsets.all(40)) : null,
-                          ),
-                          children: [
-                            TileLayer(urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', userAgentPackageName: 'com.gymcorpus.app'),
-                            if (route.length > 1) PolylineLayer(polylines: [Polyline(points: route, color: color, strokeWidth: 5)]),
-                            MarkerLayer(
-                              markers: [
-                                Marker(
-                                  point: route[0],
-                                  width: 32,
-                                  height: 32,
-                                  child: const Icon(Icons.location_on,
-                                      color: Colors.green, size: 32),
-                                ),
-                                if (route.length > 1)
+                        ? FlutterMap(
+                            options: MapOptions(
+                              initialCenter: route.length > 1
+                                  ? route[route.length ~/ 2]
+                                  : route[0],
+                              initialZoom: 15,
+                              initialCameraFit:
+                                  route.length > 1 && bounds != null
+                                      ? CameraFit.bounds(
+                                          bounds: bounds,
+                                          padding: const EdgeInsets.all(40))
+                                      : null,
+                            ),
+                            children: [
+                              TileLayer(
+                                  urlTemplate:
+                                      'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                  userAgentPackageName: 'com.gymcorpus.app'),
+                              if (route.length > 1)
+                                PolylineLayer(polylines: [
+                                  Polyline(
+                                      points: route,
+                                      color: color,
+                                      strokeWidth: 5)
+                                ]),
+                              MarkerLayer(
+                                markers: [
                                   Marker(
-                                    point: route.last,
+                                    point: route[0],
                                     width: 32,
                                     height: 32,
-                                    child: const Icon(Icons.flag,
-                                        color: Colors.red, size: 32),
+                                    child: const Icon(
+                                      Icons.location_on,
+                                      color: Colors.green,
+                                      size: 32,
+                                    ),
                                   ),
-                              ],
-                            ),
-                          ],
-                        )
-                      : const Center(child: Text('Mappa non disponibile')),
+                                  if (route.length > 1)
+                                    Marker(
+                                      point: route.last,
+                                      width: 32,
+                                      height: 32,
+                                      child: const Icon(
+                                        Icons.flag,
+                                        color: Colors.red,
+                                        size: 32,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ],
+                          )
+                        : const Center(child: Text('Mappa non disponibile')),
                   ),
                 ),
               ),
@@ -284,7 +375,8 @@ class _DetailedCardioCard extends StatelessWidget {
 }
 
 class _StatItem extends StatelessWidget {
-  const _StatItem({required this.label, required this.value, required this.theme});
+  const _StatItem(
+      {required this.label, required this.value, required this.theme});
   final String label;
   final String value;
   final ThemeData theme;
@@ -293,9 +385,15 @@ class _StatItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(label, style: theme.textTheme.labelSmall?.copyWith(fontSize: 9, fontWeight: FontWeight.w900, color: theme.colorScheme.outline)),
+        Text(label,
+            style: theme.textTheme.labelSmall?.copyWith(
+                fontSize: 9,
+                fontWeight: FontWeight.w900,
+                color: theme.colorScheme.outline)),
         const SizedBox(height: 4),
-        Text(value, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w900, fontFamily: 'Lexend')),
+        Text(value,
+            style: theme.textTheme.titleSmall
+                ?.copyWith(fontWeight: FontWeight.w900, fontFamily: 'Lexend')),
       ],
     );
   }

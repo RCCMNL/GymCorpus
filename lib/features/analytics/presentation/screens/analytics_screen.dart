@@ -624,7 +624,7 @@ class _WeightTrackingCardState extends State<_WeightTrackingCard> {
                 .toStringAsFixed(1);
           } else {
             // Empty state defaults
-            for (int i = 0; i < 30; i++) {
+            for (var i = 0; i < 30; i++) {
               dates.add(startDate.add(Duration(days: i)));
               points.add(0);
             }
@@ -660,12 +660,13 @@ class _WeightTrackingCardState extends State<_WeightTrackingCard> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Progresso Peso',
-                            style: theme.textTheme.titleLarge?.copyWith(
-                                fontWeight: FontWeight.w900,
-                                fontFamily: 'Lexend',
-                              ),
-                            ),
+                        Text(
+                          'Progresso Peso',
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.w900,
+                            fontFamily: 'Lexend',
+                          ),
+                        ),
                         Row(
                           children: [
                             Container(
@@ -714,27 +715,25 @@ class _WeightTrackingCardState extends State<_WeightTrackingCard> {
                 Row(
                   children: [
                     _WeightItem(
-                        label: 'Attuale',
-                        value: current,
-                        unit: unitText,
-                        color: theme.colorScheme.primary,
-                      ),
+                      label: 'Attuale',
+                      value: current,
+                      unit: unitText,
+                      color: theme.colorScheme.primary,
+                    ),
                     const SizedBox(width: 8),
                     _WeightItem(
-                        label: 'Max',
-                        value: max,
-                        unit: unitText,
-                        color:
-                            theme.colorScheme.onSurface.withValues(alpha: 0.5),
-                      ),
+                      label: 'Max',
+                      value: max,
+                      unit: unitText,
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                    ),
                     const SizedBox(width: 8),
                     _WeightItem(
-                        label: 'Min',
-                        value: min,
-                        unit: unitText,
-                        color:
-                            theme.colorScheme.onSurface.withValues(alpha: 0.5),
-                      ),
+                      label: 'Min',
+                      value: min,
+                      unit: unitText,
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 32),
@@ -744,30 +743,34 @@ class _WeightTrackingCardState extends State<_WeightTrackingCard> {
                     return GestureDetector(
                       behavior: HitTestBehavior.opaque,
                       onPanUpdate: (details) => _handleTouch(
-                          details.localPosition, trendPoints.length, graphWidth,
-                          isDrag: true,
-                          actualIndices: actualDataDays,
-                        ),
+                        details.localPosition,
+                        trendPoints.length,
+                        graphWidth,
+                        isDrag: true,
+                        actualIndices: actualDataDays,
+                      ),
                       onTapDown: (details) => _handleTouch(
-                          details.localPosition, trendPoints.length, graphWidth,
-                          isTap: true,
-                          actualIndices: actualDataDays,
-                        ),
+                        details.localPosition,
+                        trendPoints.length,
+                        graphWidth,
+                        isTap: true,
+                        actualIndices: actualDataDays,
+                      ),
                       child: Stack(
                         children: [
                           // Grid lines
                           Column(
                             children: List.generate(
-                                4,
-                                (index) => Padding(
-                                      padding:
-                                          const EdgeInsets.only(bottom: 22),
-                                      child: Divider(
-                                        color: theme.colorScheme.outline
-                                            .withValues(alpha: 0.05),
-                                        height: 1,
-                                      ),
-                                    )),
+                              4,
+                              (index) => Padding(
+                                padding: const EdgeInsets.only(bottom: 22),
+                                child: Divider(
+                                  color: theme.colorScheme.outline
+                                      .withValues(alpha: 0.05),
+                                  height: 1,
+                                ),
+                              ),
+                            ),
                           ),
                           SizedBox(
                             height: 100,
@@ -799,9 +802,9 @@ class _WeightTrackingCardState extends State<_WeightTrackingCard> {
                       '${startDate.day} ${UnitConverter.monthName(startDate.month)}'
                           .toUpperCase(),
                       style: theme.textTheme.labelSmall?.copyWith(
-                          fontSize: 8,
-                          color: theme.colorScheme.outline,
-                        ),
+                        fontSize: 8,
+                        color: theme.colorScheme.outline,
+                      ),
                     ),
                     // Week indicators
                     ...List.generate(3, (index) {
@@ -809,19 +812,19 @@ class _WeightTrackingCardState extends State<_WeightTrackingCard> {
                       return Text(
                         '-$weekNum SET',
                         style: theme.textTheme.labelSmall?.copyWith(
-                            fontSize: 7,
-                            color: theme.colorScheme.outline
-                                .withValues(alpha: 0.4),
-                          ),
+                          fontSize: 7,
+                          color:
+                              theme.colorScheme.outline.withValues(alpha: 0.4),
+                        ),
                       );
                     }),
                     Text(
                       'OGGI',
                       style: theme.textTheme.labelSmall?.copyWith(
-                          fontSize: 8,
-                          fontWeight: FontWeight.w900,
-                          color: theme.colorScheme.primary,
-                        ),
+                        fontSize: 8,
+                        fontWeight: FontWeight.w900,
+                        color: theme.colorScheme.primary,
+                      ),
                     ),
                   ],
                 ),
@@ -834,11 +837,14 @@ class _WeightTrackingCardState extends State<_WeightTrackingCard> {
     );
   }
 
-  void _handleTouch(Offset localPosition, int pointsCount, double graphWidth,
-      {required Set<int> actualIndices,
-      bool isTap = false,
-      bool isDrag = false,
-    }) {
+  void _handleTouch(
+    Offset localPosition,
+    int pointsCount,
+    double graphWidth, {
+    required Set<int> actualIndices,
+    bool isTap = false,
+    bool isDrag = false,
+  }) {
     if (pointsCount == 0 || graphWidth <= 0 || actualIndices.isEmpty) return;
     final stepX = graphWidth / (pointsCount - 1);
     final touchX = localPosition.dx;
@@ -917,9 +923,9 @@ class _WeightTrackingCardState extends State<_WeightTrackingCard> {
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(context),
-                child: const Text('Annulla'),
-              ),
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Annulla'),
+          ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: Theme.of(context).colorScheme.primary,
@@ -1012,9 +1018,9 @@ class _WeightItem extends StatelessWidget {
                 Text(
                   unit,
                   style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: color.withValues(alpha: 0.5),
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    color: color.withValues(alpha: 0.5),
                   ),
                 ),
               ],
@@ -1173,19 +1179,19 @@ class _TrendLinePainter extends CustomPainter {
             TextSpan(
               text: '$textWeight\n',
               style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w900,
-                  fontSize: 12,
-                  fontFamily: 'Lexend',
-                ),
+                color: Colors.white,
+                fontWeight: FontWeight.w900,
+                fontSize: 12,
+                fontFamily: 'Lexend',
+              ),
             ),
             TextSpan(
               text: textDate,
               style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.7),
-                  fontSize: 9,
-                  fontWeight: FontWeight.bold,
-                ),
+                color: Colors.white.withValues(alpha: 0.7),
+                fontSize: 9,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ],
         ),
@@ -1420,20 +1426,21 @@ class _CardioHistorySection extends StatelessWidget {
                   backgroundColor:
                       theme.colorScheme.primary.withValues(alpha: 0.05),
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('GUARDA TUTTE',
-                        style: TextStyle(
-                            fontSize: 9,
-                            fontWeight: FontWeight.w900,
-                            color: theme.colorScheme.primary,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
+                    Text(
+                      'GUARDA TUTTE',
+                      style: TextStyle(
+                        fontSize: 9,
+                        fontWeight: FontWeight.w900,
+                        color: theme.colorScheme.primary,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
                     const SizedBox(width: 4),
                     Icon(
                       Icons.arrow_forward_ios_rounded,
@@ -1526,45 +1533,50 @@ class _CompactCardioCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(isRun ? 'Corsa' : 'Camminata',
-                    style: theme.textTheme.labelLarge?.copyWith(
-                        fontWeight: FontWeight.w900,
-                        fontFamily: 'Lexend',
-                        fontSize: 13,
-                      ),
-                    ),
-                Text(_formatDate(session.date),
-                    style: theme.textTheme.labelSmall?.copyWith(
-                        color: theme.colorScheme.outline,
-                        fontSize: 10,
-                      ),
-                    ),
+                Text(
+                  isRun ? 'Corsa' : 'Camminata',
+                  style: theme.textTheme.labelLarge?.copyWith(
+                    fontWeight: FontWeight.w900,
+                    fontFamily: 'Lexend',
+                    fontSize: 13,
+                  ),
+                ),
+                Text(
+                  _formatDate(session.date),
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: theme.colorScheme.outline,
+                    fontSize: 10,
+                  ),
+                ),
               ],
             ),
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text('${session.distance.toStringAsFixed(2)} km',
-                  style: const TextStyle(
-                      fontWeight: FontWeight.w900,
-                      fontSize: 13,
-                      fontFamily: 'Lexend',
-                    ),
-                  ),
-              Text('${session.calories} kcal',
-                  style: TextStyle(
-                      fontSize: 10,
-                      color: accentColor,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+              Text(
+                '${session.distance.toStringAsFixed(2)} km',
+                style: const TextStyle(
+                  fontWeight: FontWeight.w900,
+                  fontSize: 13,
+                  fontFamily: 'Lexend',
+                ),
+              ),
+              Text(
+                '${session.calories} kcal',
+                style: TextStyle(
+                  fontSize: 10,
+                  color: accentColor,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ],
           ),
           const SizedBox(width: 8),
-          Icon(Icons.chevron_right_rounded,
-              size: 20,
-              color: theme.colorScheme.outline.withValues(alpha: 0.3),
+          Icon(
+            Icons.chevron_right_rounded,
+            size: 20,
+            color: theme.colorScheme.outline.withValues(alpha: 0.3),
           ),
         ],
       ),

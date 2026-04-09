@@ -196,31 +196,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 20),
-                _buildLabel('SESSO', theme),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildGenderCard(
-                        'uomo',
-                        Icons.male_rounded,
-                        'Uomo',
-                        theme,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: _buildGenderCard(
-                        'donna',
-                        Icons.female_rounded,
-                        'Donna',
-                        theme,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
+
                 _buildTextField(
                   controller: _usernameController,
                   label: 'USERNAME',
@@ -381,47 +357,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         letterSpacing: 1.5,
         fontWeight: FontWeight.w900,
         color: theme.colorScheme.outline,
-      ),
-    );
-  }
-
-  Widget _buildGenderCard(String value, IconData icon, String label, ThemeData theme) {
-    final isSelected = _selectedGender == value;
-    return InkWell(
-      onTap: _isSaving ? null : () => setState(() => _selectedGender = value),
-      borderRadius: BorderRadius.circular(16),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        decoration: BoxDecoration(
-          color: isSelected 
-              ? theme.colorScheme.primary.withValues(alpha: 0.1) 
-              : theme.colorScheme.surfaceContainerHigh,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: isSelected 
-                ? theme.colorScheme.primary 
-                : theme.colorScheme.outline.withValues(alpha: 0.1),
-            width: isSelected ? 2 : 1,
-          ),
-        ),
-        child: Column(
-          children: [
-            Icon(
-              icon,
-              color: isSelected ? theme.colorScheme.primary : theme.colorScheme.outline,
-              size: 28,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              style: theme.textTheme.labelLarge?.copyWith(
-                color: isSelected ? theme.colorScheme.primary : theme.colorScheme.onSurface,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

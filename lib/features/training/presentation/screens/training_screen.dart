@@ -11,7 +11,6 @@ import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dar
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
 
 class TrainingScreen extends StatefulWidget {
-
   const TrainingScreen({this.routine, super.key});
 
   final RoutineEntity? routine;
@@ -19,7 +18,6 @@ class TrainingScreen extends StatefulWidget {
   @override
   State<TrainingScreen> createState() => _TrainingScreenState();
 }
-
 
 class _TrainingScreenState extends State<TrainingScreen> {
   Timer? _timer;
@@ -79,7 +77,7 @@ class _TrainingScreenState extends State<TrainingScreen> {
 
     return BlocBuilder<TrainingBloc, TrainingState>(
       builder: (context, state) {
-        String currentUnit = 'KG';
+        var currentUnit = 'KG';
         if (state is TrainingLoaded) {
           final dbDuration =
               int.tryParse(state.settings['rest_timer'] ?? '90') ?? 90;
@@ -126,7 +124,8 @@ class _TrainingScreenState extends State<TrainingScreen> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                widget.routine?.title ?? 'Panca Piana Bilanciere',
+                                widget.routine?.title ??
+                                    'Panca Piana Bilanciere',
                                 style: theme.textTheme.titleLarge?.copyWith(
                                   fontWeight: FontWeight.bold,
                                   fontFamily: 'Lexend',
@@ -134,7 +133,6 @@ class _TrainingScreenState extends State<TrainingScreen> {
                                   fontSize: 18,
                                 ),
                               ),
-
                             ],
                           ),
                         ),
@@ -177,7 +175,9 @@ class _TrainingScreenState extends State<TrainingScreen> {
                           child: _MetricCard(
                             label: 'CARICO (${currentUnit.toUpperCase()})',
                             // In a real app this value 85 would be converted if LB
-                            value: currentUnit == 'LB' ? UnitConverter.kgToLb(85).toStringAsFixed(1) : '85.0',
+                            value: currentUnit == 'LB'
+                                ? UnitConverter.kgToLb(85).toStringAsFixed(1)
+                                : '85.0',
                             theme: theme,
                           ),
                         ),
@@ -333,8 +333,8 @@ class _TrainingScreenState extends State<TrainingScreen> {
                             .withValues(alpha: 0.3),
                         borderRadius: BorderRadius.circular(24),
                         border: Border.all(
-                          color: theme.colorScheme.outline
-                              .withValues(alpha: 0.05),
+                          color:
+                              theme.colorScheme.outline.withValues(alpha: 0.05),
                         ),
                       ),
                       child: Column(
@@ -383,16 +383,16 @@ class _TrainingScreenState extends State<TrainingScreen> {
                                   children: [
                                     Text(
                                       'Mock Exercise',
-                                      style: theme.textTheme.labelMedium
-                                          ?.copyWith(
+                                      style:
+                                          theme.textTheme.labelMedium?.copyWith(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 12,
                                       ),
                                     ),
                                     Text(
                                       '4 x 10 • (In Sviluppo)',
-                                      style: theme.textTheme.labelSmall
-                                          ?.copyWith(
+                                      style:
+                                          theme.textTheme.labelSmall?.copyWith(
                                         color: theme.colorScheme.outline,
                                         fontSize: 8,
                                       ),
