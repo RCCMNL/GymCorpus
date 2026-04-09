@@ -31,9 +31,11 @@ class CardioHistoryScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.directions_run_outlined,
-                      size: 64,
-                      color: theme.colorScheme.outline.withValues(alpha: 0.2)),
+                  Icon(
+                    Icons.directions_run_outlined,
+                    size: 64,
+                    color: theme.colorScheme.outline.withValues(alpha: 0.2),
+                  ),
                   const SizedBox(height: 16),
                   Text(
                     'Ancora nessuna sessione',
@@ -79,7 +81,7 @@ class _DetailedCardioCard extends StatelessWidget {
       'Set',
       'Ott',
       'Nov',
-      'Dic'
+      'Dic',
     ];
     return '${date.day} ${months[date.month - 1]} ${date.year} • ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
   }
@@ -103,7 +105,9 @@ class _DetailedCardioCard extends StatelessWidget {
         route = decoded.map((p) {
           final map = p as Map;
           return LatLng(
-              (map['lat'] as num).toDouble(), (map['lng'] as num).toDouble());
+            (map['lat'] as num).toDouble(),
+            (map['lng'] as num).toDouble(),
+          );
         }).toList();
       } catch (_) {}
     }
@@ -145,22 +149,28 @@ class _DetailedCardioCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Icon(
-                          isRun ? Icons.directions_run : Icons.directions_walk,
-                          color: accentColor,
-                          size: 20),
+                        isRun ? Icons.directions_run : Icons.directions_walk,
+                        color: accentColor,
+                        size: 20,
+                      ),
                     ),
                     const SizedBox(width: 12),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(isRun ? 'Corsa' : 'Camminata',
-                            style: theme.textTheme.titleSmall?.copyWith(
-                                fontWeight: FontWeight.w900,
-                                fontFamily: 'Lexend')),
+                        Text(
+                          isRun ? 'Corsa' : 'Camminata',
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w900,
+                            fontFamily: 'Lexend',
+                          ),
+                        ),
                         Text(_formatDate(session.date),
                             style: theme.textTheme.labelSmall?.copyWith(
                                 color: theme.colorScheme.outline,
-                                fontSize: 10)),
+                                fontSize: 10,
+                              ),
+                            ),
                       ],
                     ),
                   ],
@@ -176,7 +186,9 @@ class _DetailedCardioCard extends StatelessWidget {
                       style: TextStyle(
                           color: accentColor,
                           fontWeight: FontWeight.w900,
-                          fontSize: 11)),
+                          fontSize: 11,
+                        ),
+                      ),
                 ),
               ],
             ),
@@ -187,12 +199,14 @@ class _DetailedCardioCard extends StatelessWidget {
                 _StatItem(
                     label: 'DISTANZA',
                     value: '${session.distance.toStringAsFixed(2)} km',
-                    theme: theme),
+                    theme: theme,
+                  ),
                 _StatItem(label: 'DURATA', value: durationStr, theme: theme),
                 _StatItem(
                     label: 'VELOCITÀ',
                     value: '${session.avgSpeed.toStringAsFixed(1)} km/h',
-                    theme: theme),
+                    theme: theme,
+                  ),
               ],
             ),
             if (route.isNotEmpty) ...[
@@ -219,13 +233,15 @@ class _DetailedCardioCard extends StatelessWidget {
                         TileLayer(
                             urlTemplate:
                                 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                            userAgentPackageName: 'com.gymcorpus.app'),
+                            userAgentPackageName: 'com.gymcorpus.app',
+                        ),
                         if (route.length > 1)
                           PolylineLayer(polylines: [
                             Polyline(
                                 points: route,
                                 color: accentColor,
-                                strokeWidth: 4)
+                                strokeWidth: 4,
+                              ),
                           ]),
                       ],
                     ),
@@ -268,7 +284,8 @@ class _DetailedCardioCard extends StatelessWidget {
           decoration: BoxDecoration(
               color: theme.colorScheme.surface,
               borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(32))),
+                  const BorderRadius.vertical(top: Radius.circular(32)),
+          ),
           child: Column(
             children: [
               const SizedBox(height: 12),
@@ -277,7 +294,8 @@ class _DetailedCardioCard extends StatelessWidget {
                   height: 4,
                   decoration: BoxDecoration(
                       color: theme.colorScheme.outline.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(2))),
+                      borderRadius: BorderRadius.circular(2),
+                  ),
               Padding(
                 padding: const EdgeInsets.all(24),
                 child: Row(
@@ -290,16 +308,21 @@ class _DetailedCardioCard extends StatelessWidget {
                             style: theme.textTheme.labelSmall?.copyWith(
                                 letterSpacing: 1.5,
                                 fontWeight: FontWeight.w900,
-                                color: color)),
+                                color: color,
+                            ),
+                        ),
                         Text(_formatDate(session.date),
                             style: theme.textTheme.titleMedium?.copyWith(
                                 fontWeight: FontWeight.bold,
-                                fontFamily: 'Lexend')),
+                                fontFamily: 'Lexend',
+                            ),
+                        ),
                       ],
                     ),
                     IconButton(
                         onPressed: () => Navigator.pop(ctx),
-                        icon: const Icon(Icons.close)),
+                        icon: const Icon(Icons.close),
+                    ),
                   ],
                 ),
               ),
@@ -319,20 +342,23 @@ class _DetailedCardioCard extends StatelessWidget {
                                   route.length > 1 && bounds != null
                                       ? CameraFit.bounds(
                                           bounds: bounds,
-                                          padding: const EdgeInsets.all(40))
+                                          padding: const EdgeInsets.all(40),
+                                      ),
                                       : null,
                             ),
                             children: [
                               TileLayer(
                                   urlTemplate:
                                       'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                                  userAgentPackageName: 'com.gymcorpus.app'),
+                                  userAgentPackageName: 'com.gymcorpus.app',
+                              ),
                               if (route.length > 1)
                                 PolylineLayer(polylines: [
                                   Polyline(
                                       points: route,
                                       color: color,
-                                      strokeWidth: 5)
+                                      strokeWidth: 5,
+                                  ),
                                 ]),
                               MarkerLayer(
                                 markers: [
@@ -376,7 +402,7 @@ class _DetailedCardioCard extends StatelessWidget {
 
 class _StatItem extends StatelessWidget {
   const _StatItem(
-      {required this.label, required this.value, required this.theme});
+      {required this.label, required this.value, required this.theme,});
   final String label;
   final String value;
   final ThemeData theme;
@@ -389,11 +415,14 @@ class _StatItem extends StatelessWidget {
             style: theme.textTheme.labelSmall?.copyWith(
                 fontSize: 9,
                 fontWeight: FontWeight.w900,
-                color: theme.colorScheme.outline)),
+                color: theme.colorScheme.outline,
+              ),
+            ),
         const SizedBox(height: 4),
         Text(value,
             style: theme.textTheme.titleSmall
-                ?.copyWith(fontWeight: FontWeight.w900, fontFamily: 'Lexend')),
+                ?.copyWith(fontWeight: FontWeight.w900, fontFamily: 'Lexend',),
+        ),
       ],
     );
   }
