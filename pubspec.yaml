@@ -33,6 +33,9 @@ dependencies:
   injectable: any
   intl: ^0.20.2
   json_annotation: any
+  flutter_map: ^7.0.2
+  geolocator: ^13.0.1
+  latlong2: ^0.9.1
   local_auth: 2.3.0
   path: ^1.8.3
   path_provider: ^2.1.1

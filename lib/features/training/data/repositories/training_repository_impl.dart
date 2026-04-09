@@ -3,6 +3,7 @@ import 'package:drift/drift.dart';
 import 'package:gym_corpus/core/database/database.dart';
 import 'package:gym_corpus/core/error/failures.dart';
 import 'package:gym_corpus/features/training/domain/entities/body_weight.dart';
+import 'package:gym_corpus/features/training/domain/entities/cardio_session.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 import 'package:gym_corpus/features/training/domain/repositories/training_repository.dart';
@@ -255,6 +256,61 @@ class TrainingRepositoryImpl implements TrainingRepository {
   Future<Either<Failure, void>> updatePreference(String key, String value) async {
     try {
       await database.updateSetting(key, value);
+      return const Right(null);
+    } catch (e) {
+      return Left(DatabaseFailure(e.toString()));
+    }
+  }
+
+  // --- Cardio Sessions ---
+  @override
+  Stream<List<CardioSessionEntity>> watchCardioSessions() {
+    return database.watchAllCardioSessions().map((sessions) {
+      return sessions.map((s) => CardioSessionEntity(
+        id: s.id,
+        type: s.type,
+        distance: s.distance,
+        duration: s.duration,
+        avgSpeed: s.avgSpeed,
+        pace: s.pace,
+        calories: s.calories,
+        routeJson: s.routeJson,
+        date: s.date,
+      )).toList();
+    });
+  }
+
+  @override
+  Future<Either<Failure, int>> addCardioSession({
+    required String type,
+    required double distance,
+    required int duration,
+    required double avgSpeed,
+    required String pace,
+    required int calories,
+    String? routeJson,
+  }) async {
+    try {
+      final id = await database.insertCardioSession(CardioSessionsCompanion(
+        type: Value(type),
+        distance: Value(distance),
+        duration: Value(duration),
+        avgSpeed: Value(avgSpeed),
+        pace: Value(pace),
+        calories: Value(calories),
+        routeJson: Value(routeJson),
+        date: Value(DateTime.now()),
+      ));
+      return Right(id);
+    } catch (e) {
+      return Left(DatabaseFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> deleteCardioSession(int id) async {
+    try {
+      await database.deleteCardioSession(id);
       return const Right(null);
     } catch (e) {
       return Left(DatabaseFailure(e.toString()));

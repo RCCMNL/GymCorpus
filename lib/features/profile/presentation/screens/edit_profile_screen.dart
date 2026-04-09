@@ -6,6 +6,7 @@ import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_event.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
+import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
 import 'package:gym_corpus/core/utils/unit_converter.dart';
 import 'package:intl/intl.dart';
@@ -127,6 +128,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               trainingObjective: _selectedObjective,
             ),
           );
+
+      // Sync weight with Analytics history
+      if (finalWeight != null) {
+        context.read<TrainingBloc>().add(AddBodyWeightLogEvent(finalWeight));
+      }
 
       // Wait 500ms for user feedback and to allow background save to kick in
       await Future<void>.delayed(const Duration(milliseconds: 1000));

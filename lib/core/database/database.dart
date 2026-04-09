@@ -67,12 +67,24 @@ class AppSettings extends Table {
   Set<Column> get primaryKey => {key};
 }
 
-@DriftDatabase(tables: [Workouts, Exercises, WorkoutSets, Routines, RoutineExercises, WeightLogs, AppSettings])
+class CardioSessions extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get type => text().withDefault(const Constant('run'))(); // run, walk
+  RealColumn get distance => real()(); // in km
+  IntColumn get duration => integer()(); // in seconds
+  RealColumn get avgSpeed => real()(); // km/h
+  TextColumn get pace => text()(); // mm:ss per km
+  IntColumn get calories => integer()();
+  TextColumn get routeJson => text().nullable()(); // JSON string of latlng coordinates
+  DateTimeColumn get date => dateTime()();
+}
+
+@DriftDatabase(tables: [Workouts, Exercises, WorkoutSets, Routines, RoutineExercises, WeightLogs, AppSettings, CardioSessions])
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
   
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 9;
 
   @override
   MigrationStrategy get migration {
@@ -81,7 +93,7 @@ class AppDatabase extends _$AppDatabase {
         await m.createAll();
       },
       onUpgrade: (m, from, to) async {
-        if (from < 8) {
+        if (from < 9) {
           // Ricrea per sviluppo
           for (final table in allTables) {
             await m.deleteTable(table.actualTableName);
@@ -168,4 +180,10 @@ class AppDatabase extends _$AppDatabase {
   Future<void> toggleExerciseFavorite(int id, {required bool isFavorite}) =>
       (update(exercises)..where((e) => e.id.equals(id)))
           .write(ExercisesCompanion(isFavorite: Value(isFavorite)));
+
+  // Cardio Sessions
+  Stream<List<CardioSession>> watchAllCardioSessions() => 
+    (select(cardioSessions)..orderBy([(t) => OrderingTerm(expression: t.date, mode: OrderingMode.desc)])).watch();
+  Future<int> insertCardioSession(CardioSessionsCompanion session) => into(cardioSessions).insert(session);
+  Future<void> deleteCardioSession(int id) => (delete(cardioSessions)..where((t) => t.id.equals(id))).go();
 }

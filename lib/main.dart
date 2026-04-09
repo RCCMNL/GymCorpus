@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/service_locator.dart' as di;
 import 'package:gym_corpus/core/theme/app_theme.dart';
 import 'package:gym_corpus/features/analytics/presentation/screens/analytics_screen.dart';
+import 'package:gym_corpus/features/analytics/presentation/screens/cardio_history_screen.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_event.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
@@ -25,6 +26,7 @@ import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
+import 'package:gym_corpus/features/training/presentation/screens/cardio_tracker_screen.dart';
 import 'package:gym_corpus/features/training/presentation/screens/custom_workouts_screen.dart';
 import 'package:gym_corpus/features/training/presentation/screens/root_screen.dart';
 import 'package:gym_corpus/features/training/presentation/screens/training_dashboard_screen.dart';
@@ -157,6 +159,13 @@ class _GymAppState extends State<GymApp> {
                     routine: state.extra as RoutineEntity?,
                   ),
                 ),
+                GoRoute(
+                  path: 'cardio',
+                  parentNavigatorKey: _rootNavigatorKey,
+                  builder: (context, state) => CardioTrackerScreen(
+                    type: (state.extra as String?) ?? 'run',
+                  ),
+                ),
               ],
             ),
 
@@ -196,6 +205,13 @@ class _GymAppState extends State<GymApp> {
             GoRoute(
               path: '/analytics',
               builder: (context, state) => const AnalyticsScreen(),
+              routes: [
+                GoRoute(
+                  path: 'cardio-history',
+                  parentNavigatorKey: _rootNavigatorKey,
+                  builder: (context, state) => const CardioHistoryScreen(),
+                ),
+              ],
             ),
             GoRoute(
               path: '/profile',

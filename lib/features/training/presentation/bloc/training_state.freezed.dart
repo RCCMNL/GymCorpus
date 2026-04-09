@@ -151,6 +151,7 @@ extension TrainingStatePatterns on TrainingState {
             List<RoutineEntity> routines,
             List<WorkoutSetEntity> weightLogs,
             List<BodyWeightLogEntity> bodyWeightLogs,
+            List<CardioSessionEntity> cardioSessions,
             Map<String, String> settings,
             double? lastEstimated1RM)?
         loaded,
@@ -162,8 +163,14 @@ extension TrainingStatePatterns on TrainingState {
       case TrainingLoading() when loading != null:
         return loading();
       case TrainingLoaded() when loaded != null:
-        return loaded(_that.exercises, _that.routines, _that.weightLogs,
-            _that.bodyWeightLogs, _that.settings, _that.lastEstimated1RM);
+        return loaded(
+            _that.exercises,
+            _that.routines,
+            _that.weightLogs,
+            _that.bodyWeightLogs,
+            _that.cardioSessions,
+            _that.settings,
+            _that.lastEstimated1RM);
       case TrainingError() when error != null:
         return error(_that.message);
       case _:
@@ -192,6 +199,7 @@ extension TrainingStatePatterns on TrainingState {
             List<RoutineEntity> routines,
             List<WorkoutSetEntity> weightLogs,
             List<BodyWeightLogEntity> bodyWeightLogs,
+            List<CardioSessionEntity> cardioSessions,
             Map<String, String> settings,
             double? lastEstimated1RM)
         loaded,
@@ -202,8 +210,14 @@ extension TrainingStatePatterns on TrainingState {
       case TrainingLoading():
         return loading();
       case TrainingLoaded():
-        return loaded(_that.exercises, _that.routines, _that.weightLogs,
-            _that.bodyWeightLogs, _that.settings, _that.lastEstimated1RM);
+        return loaded(
+            _that.exercises,
+            _that.routines,
+            _that.weightLogs,
+            _that.bodyWeightLogs,
+            _that.cardioSessions,
+            _that.settings,
+            _that.lastEstimated1RM);
       case TrainingError():
         return error(_that.message);
       case _:
@@ -231,6 +245,7 @@ extension TrainingStatePatterns on TrainingState {
             List<RoutineEntity> routines,
             List<WorkoutSetEntity> weightLogs,
             List<BodyWeightLogEntity> bodyWeightLogs,
+            List<CardioSessionEntity> cardioSessions,
             Map<String, String> settings,
             double? lastEstimated1RM)?
         loaded,
@@ -241,8 +256,14 @@ extension TrainingStatePatterns on TrainingState {
       case TrainingLoading() when loading != null:
         return loading();
       case TrainingLoaded() when loaded != null:
-        return loaded(_that.exercises, _that.routines, _that.weightLogs,
-            _that.bodyWeightLogs, _that.settings, _that.lastEstimated1RM);
+        return loaded(
+            _that.exercises,
+            _that.routines,
+            _that.weightLogs,
+            _that.bodyWeightLogs,
+            _that.cardioSessions,
+            _that.settings,
+            _that.lastEstimated1RM);
       case TrainingError() when error != null:
         return error(_that.message);
       case _:
@@ -279,12 +300,14 @@ class TrainingLoaded implements TrainingState {
       final List<RoutineEntity> routines = const [],
       final List<WorkoutSetEntity> weightLogs = const [],
       final List<BodyWeightLogEntity> bodyWeightLogs = const [],
+      final List<CardioSessionEntity> cardioSessions = const [],
       final Map<String, String> settings = const {},
       this.lastEstimated1RM})
       : _exercises = exercises,
         _routines = routines,
         _weightLogs = weightLogs,
         _bodyWeightLogs = bodyWeightLogs,
+        _cardioSessions = cardioSessions,
         _settings = settings;
 
   final List<ExerciseEntity> _exercises;
@@ -318,6 +341,14 @@ class TrainingLoaded implements TrainingState {
     return EqualUnmodifiableListView(_bodyWeightLogs);
   }
 
+  final List<CardioSessionEntity> _cardioSessions;
+  @JsonKey()
+  List<CardioSessionEntity> get cardioSessions {
+    if (_cardioSessions is EqualUnmodifiableListView) return _cardioSessions;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_cardioSessions);
+  }
+
   final Map<String, String> _settings;
   @JsonKey()
   Map<String, String> get settings {
@@ -347,6 +378,8 @@ class TrainingLoaded implements TrainingState {
                 .equals(other._weightLogs, _weightLogs) &&
             const DeepCollectionEquality()
                 .equals(other._bodyWeightLogs, _bodyWeightLogs) &&
+            const DeepCollectionEquality()
+                .equals(other._cardioSessions, _cardioSessions) &&
             const DeepCollectionEquality().equals(other._settings, _settings) &&
             (identical(other.lastEstimated1RM, lastEstimated1RM) ||
                 other.lastEstimated1RM == lastEstimated1RM));
@@ -359,12 +392,13 @@ class TrainingLoaded implements TrainingState {
       const DeepCollectionEquality().hash(_routines),
       const DeepCollectionEquality().hash(_weightLogs),
       const DeepCollectionEquality().hash(_bodyWeightLogs),
+      const DeepCollectionEquality().hash(_cardioSessions),
       const DeepCollectionEquality().hash(_settings),
       lastEstimated1RM);
 
   @override
   String toString() {
-    return 'TrainingState.loaded(exercises: $exercises, routines: $routines, weightLogs: $weightLogs, bodyWeightLogs: $bodyWeightLogs, settings: $settings, lastEstimated1RM: $lastEstimated1RM)';
+    return 'TrainingState.loaded(exercises: $exercises, routines: $routines, weightLogs: $weightLogs, bodyWeightLogs: $bodyWeightLogs, cardioSessions: $cardioSessions, settings: $settings, lastEstimated1RM: $lastEstimated1RM)';
   }
 }
 
@@ -380,6 +414,7 @@ abstract mixin class $TrainingLoadedCopyWith<$Res>
       List<RoutineEntity> routines,
       List<WorkoutSetEntity> weightLogs,
       List<BodyWeightLogEntity> bodyWeightLogs,
+      List<CardioSessionEntity> cardioSessions,
       Map<String, String> settings,
       double? lastEstimated1RM});
 }
@@ -400,6 +435,7 @@ class _$TrainingLoadedCopyWithImpl<$Res>
     Object? routines = null,
     Object? weightLogs = null,
     Object? bodyWeightLogs = null,
+    Object? cardioSessions = null,
     Object? settings = null,
     Object? lastEstimated1RM = freezed,
   }) {
@@ -420,6 +456,10 @@ class _$TrainingLoadedCopyWithImpl<$Res>
           ? _self._bodyWeightLogs
           : bodyWeightLogs // ignore: cast_nullable_to_non_nullable
               as List<BodyWeightLogEntity>,
+      cardioSessions: null == cardioSessions
+          ? _self._cardioSessions
+          : cardioSessions // ignore: cast_nullable_to_non_nullable
+              as List<CardioSessionEntity>,
       settings: null == settings
           ? _self._settings
           : settings // ignore: cast_nullable_to_non_nullable

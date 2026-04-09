@@ -2334,6 +2334,451 @@ class AppSettingsCompanion extends UpdateCompanion<AppSetting> {
   }
 }
 
+class $CardioSessionsTable extends CardioSessions
+    with TableInfo<$CardioSessionsTable, CardioSession> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CardioSessionsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _typeMeta = const VerificationMeta('type');
+  @override
+  late final GeneratedColumn<String> type = GeneratedColumn<String>(
+      'type', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('run'));
+  static const VerificationMeta _distanceMeta =
+      const VerificationMeta('distance');
+  @override
+  late final GeneratedColumn<double> distance = GeneratedColumn<double>(
+      'distance', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _durationMeta =
+      const VerificationMeta('duration');
+  @override
+  late final GeneratedColumn<int> duration = GeneratedColumn<int>(
+      'duration', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _avgSpeedMeta =
+      const VerificationMeta('avgSpeed');
+  @override
+  late final GeneratedColumn<double> avgSpeed = GeneratedColumn<double>(
+      'avg_speed', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _paceMeta = const VerificationMeta('pace');
+  @override
+  late final GeneratedColumn<String> pace = GeneratedColumn<String>(
+      'pace', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _caloriesMeta =
+      const VerificationMeta('calories');
+  @override
+  late final GeneratedColumn<int> calories = GeneratedColumn<int>(
+      'calories', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _routeJsonMeta =
+      const VerificationMeta('routeJson');
+  @override
+  late final GeneratedColumn<String> routeJson = GeneratedColumn<String>(
+      'route_json', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _dateMeta = const VerificationMeta('date');
+  @override
+  late final GeneratedColumn<DateTime> date = GeneratedColumn<DateTime>(
+      'date', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, type, distance, duration, avgSpeed, pace, calories, routeJson, date];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'cardio_sessions';
+  @override
+  VerificationContext validateIntegrity(Insertable<CardioSession> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('type')) {
+      context.handle(
+          _typeMeta, type.isAcceptableOrUnknown(data['type']!, _typeMeta));
+    }
+    if (data.containsKey('distance')) {
+      context.handle(_distanceMeta,
+          distance.isAcceptableOrUnknown(data['distance']!, _distanceMeta));
+    } else if (isInserting) {
+      context.missing(_distanceMeta);
+    }
+    if (data.containsKey('duration')) {
+      context.handle(_durationMeta,
+          duration.isAcceptableOrUnknown(data['duration']!, _durationMeta));
+    } else if (isInserting) {
+      context.missing(_durationMeta);
+    }
+    if (data.containsKey('avg_speed')) {
+      context.handle(_avgSpeedMeta,
+          avgSpeed.isAcceptableOrUnknown(data['avg_speed']!, _avgSpeedMeta));
+    } else if (isInserting) {
+      context.missing(_avgSpeedMeta);
+    }
+    if (data.containsKey('pace')) {
+      context.handle(
+          _paceMeta, pace.isAcceptableOrUnknown(data['pace']!, _paceMeta));
+    } else if (isInserting) {
+      context.missing(_paceMeta);
+    }
+    if (data.containsKey('calories')) {
+      context.handle(_caloriesMeta,
+          calories.isAcceptableOrUnknown(data['calories']!, _caloriesMeta));
+    } else if (isInserting) {
+      context.missing(_caloriesMeta);
+    }
+    if (data.containsKey('route_json')) {
+      context.handle(_routeJsonMeta,
+          routeJson.isAcceptableOrUnknown(data['route_json']!, _routeJsonMeta));
+    }
+    if (data.containsKey('date')) {
+      context.handle(
+          _dateMeta, date.isAcceptableOrUnknown(data['date']!, _dateMeta));
+    } else if (isInserting) {
+      context.missing(_dateMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  CardioSession map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CardioSession(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      type: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}type'])!,
+      distance: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}distance'])!,
+      duration: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}duration'])!,
+      avgSpeed: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}avg_speed'])!,
+      pace: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}pace'])!,
+      calories: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}calories'])!,
+      routeJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}route_json']),
+      date: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}date'])!,
+    );
+  }
+
+  @override
+  $CardioSessionsTable createAlias(String alias) {
+    return $CardioSessionsTable(attachedDatabase, alias);
+  }
+}
+
+class CardioSession extends DataClass implements Insertable<CardioSession> {
+  final int id;
+  final String type;
+  final double distance;
+  final int duration;
+  final double avgSpeed;
+  final String pace;
+  final int calories;
+  final String? routeJson;
+  final DateTime date;
+  const CardioSession(
+      {required this.id,
+      required this.type,
+      required this.distance,
+      required this.duration,
+      required this.avgSpeed,
+      required this.pace,
+      required this.calories,
+      this.routeJson,
+      required this.date});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['type'] = Variable<String>(type);
+    map['distance'] = Variable<double>(distance);
+    map['duration'] = Variable<int>(duration);
+    map['avg_speed'] = Variable<double>(avgSpeed);
+    map['pace'] = Variable<String>(pace);
+    map['calories'] = Variable<int>(calories);
+    if (!nullToAbsent || routeJson != null) {
+      map['route_json'] = Variable<String>(routeJson);
+    }
+    map['date'] = Variable<DateTime>(date);
+    return map;
+  }
+
+  CardioSessionsCompanion toCompanion(bool nullToAbsent) {
+    return CardioSessionsCompanion(
+      id: Value(id),
+      type: Value(type),
+      distance: Value(distance),
+      duration: Value(duration),
+      avgSpeed: Value(avgSpeed),
+      pace: Value(pace),
+      calories: Value(calories),
+      routeJson: routeJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(routeJson),
+      date: Value(date),
+    );
+  }
+
+  factory CardioSession.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CardioSession(
+      id: serializer.fromJson<int>(json['id']),
+      type: serializer.fromJson<String>(json['type']),
+      distance: serializer.fromJson<double>(json['distance']),
+      duration: serializer.fromJson<int>(json['duration']),
+      avgSpeed: serializer.fromJson<double>(json['avgSpeed']),
+      pace: serializer.fromJson<String>(json['pace']),
+      calories: serializer.fromJson<int>(json['calories']),
+      routeJson: serializer.fromJson<String?>(json['routeJson']),
+      date: serializer.fromJson<DateTime>(json['date']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'type': serializer.toJson<String>(type),
+      'distance': serializer.toJson<double>(distance),
+      'duration': serializer.toJson<int>(duration),
+      'avgSpeed': serializer.toJson<double>(avgSpeed),
+      'pace': serializer.toJson<String>(pace),
+      'calories': serializer.toJson<int>(calories),
+      'routeJson': serializer.toJson<String?>(routeJson),
+      'date': serializer.toJson<DateTime>(date),
+    };
+  }
+
+  CardioSession copyWith(
+          {int? id,
+          String? type,
+          double? distance,
+          int? duration,
+          double? avgSpeed,
+          String? pace,
+          int? calories,
+          Value<String?> routeJson = const Value.absent(),
+          DateTime? date}) =>
+      CardioSession(
+        id: id ?? this.id,
+        type: type ?? this.type,
+        distance: distance ?? this.distance,
+        duration: duration ?? this.duration,
+        avgSpeed: avgSpeed ?? this.avgSpeed,
+        pace: pace ?? this.pace,
+        calories: calories ?? this.calories,
+        routeJson: routeJson.present ? routeJson.value : this.routeJson,
+        date: date ?? this.date,
+      );
+  CardioSession copyWithCompanion(CardioSessionsCompanion data) {
+    return CardioSession(
+      id: data.id.present ? data.id.value : this.id,
+      type: data.type.present ? data.type.value : this.type,
+      distance: data.distance.present ? data.distance.value : this.distance,
+      duration: data.duration.present ? data.duration.value : this.duration,
+      avgSpeed: data.avgSpeed.present ? data.avgSpeed.value : this.avgSpeed,
+      pace: data.pace.present ? data.pace.value : this.pace,
+      calories: data.calories.present ? data.calories.value : this.calories,
+      routeJson: data.routeJson.present ? data.routeJson.value : this.routeJson,
+      date: data.date.present ? data.date.value : this.date,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CardioSession(')
+          ..write('id: $id, ')
+          ..write('type: $type, ')
+          ..write('distance: $distance, ')
+          ..write('duration: $duration, ')
+          ..write('avgSpeed: $avgSpeed, ')
+          ..write('pace: $pace, ')
+          ..write('calories: $calories, ')
+          ..write('routeJson: $routeJson, ')
+          ..write('date: $date')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id, type, distance, duration, avgSpeed, pace, calories, routeJson, date);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CardioSession &&
+          other.id == this.id &&
+          other.type == this.type &&
+          other.distance == this.distance &&
+          other.duration == this.duration &&
+          other.avgSpeed == this.avgSpeed &&
+          other.pace == this.pace &&
+          other.calories == this.calories &&
+          other.routeJson == this.routeJson &&
+          other.date == this.date);
+}
+
+class CardioSessionsCompanion extends UpdateCompanion<CardioSession> {
+  final Value<int> id;
+  final Value<String> type;
+  final Value<double> distance;
+  final Value<int> duration;
+  final Value<double> avgSpeed;
+  final Value<String> pace;
+  final Value<int> calories;
+  final Value<String?> routeJson;
+  final Value<DateTime> date;
+  const CardioSessionsCompanion({
+    this.id = const Value.absent(),
+    this.type = const Value.absent(),
+    this.distance = const Value.absent(),
+    this.duration = const Value.absent(),
+    this.avgSpeed = const Value.absent(),
+    this.pace = const Value.absent(),
+    this.calories = const Value.absent(),
+    this.routeJson = const Value.absent(),
+    this.date = const Value.absent(),
+  });
+  CardioSessionsCompanion.insert({
+    this.id = const Value.absent(),
+    this.type = const Value.absent(),
+    required double distance,
+    required int duration,
+    required double avgSpeed,
+    required String pace,
+    required int calories,
+    this.routeJson = const Value.absent(),
+    required DateTime date,
+  })  : distance = Value(distance),
+        duration = Value(duration),
+        avgSpeed = Value(avgSpeed),
+        pace = Value(pace),
+        calories = Value(calories),
+        date = Value(date);
+  static Insertable<CardioSession> custom({
+    Expression<int>? id,
+    Expression<String>? type,
+    Expression<double>? distance,
+    Expression<int>? duration,
+    Expression<double>? avgSpeed,
+    Expression<String>? pace,
+    Expression<int>? calories,
+    Expression<String>? routeJson,
+    Expression<DateTime>? date,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (type != null) 'type': type,
+      if (distance != null) 'distance': distance,
+      if (duration != null) 'duration': duration,
+      if (avgSpeed != null) 'avg_speed': avgSpeed,
+      if (pace != null) 'pace': pace,
+      if (calories != null) 'calories': calories,
+      if (routeJson != null) 'route_json': routeJson,
+      if (date != null) 'date': date,
+    });
+  }
+
+  CardioSessionsCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? type,
+      Value<double>? distance,
+      Value<int>? duration,
+      Value<double>? avgSpeed,
+      Value<String>? pace,
+      Value<int>? calories,
+      Value<String?>? routeJson,
+      Value<DateTime>? date}) {
+    return CardioSessionsCompanion(
+      id: id ?? this.id,
+      type: type ?? this.type,
+      distance: distance ?? this.distance,
+      duration: duration ?? this.duration,
+      avgSpeed: avgSpeed ?? this.avgSpeed,
+      pace: pace ?? this.pace,
+      calories: calories ?? this.calories,
+      routeJson: routeJson ?? this.routeJson,
+      date: date ?? this.date,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (type.present) {
+      map['type'] = Variable<String>(type.value);
+    }
+    if (distance.present) {
+      map['distance'] = Variable<double>(distance.value);
+    }
+    if (duration.present) {
+      map['duration'] = Variable<int>(duration.value);
+    }
+    if (avgSpeed.present) {
+      map['avg_speed'] = Variable<double>(avgSpeed.value);
+    }
+    if (pace.present) {
+      map['pace'] = Variable<String>(pace.value);
+    }
+    if (calories.present) {
+      map['calories'] = Variable<int>(calories.value);
+    }
+    if (routeJson.present) {
+      map['route_json'] = Variable<String>(routeJson.value);
+    }
+    if (date.present) {
+      map['date'] = Variable<DateTime>(date.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CardioSessionsCompanion(')
+          ..write('id: $id, ')
+          ..write('type: $type, ')
+          ..write('distance: $distance, ')
+          ..write('duration: $duration, ')
+          ..write('avgSpeed: $avgSpeed, ')
+          ..write('pace: $pace, ')
+          ..write('calories: $calories, ')
+          ..write('routeJson: $routeJson, ')
+          ..write('date: $date')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -2345,6 +2790,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $RoutineExercisesTable(this);
   late final $WeightLogsTable weightLogs = $WeightLogsTable(this);
   late final $AppSettingsTable appSettings = $AppSettingsTable(this);
+  late final $CardioSessionsTable cardioSessions = $CardioSessionsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -2356,7 +2802,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         workoutSets,
         routineExercises,
         weightLogs,
-        appSettings
+        appSettings,
+        cardioSessions
       ];
 }
 
@@ -4439,6 +4886,234 @@ typedef $$AppSettingsTableProcessedTableManager = ProcessedTableManager<
     (AppSetting, BaseReferences<_$AppDatabase, $AppSettingsTable, AppSetting>),
     AppSetting,
     PrefetchHooks Function()>;
+typedef $$CardioSessionsTableCreateCompanionBuilder = CardioSessionsCompanion
+    Function({
+  Value<int> id,
+  Value<String> type,
+  required double distance,
+  required int duration,
+  required double avgSpeed,
+  required String pace,
+  required int calories,
+  Value<String?> routeJson,
+  required DateTime date,
+});
+typedef $$CardioSessionsTableUpdateCompanionBuilder = CardioSessionsCompanion
+    Function({
+  Value<int> id,
+  Value<String> type,
+  Value<double> distance,
+  Value<int> duration,
+  Value<double> avgSpeed,
+  Value<String> pace,
+  Value<int> calories,
+  Value<String?> routeJson,
+  Value<DateTime> date,
+});
+
+class $$CardioSessionsTableFilterComposer
+    extends Composer<_$AppDatabase, $CardioSessionsTable> {
+  $$CardioSessionsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get type => $composableBuilder(
+      column: $table.type, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get distance => $composableBuilder(
+      column: $table.distance, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get duration => $composableBuilder(
+      column: $table.duration, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get avgSpeed => $composableBuilder(
+      column: $table.avgSpeed, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get pace => $composableBuilder(
+      column: $table.pace, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get calories => $composableBuilder(
+      column: $table.calories, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get routeJson => $composableBuilder(
+      column: $table.routeJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get date => $composableBuilder(
+      column: $table.date, builder: (column) => ColumnFilters(column));
+}
+
+class $$CardioSessionsTableOrderingComposer
+    extends Composer<_$AppDatabase, $CardioSessionsTable> {
+  $$CardioSessionsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get type => $composableBuilder(
+      column: $table.type, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get distance => $composableBuilder(
+      column: $table.distance, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get duration => $composableBuilder(
+      column: $table.duration, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get avgSpeed => $composableBuilder(
+      column: $table.avgSpeed, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get pace => $composableBuilder(
+      column: $table.pace, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get calories => $composableBuilder(
+      column: $table.calories, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get routeJson => $composableBuilder(
+      column: $table.routeJson, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get date => $composableBuilder(
+      column: $table.date, builder: (column) => ColumnOrderings(column));
+}
+
+class $$CardioSessionsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CardioSessionsTable> {
+  $$CardioSessionsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
+
+  GeneratedColumn<double> get distance =>
+      $composableBuilder(column: $table.distance, builder: (column) => column);
+
+  GeneratedColumn<int> get duration =>
+      $composableBuilder(column: $table.duration, builder: (column) => column);
+
+  GeneratedColumn<double> get avgSpeed =>
+      $composableBuilder(column: $table.avgSpeed, builder: (column) => column);
+
+  GeneratedColumn<String> get pace =>
+      $composableBuilder(column: $table.pace, builder: (column) => column);
+
+  GeneratedColumn<int> get calories =>
+      $composableBuilder(column: $table.calories, builder: (column) => column);
+
+  GeneratedColumn<String> get routeJson =>
+      $composableBuilder(column: $table.routeJson, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get date =>
+      $composableBuilder(column: $table.date, builder: (column) => column);
+}
+
+class $$CardioSessionsTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $CardioSessionsTable,
+    CardioSession,
+    $$CardioSessionsTableFilterComposer,
+    $$CardioSessionsTableOrderingComposer,
+    $$CardioSessionsTableAnnotationComposer,
+    $$CardioSessionsTableCreateCompanionBuilder,
+    $$CardioSessionsTableUpdateCompanionBuilder,
+    (
+      CardioSession,
+      BaseReferences<_$AppDatabase, $CardioSessionsTable, CardioSession>
+    ),
+    CardioSession,
+    PrefetchHooks Function()> {
+  $$CardioSessionsTableTableManager(
+      _$AppDatabase db, $CardioSessionsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CardioSessionsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CardioSessionsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CardioSessionsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> type = const Value.absent(),
+            Value<double> distance = const Value.absent(),
+            Value<int> duration = const Value.absent(),
+            Value<double> avgSpeed = const Value.absent(),
+            Value<String> pace = const Value.absent(),
+            Value<int> calories = const Value.absent(),
+            Value<String?> routeJson = const Value.absent(),
+            Value<DateTime> date = const Value.absent(),
+          }) =>
+              CardioSessionsCompanion(
+            id: id,
+            type: type,
+            distance: distance,
+            duration: duration,
+            avgSpeed: avgSpeed,
+            pace: pace,
+            calories: calories,
+            routeJson: routeJson,
+            date: date,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> type = const Value.absent(),
+            required double distance,
+            required int duration,
+            required double avgSpeed,
+            required String pace,
+            required int calories,
+            Value<String?> routeJson = const Value.absent(),
+            required DateTime date,
+          }) =>
+              CardioSessionsCompanion.insert(
+            id: id,
+            type: type,
+            distance: distance,
+            duration: duration,
+            avgSpeed: avgSpeed,
+            pace: pace,
+            calories: calories,
+            routeJson: routeJson,
+            date: date,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$CardioSessionsTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $CardioSessionsTable,
+    CardioSession,
+    $$CardioSessionsTableFilterComposer,
+    $$CardioSessionsTableOrderingComposer,
+    $$CardioSessionsTableAnnotationComposer,
+    $$CardioSessionsTableCreateCompanionBuilder,
+    $$CardioSessionsTableUpdateCompanionBuilder,
+    (
+      CardioSession,
+      BaseReferences<_$AppDatabase, $CardioSessionsTable, CardioSession>
+    ),
+    CardioSession,
+    PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -4457,4 +5132,6 @@ class $AppDatabaseManager {
       $$WeightLogsTableTableManager(_db, _db.weightLogs);
   $$AppSettingsTableTableManager get appSettings =>
       $$AppSettingsTableTableManager(_db, _db.appSettings);
+  $$CardioSessionsTableTableManager get cardioSessions =>
+      $$CardioSessionsTableTableManager(_db, _db.cardioSessions);
 }

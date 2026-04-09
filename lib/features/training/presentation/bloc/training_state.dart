@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:gym_corpus/features/training/domain/entities/body_weight.dart';
+import 'package:gym_corpus/features/training/domain/entities/cardio_session.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 
@@ -14,6 +15,7 @@ class TrainingState with _$TrainingState {
     @Default([]) List<RoutineEntity> routines,
     @Default([]) List<WorkoutSetEntity> weightLogs,
     @Default([]) List<BodyWeightLogEntity> bodyWeightLogs,
+    @Default([]) List<CardioSessionEntity> cardioSessions,
     @Default({}) Map<String, String> settings,
     double? lastEstimated1RM,
   }) = TrainingLoaded;

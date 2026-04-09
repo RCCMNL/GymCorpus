@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gym_corpus/core/utils/training_calculations.dart';
 import 'package:gym_corpus/features/training/domain/entities/body_weight.dart';
+import 'package:gym_corpus/features/training/domain/entities/cardio_session.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 import 'package:gym_corpus/features/training/domain/repositories/training_repository.dart';
@@ -64,6 +65,16 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
       );
     });
 
+    on<LoadCardioSessionsEvent>((event, emit) async {
+      await _cardioSessionsSubscription?.cancel();
+      _cardioSessionsSubscription = repository.watchCardioSessions().listen(
+        (sessions) {
+          add(UpdateCardioSessionsList(sessions));
+        },
+        onError: (Object e) => add(StreamErrorEvent(e.toString())),
+      );
+    });
+
     on<UpdateExercisesList>((event, emit) {
       if (state is TrainingLoaded) {
         emit((state as TrainingLoaded).copyWith(exercises: event.exercises));
@@ -102,6 +113,14 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
             bodyWeightLogs: event.bodyWeightLogs,
           ),
         );
+      }
+    });
+
+    on<UpdateCardioSessionsList>((event, emit) {
+      if (state is TrainingLoaded) {
+        emit((state as TrainingLoaded).copyWith(cardioSessions: event.cardioSessions));
+      } else {
+        emit(TrainingLoaded(exercises: const [], cardioSessions: event.cardioSessions));
       }
     });
 
@@ -183,6 +202,30 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
       );
     });
 
+    on<SaveCardioSessionEvent>((event, emit) async {
+      final result = await repository.addCardioSession(
+        type: event.type,
+        distance: event.distance,
+        duration: event.duration,
+        avgSpeed: event.avgSpeed,
+        pace: event.pace,
+        calories: event.calories,
+        routeJson: event.routeJson,
+      );
+      result.fold(
+        (f) => emit(TrainingError(f.message)),
+        (id) => null, // Stream will update UI
+      );
+    });
+
+    on<DeleteCardioSessionEvent>((event, emit) async {
+      final result = await repository.deleteCardioSession(event.id);
+      result.fold(
+        (f) => emit(TrainingError(f.message)),
+        (_) => null,
+      );
+    });
+
     on<UpdatePreferenceEvent>((event, emit) async {
       final result = await repository.updatePreference(event.key, event.value);
       result.fold(
@@ -212,6 +255,7 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
   StreamSubscription<List<RoutineEntity>>? _routinesSubscription;
   StreamSubscription<List<WorkoutSetEntity>>? _weightLogsSubscription;
   StreamSubscription<List<BodyWeightLogEntity>>? _bodyWeightLogsSubscription;
+  StreamSubscription<List<CardioSessionEntity>>? _cardioSessionsSubscription;
   StreamSubscription<Map<String, String>>? _settingsSubscription;
 
   @override
@@ -220,6 +264,7 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
     _routinesSubscription?.cancel();
     _weightLogsSubscription?.cancel();
     _bodyWeightLogsSubscription?.cancel();
+    _cardioSessionsSubscription?.cancel();
     _settingsSubscription?.cancel();
     return super.close();
   }

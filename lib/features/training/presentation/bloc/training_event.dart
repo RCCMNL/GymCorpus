@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:gym_corpus/features/training/domain/entities/body_weight.dart';
+import 'package:gym_corpus/features/training/domain/entities/cardio_session.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 
@@ -19,6 +20,8 @@ class LoadWeightLogsEvent extends TrainingEvent {}
 class LoadBodyWeightLogsEvent extends TrainingEvent {}
 
 class LoadSettingsEvent extends TrainingEvent {}
+
+class LoadCardioSessionsEvent extends TrainingEvent {}
 
 class AddRoutineEvent extends TrainingEvent {
   const AddRoutineEvent({
@@ -89,6 +92,38 @@ class AddBodyWeightLogEvent extends TrainingEvent {
   List<Object?> get props => [weight];
 }
 
+class SaveCardioSessionEvent extends TrainingEvent {
+  const SaveCardioSessionEvent({
+    required this.type,
+    required this.distance,
+    required this.duration,
+    required this.avgSpeed,
+    required this.pace,
+    required this.calories,
+    this.routeJson,
+  });
+
+  final String type;
+  final double distance;
+  final int duration;
+  final double avgSpeed;
+  final String pace;
+  final int calories;
+  final String? routeJson;
+
+  @override
+  List<Object?> get props => [type, distance, duration, avgSpeed, pace, calories, routeJson];
+}
+
+class DeleteCardioSessionEvent extends TrainingEvent {
+  const DeleteCardioSessionEvent(this.id);
+
+  final int id;
+
+  @override
+  List<Object?> get props => [id];
+}
+
 class UpdatePreferenceEvent extends TrainingEvent {
   const UpdatePreferenceEvent(this.key, this.value);
 
@@ -144,6 +179,15 @@ class UpdateBodyWeightLogsList extends TrainingEvent {
 
   @override
   List<Object?> get props => [bodyWeightLogs];
+}
+
+class UpdateCardioSessionsList extends TrainingEvent {
+  const UpdateCardioSessionsList(this.cardioSessions);
+
+  final List<CardioSessionEntity> cardioSessions;
+
+  @override
+  List<Object?> get props => [cardioSessions];
 }
 
 class UpdateSettingsList extends TrainingEvent {
