@@ -143,7 +143,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       // Hero Aesthetic Section (Floating text, no card)
                       Padding(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 24, vertical: 32),
+                            horizontal: 24, vertical: 32,),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -300,7 +300,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                                 .showSnackBar(
                                               const SnackBar(
                                                 content: Text(
-                                                    'Apple Sign-In coming soon!'),
+                                                    'Apple Sign-In coming soon!',),
                                                 duration: Duration(seconds: 2),
                                               ),
                                             );
@@ -317,7 +317,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       onPressed:
                                           isLoading ? null : _onBiometricLogin,
                                       icon: const Icon(Icons.fingerprint,
-                                          size: 32),
+                                          size: 32,),
                                       padding: const EdgeInsets.all(16),
                                       style: IconButton.styleFrom(
                                         backgroundColor: theme

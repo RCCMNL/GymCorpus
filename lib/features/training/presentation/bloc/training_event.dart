@@ -190,7 +190,7 @@ class UpdatePreferenceEvent extends TrainingEvent {
 
 class ToggleExerciseFavoriteEvent extends TrainingEvent {
   const ToggleExerciseFavoriteEvent(this.exerciseId,
-      {required this.isFavorite});
+      {required this.isFavorite,});
 
   final int exerciseId;
   final bool isFavorite;

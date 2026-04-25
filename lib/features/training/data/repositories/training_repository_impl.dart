@@ -1,7 +1,5 @@
 import 'package:dartz/dartz.dart';
 import 'package:drift/drift.dart';
-import 'package:injectable/injectable.dart';
-
 import 'package:gym_corpus/core/database/database.dart';
 import 'package:gym_corpus/core/error/failures.dart';
 import 'package:gym_corpus/features/training/domain/entities/body_measurement.dart';
@@ -10,6 +8,7 @@ import 'package:gym_corpus/features/training/domain/entities/cardio_session.dart
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 import 'package:gym_corpus/features/training/domain/repositories/training_repository.dart';
+import 'package:injectable/injectable.dart';
 
 @LazySingleton(as: TrainingRepository)
 class TrainingRepositoryImpl implements TrainingRepository {
@@ -43,7 +42,7 @@ class TrainingRepositoryImpl implements TrainingRepository {
 
   @override
   Future<Either<Failure, void>> toggleExerciseFavorite(int id,
-      {required bool isFavorite}) async {
+      {required bool isFavorite,}) async {
     try {
       await database.toggleExerciseFavorite(id, isFavorite: isFavorite);
       return const Right(null);
@@ -66,7 +65,7 @@ class TrainingRepositoryImpl implements TrainingRepository {
           innerJoin(
               database.exercises,
               database.exercises.id
-                  .equalsExp(database.routineExercises.exerciseId)),
+                  .equalsExp(database.routineExercises.exerciseId),),
         ])
           ..where(database.routineExercises.routineId.equals(routineData.id));
 
@@ -118,7 +117,7 @@ class TrainingRepositoryImpl implements TrainingRepository {
 
   @override
   Future<Either<Failure, int>> addRoutine(String title,
-      List<RoutineExerciseEntity> routineExercises, int? estDuration) async {
+      List<RoutineExerciseEntity> routineExercises, int? estDuration,) async {
     try {
       return await database.transaction(() async {
         final routineId = await database.into(database.routines).insert(
@@ -151,7 +150,7 @@ class TrainingRepositoryImpl implements TrainingRepository {
 
   @override
   Future<Either<Failure, void>> updateRoutine(int id, String title,
-      List<RoutineExerciseEntity> exercises, int? estDuration) async {
+      List<RoutineExerciseEntity> exercises, int? estDuration,) async {
     try {
       await database.transaction(() async {
         // Update routine metadata
@@ -230,7 +229,7 @@ class TrainingRepositoryImpl implements TrainingRepository {
     try {
       if (reps < 0 || weight < 0) {
         return const Left(
-            DatabaseFailure('Negative weight or reps are invalid.'));
+            DatabaseFailure('Negative weight or reps are invalid.'),);
       }
 
       await database.insertSet(
@@ -291,7 +290,7 @@ class TrainingRepositoryImpl implements TrainingRepository {
 
   @override
   Future<Either<Failure, void>> updateBodyWeightLogEntry(
-      int id, double weight) async {
+      int id, double weight,) async {
     try {
       await database.updateWeightLog(id, weight);
       return const Right(null);
@@ -317,7 +316,7 @@ class TrainingRepositoryImpl implements TrainingRepository {
         0.4,
         -0.2,
         0.6,
-        -0.1
+        -0.1,
       ];
 
       for (var i = 0; i < 10; i++) {
@@ -354,7 +353,7 @@ class TrainingRepositoryImpl implements TrainingRepository {
 
   @override
   Future<Either<Failure, int>> addBodyMeasurement(
-      String part, double value) async {
+      String part, double value,) async {
     try {
       final id = await database.insertMeasurement(
         BodyMeasurementsCompanion(
@@ -381,7 +380,7 @@ class TrainingRepositoryImpl implements TrainingRepository {
 
   @override
   Future<Either<Failure, void>> updateBodyMeasurement(
-      int id, double value) async {
+      int id, double value,) async {
     try {
       await database.updateMeasurement(id, value);
       return const Right(null);
@@ -404,7 +403,7 @@ class TrainingRepositoryImpl implements TrainingRepository {
 
   @override
   Future<Either<Failure, void>> updatePreference(
-      String key, String value) async {
+      String key, String value,) async {
     try {
       await database.updateSetting(key, value);
       return const Right(null);

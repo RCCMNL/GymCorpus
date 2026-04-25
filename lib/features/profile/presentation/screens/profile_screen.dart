@@ -3,8 +3,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:image_picker/image_picker.dart';
-
 import 'package:gym_corpus/core/utils/unit_converter.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/core/widgets/radial_timer_picker.dart';
@@ -16,6 +14,7 @@ import 'package:gym_corpus/features/profile/presentation/widgets/custom_segmente
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -376,7 +375,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             onChanged: (val) {
                               context.read<TrainingBloc>().add(UpdatePreferenceEvent('audio_effects', val.toString()));
                             },
-                            activeColor: theme.colorScheme.primary,
+                            activeThumbColor: theme.colorScheme.primary,
                           ),
                         ),
                       ),
@@ -390,7 +389,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             onChanged: (val) {
                               context.read<TrainingBloc>().add(UpdatePreferenceEvent('vibration', val.toString()));
                             },
-                            activeColor: theme.colorScheme.primary,
+                            activeThumbColor: theme.colorScheme.primary,
                           ),
                         ),
                       ),
@@ -555,7 +554,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (user.birthDate != null) {
       final now = DateTime.now();
       final birthDate = user.birthDate!;
-      int calculatedAge = now.year - birthDate.year;
+      var calculatedAge = now.year - birthDate.year;
       if (now.month < birthDate.month || (now.month == birthDate.month && now.day < birthDate.day)) {
         calculatedAge--;
       }
@@ -625,7 +624,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             size: 14, 
             color: icon == Icons.monitor_weight_outlined 
                 ? theme.colorScheme.primary 
-                : (icon == Icons.height ? theme.colorScheme.tertiary : Colors.orangeAccent)
+                : (icon == Icons.height ? theme.colorScheme.tertiary : Colors.orangeAccent),
           ),
           const SizedBox(width: 6),
           Text(
@@ -741,7 +740,7 @@ class _ProfileItem extends StatelessWidget {
                 color: label == 'Sicurezza' || label == 'Esercizi Preferiti' 
                     ? theme.colorScheme.tertiary 
                     : (label == 'Valuta GymCorpus' ? Colors.orangeAccent : theme.colorScheme.primary), 
-                size: 24
+                size: 24,
               ),
               const SizedBox(width: 16),
               Expanded(

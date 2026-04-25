@@ -121,10 +121,10 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
     on<UpdateCardioSessionsList>((event, emit) {
       if (state is TrainingLoaded) {
         emit((state as TrainingLoaded)
-            .copyWith(cardioSessions: event.cardioSessions));
+            .copyWith(cardioSessions: event.cardioSessions),);
       } else {
         emit(TrainingLoaded(
-            exercises: const [], cardioSessions: event.cardioSessions));
+            exercises: const [], cardioSessions: event.cardioSessions,),);
       }
     });
 
@@ -139,10 +139,10 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
     on<UpdateBodyMeasurementsList>((event, emit) {
       if (state is TrainingLoaded) {
         emit((state as TrainingLoaded)
-            .copyWith(bodyMeasurements: event.bodyMeasurements));
+            .copyWith(bodyMeasurements: event.bodyMeasurements),);
       } else {
         emit(TrainingLoaded(
-            exercises: const [], bodyMeasurements: event.bodyMeasurements));
+            exercises: const [], bodyMeasurements: event.bodyMeasurements,),);
       }
     });
 
@@ -227,7 +227,7 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
               currentLogs.where((l) => l.id != event.id).toList();
           final newLatestWeight =
               updatedLogs.isNotEmpty ? updatedLogs.first.weight : 0.0;
-          authRepository.updateProfileDetails(weight: newLatestWeight);
+          await authRepository.updateProfileDetails(weight: newLatestWeight);
         }
       }
 
@@ -333,7 +333,7 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
       // 1. Clear Firestore weight via AuthRepository
       await authRepository.updateProfileDetails(
           weight:
-              0); // Setting to 0 as a 'clear' for now or we could use custom logic
+              0,); // Setting to 0 as a 'clear' for now or we could use custom logic
 
       // 2. Clear local and seed 10 days
       final result = await repository.reseedWeightHistory();

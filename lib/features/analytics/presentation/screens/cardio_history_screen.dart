@@ -165,12 +165,13 @@ class _DetailedCardioCard extends StatelessWidget {
                             fontFamily: 'Lexend',
                           ),
                         ),
-                        Text(_formatDate(session.date),
-                            style: theme.textTheme.labelSmall?.copyWith(
-                                color: theme.colorScheme.outline,
-                                fontSize: 10,
-                              ),
-                            ),
+                        Text(
+                          _formatDate(session.date),
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: theme.colorScheme.outline,
+                            fontSize: 10,
+                          ),
+                        ),
                       ],
                     ),
                   ],
@@ -182,13 +183,14 @@ class _DetailedCardioCard extends StatelessWidget {
                     color: accentColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Text('${session.calories} kcal',
-                      style: TextStyle(
-                          color: accentColor,
-                          fontWeight: FontWeight.w900,
-                          fontSize: 11,
-                        ),
-                      ),
+                  child: Text(
+                    '${session.calories} kcal',
+                    style: TextStyle(
+                      color: accentColor,
+                      fontWeight: FontWeight.w900,
+                      fontSize: 11,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -197,16 +199,16 @@ class _DetailedCardioCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _StatItem(
-                    label: 'DISTANZA',
-                    value: '${session.distance.toStringAsFixed(2)} km',
-                    theme: theme,
-                  ),
+                  label: 'DISTANZA',
+                  value: '${session.distance.toStringAsFixed(2)} km',
+                  theme: theme,
+                ),
                 _StatItem(label: 'DURATA', value: durationStr, theme: theme),
                 _StatItem(
-                    label: 'VELOCITÀ',
-                    value: '${session.avgSpeed.toStringAsFixed(1)} km/h',
-                    theme: theme,
-                  ),
+                  label: 'VELOCITÀ',
+                  value: '${session.avgSpeed.toStringAsFixed(1)} km/h',
+                  theme: theme,
+                ),
               ],
             ),
             if (route.isNotEmpty) ...[
@@ -226,23 +228,24 @@ class _DetailedCardioCard extends StatelessWidget {
                         initialCameraFit: route.length > 1 && bounds != null
                             ? CameraFit.bounds(
                                 bounds: bounds,
-                                padding: const EdgeInsets.all(12))
+                                padding: const EdgeInsets.all(12),
+                              )
                             : null,
                       ),
                       children: [
                         TileLayer(
-                            urlTemplate:
-                                'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                            userAgentPackageName: 'com.gymcorpus.app',
+                          urlTemplate:
+                              'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                          userAgentPackageName: 'com.gymcorpus.app',
                         ),
                         if (route.length > 1)
                           PolylineLayer(polylines: [
                             Polyline(
-                                points: route,
-                                color: accentColor,
-                                strokeWidth: 4,
-                              ),
-                          ]),
+                              points: route,
+                              color: accentColor,
+                              strokeWidth: 4,
+                            ),
+                          ],),
                       ],
                     ),
                   ),
@@ -282,127 +285,132 @@ class _DetailedCardioCard extends StatelessWidget {
         return Container(
           height: MediaQuery.of(ctx).size.height * 0.85,
           decoration: BoxDecoration(
-              color: theme.colorScheme.surface,
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(32)),
+            color: theme.colorScheme.surface,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
           ),
           child: Column(
             children: [
               const SizedBox(height: 12),
               Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                      color: theme.colorScheme.outline.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(2),
-                  ),
-              Padding(
-                padding: const EdgeInsets.all(24),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('DETTAGLIO PERCORSO',
-                            style: theme.textTheme.labelSmall?.copyWith(
-                                letterSpacing: 1.5,
-                                fontWeight: FontWeight.w900,
-                                color: color,
-                            ),
-                        ),
-                        Text(_formatDate(session.date),
-                            style: theme.textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                fontFamily: 'Lexend',
-                            ),
-                        ),
-                      ],
-                    ),
-                    IconButton(
-                        onPressed: () => Navigator.pop(ctx),
-                        icon: const Icon(Icons.close),
-                    ),
-                  ],
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.outline.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(2),
                 ),
               ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(24),
-                    child: route.isNotEmpty
-                        ? FlutterMap(
-                            options: MapOptions(
-                              initialCenter: route.length > 1
-                                  ? route[route.length ~/ 2]
-                                  : route[0],
-                              initialZoom: 15,
-                              initialCameraFit:
-                                  route.length > 1 && bounds != null
-                                      ? CameraFit.bounds(
-                                          bounds: bounds,
-                                          padding: const EdgeInsets.all(40),
-                                      ),
-                                      : null,
+              Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'DETTAGLIO PERCORSO',
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              letterSpacing: 1.5,
+                              fontWeight: FontWeight.w900,
+                              color: color,
                             ),
-                            children: [
-                              TileLayer(
+                          ),
+                          Text(
+                            _formatDate(session.date),
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'Lexend',
+                            ),
+                          ),
+                        ],
+                      ),
+                      IconButton(
+                        onPressed: () => Navigator.pop(ctx),
+                        icon: const Icon(Icons.close),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(24),
+                      child: route.isNotEmpty
+                          ? FlutterMap(
+                              options: MapOptions(
+                                initialCenter: route.length > 1
+                                    ? route[route.length ~/ 2]
+                                    : route[0],
+                                initialZoom: 15,
+                                initialCameraFit:
+                                    route.length > 1 && bounds != null
+                                        ? CameraFit.bounds(
+                                            bounds: bounds,
+                                            padding: const EdgeInsets.all(40),
+                                          )
+                                        : null,
+                              ),
+                              children: [
+                                TileLayer(
                                   urlTemplate:
                                       'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                                   userAgentPackageName: 'com.gymcorpus.app',
-                              ),
-                              if (route.length > 1)
-                                PolylineLayer(polylines: [
-                                  Polyline(
+                                ),
+                                if (route.length > 1)
+                                  PolylineLayer(polylines: [
+                                    Polyline(
                                       points: route,
                                       color: color,
                                       strokeWidth: 5,
-                                  ),
-                                ]),
-                              MarkerLayer(
-                                markers: [
-                                  Marker(
-                                    point: route[0],
-                                    width: 32,
-                                    height: 32,
-                                    child: const Icon(
-                                      Icons.location_on,
-                                      color: Colors.green,
-                                      size: 32,
                                     ),
-                                  ),
-                                  if (route.length > 1)
+                                  ],),
+                                MarkerLayer(
+                                  markers: [
                                     Marker(
-                                      point: route.last,
+                                      point: route[0],
                                       width: 32,
                                       height: 32,
                                       child: const Icon(
-                                        Icons.flag,
-                                        color: Colors.red,
+                                        Icons.location_on,
+                                        color: Colors.green,
                                         size: 32,
                                       ),
                                     ),
-                                ],
-                              ),
-                            ],
-                          )
-                        : const Center(child: Text('Mappa non disponibile')),
+                                    if (route.length > 1)
+                                      Marker(
+                                        point: route.last,
+                                        width: 32,
+                                        height: 32,
+                                        child: const Icon(
+                                          Icons.flag,
+                                          color: Colors.red,
+                                          size: 32,
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ],
+                            )
+                          : const Center(child: Text('Mappa non disponibile')),
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 24),
-            ],
-          ),
-        );
+                const SizedBox(height: 24),
+              ],
+            ),
+          );
       },
     );
   }
 }
 
 class _StatItem extends StatelessWidget {
-  const _StatItem(
-      {required this.label, required this.value, required this.theme,});
+  const _StatItem({
+    required this.label,
+    required this.value,
+    required this.theme,
+  });
   final String label;
   final String value;
   final ThemeData theme;
@@ -411,17 +419,21 @@ class _StatItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(label,
-            style: theme.textTheme.labelSmall?.copyWith(
-                fontSize: 9,
-                fontWeight: FontWeight.w900,
-                color: theme.colorScheme.outline,
-              ),
-            ),
+        Text(
+          label,
+          style: theme.textTheme.labelSmall?.copyWith(
+            fontSize: 9,
+            fontWeight: FontWeight.w900,
+            color: theme.colorScheme.outline,
+          ),
+        ),
         const SizedBox(height: 4),
-        Text(value,
-            style: theme.textTheme.titleSmall
-                ?.copyWith(fontWeight: FontWeight.w900, fontFamily: 'Lexend',),
+        Text(
+          value,
+          style: theme.textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.w900,
+            fontFamily: 'Lexend',
+          ),
         ),
       ],
     );

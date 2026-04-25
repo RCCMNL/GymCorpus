@@ -9,14 +9,14 @@ import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 abstract class TrainingRepository {
   Stream<List<ExerciseEntity>> watchExercises();
   Future<Either<Failure, void>> toggleExerciseFavorite(int id,
-      {required bool isFavorite});
+      {required bool isFavorite,});
 
   // Routines CRUD
   Stream<List<RoutineEntity>> watchRoutines();
   Future<Either<Failure, int>> addRoutine(
-      String title, List<RoutineExerciseEntity> exercises, int? estDuration);
+      String title, List<RoutineExerciseEntity> exercises, int? estDuration,);
   Future<Either<Failure, void>> updateRoutine(int id, String title,
-      List<RoutineExerciseEntity> exercises, int? estDuration);
+      List<RoutineExerciseEntity> exercises, int? estDuration,);
   Future<Either<Failure, void>> deleteRoutine(int id);
 
   Stream<List<WorkoutSetEntity>> watchWeightLogs();

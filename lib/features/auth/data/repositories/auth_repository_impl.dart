@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:dartz/dartz.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:gym_corpus/core/error/failures.dart';
 import 'package:gym_corpus/features/auth/data/datasources/auth_local_data_source.dart';
@@ -74,9 +75,12 @@ class AuthRepositoryImpl implements AuthRepository {
       lastLoginDate: DateTime.now(),
       lastLoginDevice: device,
     );
-    // Silent update to remote and local
-    unawaited(_remoteDataSource.saveUserProfile(updatedUser));
-    unawaited(_localDataSource.saveUserSession(updatedUser));
+    try {
+      await _remoteDataSource.saveUserProfile(updatedUser).timeout(const Duration(seconds: 5));
+    } catch (_) {}
+    try {
+      await _localDataSource.saveUserSession(updatedUser);
+    } catch (_) {}
     return updatedUser;
   }
 
@@ -210,8 +214,7 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       final googleSignIn = GoogleSignIn.instance;
       await googleSignIn.initialize(
-        serverClientId:
-            '996703301991-gap14vk81ourfhvkaftpnf8ntvc0g68c.apps.googleusercontent.com',
+        serverClientId: dotenv.env['GOOGLE_SERVER_CLIENT_ID'],
       );
 
       final googleUser = await googleSignIn.authenticate();
@@ -285,7 +288,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, UserEntity>> updateProfileImage(
-      String filePath) async {
+      String filePath,) async {
     try {
       final user = _firebaseAuth.currentUser;
       if (user != null) {
@@ -320,8 +323,9 @@ class AuthRepositoryImpl implements AuthRepository {
   }) async {
     try {
       final user = _firebaseAuth.currentUser;
-      if (user == null)
+      if (user == null) {
         return const Left(AuthFailure('Utente non autenticato'));
+      }
 
       if (firstName != null && firstName.isNotEmpty) {
         final fullName = '$firstName ${lastName ?? ''}'.trim();
@@ -364,11 +368,12 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, void>> changePassword(
-      String currentPassword, String newPassword) async {
+      String currentPassword, String newPassword,) async {
     try {
       final user = _firebaseAuth.currentUser;
-      if (user == null)
+      if (user == null) {
         return const Left(AuthFailure('Nessun utente autenticato'));
+      }
 
       final email = user.email!;
       final cred =
@@ -389,8 +394,9 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, void>> deleteAccount() async {
     try {
       final user = _firebaseAuth.currentUser;
-      if (user == null)
+      if (user == null) {
         return const Left(AuthFailure('Nessun utente autenticato'));
+      }
 
       // Eliminiamo PRIMA i dati in firestore
       await _remoteDataSource.deleteUser(user.uid);
