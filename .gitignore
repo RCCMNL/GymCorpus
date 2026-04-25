@@ -81,3 +81,8 @@ tmp/
 analysis.txt
 patch.js
 patch.py
+
+# Databases
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
