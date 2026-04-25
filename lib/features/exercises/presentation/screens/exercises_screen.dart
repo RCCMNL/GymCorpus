@@ -33,232 +33,199 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
+      backgroundColor: theme.colorScheme.surface,
       appBar: const GymHeader(),
       body: SafeArea(
-        child: Column(
-          children: [
-            const SizedBox(height: 16),
+        child: BlocBuilder<TrainingBloc, TrainingState>(
+          builder: (context, state) {
+            if (state is TrainingLoaded) {
+              // Filtering
+              final filteredExercises = state.exercises.where((e) {
+                final matchesSearch = e.name.toLowerCase().contains(_searchQuery.toLowerCase());
+                final matchesMuscle = _selectedMuscle == 'Tutti' || 
+                                    (_selectedMuscle == 'Preferiti' && e.isFavorite) || 
+                                    e.targetMuscle == _selectedMuscle;
+                return matchesSearch && matchesMuscle;
+              }).toList();
 
-            // Search Bar
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.8),
-                      theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: theme.colorScheme.primary.withValues(alpha: 0.2),
-                    width: 1.5,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: theme.colorScheme.primary.withValues(alpha: 0.05),
-                      blurRadius: 20,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: TextField(
-                  onChanged: (value) => setState(() => _searchQuery = value),
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                  decoration: InputDecoration(
-                    hintText: 'Cerca esercizi...',
-                    hintStyle: TextStyle(color: theme.colorScheme.outline.withValues(alpha: 0.6)),
-                    prefixIcon: Icon(Icons.search, color: theme.colorScheme.primary),
-                    border: InputBorder.none,
-                    isDense: true,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 14),
-                  ),
-                ),
-              ),
-            ),
+              // Grouping
+              final grouped = <String, List<ExerciseEntity>>{};
+              for (final ex in filteredExercises) {
+                final muscle = ex.targetMuscle.isEmpty ? 'Altro' : ex.targetMuscle;
+                grouped.putIfAbsent(muscle, () => []).add(ex);
+              }
+              final sections = grouped.keys.toList()..sort();
 
-            const SizedBox(height: 16),
+              // Muscle groups for the horizontal selector
+              final muscleGroups = [
+                'Tutti',
+                'Preferiti',
+                ...state.exercises
+                    .map((e) => e.targetMuscle)
+                    .where((m) => m.isNotEmpty)
+                    .toSet()
+                    .toList()
+                    ..sort(),
+              ];
 
-            // Muscle Group Chips (Horizontal Scroll)
-            BlocBuilder<TrainingBloc, TrainingState>(
-              builder: (context, state) {
-                if (state is TrainingLoaded) {
-                  final muscleGroups = ['Tutti', 'Preferiti', ...{for (final e in state.exercises) e.targetMuscle}.toList()..sort()];
-                  return SizedBox(
-                    height: 50,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      itemCount: muscleGroups.length,
-                      itemBuilder: (context, index) {
-                        final muscle = muscleGroups[index];
-                        final isSelected = _selectedMuscle == muscle;
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 12),
-                          child: ChoiceChip(
-                            label: Text(muscle),
-                            selected: isSelected,
-                            onSelected: (val) => setState(() => _selectedMuscle = muscle),
-                            backgroundColor: theme.colorScheme.surfaceContainerHigh,
-                            selectedColor: theme.colorScheme.primary,
-                            labelStyle: TextStyle(
-                              color: isSelected ? theme.colorScheme.onPrimary : theme.colorScheme.onSurfaceVariant,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                            ),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                            showCheckmark: false,
-                            side: BorderSide.none,
-                          ),
-                        );
-                      },
-                    ),
-                  );
-                }
-                return const SizedBox.shrink();
-              },
-            ),
-
-            const SizedBox(height: 8),
-
-            // Exercise List
-            Expanded(
-              child: BlocBuilder<TrainingBloc, TrainingState>(
-                builder: (context, state) {
-                  if (state is TrainingLoading) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  if (state is TrainingLoaded) {
-                    final filteredExercises = state.exercises.where((e) {
-                      final matchesSearch = e.name.toLowerCase().contains(_searchQuery.toLowerCase());
-                      if (_selectedMuscle == 'Preferiti' && !e.isFavorite) return false;
-                      final matchesMuscle = _selectedMuscle == 'Tutti' || _selectedMuscle == 'Preferiti' || e.targetMuscle == _selectedMuscle;
-                      return matchesSearch && matchesMuscle;
-                    }).toList();
-
-                    if (filteredExercises.isEmpty) {
-                      return Center(
-                        child: Text(
-                          'Nessun esercizio trovato',
-                          style: TextStyle(color: theme.colorScheme.outline),
+              return CustomScrollView(
+                physics: const BouncingScrollPhysics(),
+                slivers: [
+                  // Search Bar
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.8),
+                          borderRadius: BorderRadius.circular(16),
                         ),
-                      );
-                    }
+                        child: TextField(
+                          onChanged: (val) => setState(() => _searchQuery = val),
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                          decoration: InputDecoration(
+                            hintText: 'Cerca esercizio...',
+                            hintStyle: TextStyle(color: theme.colorScheme.outline.withValues(alpha: 0.6)),
+                            prefixIcon: Icon(Icons.search, color: theme.colorScheme.primary),
+                            border: InputBorder.none,
+                            contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
 
-                    // Grouping for the list view
-                    final grouped = <String, List<ExerciseEntity>>{};
-                    for (final ex in filteredExercises) {
-                      grouped.putIfAbsent(ex.targetMuscle, () => []).add(ex);
-                    }
-                    final sections = grouped.keys.toList()..sort();
+                  // Muscle Group Chips
+                  SliverToBoxAdapter(
+                    child: SizedBox(
+                      height: 50,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        itemCount: muscleGroups.length,
+                        itemBuilder: (context, index) {
+                          final muscle = muscleGroups[index];
+                          final isSelected = _selectedMuscle == muscle;
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: ChoiceChip(
+                              label: Text(muscle),
+                              selected: isSelected,
+                              onSelected: (val) => setState(() => _selectedMuscle = muscle),
+                              backgroundColor: theme.colorScheme.surfaceContainerHigh,
+                              selectedColor: theme.colorScheme.primary,
+                              labelStyle: TextStyle(
+                                color: isSelected ? theme.colorScheme.onPrimary : theme.colorScheme.onSurface,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                              ),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                              showCheckmark: false,
+                              side: BorderSide.none,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
 
-                    return ListView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      itemCount: sections.length,
-                      itemBuilder: (context, index) {
-                        final section = sections[index];
-                        final exercises = grouped[section] ?? [];
-                        final isExpanded = _expandedCategories.contains(section);
-                        final displayedExercises = isExpanded ? exercises : exercises.take(3).toList();
-                        
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 12, top: 24),
-                              child: InkWell(
-                                onTap: () => _toggleCategory(section),
-                                highlightColor: Colors.transparent,
-                                splashColor: Colors.transparent,
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Expanded(
-                                      child: Row(
-                                        children: [
-                                          Container(
-                                            width: 4,
-                                            height: 18,
-                                            decoration: BoxDecoration(
-                                              gradient: const LinearGradient(
-                                                begin: Alignment.topCenter,
-                                                end: Alignment.bottomCenter,
-                                                colors: [Colors.orangeAccent, Colors.deepOrange],
-                                              ),
-                                              borderRadius: BorderRadius.circular(2),
-                                            ),
-                                          ),
-                                          const SizedBox(width: 12),
-                                          Flexible(
-                                            child: ShaderMask(
-                                              shaderCallback: (bounds) => LinearGradient(
-                                                colors: [theme.colorScheme.primary, theme.colorScheme.tertiary],
-                                              ).createShader(bounds),
-                                              child: Text(
-                                                section,
-                                                style: theme.textTheme.titleLarge?.copyWith(
-                                                  fontWeight: FontWeight.w900,
-                                                  fontSize: 22,
-                                                  fontFamily: 'Lexend',
-                                                  color: Colors.white,
-                                                  letterSpacing: -0.5,
-                                                ),
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
+                  const SliverToBoxAdapter(child: SizedBox(height: 16)),
+
+                  // Exercise List (Flattened)
+                  ...sections.expand((section) {
+                    final exercises = grouped[section] ?? [];
+                    final isExpanded = _expandedCategories.contains(section);
+                    final displayedExercises = isExpanded ? exercises : exercises.take(3).toList();
+                    final hasMore = exercises.length > 3;
+
+                    return [
+                      // Section Header
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(24, 16, 24, 12),
+                          child: InkWell(
+                            onTap: () => _toggleCategory(section),
+                            borderRadius: BorderRadius.circular(12),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 4,
+                                  height: 20,
+                                  decoration: BoxDecoration(
+                                    gradient: const LinearGradient(
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                      colors: [Colors.orangeAccent, Colors.deepOrange],
                                     ),
-                                    if (exercises.length > 3) ...[
-                                      const SizedBox(width: 8),
-                                      Row(
-                                        children: [
-                                          Text(
-                                            isExpanded ? 'MOSTRA MENO' : 'VEDI TUTTI ${exercises.length}',
-                                            style: TextStyle(
-                                              color: theme.colorScheme.primary.withValues(alpha: 0.8),
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.w900,
-                                              letterSpacing: 1.2,
-                                            ),
-                                          ),
-                                          const SizedBox(width: 4),
-                                          Icon(
-                                            isExpanded ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded,
-                                            size: 14,
-                                            color: theme.colorScheme.primary,
-                                          ),
-                                        ],
-                                      ),
-                                    ] else ...[
+                                    borderRadius: BorderRadius.circular(2),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    section.toUpperCase(),
+                                    style: theme.textTheme.titleMedium?.copyWith(
+                                      fontWeight: FontWeight.w900,
+                                      letterSpacing: 0.5,
+                                      fontFamily: 'Lexend',
+                                      color: theme.colorScheme.primary,
+                                    ),
+                                  ),
+                                ),
+                                if (hasMore)
+                                  Row(
+                                    children: [
                                       Text(
-                                        '${exercises.length} ESERCIZI',
+                                        isExpanded ? 'MENO' : 'TUTTI (${exercises.length})',
                                         style: TextStyle(
-                                          color: theme.colorScheme.outline.withValues(alpha: 0.5),
-                                          fontSize: 9,
+                                          color: theme.colorScheme.primary.withValues(alpha: 0.6),
+                                          fontSize: 10,
                                           fontWeight: FontWeight.w900,
-                                          letterSpacing: 1,
                                         ),
                                       ),
+                                      const SizedBox(width: 4),
+                                      Icon(
+                                        isExpanded ? Icons.expand_less : Icons.expand_more,
+                                        color: theme.colorScheme.primary.withValues(alpha: 0.6),
+                                        size: 16,
+                                      ),
                                     ],
-                                  ],
-                                ),
-                              ),
+                                  ),
+                              ],
                             ),
-                            ...displayedExercises.map((e) => _ExerciseTile(exercise: e)),
-                          ],
-                        );
-                      },
-                    );
-                  }
-                  return const SizedBox.shrink();
-                },
-              ),
-            ),
-          ],
+                          ),
+                        ),
+                      ),
+
+                      // Section Items
+                      SliverPadding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        sliver: SliverList(
+                          delegate: SliverChildBuilderDelegate(
+                            (context, index) {
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 12),
+                                child: _ExerciseTile(exercise: displayedExercises[index]),
+                              );
+                            },
+                            childCount: displayedExercises.length,
+                          ),
+                        ),
+                      ),
+                    ];
+                  }),
+
+                  const SliverToBoxAdapter(child: SizedBox(height: 100)),
+                ],
+              );
+            }
+
+            if (state is TrainingError) {
+              return Center(child: Text(state.message));
+            }
+
+            return const Center(child: CircularProgressIndicator());
+          },
         ),
       ),
     );
@@ -267,92 +234,80 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
 
 class _ExerciseTile extends StatelessWidget {
   const _ExerciseTile({required this.exercise});
-
   final ExerciseEntity exercise;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: InkWell(
-        onTap: () => context.push('/exercises/detail', extra: exercise),
+
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainer.withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(20),
-        child: Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surfaceContainer.withValues(alpha: 0.4),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.05)),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 70,
-                height: 70,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      theme.colorScheme.surfaceContainerHigh,
-                      theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: theme.colorScheme.primary.withValues(alpha: 0.05),
-                      blurRadius: 10,
+        border: Border.all(
+          color: theme.colorScheme.outline.withValues(alpha: 0.05),
+        ),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => context.push('/exercises/detail', extra: exercise),
+          borderRadius: BorderRadius.circular(20),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              children: [
+                Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        theme.colorScheme.surfaceContainerHigh,
+                        theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                      ],
                     ),
-                  ],
-                ),
-                child: Icon(
-                  Icons.fitness_center_rounded, 
-                  size: 28, 
-                  color: exercise.targetMuscle.contains('Petto') 
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Icon(
+                    Icons.fitness_center_rounded,
+                    color: exercise.targetMuscle.toLowerCase().contains('petto') 
                       ? Colors.orangeAccent 
-                      : (exercise.targetMuscle.contains('Schiena')
+                      : (exercise.targetMuscle.toLowerCase().contains('schiena')
                           ? theme.colorScheme.tertiary
                           : theme.colorScheme.primary),
+                    size: 24,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      exercise.name,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w900,
-                        fontFamily: 'Lexend',
-                        fontSize: 15,
-                        letterSpacing: -0.2,
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        exercise.name,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w900,
+                          fontFamily: 'Lexend',
+                          fontSize: 15,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 6),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.orangeAccent.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
+                      const SizedBox(height: 4),
+                      Row(
                         children: [
-                          const Icon(Icons.flash_on_rounded, size: 12, color: Colors.orangeAccent),
+                          Icon(Icons.bolt, size: 12, color: theme.colorScheme.outline.withValues(alpha: 0.5)),
                           const SizedBox(width: 4),
-                          Flexible(
+                          Expanded(
                             child: Text(
                               exercise.equipment?.toUpperCase() ?? 'CORPO LIBERO',
                               style: theme.textTheme.labelSmall?.copyWith(
-                                color: Colors.orangeAccent,
+                                color: theme.colorScheme.outline.withValues(alpha: 0.7),
                                 fontSize: 9,
                                 fontWeight: FontWeight.w900,
-                                letterSpacing: 0.5,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -360,12 +315,15 @@ class _ExerciseTile extends StatelessWidget {
                           ),
                         ],
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              Icon(Icons.chevron_right_rounded, color: theme.colorScheme.outline.withValues(alpha: 0.4)),
-            ],
+                Icon(
+                  Icons.chevron_right,
+                  color: theme.colorScheme.outline.withValues(alpha: 0.3),
+                ),
+              ],
+            ),
           ),
         ),
       ),

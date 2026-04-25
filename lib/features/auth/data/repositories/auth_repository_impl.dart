@@ -59,7 +59,7 @@ class AuthRepositoryImpl implements AuthRepository {
     if (_isPortablePhotoUrl(user.photoUrl)) {
       return user;
     }
-    return user.copyWith(photoUrl: null);
+    return user.copyWith();
   }
 
   UserEntity _mapFirebaseUser(User user) {
@@ -261,7 +261,7 @@ class AuthRepositoryImpl implements AuthRepository {
       if (_googleServerClientId.isEmpty) {
         return const Left(
           AuthFailure(
-            'Configurazione Google Sign-In mancante. Avvia l\'app con '
+            "Configurazione Google Sign-In mancante. Avvia l'app con "
             '--dart-define=GOOGLE_SERVER_CLIENT_ID=...',
           ),
         );
@@ -489,13 +489,13 @@ class AuthRepositoryImpl implements AuthRepository {
         final email = user.email;
         if (email == null || email.isEmpty) {
           return const Left(
-            AuthFailure('Email account non disponibile per confermare l\'operazione'),
+            AuthFailure("Email account non disponibile per confermare l'operazione"),
           );
         }
         if (currentPassword == null || currentPassword.isEmpty) {
           return const Left(
             AuthFailure(
-              'Inserisci la password attuale per confermare l\'eliminazione dell\'account',
+              "Inserisci la password attuale per confermare l'eliminazione dell'account",
             ),
           );
         }
@@ -512,7 +512,7 @@ class AuthRepositoryImpl implements AuthRepository {
         if (_googleServerClientId.isEmpty) {
           return const Left(
             AuthFailure(
-              'Configurazione Google Sign-In mancante. Avvia l\'app con '
+              "Configurazione Google Sign-In mancante. Avvia l'app con "
               '--dart-define=GOOGLE_SERVER_CLIENT_ID=...',
             ),
           );

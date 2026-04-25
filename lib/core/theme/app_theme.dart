@@ -37,6 +37,8 @@ class AppTheme {
         onSurface: _onSurface,
         surfaceContainer: _surfaceContainer,
         surfaceContainerHigh: _surfaceContainerHigh,
+        surfaceContainerHighest: Color(0xFF333544),
+        surfaceContainerLowest: Color(0xFF0C0E13),
         outline: _outline,
       ),
       appBarTheme: const AppBarTheme(

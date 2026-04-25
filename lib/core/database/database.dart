@@ -180,7 +180,7 @@ class AppDatabase extends _$AppDatabase {
   Future<void> _ensureColumn(
     Migrator m,
     TableInfo<Table, dynamic> table,
-    GeneratedColumn<dynamic> column,
+    GeneratedColumn column,
     String columnName,
   ) async {
     if (!await _columnExists(table.actualTableName, columnName)) {

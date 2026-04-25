@@ -291,12 +291,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
       key: const ValueKey('profile_menu'),
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _ProfileSection(
+        const _ProfileSection(
           title: 'Community & Gamification',
           items: [
-            const _ProfileItem(icon: Icons.leaderboard, label: 'Classifica Utenti', trailingText: 'Prossimamente', isBadge: true),
-            const _ProfileItem(icon: Icons.campaign, label: 'Sfide Community', trailingText: 'Prossimamente', isBadge: true),
-            const _ProfileItem(icon: Icons.military_tech, label: 'Bacheca Trofei & Livelli', trailingText: 'Prossimamente', isBadge: true),
+            _ProfileItem(icon: Icons.leaderboard, label: 'Classifica Utenti', trailingText: 'Prossimamente', isBadge: true),
+            _ProfileItem(icon: Icons.campaign, label: 'Sfide Community', trailingText: 'Prossimamente', isBadge: true),
+            _ProfileItem(icon: Icons.military_tech, label: 'Bacheca Trofei & Livelli', trailingText: 'Prossimamente', isBadge: true),
           ],
         ),
         _ProfileSection(
@@ -307,24 +307,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
             _ProfileItem(icon: Icons.trending_up, label: 'Progressi', onTap: () => context.push('/profile/progress')),
           ],
         ),
-        _ProfileSection(
+        const _ProfileSection(
           title: 'Allenamento',
           items: [
-            const _ProfileItem(icon: Icons.favorite, label: 'Esercizi Preferiti', trailingText: 'Prossimamente', isBadge: true),
-            const _ProfileItem(icon: Icons.calendar_today, label: 'Programma attuale', trailingText: 'Prossimamente', isBadge: true),
-            const _ProfileItem(icon: Icons.event_repeat, label: 'Calendario ciclo', trailingText: 'Prossimamente', isBadge: true),
+            _ProfileItem(icon: Icons.favorite, label: 'Esercizi Preferiti', trailingText: 'Prossimamente', isBadge: true),
+            _ProfileItem(icon: Icons.calendar_today, label: 'Programma attuale', trailingText: 'Prossimamente', isBadge: true),
+            _ProfileItem(icon: Icons.event_repeat, label: 'Calendario ciclo', trailingText: 'Prossimamente', isBadge: true),
           ],
         ),
-        _ProfileSection(
+        const _ProfileSection(
           title: 'Palestra',
           items: [
-            const _ProfileItem(
+             _ProfileItem(
               icon: Icons.workspace_premium,
               label: 'Abbonamento',
               trailingText: 'FREE',
               isBadge: true,
             ),
-            const _ProfileItem(icon: Icons.qr_code, label: 'QR Check-in', trailingText: 'Prossimamente', isBadge: true),
+             _ProfileItem(icon: Icons.qr_code, label: 'QR Check-in', trailingText: 'Prossimamente', isBadge: true),
           ],
         ),
       ],
@@ -369,13 +369,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   _ProfileSection(
                     title: 'Preferenze App',
                     items: [
-                      _ProfileItem(
+                      const _ProfileItem(
                         icon: Icons.dark_mode,
                         label: 'Dark Mode',
                         trailingText: 'Prossimamente',
                         isBadge: true,
                       ),
-                      _ProfileItem(
+                      const _ProfileItem(
                         icon: Icons.language,
                         label: 'Lingua',
                         trailingText: 'Prossimamente',
@@ -419,28 +419,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
 
                   // Community & Feedback
-                  _ProfileSection(
+                  const _ProfileSection(
                     title: 'Community & Feedback',
                     items: [
-                      const _ProfileItem(
+                       _ProfileItem(
                         icon: Icons.star_rounded,
                         label: 'Valuta GymCorpus',
                         trailingText: 'Prossimamente',
                         isBadge: true,
                       ),
-                      _ProfileItem(
+                       _ProfileItem(
                         icon: Icons.bug_report_rounded, 
                         label: 'Segnala un Problema',
                         trailingText: 'Prossimamente',
                         isBadge: true,
                       ),
-                      _ProfileItem(
+                       _ProfileItem(
                         icon: Icons.gavel_rounded, 
                         label: 'Termini di Servizio',
                         trailingText: 'Prossimamente',
                         isBadge: true,
                       ),
-                      _ProfileItem(
+                       _ProfileItem(
                         icon: Icons.privacy_tip_rounded, 
                         label: 'Privacy Policy',
                         trailingText: 'Prossimamente',

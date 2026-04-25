@@ -73,7 +73,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
         debugPrint('SecurityScreen._toggleBiometrics enable error: $e');
         unawaited(_loadBiometricPreference());
         _showFeedback(
-          'Non e stato possibile abilitare l\'accesso biometrico',
+          "Non e stato possibile abilitare l'accesso biometrico",
           isError: true,
         );
       }
@@ -97,7 +97,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
         debugPrint('SecurityScreen._toggleBiometrics disable error: $e');
         unawaited(_loadBiometricPreference());
         _showFeedback(
-          'Non e stato possibile disabilitare l\'accesso biometrico',
+          "Non e stato possibile disabilitare l'accesso biometrico",
           isError: true,
         );
       }

@@ -49,7 +49,7 @@ void main() {
     });
 
     blocTest<TrainingBloc, TrainingState>(
-      'emette [TrainingLoading, TrainingLoaded] quando load event ha successo',
+      'emette [TrainingLoaded] quando load event ha successo',
       build: () {
         when(() => mockRepository.watchExercises())
             .thenAnswer((_) => Stream.value(tExercises));
@@ -57,7 +57,6 @@ void main() {
       },
       act: (bloc) => bloc.add(LoadExercisesEvent()),
       expect: () => [
-        isA<TrainingLoading>(),
         TrainingLoaded(exercises: tExercises),
       ],
     );

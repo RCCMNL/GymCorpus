@@ -22,11 +22,6 @@ mixin _$AuthEvent {
 
   @override
   int get hashCode => runtimeType.hashCode;
-
-  @override
-  String toString() {
-    return 'AuthEvent()';
-  }
 }
 
 /// @nodoc
@@ -454,11 +449,6 @@ class _CheckSessionRequested implements AuthEvent {
 
   @override
   int get hashCode => runtimeType.hashCode;
-
-  @override
-  String toString() {
-    return 'AuthEvent.checkSessionRequested()';
-  }
 }
 
 /// @nodoc
@@ -488,11 +478,6 @@ class _LoginRequested implements AuthEvent {
 
   @override
   int get hashCode => Object.hash(runtimeType, email, password);
-
-  @override
-  String toString() {
-    return 'AuthEvent.loginRequested(email: $email, password: [REDACTED])';
-  }
 }
 
 /// @nodoc
@@ -560,11 +545,6 @@ class _SignUpRequested implements AuthEvent {
 
   @override
   int get hashCode => Object.hash(runtimeType, email, password);
-
-  @override
-  String toString() {
-    return 'AuthEvent.signUpRequested(email: $email, password: [REDACTED])';
-  }
 }
 
 /// @nodoc
@@ -630,11 +610,6 @@ class _ForgotPasswordRequested implements AuthEvent {
 
   @override
   int get hashCode => Object.hash(runtimeType, email);
-
-  @override
-  String toString() {
-    return 'AuthEvent.forgotPasswordRequested(email: $email)';
-  }
 }
 
 /// @nodoc
@@ -683,11 +658,6 @@ class _GoogleSignInRequested implements AuthEvent {
 
   @override
   int get hashCode => runtimeType.hashCode;
-
-  @override
-  String toString() {
-    return 'AuthEvent.googleSignInRequested()';
-  }
 }
 
 /// @nodoc
@@ -703,11 +673,6 @@ class _AppleSignInRequested implements AuthEvent {
 
   @override
   int get hashCode => runtimeType.hashCode;
-
-  @override
-  String toString() {
-    return 'AuthEvent.appleSignInRequested()';
-  }
 }
 
 /// @nodoc
@@ -723,11 +688,6 @@ class _LogoutRequested implements AuthEvent {
 
   @override
   int get hashCode => runtimeType.hashCode;
-
-  @override
-  String toString() {
-    return 'AuthEvent.logoutRequested()';
-  }
 }
 
 /// @nodoc
@@ -756,11 +716,6 @@ class _UpdateProfileImageRequested implements AuthEvent {
 
   @override
   int get hashCode => Object.hash(runtimeType, filePath);
-
-  @override
-  String toString() {
-    return 'AuthEvent.updateProfileImageRequested(filePath: $filePath)';
-  }
 }
 
 /// @nodoc
@@ -850,11 +805,6 @@ class _UpdateProfileRequested implements AuthEvent {
   @override
   int get hashCode => Object.hash(runtimeType, firstName, lastName, username,
       gender, weight, height, birthDate, trainingObjective);
-
-  @override
-  String toString() {
-    return 'AuthEvent.updateProfileRequested(firstName: $firstName, lastName: $lastName, username: $username, gender: $gender, weight: $weight, height: $height, birthDate: $birthDate, trainingObjective: $trainingObjective)';
-  }
 }
 
 /// @nodoc
@@ -963,11 +913,6 @@ class _ChangePasswordRequested implements AuthEvent {
 
   @override
   int get hashCode => Object.hash(runtimeType, currentPassword, newPassword);
-
-  @override
-  String toString() {
-    return 'AuthEvent.changePasswordRequested(currentPassword: [REDACTED], newPassword: [REDACTED])';
-  }
 }
 
 /// @nodoc
@@ -1021,11 +966,6 @@ class _DeleteAccountRequested implements AuthEvent {
 
   @override
   int get hashCode => runtimeType.hashCode;
-
-  @override
-  String toString() {
-    return 'AuthEvent.deleteAccountRequested()';
-  }
 }
 
 // dart format on

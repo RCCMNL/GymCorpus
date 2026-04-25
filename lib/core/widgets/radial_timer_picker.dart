@@ -190,8 +190,9 @@ class _RadialPainter extends CustomPainter {
       center.dy + (radius - strokeWidth) * sin(angle - pi / 2),
     );
 
-    canvas.drawCircle(handleCenter, 14, handlePaint);
-    canvas.drawCircle(handleCenter, 14, handleBorderPaint);
+    canvas
+      ..drawCircle(handleCenter, 14, handlePaint)
+      ..drawCircle(handleCenter, 14, handleBorderPaint);
     
     // Lap counter inside handle or indicator
     if (laps > 0) {

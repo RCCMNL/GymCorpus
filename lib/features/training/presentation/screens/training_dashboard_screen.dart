@@ -167,11 +167,11 @@ class TrainingDashboardScreen extends StatelessWidget {
   Widget _buildDashboardGrid(BuildContext context, ThemeData theme) {
     return Column(
       children: [
-        _DashboardCard(
+        const _DashboardCard(
           title: 'Yoga & Mindfulness',
           subtitle: 'Trova il tuo equilibrio interiore',
           icon: Icons.self_improvement,
-          color: const Color(0xFF8DE8C7),
+          color: Color(0xFF8DE8C7),
           badgeText: 'Prossimamente',
         ),
         const SizedBox(height: 16),
@@ -183,11 +183,11 @@ class TrainingDashboardScreen extends StatelessWidget {
           onTap: () => _showCardioSelector(context, theme),
         ),
         const SizedBox(height: 16),
-        _DashboardCard(
+        const _DashboardCard(
           title: 'Nutrizione & Dieta',
           subtitle: 'Ottimizza i tuoi risultati a tavola',
           icon: Icons.restaurant,
-          color: const Color(0xFFFDE047),
+          color: Color(0xFFFDE047),
           badgeText: 'Prossimamente',
         ),
       ],

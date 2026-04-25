@@ -8,9 +8,9 @@ part of 'user_entity.dart';
 
 UserEntity _$UserEntityFromJson(Map<String, dynamic> json) => UserEntity(
       id: json['id'] as String,
+      email: json['email'] as String,
       firstName: json['firstName'] as String?,
       lastName: json['lastName'] as String?,
-      email: json['email'] as String,
       photoUrl: json['photoUrl'] as String?,
       username: json['username'] as String?,
       weight: (json['weight'] as num?)?.toDouble(),
