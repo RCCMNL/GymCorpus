@@ -142,7 +142,8 @@ class _WorkoutPageState extends State<WorkoutPage> {
           weight: UnitConverter.lbToKg(re.weight),
           setsData: jsonEncode(convertedSets),
         );
-      } catch (_) {
+      } catch (e) {
+        debugPrint('WorkoutPage _saveRoutine sets conversion error: $e');
         return re;
       }
     }).toList();
@@ -513,6 +514,7 @@ class _SelectedExerciseTileState extends State<_SelectedExerciseTile> {
             })
             .toList();
       } catch (e) {
+        debugPrint('WorkoutPage _SelectedExerciseTile init error: $e');
         sets = [ExerciseSet(weight: 0, reps: 0)];
       }
     }

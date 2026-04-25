@@ -26,6 +26,23 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   int _selectedTab = 0;
 
+  ImageProvider? _resolveProfileImageProvider(String? photoUrl) {
+    if (photoUrl == null || photoUrl.isEmpty) {
+      return null;
+    }
+    if (photoUrl.startsWith('http://') || photoUrl.startsWith('https://')) {
+      return NetworkImage(photoUrl);
+    }
+
+    final file = File(photoUrl);
+    if (file.existsSync()) {
+      return FileImage(file);
+    }
+
+    debugPrint('ProfileScreen missing local profile image: $photoUrl');
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -106,6 +123,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         );
                         final userName = user?.fullName ?? 'Atleta';
                         final photoUrl = user?.photoUrl;
+                        final photoProvider =
+                            _resolveProfileImageProvider(photoUrl);
 
                         return Column(
                           children: [
@@ -141,16 +160,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             color: theme.colorScheme.tertiary, 
                                             width: 2.5,
                                           ),
-                                          image: photoUrl != null
+                                          image: photoProvider != null
                                               ? DecorationImage(
-                                                  image: photoUrl.startsWith('http')
-                                                      ? NetworkImage(photoUrl)
-                                                      : FileImage(File(photoUrl)) as ImageProvider,
+                                                  image: photoProvider,
                                                   fit: BoxFit.cover,
                                                 )
                                               : null,
                                         ),
-                                        child: photoUrl == null
+                                        child: photoProvider == null
                                             ? Icon(Icons.person, color: theme.colorScheme.primary, size: 36)
                                             : null,
                                       ),
@@ -166,7 +183,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             border: Border.all(color: theme.colorScheme.surface, width: 2),
                                           ),
                                           child: Icon(
-                                            photoUrl != null ? Icons.edit_rounded : Icons.add_a_photo_rounded,
+                                            photoProvider != null ? Icons.edit_rounded : Icons.add_a_photo_rounded,
                                             size: 11,
                                             color: Colors.white,
                                           ),
@@ -277,25 +294,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _ProfileSection(
           title: 'Community & Gamification',
           items: [
-            _ProfileItem(icon: Icons.leaderboard, label: 'Classifica Utenti', onTap: () {}),
-            _ProfileItem(icon: Icons.campaign, label: 'Sfide Community', onTap: () {}),
-            _ProfileItem(icon: Icons.military_tech, label: 'Bacheca Trofei & Livelli', onTap: () {}),
+            const _ProfileItem(icon: Icons.leaderboard, label: 'Classifica Utenti', trailingText: 'Prossimamente', isBadge: true),
+            const _ProfileItem(icon: Icons.campaign, label: 'Sfide Community', trailingText: 'Prossimamente', isBadge: true),
+            const _ProfileItem(icon: Icons.military_tech, label: 'Bacheca Trofei & Livelli', trailingText: 'Prossimamente', isBadge: true),
           ],
         ),
         _ProfileSection(
           title: 'Performance & Dati',
           items: [
-            _ProfileItem(icon: Icons.emoji_events, label: 'Record', onTap: () {}),
-            _ProfileItem(icon: Icons.track_changes, label: 'Obiettivi', onTap: () {}),
+            const _ProfileItem(icon: Icons.emoji_events, label: 'Record', trailingText: 'Prossimamente', isBadge: true),
+            const _ProfileItem(icon: Icons.track_changes, label: 'Obiettivi', trailingText: 'Prossimamente', isBadge: true),
             _ProfileItem(icon: Icons.trending_up, label: 'Progressi', onTap: () => context.push('/profile/progress')),
           ],
         ),
         _ProfileSection(
           title: 'Allenamento',
           items: [
-            _ProfileItem(icon: Icons.favorite, label: 'Esercizi Preferiti', onTap: () {}),
-            _ProfileItem(icon: Icons.calendar_today, label: 'Programma attuale', onTap: () {}),
-            _ProfileItem(icon: Icons.event_repeat, label: 'Calendario ciclo', onTap: () {}),
+            const _ProfileItem(icon: Icons.favorite, label: 'Esercizi Preferiti', trailingText: 'Prossimamente', isBadge: true),
+            const _ProfileItem(icon: Icons.calendar_today, label: 'Programma attuale', trailingText: 'Prossimamente', isBadge: true),
+            const _ProfileItem(icon: Icons.event_repeat, label: 'Calendario ciclo', trailingText: 'Prossimamente', isBadge: true),
           ],
         ),
         _ProfileSection(
@@ -307,7 +324,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               trailingText: 'FREE',
               isBadge: true,
             ),
-            _ProfileItem(icon: Icons.qr_code, label: 'QR Check-in', onTap: () {}),
+            const _ProfileItem(icon: Icons.qr_code, label: 'QR Check-in', trailingText: 'Prossimamente', isBadge: true),
           ],
         ),
       ],
@@ -355,16 +372,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       _ProfileItem(
                         icon: Icons.dark_mode,
                         label: 'Dark Mode',
-                        trailingText: 'ALWAYS ON',
-                        onTap: () {},
+                        trailingText: 'Prossimamente',
+                        isBadge: true,
                       ),
                       _ProfileItem(
                         icon: Icons.language,
                         label: 'Lingua',
-                        trailingText: 'Italiano',
-                        onTap: () {},
+                        trailingText: 'Prossimamente',
+                        isBadge: true,
                       ),
-                      _ProfileItem(icon: Icons.notifications, label: 'Notifiche', onTap: () {}),
+                      const _ProfileItem(
+                        icon: Icons.notifications,
+                        label: 'Notifiche',
+                        trailingText: 'Prossimamente',
+                        isBadge: true,
+                      ),
                       _ProfileItem(
                         icon: Icons.volume_up_rounded,
                         label: 'Effetti Audio',
@@ -400,66 +422,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   _ProfileSection(
                     title: 'Community & Feedback',
                     items: [
-                      _ProfileItem(
-                        icon: Icons.star_rounded, 
+                      const _ProfileItem(
+                        icon: Icons.star_rounded,
                         label: 'Valuta GymCorpus',
-                        onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              backgroundColor: Colors.transparent,
-                              elevation: 0,
-                              behavior: SnackBarBehavior.floating,
-                              content: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                                decoration: BoxDecoration(
-                                  gradient: const LinearGradient(
-                                    colors: [Colors.orangeAccent, Colors.deepOrange],
-                                  ),
-                                  borderRadius: BorderRadius.circular(20),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.orange.withValues(alpha: 0.3),
-                                      blurRadius: 15,
-                                      offset: const Offset(0, 5),
-                                    ),
-                                  ],
-                                ),
-                                child: const Row(
-                                  children: [
-                                    Icon(Icons.star_rounded, color: Colors.white, size: 24),
-                                    SizedBox(width: 12),
-                                    Expanded(
-                                      child: Text(
-                                        'Grazie per il supporto! La valutazione Store sarà disponibile a breve.',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w900,
-                                          fontFamily: 'Lexend',
-                                          fontSize: 13,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          );
-                        },
+                        trailingText: 'Prossimamente',
+                        isBadge: true,
                       ),
                       _ProfileItem(
                         icon: Icons.bug_report_rounded, 
                         label: 'Segnala un Problema',
-                        onTap: () {},
+                        trailingText: 'Prossimamente',
+                        isBadge: true,
                       ),
                       _ProfileItem(
                         icon: Icons.gavel_rounded, 
                         label: 'Termini di Servizio',
-                        onTap: () {},
+                        trailingText: 'Prossimamente',
+                        isBadge: true,
                       ),
                       _ProfileItem(
                         icon: Icons.privacy_tip_rounded, 
                         label: 'Privacy Policy',
-                        onTap: () {},
+                        trailingText: 'Prossimamente',
+                        isBadge: true,
                       ),
                     ],
                   ),
@@ -594,7 +579,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         _ProfileItem(
           icon: Icons.straighten,
-          label: 'Unità di Misura',
+          label: 'UnitÃ  di Misura',
           trailingText: unit == 'LB' ? 'Lb / inch' : 'Kg / cm',
           onTap: () => _showUnitPickerSheet(context, unit),
         ),
@@ -725,6 +710,15 @@ class _ProfileItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isComingSoon = isBadge && trailingText == 'Prossimamente';
+    final iconColor = isComingSoon
+        ? theme.colorScheme.outline
+        : label == 'Sicurezza' || label == 'Esercizi Preferiti'
+            ? theme.colorScheme.tertiary
+            : (label == 'Valuta GymCorpus'
+                ? Colors.orangeAccent
+                : theme.colorScheme.primary);
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -737,9 +731,7 @@ class _ProfileItem extends StatelessWidget {
             children: [
               Icon(
                 icon, 
-                color: label == 'Sicurezza' || label == 'Esercizi Preferiti' 
-                    ? theme.colorScheme.tertiary 
-                    : (label == 'Valuta GymCorpus' ? Colors.orangeAccent : theme.colorScheme.primary), 
+                color: iconColor,
                 size: 24,
               ),
               const SizedBox(width: 16),
@@ -748,6 +740,7 @@ class _ProfileItem extends StatelessWidget {
                   label,
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w500,
+                    color: isComingSoon ? theme.colorScheme.outline : null,
                   ),
                 ),
               ),
@@ -756,13 +749,17 @@ class _ProfileItem extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
-                      color: theme.colorScheme.tertiary.withValues(alpha: 0.1),
+                      color: isComingSoon
+                          ? theme.colorScheme.outline.withValues(alpha: 0.12)
+                          : theme.colorScheme.tertiary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
                       trailingText!,
                       style: theme.textTheme.labelSmall?.copyWith(
-                        color: theme.colorScheme.tertiary,
+                        color: isComingSoon
+                            ? theme.colorScheme.outline
+                            : theme.colorScheme.tertiary,
                         fontWeight: FontWeight.w900,
                       ),
                     ),
@@ -955,7 +952,7 @@ class _UnitPickerSheetState extends State<_UnitPickerSheet> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Unità di Misura',
+                  'UnitÃ  di Misura',
                   style: theme.textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                     fontFamily: 'Lexend',

@@ -1,95 +1,89 @@
-# ⚡ GymCorpus
+# GymCorpus
 
 [![Flutter](https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white)](https://flutter.dev)
 [![Dart](https://img.shields.io/badge/Dart-0175C2?style=for-the-badge&logo=dart&logoColor=white)](https://dart.dev)
-[![Firebase](https://img.shields.io/badge/firebase-ffca28?style=for-the-badge&logo=firebase&logoColor=black)](https://firebase.google.com)
+[![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)](https://firebase.google.com)
 [![License: Proprietary](https://img.shields.io/badge/License-Proprietary-red.svg?style=for-the-badge)](LICENSE)
 
-**GymCorpus** è un'applicazione di fitness all'avanguardia progettata per massimizzare le performance atletiche attraverso un tracciamento granulare, un'interfaccia premium e meccaniche di gamification.
+GymCorpus e una app Flutter per la gestione di allenamenti, esercizi, progressi e profilo utente con persistenza locale e integrazione Firebase.
 
----
+## Stack
 
-## ✨ Caratteristiche Principali
+- Flutter + Dart
+- flutter_bloc
+- GoRouter
+- Drift / SQLite
+- Firebase Auth
+- Injectable / GetIt
 
-- 🚀 **Dashboard Dinamica**: Visualizzazione immediata di XP, Livello e Progressi tramite un'interfaccia ispirata al mondo dei videogame.
-- 🏋️ **Gestione Esercizi**: Libreria completa di esercizi con ricerca avanzata, filtri per gruppi muscolari e attrezzatura.
-- 📋 **Routine Personalizzate**: Creazione e gestione di workout su misura con editing rapido delle serie (Sets/Reps).
-- 🌓 **Design Premium**: Due stati dominanti (Profilo/Impostazioni) con animazioni fluide (`AnimatedCrossFade`) e palette colori curata.
-- 📊 **Precisione Metrica**: Conversione automatica tra sistema metrico (KG) e imperiale (LB).
-- ☁️ **Cloud Sync**: Integrazione con Firebase per l'autenticazione sicura (Google/Apple) e sincronizzazione dati.
-
----
-
-## 🛠️ Stack Tecnologico
-
-- **Frontend**: [Flutter](https://flutter.dev) (Clean Architecture)
-- **State Management**: [Flutter Bloc](https://pub.dev/packages/flutter_bloc)
-- **Database Locale**: [Drift](https://drift.simonbinder.eu/) (SQLite)
-- **Autenticazione**: Firebase Auth
-- **Navigazione**: [GoRouter](https://pub.dev/packages/go_router)
-- **UI Components**: Custom Paint (Radial Pickers), ShaderMask Gradients, Google Fonts (Lexend/Inter).
-
----
-
-## 📂 Struttura del Progetto
+## Struttura
 
 ```text
 lib/
-├── core/               # Layout comuni, costanti, temi e widget globali
-├── features/           # Architettura suddivisa per funzionalità (Clean)
-│   ├── auth/           # Login, Sign-up, Social Auth
-│   ├── training/       # Routine, Esercizi, Workout Logger
-│   └── profile/        # Statistiche, Impostazioni, Gamification
-├── injection.dart      # Service Locator (GetIt/Injectable)
-└── main.dart           # Entry point
+|-- core/
+|   |-- database/
+|   |-- di/
+|   |-- error/
+|   |-- router/
+|   |-- theme/
+|   |-- utils/
+|   `-- widgets/
+|-- features/
+|   |-- analytics/
+|   |-- auth/
+|   |-- exercises/
+|   |-- profile/
+|   `-- training/
+|-- firebase_options.dart
+`-- main.dart
 ```
 
----
+## Setup locale
 
-## 🚀 Guida all'Installazione
+1. Installa Flutter SDK e gli strumenti della piattaforma che ti servono.
+2. Recupera le dipendenze:
 
-1. **Prerequisiti**:
-   - Flutter SDK (>= 3.0.0)
-   - Android Studio / Xcode
-
-2. **Clona il repository**:
-   ```bash
-   git clone https://github.com/tuo-username/gym_corpus.git
-   ```
-
-3. **Installa le dipendenze**:
-   ```bash
-   flutter pub get
-   ```
-
-4. **Generazione Codice**:
-   ```bash
-   flutter pub run build_runner build --delete-conflicting-outputs
-   ```
-
-5. **Avvia l'app**:
-   ```bash
-   flutter run
-   ```
-
----
-
-## 📦 Build Release (APK)
-
-Per generare la versione finale per Android:
 ```bash
-flutter build apk --release
+flutter pub get
 ```
-Il file sarà disponibile in: `build/app/outputs/flutter-apk/app-release.apk`
 
----
+3. Rigenera i file generati quando cambi modelli, Drift o Freezed:
 
-## 📄 Licenza
+```bash
+flutter pub run build_runner build --delete-conflicting-outputs
+```
 
-Distribuito sotto Licenza MIT. Vedi `LICENSE` per maggiori informazioni.
+4. Avvia l'app:
 
----
+```bash
+flutter run
+```
 
-<p align="center">
-  Sviluppato con ❤️ per la Community Fitness
-</p>
+## Firebase
+
+La configurazione Firebase non e inclusa nel repository.
+
+- Android: `android/app/google-services.json`
+- iOS: `ios/Runner/GoogleService-Info.plist`
+- Google Sign-In server client id: passa `GOOGLE_SERVER_CLIENT_ID` via `--dart-define`
+
+Dettagli completi in [FIREBASE_SETUP.md](FIREBASE_SETUP.md).
+
+## Qualita
+
+Comandi utili prima di aprire una PR o creare una release:
+
+```bash
+flutter analyze
+flutter test
+```
+
+## Documentazione interna
+
+- [AGENTS.md](AGENTS.md): convenzioni operative per agenti e automazioni
+- [AUDIT_FIXES.md](AUDIT_FIXES.md): piano di bonifica tecnica e audit
+- [FIREBASE_SETUP.md](FIREBASE_SETUP.md): setup Firebase per ambienti locali e CI
+
+## Licenza
+
+Questo progetto e distribuito con licenza proprietaria. Vedi [LICENSE](LICENSE).

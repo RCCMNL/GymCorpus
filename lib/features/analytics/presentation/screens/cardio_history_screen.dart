@@ -5,11 +5,23 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_session.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
+import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
 import 'package:latlong2/latlong.dart' hide Path;
 
-class CardioHistoryScreen extends StatelessWidget {
+class CardioHistoryScreen extends StatefulWidget {
   const CardioHistoryScreen({super.key});
+
+  @override
+  State<CardioHistoryScreen> createState() => _CardioHistoryScreenState();
+}
+
+class _CardioHistoryScreenState extends State<CardioHistoryScreen> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<TrainingBloc>().add(LoadCardioSessionsEvent());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -109,14 +121,18 @@ class _DetailedCardioCard extends StatelessWidget {
             (map['lng'] as num).toDouble(),
           );
         }).toList();
-      } catch (_) {}
+      } catch (e) {
+        debugPrint('CardioHistoryScreen route parse error: $e');
+      }
     }
 
     LatLngBounds? bounds;
     if (route.length >= 2) {
       try {
         bounds = LatLngBounds.fromPoints(route);
-      } catch (_) {}
+      } catch (e) {
+        debugPrint('CardioHistoryScreen route bounds error: $e');
+      }
     }
 
     return GestureDetector(
@@ -279,7 +295,9 @@ class _DetailedCardioCard extends StatelessWidget {
         if (route.length >= 2) {
           try {
             bounds = LatLngBounds.fromPoints(route);
-          } catch (_) {}
+          } catch (e) {
+            debugPrint('CardioHistoryScreen full map bounds error: $e');
+          }
         }
 
         return Container(

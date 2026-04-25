@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gym_corpus/features/auth/domain/repositories/auth_repository.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_event.dart';
@@ -121,7 +122,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     DateTime? birthDate,
     String? trainingObjective,
   }) async {
-    // Do NOT emit loading — it triggers the router and causes crashes
+    // Do not emit loading here: it triggers the router and causes crashes
     // during navigation. Just update silently in the background.
     final result = await _repository.updateProfileDetails(
       firstName: firstName,
@@ -135,8 +136,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
     result.fold(
       (failure) {
-        // Silently fail — data is already saved locally
-        // The user already navigated back, no point showing an error
+        debugPrint('AuthBloc._onUpdateProfile error: ${failure.message}');
       },
       (user) => emit(AuthState.authenticated(user)),
     );

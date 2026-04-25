@@ -89,7 +89,7 @@ class CardioSessions extends Table {
 @DriftDatabase(tables: [Workouts, Exercises, WorkoutSets, Routines, RoutineExercises, WeightLogs, AppSettings, CardioSessions, BodyMeasurements])
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
-  
+
   @override
   int get schemaVersion => 10;
 
@@ -100,13 +100,7 @@ class AppDatabase extends _$AppDatabase {
         await m.createAll();
       },
       onUpgrade: (m, from, to) async {
-        if (from < 9) {
-          // Ricrea per sviluppo
-          for (final table in allTables) {
-            await m.deleteTable(table.actualTableName);
-          }
-          await m.createAll();
-        }
+        await _runSafeMigrations(m, from: from, to: to);
       },
       beforeOpen: (details) async {
         final exercisesExist = await select(exercises).get();
@@ -117,6 +111,99 @@ class AppDatabase extends _$AppDatabase {
         }
       },
     );
+  }
+
+  Future<void> _runSafeMigrations(
+    Migrator m, {
+    required int from,
+    required int to,
+  }) async {
+    if (from == to) return;
+
+    await _ensureCurrentTables(m);
+    await _ensureCurrentColumns(m);
+  }
+
+  Future<void> _ensureCurrentTables(Migrator m) async {
+    await _ensureTable(m, workouts);
+    await _ensureTable(m, exercises);
+    await _ensureTable(m, workoutSets);
+    await _ensureTable(m, routines);
+    await _ensureTable(m, routineExercises);
+    await _ensureTable(m, weightLogs);
+    await _ensureTable(m, appSettings);
+    await _ensureTable(m, cardioSessions);
+    await _ensureTable(m, bodyMeasurements);
+  }
+
+  Future<void> _ensureCurrentColumns(Migrator m) async {
+    await _ensureColumn(m, workouts, workouts.routineId, 'routine_id');
+
+    await _ensureColumn(m, exercises, exercises.referenceVideoUrl, 'reference_video_url');
+    await _ensureColumn(m, exercises, exercises.imageUrl, 'image_url');
+    await _ensureColumn(m, exercises, exercises.equipment, 'equipment');
+    await _ensureColumn(m, exercises, exercises.focusArea, 'focus_area');
+    await _ensureColumn(m, exercises, exercises.preparation, 'preparation');
+    await _ensureColumn(m, exercises, exercises.execution, 'execution');
+    await _ensureColumn(m, exercises, exercises.tips, 'tips');
+    await _ensureColumn(m, exercises, exercises.isVector, 'is_vector');
+    await _ensureColumn(m, exercises, exercises.isFavorite, 'is_favorite');
+
+    await _ensureColumn(m, routines, routines.estimatedDuration, 'estimated_duration');
+    await _ensureColumn(m, routines, routines.createdAt, 'created_at');
+
+    await _ensureColumn(m, routineExercises, routineExercises.orderIndex, 'order_index');
+    await _ensureColumn(m, routineExercises, routineExercises.setsData, 'sets_data');
+
+    await _ensureColumn(m, workoutSets, workoutSets.rpe, 'rpe');
+
+    await _ensureColumn(m, cardioSessions, cardioSessions.type, 'type');
+    await _ensureColumn(m, cardioSessions, cardioSessions.distance, 'distance');
+    await _ensureColumn(m, cardioSessions, cardioSessions.duration, 'duration');
+    await _ensureColumn(m, cardioSessions, cardioSessions.avgSpeed, 'avg_speed');
+    await _ensureColumn(m, cardioSessions, cardioSessions.pace, 'pace');
+    await _ensureColumn(m, cardioSessions, cardioSessions.calories, 'calories');
+    await _ensureColumn(m, cardioSessions, cardioSessions.routeJson, 'route_json');
+    await _ensureColumn(m, cardioSessions, cardioSessions.date, 'date');
+
+    await _ensureColumn(m, bodyMeasurements, bodyMeasurements.part, 'part');
+    await _ensureColumn(m, bodyMeasurements, bodyMeasurements.value, 'value');
+    await _ensureColumn(m, bodyMeasurements, bodyMeasurements.date, 'date');
+  }
+
+  Future<void> _ensureTable(Migrator m, TableInfo<Table, dynamic> table) async {
+    if (!await _tableExists(table.actualTableName)) {
+      await m.createTable(table);
+    }
+  }
+
+  Future<void> _ensureColumn(
+    Migrator m,
+    TableInfo<Table, dynamic> table,
+    GeneratedColumn<dynamic> column,
+    String columnName,
+  ) async {
+    if (!await _columnExists(table.actualTableName, columnName)) {
+      await m.addColumn(table, column);
+    }
+  }
+
+  Future<bool> _tableExists(String tableName) async {
+    final result = await customSelect(
+      'SELECT name FROM sqlite_master WHERE type = ? AND name = ? LIMIT 1',
+      variables: [
+        Variable.withString('table'),
+        Variable.withString(tableName),
+      ],
+    ).getSingleOrNull();
+
+    return result != null;
+  }
+
+  Future<bool> _columnExists(String tableName, String columnName) async {
+    final rows = await customSelect('PRAGMA table_info($tableName)').get();
+
+    return rows.any((row) => row.data['name'] == columnName);
   }
 
   Future<void> _seedInitialData() async {
@@ -164,7 +251,10 @@ class AppDatabase extends _$AppDatabase {
   // Routines access
   Stream<List<Routine>> watchAllRoutines() => select(routines).watch();
   Future<int> insertRoutine(RoutinesCompanion routine) => into(routines).insert(routine);
-  Future<void> deleteRoutine(int id) => (delete(routines)..where((t) => t.id.equals(id))).go();
+  Future<void> deleteRoutine(int id) => transaction(() async {
+        await (delete(routineExercises)..where((t) => t.routineId.equals(id))).go();
+        await (delete(routines)..where((t) => t.id.equals(id))).go();
+      });
   
   // Performed sets stats
   Stream<List<WorkoutSet>> watchLatestWeightLogs() => (select(workoutSets)..orderBy([(t) => OrderingTerm(expression: t.timestamp, mode: OrderingMode.desc)])).watch();

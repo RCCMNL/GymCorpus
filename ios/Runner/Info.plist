@@ -68,5 +68,9 @@
 		<string>GymCorpus richiede l'accesso alla tua posizione per tracciare con precisione la distanza e il percorso durante gli allenamenti di corsa o camminata.</string>
 		<key>NSLocationAlwaysUsageDescription</key>
 		<string>Questo permesso permette all'app di continuare a tracciare la tua posizione anche se è in background durante la sessione di corsa.</string>
+		<key>NSPhotoLibraryUsageDescription</key>
+		<string>GymCorpus usa la libreria foto per permetterti di scegliere un'immagine profilo.</string>
+		<key>NSFaceIDUsageDescription</key>
+		<string>GymCorpus usa Face ID per proteggere l'accesso biometrico e le operazioni sensibili.</string>
 	</dict>
 </plist>

@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:dartz/dartz.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:gym_corpus/core/error/failures.dart';
 import 'package:gym_corpus/features/auth/data/datasources/auth_local_data_source.dart';
@@ -21,6 +21,8 @@ class AuthFailure extends Failure {
   List<Object> get props => [message];
 }
 
+const _googleServerClientId = String.fromEnvironment('GOOGLE_SERVER_CLIENT_ID');
+
 @LazySingleton(as: AuthRepository)
 class AuthRepositoryImpl implements AuthRepository {
   AuthRepositoryImpl(
@@ -32,6 +34,33 @@ class AuthRepositoryImpl implements AuthRepository {
   final FirebaseAuth _firebaseAuth;
   final AuthLocalDataSource _localDataSource;
   final AuthRemoteDataSource _remoteDataSource;
+
+  bool _isPortablePhotoUrl(String? photoUrl) {
+    if (photoUrl == null || photoUrl.isEmpty) {
+      return false;
+    }
+    return photoUrl.startsWith('http://') || photoUrl.startsWith('https://');
+  }
+
+  String? _mergePhotoUrl({
+    required String? remotePhotoUrl,
+    required String? localPhotoUrl,
+  }) {
+    if (_isPortablePhotoUrl(remotePhotoUrl)) {
+      return remotePhotoUrl;
+    }
+    if (localPhotoUrl != null && localPhotoUrl.isNotEmpty) {
+      return localPhotoUrl;
+    }
+    return null;
+  }
+
+  UserEntity _sanitizeRemoteUser(UserEntity user) {
+    if (_isPortablePhotoUrl(user.photoUrl)) {
+      return user;
+    }
+    return user.copyWith(photoUrl: null);
+  }
 
   UserEntity _mapFirebaseUser(User user) {
     String? firstName;
@@ -65,7 +94,9 @@ class AuthRepositoryImpl implements AuthRepository {
         final iosInfo = await deviceInfo.iosInfo;
         return iosInfo.name;
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('AuthRepositoryImpl._getDeviceInfo error: $e');
+    }
     return 'Dispositivo Sconosciuto';
   }
 
@@ -76,11 +107,17 @@ class AuthRepositoryImpl implements AuthRepository {
       lastLoginDevice: device,
     );
     try {
-      await _remoteDataSource.saveUserProfile(updatedUser).timeout(const Duration(seconds: 5));
-    } catch (_) {}
+      await _remoteDataSource
+          .saveUserProfile(_sanitizeRemoteUser(updatedUser))
+          .timeout(const Duration(seconds: 5));
+    } catch (e) {
+      debugPrint('AuthRepositoryImpl._updateLoginHistory remote sync error: $e');
+    }
     try {
       await _localDataSource.saveUserSession(updatedUser);
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('AuthRepositoryImpl._updateLoginHistory local cache error: $e');
+    }
     return updatedUser;
   }
 
@@ -166,11 +203,17 @@ class AuthRepositoryImpl implements AuthRepository {
             .getUserProfile(baseUser.id)
             .timeout(const Duration(seconds: 5));
         if (remoteUser != null) {
-          mergedUser = remoteUser;
-          await _localDataSource.saveUserSession(remoteUser);
+          final mergedRemoteUser = remoteUser.copyWith(
+            photoUrl: _mergePhotoUrl(
+              remotePhotoUrl: firebaseUser.photoURL ?? remoteUser.photoUrl,
+              localPhotoUrl: cachedUser?.photoUrl,
+            ),
+          );
+          mergedUser = mergedRemoteUser;
+          await _localDataSource.saveUserSession(mergedRemoteUser);
         }
       } catch (e) {
-        // Fallback to local/base if remote fails, logging could go here
+        debugPrint('AuthRepositoryImpl.checkSession remote profile sync error: $e');
       }
 
       final finalUser = mergedUser!;
@@ -182,7 +225,10 @@ class AuthRepositoryImpl implements AuthRepository {
                 firebaseUser.displayName!.contains(' ')
             ? firebaseUser.displayName!.split(' ').sublist(1).join(' ')
             : finalUser.lastName,
-        photoUrl: firebaseUser.photoURL ?? finalUser.photoUrl,
+        photoUrl: _mergePhotoUrl(
+          remotePhotoUrl: firebaseUser.photoURL ?? finalUser.photoUrl,
+          localPhotoUrl: cachedUser?.photoUrl,
+        ),
         authProviders: baseUser.authProviders,
       );
       final finalSessionUser = await _updateLoginHistory(updatedSessionUser);
@@ -212,9 +258,18 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<Failure, UserEntity>> signInWithGoogle() async {
     try {
+      if (_googleServerClientId.isEmpty) {
+        return const Left(
+          AuthFailure(
+            'Configurazione Google Sign-In mancante. Avvia l\'app con '
+            '--dart-define=GOOGLE_SERVER_CLIENT_ID=...',
+          ),
+        );
+      }
+
       final googleSignIn = GoogleSignIn.instance;
       await googleSignIn.initialize(
-        serverClientId: dotenv.env['GOOGLE_SERVER_CLIENT_ID'],
+        serverClientId: _googleServerClientId,
       );
 
       final googleUser = await googleSignIn.authenticate();
@@ -292,9 +347,6 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       final user = _firebaseAuth.currentUser;
       if (user != null) {
-        await user.updatePhotoURL(filePath);
-        await user.reload();
-
         final currentUser =
             await _localDataSource.getUserSession() ?? _mapFirebaseUser(user);
         final updatedUser = currentUser.copyWith(
@@ -357,7 +409,7 @@ class AuthRepositoryImpl implements AuthRepository {
       await _localDataSource.saveUserSession(updatedUser);
       // Then sync to remote
       await _remoteDataSource
-          .saveUserProfile(updatedUser)
+          .saveUserProfile(_sanitizeRemoteUser(updatedUser))
           .timeout(const Duration(seconds: 5));
 
       return Right(updatedUser);
@@ -391,22 +443,122 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, void>> deleteAccount() async {
+  Future<Either<Failure, void>> deleteAccount({String? currentPassword}) async {
     try {
       final user = _firebaseAuth.currentUser;
       if (user == null) {
         return const Left(AuthFailure('Nessun utente autenticato'));
       }
 
-      // Eliminiamo PRIMA i dati in firestore
-      await _remoteDataSource.deleteUser(user.uid);
+      final reauthResult = await _reauthenticateUser(
+        user,
+        currentPassword: currentPassword,
+      );
+      if (reauthResult.isLeft()) {
+        return reauthResult;
+      }
 
+      await _remoteDataSource.deleteUser(user.uid);
       await user.delete();
       await _localDataSource.clearSession();
 
       return const Right(null);
     } on FirebaseAuthException catch (e) {
+      if (e.code == 'requires-recent-login') {
+        return const Left(
+          AuthFailure(
+            "Per eliminare l'account devi confermare di nuovo l'accesso e riprovare.",
+          ),
+        );
+      }
       return Left(AuthFailure(e.message ?? 'Errore eliminazione account'));
+    } catch (e) {
+      return Left(AuthFailure(e.toString()));
+    }
+  }
+
+  Future<Either<Failure, void>> _reauthenticateUser(
+    User user, {
+    String? currentPassword,
+  }) async {
+    try {
+      final providerIds =
+          user.providerData.map((info) => info.providerId).toSet();
+
+      if (providerIds.contains('password')) {
+        final email = user.email;
+        if (email == null || email.isEmpty) {
+          return const Left(
+            AuthFailure('Email account non disponibile per confermare l\'operazione'),
+          );
+        }
+        if (currentPassword == null || currentPassword.isEmpty) {
+          return const Left(
+            AuthFailure(
+              'Inserisci la password attuale per confermare l\'eliminazione dell\'account',
+            ),
+          );
+        }
+
+        final credential = EmailAuthProvider.credential(
+          email: email,
+          password: currentPassword,
+        );
+        await user.reauthenticateWithCredential(credential);
+        return const Right(null);
+      }
+
+      if (providerIds.contains('google.com')) {
+        if (_googleServerClientId.isEmpty) {
+          return const Left(
+            AuthFailure(
+              'Configurazione Google Sign-In mancante. Avvia l\'app con '
+              '--dart-define=GOOGLE_SERVER_CLIENT_ID=...',
+            ),
+          );
+        }
+
+        final googleSignIn = GoogleSignIn.instance;
+        await googleSignIn.initialize(
+          serverClientId: _googleServerClientId,
+        );
+
+        final googleUser = await googleSignIn.authenticate();
+        final googleAuth = googleUser.authentication;
+        final authorization = await googleUser.authorizationClient
+            .authorizationForScopes(['openid', 'email', 'profile']);
+
+        final credential = GoogleAuthProvider.credential(
+          accessToken: authorization?.accessToken,
+          idToken: googleAuth.idToken,
+        );
+
+        await user.reauthenticateWithCredential(credential);
+        return const Right(null);
+      }
+
+      if (providerIds.contains('apple.com')) {
+        final appleCredential = await SignInWithApple.getAppleIDCredential(
+          scopes: const <AppleIDAuthorizationScopes>[],
+        );
+
+        final credential = OAuthProvider('apple.com').credential(
+          idToken: appleCredential.identityToken,
+          accessToken: appleCredential.authorizationCode,
+        );
+
+        await user.reauthenticateWithCredential(credential);
+        return const Right(null);
+      }
+
+      return const Left(
+        AuthFailure(
+          'Provider di accesso non supportato per la conferma automatica. '
+          'Accedi di nuovo e riprova.',
+        ),
+      );
+    } on FirebaseAuthException catch (e) {
+      return Left(AuthFailure(e.message ?? 'Errore durante la conferma account'));
     } catch (e) {
       return Left(AuthFailure(e.toString()));
     }

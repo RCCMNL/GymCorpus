@@ -4,7 +4,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:go_router/go_router.dart';
@@ -41,9 +40,7 @@ import 'package:gym_corpus/firebase_options.dart';
 void main() async {
   final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
-  
-  await dotenv.load();
-  
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -85,17 +82,19 @@ class GymApp extends StatefulWidget {
 
 class _GymAppState extends State<GymApp> {
   late final AuthBloc _authBloc;
+  late final BlocRefreshStream _routerRefresh;
   late final GoRouter _router;
 
   @override
   void initState() {
     super.initState();
     _authBloc = di.sl<AuthBloc>()..add(const AuthEvent.checkSessionRequested());
-    
+    _routerRefresh = BlocRefreshStream(_authBloc.stream);
+
     _router = GoRouter(
       navigatorKey: _rootNavigatorKey,
       initialLocation: '/splash',
-      refreshListenable: BlocRefreshStream(_authBloc.stream),
+      refreshListenable: _routerRefresh,
       redirect: (context, state) {
         final authState = _authBloc.state;
         
@@ -180,9 +179,18 @@ class _GymAppState extends State<GymApp> {
               routes: [
                 GoRoute(
                   path: 'detail',
-                  builder: (context, state) => WorkoutDetailScreen(
-                    routine: (state.extra as RoutineEntity?)!,
-                  ),
+                  builder: (context, state) {
+                    final routine = _readRoutineExtra(state);
+                    if (routine == null) {
+                      return const _MissingRouteDataScreen(
+                        title: 'Workout non disponibile',
+                        message:
+                            'Apri questa schermata dalla lista workout per caricare la routine corretta.',
+                        fallbackRoute: '/custom',
+                      );
+                    }
+                    return WorkoutDetailScreen(routine: routine);
+                  },
                 ),
                 GoRoute(
                   path: 'edit',
@@ -203,7 +211,15 @@ class _GymAppState extends State<GymApp> {
             GoRoute(
               path: '/exercises/detail',
               builder: (context, state) {
-                final exercise = (state.extra as ExerciseEntity?)!;
+                final exercise = _readExerciseExtra(state);
+                if (exercise == null) {
+                  return const _MissingRouteDataScreen(
+                    title: 'Esercizio non disponibile',
+                    message:
+                        'Apri questa schermata dalla lista esercizi per caricare i dettagli corretti.',
+                    fallbackRoute: '/exercises',
+                  );
+                }
                 return ExerciseDetailScreen(exercise: exercise);
               },
             ),
@@ -250,6 +266,24 @@ class _GymAppState extends State<GymApp> {
     );
   }
 
+  RoutineEntity? _readRoutineExtra(GoRouterState state) {
+    final extra = state.extra;
+    return extra is RoutineEntity ? extra : null;
+  }
+
+  ExerciseEntity? _readExerciseExtra(GoRouterState state) {
+    final extra = state.extra;
+    return extra is ExerciseEntity ? extra : null;
+  }
+
+  @override
+  void dispose() {
+    _router.dispose();
+    _routerRefresh.dispose();
+    _authBloc.close();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
@@ -277,6 +311,45 @@ class _GymAppState extends State<GymApp> {
           Locale('en', 'US'),
         ],
         locale: const Locale('it', 'IT'),
+      ),
+    );
+  }
+}
+
+class _MissingRouteDataScreen extends StatelessWidget {
+  const _MissingRouteDataScreen({
+    required this.title,
+    required this.message,
+    required this.fallbackRoute,
+  });
+
+  final String title;
+  final String message;
+  final String fallbackRoute;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(title)),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+              const SizedBox(height: 16),
+              FilledButton(
+                onPressed: () => context.go(fallbackRoute),
+                child: const Text('Torna indietro'),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

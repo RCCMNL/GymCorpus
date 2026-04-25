@@ -22,7 +22,7 @@ abstract class AuthRepository {
     String? trainingObjective,
   });
   Future<Either<Failure, void>> changePassword(String currentPassword, String newPassword);
-  Future<Either<Failure, void>> deleteAccount();
+  Future<Either<Failure, void>> deleteAccount({String? currentPassword});
   Future<bool> isBiometricEnabled();
   Future<void> setBiometricEnabled({required bool enabled});
 }

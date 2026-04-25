@@ -172,7 +172,7 @@ class TrainingDashboardScreen extends StatelessWidget {
           subtitle: 'Trova il tuo equilibrio interiore',
           icon: Icons.self_improvement,
           color: const Color(0xFF8DE8C7),
-          onTap: () {},
+          badgeText: 'Prossimamente',
         ),
         const SizedBox(height: 16),
         _DashboardCard(
@@ -188,7 +188,7 @@ class TrainingDashboardScreen extends StatelessWidget {
           subtitle: 'Ottimizza i tuoi risultati a tavola',
           icon: Icons.restaurant,
           color: const Color(0xFFFDE047),
-          onTap: () {},
+          badgeText: 'Prossimamente',
         ),
       ],
     );
@@ -312,14 +312,16 @@ class _DashboardCard extends StatelessWidget {
     required this.subtitle,
     required this.icon,
     required this.color,
-    required this.onTap,
+    this.onTap,
+    this.badgeText,
   });
 
   final String title;
   final String subtitle;
   final IconData icon;
   final Color color;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
+  final String? badgeText;
 
   @override
   Widget build(BuildContext context) {
@@ -358,6 +360,26 @@ class _DashboardCard extends StatelessWidget {
                       fontFamily: 'Lexend',
                     ),
                   ),
+                  if (badgeText != null) ...[
+                    const SizedBox(height: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.outline.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Text(
+                        badgeText!,
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: theme.colorScheme.outline,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ),
+                  ],
                   Text(
                     subtitle,
                     style: theme.textTheme.labelSmall?.copyWith(
@@ -367,10 +389,11 @@ class _DashboardCard extends StatelessWidget {
                 ],
               ),
             ),
-            Icon(
-              Icons.chevron_right,
-              color: theme.colorScheme.outline.withValues(alpha: 0.3),
-            ),
+            if (badgeText == null)
+              Icon(
+                Icons.chevron_right,
+                color: theme.colorScheme.outline.withValues(alpha: 0.3),
+              ),
           ],
         ),
       ),

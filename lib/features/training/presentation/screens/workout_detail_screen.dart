@@ -80,7 +80,9 @@ class WorkoutDetailScreen extends StatelessWidget {
             currentRoutine = state.routines.firstWhere(
               (r) => r.id == routine.id,
             );
-          } catch (_) {}
+          } catch (e) {
+            debugPrint('WorkoutDetailScreen routine refresh error: $e');
+          }
           currentUnit = state.settings['units'] ?? 'KG';
         }
         final isImperial = currentUnit == 'LB';
@@ -199,6 +201,7 @@ class WorkoutDetailScreen extends StatelessWidget {
                         try {
                           setsList = jsonDecode(re.setsData!) as List<dynamic>;
                         } catch (e) {
+                          debugPrint('WorkoutDetailScreen sets parse error: $e');
                           setsList = [];
                         }
                       }
@@ -565,7 +568,8 @@ class _QuickExerciseEditPanelState extends State<_QuickExerciseEditPanel> {
               );
             })
             .toList();
-      } catch (_) {
+      } catch (e) {
+        debugPrint('WorkoutDetailScreen quick edit parse error: $e');
         sets = [_ExerciseSetData(weight: 0, reps: 0)];
       }
     }

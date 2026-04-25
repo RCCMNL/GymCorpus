@@ -38,6 +38,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
     try {
       canCheckBiometrics = await _auth.canCheckBiometrics || await _auth.isDeviceSupported();
     } catch (e) {
+      debugPrint('SecurityScreen._checkBiometrics error: $e');
       canCheckBiometrics = false;
     }
     if (!mounted) return;
@@ -69,7 +70,12 @@ class _SecurityScreenState extends State<SecurityScreen> {
           await _authRepository.setBiometricEnabled(enabled: true);
         }
       } catch (e) {
-        // Revert toggle UI if error
+        debugPrint('SecurityScreen._toggleBiometrics enable error: $e');
+        unawaited(_loadBiometricPreference());
+        _showFeedback(
+          'Non e stato possibile abilitare l\'accesso biometrico',
+          isError: true,
+        );
       }
     } else {
       // Disabling also requires authentication for security
@@ -88,7 +94,12 @@ class _SecurityScreenState extends State<SecurityScreen> {
           unawaited(_loadBiometricPreference()); 
         }
       } catch (e) {
+        debugPrint('SecurityScreen._toggleBiometrics disable error: $e');
         unawaited(_loadBiometricPreference());
+        _showFeedback(
+          'Non e stato possibile disabilitare l\'accesso biometrico',
+          isError: true,
+        );
       }
     }
   }
@@ -102,11 +113,23 @@ class _SecurityScreenState extends State<SecurityScreen> {
             stickyAuth: true,
           ),
         );
-      } catch (_) {
-        return false; // Fallback to fail if auth crashes
+      } catch (e) {
+        debugPrint('SecurityScreen._verifyBiomanualIfEnabled error: $e');
+        return false;
       }
     }
-    return true; // Auto-pass if not enabled
+    return true;
+  }
+
+  void _showFeedback(String message, {bool isError = false}) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: isError ? Colors.red.shade700 : Colors.green.shade700,
+      ),
+    );
   }
 
   Future<void> _showChangePasswordDialog() async {
@@ -137,35 +160,132 @@ class _SecurityScreenState extends State<SecurityScreen> {
     ),);
   }
 
-  Future<void> _showDeleteAccountDialog() async {
-    final verified = await _verifyBiomanualIfEnabled('Autenticati per eliminare il tuo account');
+  Future<void> _showDeleteAccountDialog(List<String> authProviders) async {
+    final verified = await _verifyBiomanualIfEnabled(
+      'Autenticati per eliminare il tuo account',
+    );
     if (!verified && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Autenticazione richiesta per continuare')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Autenticazione richiesta per continuare')),
+      );
       return;
     }
 
     if (!mounted) return;
 
     final theme = Theme.of(context);
-    unawaited(showDialog<void>(
+    final requiresPassword = authProviders.contains('password');
+    final passwordController = TextEditingController();
+
+    await showDialog<void>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        backgroundColor: theme.colorScheme.surface,
-        title: const Text('Elimina Account', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
-        content: const Text('Sei sicuro di voler eliminare definitivamente il tuo account e tutti i dati associati? Questa operazione non può essere annullata.'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('ANNULLA')),
-          TextButton(
-            onPressed: () {
-              // Dispatch event and pop dialog
-              context.read<AuthBloc>().add(const AuthEvent.deleteAccountRequested());
-              Navigator.pop(dialogContext);
-            },
-            child: const Text('ELIMINA PERMANENTEMENTE', style: TextStyle(color: Colors.red)),
+      builder: (dialogContext) {
+        var isDeleting = false;
+        String? validationMessage;
+
+        return StatefulBuilder(
+          builder: (dialogContext, setDialogState) => AlertDialog(
+            backgroundColor: theme.colorScheme.surface,
+            title: const Text(
+              'Elimina Account',
+              style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Sei sicuro di voler eliminare definitivamente il tuo account e tutti i dati associati? Questa operazione non puo essere annullata.',
+                ),
+                const SizedBox(height: 16),
+                if (requiresPassword) ...[
+                  TextField(
+                    controller: passwordController,
+                    obscureText: true,
+                    autofocus: true,
+                    decoration: const InputDecoration(
+                      labelText: 'Password attuale',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  if (validationMessage != null) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      validationMessage!,
+                      style: const TextStyle(color: Colors.red, fontSize: 12),
+                    ),
+                  ],
+                ] else
+                  Text(
+                    'Ti verra richiesta una nuova conferma con il provider usato per il login.',
+                    style: theme.textTheme.bodySmall,
+                  ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: isDeleting ? null : () => Navigator.pop(dialogContext),
+                child: const Text('ANNULLA'),
+              ),
+              TextButton(
+                onPressed: isDeleting
+                    ? null
+                    : () async {
+                        final currentPassword = passwordController.text.trim();
+                        if (requiresPassword && currentPassword.isEmpty) {
+                          setDialogState(() {
+                            validationMessage =
+                                'Inserisci la password attuale per continuare.';
+                          });
+                          return;
+                        }
+
+                        setDialogState(() {
+                          isDeleting = true;
+                          validationMessage = null;
+                        });
+
+                        final result = await _authRepository.deleteAccount(
+                          currentPassword:
+                              requiresPassword ? currentPassword : null,
+                        );
+
+                        if (!mounted) return;
+                        if (dialogContext.mounted) {
+                          Navigator.pop(dialogContext);
+                        }
+
+                        result.fold(
+                          (failure) => _showFeedback(
+                            failure.props.first.toString(),
+                            isError: true,
+                          ),
+                          (_) {
+                            context.read<AuthBloc>().add(
+                                  const AuthEvent.logoutRequested(),
+                                );
+                            _showFeedback('Account eliminato con successo');
+                          },
+                        );
+                      },
+                child: isDeleting
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Text(
+                        'ELIMINA PERMANENTEMENTE',
+                        style: TextStyle(color: Colors.red),
+                      ),
+              ),
+            ],
           ),
-        ],
-      ),
-    ),);
+        );
+      },
+    );
+
+    passwordController.dispose();
   }
 
   @override
@@ -306,7 +426,8 @@ class _SecurityScreenState extends State<SecurityScreen> {
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton.icon(
-                  onPressed: _showDeleteAccountDialog,
+                  onPressed: () =>
+                      _showDeleteAccountDialog(currentUser?.authProviders ?? const <String>[]),
                   icon: const Icon(Icons.delete_forever, color: Colors.red),
                   label: const Text('ELIMINA ACCOUNT', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
                   style: OutlinedButton.styleFrom(
@@ -648,7 +769,7 @@ class _ChangePasswordSheetState extends State<_ChangePasswordSheet> {
               ),
               border: InputBorder.none,
               contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
-              hintText: '••••••••',
+              hintText: '********',
               hintStyle: TextStyle(color: widget.theme.colorScheme.outline.withValues(alpha: 0.5)),
             ),
           ),
