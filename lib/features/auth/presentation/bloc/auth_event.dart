@@ -2,7 +2,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'auth_event.freezed.dart';
 
-@freezed
+@Freezed(toStringOverride: false)
 class AuthEvent with _$AuthEvent {
   const factory AuthEvent.checkSessionRequested() = _CheckSessionRequested;
   const factory AuthEvent.loginRequested({

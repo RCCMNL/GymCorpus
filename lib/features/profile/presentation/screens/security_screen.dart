@@ -409,60 +409,92 @@ class _ChangePasswordSheetState extends State<_ChangePasswordSheet> {
   bool _obscureNew = true;
 
   Future<void> _submit() async {
-    if (widget.currentPasswordController.text.isEmpty || widget.newPasswordController.text.isEmpty) return;
-    
+    if (widget.currentPasswordController.text.isEmpty ||
+        widget.newPasswordController.text.isEmpty) {
+      return;
+    }
+
     setState(() => _isLoading = true);
-    
-    context.read<AuthBloc>().add(
-          AuthEvent.changePasswordRequested(
-            currentPassword: widget.currentPasswordController.text,
-            newPassword: widget.newPasswordController.text,
+
+    final result = await GetIt.I<AuthRepository>().changePassword(
+      widget.currentPasswordController.text,
+      widget.newPasswordController.text,
+    );
+
+    if (!mounted) return;
+
+    result.fold(
+      (failure) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          _buildFeedbackSnackBar(
+            backgroundColor: Colors.red.shade700,
+            icon: Icons.error_outline_rounded,
+            message: failure.props.first.toString(),
           ),
         );
-        
-    await Future<void>.delayed(const Duration(milliseconds: 1000));
-    
-    if (mounted) {
-      Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          behavior: SnackBarBehavior.floating,
-          content: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: Colors.green.shade700,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.green.withValues(alpha: 0.3),
-                  blurRadius: 15,
-                  offset: const Offset(0, 5),
-                ),
-              ],
-            ),
-            child: const Row(
-              children: [
-                Icon(Icons.check_circle_outline_rounded, color: Colors.white, size: 24),
-                SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    'Password aggiornata con successo',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w900,
-                      fontFamily: 'Lexend',
-                      fontSize: 13,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+      },
+      (_) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          _buildFeedbackSnackBar(
+            backgroundColor: Colors.green.shade700,
+            icon: Icons.check_circle_outline_rounded,
+            message: 'Password aggiornata con successo',
           ),
+        );
+      },
+    );
+  }
+
+  SnackBar _buildFeedbackSnackBar({
+    required Color backgroundColor,
+    required IconData icon,
+    required String message,
+  }) {
+    return SnackBar(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      behavior: SnackBarBehavior.floating,
+      content: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: backgroundColor.withValues(alpha: 0.3),
+              blurRadius: 15,
+              offset: const Offset(0, 5),
+            ),
+          ],
         ),
-      );
-    }
+        child: Row(
+          children: [
+            Icon(icon, color: Colors.white, size: 24),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                message,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w900,
+                  fontFamily: 'Lexend',
+                  fontSize: 13,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    widget.currentPasswordController.dispose();
+    widget.newPasswordController.dispose();
+    super.dispose();
   }
 
   @override

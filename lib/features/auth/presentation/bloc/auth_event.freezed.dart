@@ -491,7 +491,7 @@ class _LoginRequested implements AuthEvent {
 
   @override
   String toString() {
-    return 'AuthEvent.loginRequested(email: $email, password: $password)';
+    return 'AuthEvent.loginRequested(email: $email, password: [REDACTED])';
   }
 }
 
@@ -563,7 +563,7 @@ class _SignUpRequested implements AuthEvent {
 
   @override
   String toString() {
-    return 'AuthEvent.signUpRequested(email: $email, password: $password)';
+    return 'AuthEvent.signUpRequested(email: $email, password: [REDACTED])';
   }
 }
 
@@ -966,7 +966,7 @@ class _ChangePasswordRequested implements AuthEvent {
 
   @override
   String toString() {
-    return 'AuthEvent.changePasswordRequested(currentPassword: $currentPassword, newPassword: $newPassword)';
+    return 'AuthEvent.changePasswordRequested(currentPassword: [REDACTED], newPassword: [REDACTED])';
   }
 }
 
