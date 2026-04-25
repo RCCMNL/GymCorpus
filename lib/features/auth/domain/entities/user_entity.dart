@@ -1,9 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:json_annotation/json_annotation.dart';
 
-part 'user_entity.g.dart';
-
-@JsonSerializable()
 class UserEntity extends Equatable {
   const UserEntity({
     required this.id,
@@ -110,6 +106,7 @@ class UserEntity extends Equatable {
     String? lastLoginDevice,
     String? gender,
     List<String>? authProviders,
+    bool clearWeight = false,
   }) {
     return UserEntity(
       id: id ?? this.id,
@@ -118,7 +115,7 @@ class UserEntity extends Equatable {
       email: email ?? this.email,
       photoUrl: photoUrl ?? this.photoUrl,
       username: username ?? this.username,
-      weight: weight ?? this.weight,
+      weight: clearWeight ? null : weight ?? this.weight,
       height: height ?? this.height,
       birthDate: birthDate ?? this.birthDate,
       trainingObjective: trainingObjective ?? this.trainingObjective,

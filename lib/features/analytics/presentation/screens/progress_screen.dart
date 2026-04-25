@@ -15,7 +15,8 @@ class ProgressScreen extends StatefulWidget {
   State<ProgressScreen> createState() => _ProgressScreenState();
 }
 
-class _ProgressScreenState extends State<ProgressScreen> with SingleTickerProviderStateMixin {
+class _ProgressScreenState extends State<ProgressScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   @override
@@ -47,7 +48,11 @@ class _ProgressScreenState extends State<ProgressScreen> with SingleTickerProvid
               indicatorColor: theme.colorScheme.primary,
               labelColor: theme.colorScheme.primary,
               unselectedLabelColor: theme.colorScheme.outline,
-              labelStyle: const TextStyle(fontWeight: FontWeight.w900, fontFamily: 'Lexend', fontSize: 13),
+              labelStyle: const TextStyle(
+                fontWeight: FontWeight.w900,
+                fontFamily: 'Lexend',
+                fontSize: 13,
+              ),
               tabs: const [
                 Tab(text: 'STORICO PESO'),
                 Tab(text: 'MISURE CORPO'),
@@ -56,14 +61,51 @@ class _ProgressScreenState extends State<ProgressScreen> with SingleTickerProvid
             Expanded(
               child: BlocBuilder<TrainingBloc, TrainingState>(
                 builder: (context, state) {
+                  if (state is TrainingError) {
+                    return Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.error_outline,
+                            color: Colors.red,
+                            size: 48,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Errore: ${state.message}',
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 16),
+                          ElevatedButton(
+                            onPressed: () {
+                              context
+                                  .read<TrainingBloc>()
+                                  .add(LoadBodyWeightLogsEvent());
+                              context
+                                  .read<TrainingBloc>()
+                                  .add(LoadBodyMeasurementsEvent());
+                            },
+                            child: const Text('Riprova'),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
                   if (state is! TrainingLoaded) {
                     return const Center(child: CircularProgressIndicator());
                   }
                   return TabBarView(
                     controller: _tabController,
                     children: [
-                      _WeightHistoryTab(logs: state.bodyWeightLogs, settings: state.settings),
-                      _MeasurementsTab(measurements: state.bodyMeasurements, settings: state.settings),
+                      _WeightHistoryTab(
+                        logs: state.bodyWeightLogs,
+                        settings: state.settings,
+                      ),
+                      _MeasurementsTab(
+                        measurements: state.bodyMeasurements,
+                        settings: state.settings,
+                      ),
                     ],
                   );
                 },
@@ -111,7 +153,9 @@ class _ProgressScreenState extends State<ProgressScreen> with SingleTickerProvid
             onPressed: () {
               context.read<TrainingBloc>().add(ReseedWeightHistoryEvent());
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Dati peso resettati e rigenerati (10gg)')),
+                const SnackBar(
+                  content: Text('Dati peso resettati e rigenerati (10gg)'),
+                ),
               );
             },
             icon: const Icon(Icons.refresh_rounded),
@@ -142,7 +186,8 @@ class _WeightHistoryTab extends StatelessWidget {
             children: [
               Text(
                 'LOG PESO RECENTI',
-                style: theme.textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w900, letterSpacing: 1.5),
+                style: theme.textTheme.labelSmall
+                    ?.copyWith(fontWeight: FontWeight.w900, letterSpacing: 1.5),
               ),
               IconButton.filled(
                 onPressed: () => _showAddWeightDialog(context, isImperial),
@@ -159,12 +204,18 @@ class _WeightHistoryTab extends StatelessWidget {
                   itemCount: logs.length,
                   itemBuilder: (context, index) {
                     final log = logs[index];
-                    final weight = isImperial ? UnitConverter.kgToLb(log.weight) : log.weight;
+                    final weight = isImperial
+                        ? UnitConverter.kgToLb(log.weight)
+                        : log.weight;
                     return _StatsTile(
-                      title: '${weight.toStringAsFixed(1)} ${isImperial ? 'lb' : 'kg'}',
-                      subtitle: DateFormat('dd MMM yyyy, HH:mm', 'it_IT').format(log.date),
+                      title:
+                          '${weight.toStringAsFixed(1)} ${isImperial ? 'lb' : 'kg'}',
+                      subtitle: DateFormat('dd MMM yyyy, HH:mm', 'it_IT')
+                          .format(log.date),
                       icon: Icons.scale_rounded,
-                      onDelete: () => context.read<TrainingBloc>().add(DeleteBodyWeightLogEvent(log.id!)),
+                      onDelete: () => context
+                          .read<TrainingBloc>()
+                          .add(DeleteBodyWeightLogEvent(log.id!)),
                     );
                   },
                 ),
@@ -189,7 +240,10 @@ class _WeightHistoryTab extends StatelessWidget {
           autofocus: true,
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Annulla')),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Annulla'),
+          ),
           ElevatedButton(
             onPressed: () {
               final valStr = controller.text.replaceAll(',', '.');
@@ -199,7 +253,7 @@ class _WeightHistoryTab extends StatelessWidget {
                 context.read<TrainingBloc>().add(AddBodyWeightLogEvent(val));
                 Navigator.pop(context);
               }
-            }, 
+            },
             child: const Text('Salva'),
           ),
         ],
@@ -207,7 +261,6 @@ class _WeightHistoryTab extends StatelessWidget {
     );
   }
 }
-
 
 class _MeasurementsTab extends StatelessWidget {
   const _MeasurementsTab({required this.measurements, required this.settings});
@@ -217,7 +270,7 @@ class _MeasurementsTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Column(
       children: [
         Padding(
@@ -227,7 +280,8 @@ class _MeasurementsTab extends StatelessWidget {
             children: [
               Text(
                 'LE TUE MISURE',
-                style: theme.textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w900, letterSpacing: 1.5),
+                style: theme.textTheme.labelSmall
+                    ?.copyWith(fontWeight: FontWeight.w900, letterSpacing: 1.5),
               ),
               IconButton.filled(
                 onPressed: () => _showAddMeasurementDialog(context),
@@ -243,13 +297,18 @@ class _MeasurementsTab extends StatelessWidget {
                   padding: const EdgeInsets.all(24),
                   itemCount: measurements.length + 1,
                   itemBuilder: (context, index) {
-                    if (index == measurements.length) return _buildTipsSection(theme);
+                    if (index == measurements.length) {
+                      return _buildTipsSection(theme);
+                    }
                     final m = measurements[index];
                     return _StatsTile(
                       title: '${m.part}: ${m.value.toStringAsFixed(1)} cm',
-                      subtitle: DateFormat('dd MMM yyyy', 'it_IT').format(m.date),
+                      subtitle:
+                          DateFormat('dd MMM yyyy', 'it_IT').format(m.date),
                       icon: Icons.straighten_rounded,
-                      onDelete: () => context.read<TrainingBloc>().add(DeleteBodyMeasurementEvent(m.id!)),
+                      onDelete: () => context
+                          .read<TrainingBloc>()
+                          .add(DeleteBodyMeasurementEvent(m.id!)),
                       onEdit: () => _showEditMeasurementDialog(context, m),
                     );
                   },
@@ -264,9 +323,16 @@ class _MeasurementsTab extends StatelessWidget {
       child: Column(
         children: [
           const SizedBox(height: 60),
-          Icon(Icons.straighten, size: 64, color: theme.colorScheme.outline.withValues(alpha: 0.2)),
+          Icon(
+            Icons.straighten,
+            size: 64,
+            color: theme.colorScheme.outline.withValues(alpha: 0.2),
+          ),
           const SizedBox(height: 16),
-          const Text('Nessuna misura salvata', style: TextStyle(fontWeight: FontWeight.bold)),
+          const Text(
+            'Nessuna misura salvata',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 32),
           _buildTipsSection(theme),
         ],
@@ -281,26 +347,40 @@ class _MeasurementsTab extends StatelessWidget {
       decoration: BoxDecoration(
         color: theme.colorScheme.primary.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: theme.colorScheme.primary.withValues(alpha: 0.1)),
+        border:
+            Border.all(color: theme.colorScheme.primary.withValues(alpha: 0.1)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.lightbulb_rounded, color: theme.colorScheme.primary, size: 20),
+              Icon(
+                Icons.lightbulb_rounded,
+                color: theme.colorScheme.primary,
+                size: 20,
+              ),
               const SizedBox(width: 8),
               Text(
                 'TIPS PER LE MISURAZIONI',
-                style: theme.textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w900, color: theme.colorScheme.primary),
+                style: theme.textTheme.labelSmall?.copyWith(
+                  fontWeight: FontWeight.w900,
+                  color: theme.colorScheme.primary,
+                ),
               ),
             ],
           ),
           const SizedBox(height: 16),
-          _buildTipItem('Misura sempre nello stesso momento della giornata (meglio al mattino a stomaco vuoto).'),
-          _buildTipItem('Usa un metro da sarta flessibile, senza stringere troppo sulla pelle.'),
+          _buildTipItem(
+            'Misura sempre nello stesso momento della giornata (meglio al mattino a stomaco vuoto).',
+          ),
+          _buildTipItem(
+            'Usa un metro da sarta flessibile, senza stringere troppo sulla pelle.',
+          ),
           _buildTipItem('Mantieni i muscoli rilassati durante la misurazione.'),
-          _buildTipItem('Effettua la misura nel punto di massima circonferenza.'),
+          _buildTipItem(
+            'Effettua la misura nel punto di massima circonferenza.',
+          ),
         ],
       ),
     );
@@ -313,7 +393,12 @@ class _MeasurementsTab extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text('• ', style: TextStyle(fontWeight: FontWeight.bold)),
-          Expanded(child: Text(text, style: const TextStyle(fontSize: 12, height: 1.4))),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(fontSize: 12, height: 1.4),
+            ),
+          ),
         ],
       ),
     );
@@ -322,7 +407,16 @@ class _MeasurementsTab extends StatelessWidget {
   void _showAddMeasurementDialog(BuildContext context) {
     final partController = TextEditingController();
     final valueController = TextEditingController();
-    final parts = ['Petto', 'Vita', 'Fianchi', 'Bicipite DX', 'Bicipite SX', 'Coscia DX', 'Coscia SX', 'Polpaccio'];
+    final parts = [
+      'Petto',
+      'Vita',
+      'Fianchi',
+      'Bicipite DX',
+      'Bicipite SX',
+      'Coscia DX',
+      'Coscia SX',
+      'Polpaccio',
+    ];
 
     showDialog<void>(
       context: context,
@@ -333,23 +427,34 @@ class _MeasurementsTab extends StatelessWidget {
           children: [
             DropdownButtonFormField<String>(
               decoration: const InputDecoration(labelText: 'Parte del corpo'),
-              items: parts.map((p) => DropdownMenuItem(value: p, child: Text(p))).toList(),
+              items: parts
+                  .map((p) => DropdownMenuItem(value: p, child: Text(p)))
+                  .toList(),
               onChanged: (val) => partController.text = val ?? '',
             ),
             TextField(
               controller: valueController,
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: 'Circonferenza', suffixText: 'cm'),
+              decoration: const InputDecoration(
+                labelText: 'Circonferenza',
+                suffixText: 'cm',
+              ),
             ),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Annulla')),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Annulla'),
+          ),
           ElevatedButton(
             onPressed: () {
-              final val = double.tryParse(valueController.text.replaceAll(',', '.'));
+              final val =
+                  double.tryParse(valueController.text.replaceAll(',', '.'));
               if (val != null && partController.text.isNotEmpty) {
-                context.read<TrainingBloc>().add(AddBodyMeasurementEvent(partController.text, val));
+                context
+                    .read<TrainingBloc>()
+                    .add(AddBodyMeasurementEvent(partController.text, val));
                 Navigator.pop(context);
               }
             },
@@ -360,8 +465,12 @@ class _MeasurementsTab extends StatelessWidget {
     );
   }
 
-  void _showEditMeasurementDialog(BuildContext context, BodyMeasurementEntity m) {
-    final valueController = TextEditingController(text: m.value.toStringAsFixed(1));
+  void _showEditMeasurementDialog(
+    BuildContext context,
+    BodyMeasurementEntity m,
+  ) {
+    final valueController =
+        TextEditingController(text: m.value.toStringAsFixed(1));
     showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
@@ -369,15 +478,24 @@ class _MeasurementsTab extends StatelessWidget {
         content: TextField(
           controller: valueController,
           keyboardType: TextInputType.number,
-          decoration: const InputDecoration(labelText: 'Circonferenza', suffixText: 'cm'),
+          decoration: const InputDecoration(
+            labelText: 'Circonferenza',
+            suffixText: 'cm',
+          ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Annulla')),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Annulla'),
+          ),
           ElevatedButton(
             onPressed: () {
-              final val = double.tryParse(valueController.text.replaceAll(',', '.'));
+              final val =
+                  double.tryParse(valueController.text.replaceAll(',', '.'));
               if (val != null) {
-                context.read<TrainingBloc>().add(UpdateBodyMeasurementEvent(m.id!, val));
+                context
+                    .read<TrainingBloc>()
+                    .add(UpdateBodyMeasurementEvent(m.id!, val));
                 Navigator.pop(context);
               }
             },
@@ -412,7 +530,9 @@ class _StatsTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.05)),
+        border: Border.all(
+          color: theme.colorScheme.outline.withValues(alpha: 0.05),
+        ),
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
@@ -424,13 +544,31 @@ class _StatsTile extends StatelessWidget {
           ),
           child: Icon(icon, color: theme.colorScheme.primary, size: 20),
         ),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16, fontFamily: 'Lexend')),
+        title: Text(
+          title,
+          style: const TextStyle(
+            fontWeight: FontWeight.w900,
+            fontSize: 16,
+            fontFamily: 'Lexend',
+          ),
+        ),
         subtitle: Text(subtitle, style: theme.textTheme.bodySmall),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (onEdit != null) IconButton(icon: const Icon(Icons.edit_outlined, size: 20), onPressed: onEdit),
-            IconButton(icon: Icon(Icons.delete_outline_rounded, size: 20, color: theme.colorScheme.error), onPressed: onDelete),
+            if (onEdit != null)
+              IconButton(
+                icon: const Icon(Icons.edit_outlined, size: 20),
+                onPressed: onEdit,
+              ),
+            IconButton(
+              icon: Icon(
+                Icons.delete_outline_rounded,
+                size: 20,
+                color: theme.colorScheme.error,
+              ),
+              onPressed: onDelete,
+            ),
           ],
         ),
       ),

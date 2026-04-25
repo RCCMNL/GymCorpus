@@ -79,10 +79,18 @@ flutter pub run build_runner build --delete-conflicting-outputs
 
 Esegui i controlli piu' mirati possibile rispetto all'area che modifichi.
 
+Per velocizzare lo sviluppo:
+
+- Esegui test mirati invece di `flutter test` completo a ogni micro-modifica.
+- Non lanciare `flutter analyze` automaticamente: l'utente lo esegue da console quando serve, perche' puo' richiedere troppo tempo.
+- Evita modifiche inutili a file molto grandi, come `lib/features/profile/presentation/screens/profile_screen.dart`.
+- Riduci l'uso di Freezed/build_runner per modelli semplici quando non serve davvero generazione.
+- Accumula le modifiche che richiedono generazione e lancia `build_runner` una sola volta alla fine.
+- Regola pratica: lavora per batch e verifica con test mirati durante lo sviluppo; usa verifiche piu' ampie solo su richiesta esplicita.
+
 Comandi comuni:
 
 ```bash
-flutter analyze
 flutter test
 flutter test test/core/utils/training_calculations_test.dart
 flutter test test/features/training/presentation/bloc/training_bloc_test.dart
@@ -108,6 +116,6 @@ Note:
 1. Leggi `pubspec.yaml`, `lib/main.dart` e la cartella feature rilevante prima di modificare codice.
 2. Verifica se il task tocca sorgenti che generano codice, come tabelle Drift, moduli Injectable o modelli Freezed.
 3. Esegui modifiche mirate nella feature proprietaria.
-4. Rigenera il codice se necessario.
-5. Esegui prima i test mirati, poi verifiche piu' ampie se il cambiamento ha impatto esteso.
+4. Se serve generazione, accumula le modifiche correlate e rigenera il codice una sola volta a fine batch.
+5. Esegui test mirati rispetto all'area modificata; non eseguire `flutter analyze` automaticamente.
 6. Riassumi gli eventuali rischi residui, soprattutto intorno a Firebase, routing e migrazioni database.

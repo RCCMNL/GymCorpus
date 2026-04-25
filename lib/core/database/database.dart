@@ -91,7 +91,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 10;
+  int get schemaVersion => 11;
 
   @override
   MigrationStrategy get migration {
@@ -103,6 +103,10 @@ class AppDatabase extends _$AppDatabase {
         await _runSafeMigrations(m, from: from, to: to);
       },
       beforeOpen: (details) async {
+        final m = createMigrator();
+        await _ensureCurrentTables(m);
+        await _ensureCurrentColumns(m);
+
         final exercisesExist = await select(exercises).get();
 
         if (exercisesExist.isEmpty) {
@@ -190,13 +194,12 @@ class AppDatabase extends _$AppDatabase {
 
   Future<bool> _tableExists(String tableName) async {
     final result = await customSelect(
-      'SELECT name FROM sqlite_master WHERE type = ? AND name = ? LIMIT 1',
+      "SELECT name FROM sqlite_master WHERE type = 'table' AND (name = ? OR name = ?)",
       variables: [
-        Variable.withString('table'),
         Variable.withString(tableName),
+        Variable.withString(tableName.toLowerCase()),
       ],
     ).getSingleOrNull();
-
     return result != null;
   }
 

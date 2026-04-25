@@ -30,6 +30,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   String? _selectedGender;
   bool _isSaving = false;
   bool _isImperial = false;
+  double? _initialWeightKg;
 
   final List<String> _objectives = [
     'Massa',
@@ -47,10 +48,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         );
 
     final trainingState = context.read<TrainingBloc>().state;
-    final settings = trainingState is TrainingLoaded ? trainingState.settings : <String, String>{};
+    final settings = trainingState is TrainingLoaded
+        ? trainingState.settings
+        : <String, String>{};
     _isImperial = (settings['units'] ?? 'KG') == 'LB';
 
-    var w = user?.weight;
+    _initialWeightKg = trainingState is TrainingLoaded &&
+            trainingState.bodyWeightLogs.isNotEmpty
+        ? trainingState.bodyWeightLogs.first.weight
+        : user?.weight;
+    var w = _initialWeightKg;
     if (w != null && _isImperial) w = UnitConverter.kgToLb(w);
 
     var h = user?.height;
@@ -112,12 +119,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         _isSaving = true;
       });
 
-      var finalWeight = double.tryParse(_weightController.text);
+      var finalWeight =
+          double.tryParse(_weightController.text.replaceAll(',', '.'));
       if (finalWeight != null && _isImperial) {
         finalWeight = UnitConverter.lbToKg(finalWeight);
       }
 
-      var finalHeight = double.tryParse(_heightController.text);
+      var finalHeight =
+          double.tryParse(_heightController.text.replaceAll(',', '.'));
       if (finalHeight != null && _isImperial) {
         finalHeight = UnitConverter.inchToCm(finalHeight);
       }
@@ -137,7 +146,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           );
 
       // Sync weight with Analytics history
-      if (finalWeight != null) {
+      if (finalWeight != null && _hasWeightChanged(finalWeight)) {
         context.read<TrainingBloc>().add(AddBodyWeightLogEvent(finalWeight));
       }
 
@@ -148,6 +157,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         context.pop();
       }
     }
+  }
+
+  bool _hasWeightChanged(double weight) {
+    final initial = _initialWeightKg;
+    return initial == null || (weight - initial).abs() >= 0.05;
   }
 
   @override
@@ -195,7 +209,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     ),
                   ],
                 ),
-
                 _buildTextField(
                   controller: _usernameController,
                   label: 'USERNAME',
@@ -328,9 +341,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             height: 20,
                             width: 20,
                             child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2,
-                          ),
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
                           )
                         : const Text(
                             'SALVA MODIFICHE',

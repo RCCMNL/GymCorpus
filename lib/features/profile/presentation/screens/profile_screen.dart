@@ -63,7 +63,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     children: [
                       ShaderMask(
                         shaderCallback: (bounds) => LinearGradient(
-                          colors: [theme.colorScheme.primary, theme.colorScheme.tertiary],
+                          colors: [
+                            theme.colorScheme.primary,
+                            theme.colorScheme.tertiary,
+                          ],
                         ).createShader(bounds),
                         child: Text(
                           'Profilo',
@@ -80,7 +83,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         'APP PREFERENCES & ACCOUNT',
                         style: theme.textTheme.labelSmall?.copyWith(
                           letterSpacing: 2.5,
-                          color: theme.colorScheme.primary.withValues(alpha: 0.5),
+                          color:
+                              theme.colorScheme.primary.withValues(alpha: 0.5),
                           fontWeight: FontWeight.w900,
                         ),
                       ),
@@ -90,7 +94,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                   // User Profile Quick Card
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 16,
+                    ),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
@@ -102,12 +109,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       borderRadius: BorderRadius.circular(32),
                       border: Border.all(
-                        color: theme.colorScheme.primary.withValues(alpha: 0.15),
+                        color:
+                            theme.colorScheme.primary.withValues(alpha: 0.15),
                         width: 1.5,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: theme.colorScheme.primary.withValues(alpha: 0.05),
+                          color:
+                              theme.colorScheme.primary.withValues(alpha: 0.05),
                           blurRadius: 30,
                           offset: const Offset(0, 10),
                         ),
@@ -142,7 +151,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                                     if (image != null && context.mounted) {
                                       context.read<AuthBloc>().add(
-                                            AuthEvent.updateProfileImageRequested(
+                                            AuthEvent
+                                                .updateProfileImageRequested(
                                               filePath: image.path,
                                             ),
                                           );
@@ -155,9 +165,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         height: 72,
                                         decoration: BoxDecoration(
                                           shape: BoxShape.circle,
-                                          color: theme.colorScheme.surfaceContainerHighest,
+                                          color: theme.colorScheme
+                                              .surfaceContainerHighest,
                                           border: Border.all(
-                                            color: theme.colorScheme.tertiary, 
+                                            color: theme.colorScheme.tertiary,
                                             width: 2.5,
                                           ),
                                           image: photoProvider != null
@@ -168,7 +179,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                               : null,
                                         ),
                                         child: photoProvider == null
-                                            ? Icon(Icons.person, color: theme.colorScheme.primary, size: 36)
+                                            ? Icon(
+                                                Icons.person,
+                                                color:
+                                                    theme.colorScheme.primary,
+                                                size: 36,
+                                              )
                                             : null,
                                       ),
                                       Positioned(
@@ -180,10 +196,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           decoration: BoxDecoration(
                                             color: Colors.orangeAccent,
                                             shape: BoxShape.circle,
-                                            border: Border.all(color: theme.colorScheme.surface, width: 2),
+                                            border: Border.all(
+                                              color: theme.colorScheme.surface,
+                                              width: 2,
+                                            ),
                                           ),
                                           child: Icon(
-                                            photoProvider != null ? Icons.edit_rounded : Icons.add_a_photo_rounded,
+                                            photoProvider != null
+                                                ? Icons.edit_rounded
+                                                : Icons.add_a_photo_rounded,
                                             size: 11,
                                             color: Colors.white,
                                           ),
@@ -195,11 +216,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 const SizedBox(width: 16),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         userName,
-                                        style: theme.textTheme.headlineSmall?.copyWith(
+                                        style: theme.textTheme.headlineSmall
+                                            ?.copyWith(
                                           fontWeight: FontWeight.w900,
                                           fontFamily: 'Lexend',
                                           fontSize: 22,
@@ -210,7 +233,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       if (user?.username != null)
                                         Text(
                                           '@${user!.username}',
-                                          style: theme.textTheme.bodySmall?.copyWith(
+                                          style: theme.textTheme.bodySmall
+                                              ?.copyWith(
                                             fontWeight: FontWeight.w500,
                                             fontSize: 13,
                                             color: theme.colorScheme.outline,
@@ -218,15 +242,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         ),
                                       const SizedBox(height: 8),
                                       Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 10,
+                                          vertical: 4,
+                                        ),
                                         decoration: BoxDecoration(
-                                          color: theme.colorScheme.tertiary.withValues(alpha: 0.1),
-                                          borderRadius: BorderRadius.circular(8),
-                                          border: Border.all(color: theme.colorScheme.tertiary.withValues(alpha: 0.2)),
+                                          color: theme.colorScheme.tertiary
+                                              .withValues(alpha: 0.1),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          border: Border.all(
+                                            color: theme.colorScheme.tertiary
+                                                .withValues(alpha: 0.2),
+                                          ),
                                         ),
                                         child: Text(
                                           'LIVELLO 1',
-                                          style: theme.textTheme.labelSmall?.copyWith(
+                                          style: theme.textTheme.labelSmall
+                                              ?.copyWith(
                                             color: theme.colorScheme.tertiary,
                                             fontWeight: FontWeight.w900,
                                             fontSize: 10,
@@ -242,16 +275,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             Padding(
                               padding: const EdgeInsets.symmetric(vertical: 20),
                               child: Divider(
-                                color: theme.colorScheme.outline.withValues(alpha: 0.1),
+                                color: theme.colorScheme.outline
+                                    .withValues(alpha: 0.1),
                                 height: 1,
                               ),
                             ),
-                            _buildPhysicalStats(context, theme, user, trainingState),
+                            _buildPhysicalStats(
+                              context,
+                              theme,
+                              user,
+                              trainingState,
+                            ),
                           ],
                         );
                       },
                     ),
-                  ), 
+                  ),
                   const SizedBox(height: 24),
 
                   // Segmented Control
@@ -268,8 +307,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   // Ultra-fast Snappy Transition
                   AnimatedCrossFade(
                     firstChild: _buildProfileMenu(context, theme),
-                    secondChild: _buildSettingsMenu(context, theme, trainingState),
-                    crossFadeState: _selectedTab == 0 ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+                    secondChild:
+                        _buildSettingsMenu(context, theme, trainingState),
+                    crossFadeState: _selectedTab == 0
+                        ? CrossFadeState.showFirst
+                        : CrossFadeState.showSecond,
                     duration: const Duration(milliseconds: 150),
                     sizeCurve: Curves.easeOutCubic,
                     firstCurve: Curves.easeInOut,
@@ -294,45 +336,100 @@ class _ProfileScreenState extends State<ProfileScreen> {
         const _ProfileSection(
           title: 'Community & Gamification',
           items: [
-            _ProfileItem(icon: Icons.leaderboard, label: 'Classifica Utenti', trailingText: 'Prossimamente', isBadge: true),
-            _ProfileItem(icon: Icons.campaign, label: 'Sfide Community', trailingText: 'Prossimamente', isBadge: true),
-            _ProfileItem(icon: Icons.military_tech, label: 'Bacheca Trofei & Livelli', trailingText: 'Prossimamente', isBadge: true),
+            _ProfileItem(
+              icon: Icons.leaderboard,
+              label: 'Classifica Utenti',
+              trailingText: 'Prossimamente',
+              isBadge: true,
+            ),
+            _ProfileItem(
+              icon: Icons.campaign,
+              label: 'Sfide Community',
+              trailingText: 'Prossimamente',
+              isBadge: true,
+            ),
+            _ProfileItem(
+              icon: Icons.military_tech,
+              label: 'Bacheca Trofei & Livelli',
+              trailingText: 'Prossimamente',
+              isBadge: true,
+            ),
           ],
         ),
         _ProfileSection(
           title: 'Performance & Dati',
           items: [
-            const _ProfileItem(icon: Icons.emoji_events, label: 'Record', trailingText: 'Prossimamente', isBadge: true),
-            const _ProfileItem(icon: Icons.track_changes, label: 'Obiettivi', trailingText: 'Prossimamente', isBadge: true),
-            _ProfileItem(icon: Icons.trending_up, label: 'Progressi', onTap: () => context.push('/profile/progress')),
+            const _ProfileItem(
+              icon: Icons.emoji_events,
+              label: 'Record',
+              trailingText: 'Prossimamente',
+              isBadge: true,
+            ),
+            const _ProfileItem(
+              icon: Icons.track_changes,
+              label: 'Obiettivi',
+              trailingText: 'Prossimamente',
+              isBadge: true,
+            ),
+            _ProfileItem(
+              icon: Icons.trending_up,
+              label: 'Progressi',
+              onTap: () => context.push('/profile/progress'),
+            ),
           ],
         ),
         const _ProfileSection(
           title: 'Allenamento',
           items: [
-            _ProfileItem(icon: Icons.favorite, label: 'Esercizi Preferiti', trailingText: 'Prossimamente', isBadge: true),
-            _ProfileItem(icon: Icons.calendar_today, label: 'Programma attuale', trailingText: 'Prossimamente', isBadge: true),
-            _ProfileItem(icon: Icons.event_repeat, label: 'Calendario ciclo', trailingText: 'Prossimamente', isBadge: true),
+            _ProfileItem(
+              icon: Icons.favorite,
+              label: 'Esercizi Preferiti',
+              trailingText: 'Prossimamente',
+              isBadge: true,
+            ),
+            _ProfileItem(
+              icon: Icons.calendar_today,
+              label: 'Programma attuale',
+              trailingText: 'Prossimamente',
+              isBadge: true,
+            ),
+            _ProfileItem(
+              icon: Icons.event_repeat,
+              label: 'Calendario ciclo',
+              trailingText: 'Prossimamente',
+              isBadge: true,
+            ),
           ],
         ),
         const _ProfileSection(
           title: 'Palestra',
           items: [
-             _ProfileItem(
+            _ProfileItem(
               icon: Icons.workspace_premium,
               label: 'Abbonamento',
               trailingText: 'FREE',
               isBadge: true,
             ),
-             _ProfileItem(icon: Icons.qr_code, label: 'QR Check-in', trailingText: 'Prossimamente', isBadge: true),
+            _ProfileItem(
+              icon: Icons.qr_code,
+              label: 'QR Check-in',
+              trailingText: 'Prossimamente',
+              isBadge: true,
+            ),
           ],
         ),
       ],
     );
   }
 
-  Widget _buildSettingsMenu(BuildContext context, ThemeData theme, TrainingState trainingState) {
-    final settings = trainingState is TrainingLoaded ? trainingState.settings : <String, String>{};
+  Widget _buildSettingsMenu(
+    BuildContext context,
+    ThemeData theme,
+    TrainingState trainingState,
+  ) {
+    final settings = trainingState is TrainingLoaded
+        ? trainingState.settings
+        : <String, String>{};
     final isAudioEnabled = settings['audio_effects'] == 'true';
     final isVibrationEnabled = settings['vibration'] == 'true';
 
@@ -343,154 +440,165 @@ class _ProfileScreenState extends State<ProfileScreen> {
         // Account Section
         _ProfileSection(
           title: 'Account',
-                    items: [
-                      _ProfileItem(
-                        icon: Icons.person, 
-                        label: 'Modifica Profilo',
-                        onTap: () => context.push('/profile/edit'),
-                      ),
-                      _ProfileItem(
-                        icon: Icons.lock, 
-                        label: 'Sicurezza',
-                        onTap: () => context.push('/profile/security'),
-                      ),
-                      const _ProfileItem(
-                        icon: Icons.payments_outlined,
-                        label: 'Gestione pagamenti',
-                        trailingText: 'FREE',
-                        isBadge: true,
-                      ),
-                    ],
-                  ),
+          items: [
+            _ProfileItem(
+              icon: Icons.person,
+              label: 'Modifica Profilo',
+              onTap: () => context.push('/profile/edit'),
+            ),
+            _ProfileItem(
+              icon: Icons.lock,
+              label: 'Sicurezza',
+              onTap: () => context.push('/profile/security'),
+            ),
+            const _ProfileItem(
+              icon: Icons.payments_outlined,
+              label: 'Gestione pagamenti',
+              trailingText: 'FREE',
+              isBadge: true,
+            ),
+          ],
+        ),
 
-                  // Training Settings
-                  _buildTrainingSettings(context, trainingState),
-                  // App Preferences
-                  _ProfileSection(
-                    title: 'Preferenze App',
-                    items: [
-                      const _ProfileItem(
-                        icon: Icons.dark_mode,
-                        label: 'Dark Mode',
-                        trailingText: 'Prossimamente',
-                        isBadge: true,
-                      ),
-                      const _ProfileItem(
-                        icon: Icons.language,
-                        label: 'Lingua',
-                        trailingText: 'Prossimamente',
-                        isBadge: true,
-                      ),
-                      const _ProfileItem(
-                        icon: Icons.notifications,
-                        label: 'Notifiche',
-                        trailingText: 'Prossimamente',
-                        isBadge: true,
-                      ),
-                      _ProfileItem(
-                        icon: Icons.volume_up_rounded,
-                        label: 'Effetti Audio',
-                        trailing: Transform.scale(
-                          scale: 0.8,
-                          child: Switch(
-                            value: isAudioEnabled,
-                            onChanged: (val) {
-                              context.read<TrainingBloc>().add(UpdatePreferenceEvent('audio_effects', val.toString()));
-                            },
-                            activeThumbColor: theme.colorScheme.primary,
+        // Training Settings
+        _buildTrainingSettings(context, trainingState),
+        // App Preferences
+        _ProfileSection(
+          title: 'Preferenze App',
+          items: [
+            const _ProfileItem(
+              icon: Icons.dark_mode,
+              label: 'Dark Mode',
+              trailingText: 'Prossimamente',
+              isBadge: true,
+            ),
+            const _ProfileItem(
+              icon: Icons.language,
+              label: 'Lingua',
+              trailingText: 'Prossimamente',
+              isBadge: true,
+            ),
+            const _ProfileItem(
+              icon: Icons.notifications,
+              label: 'Notifiche',
+              trailingText: 'Prossimamente',
+              isBadge: true,
+            ),
+            _ProfileItem(
+              icon: Icons.volume_up_rounded,
+              label: 'Effetti Audio',
+              trailing: Transform.scale(
+                scale: 0.8,
+                child: Switch(
+                  value: isAudioEnabled,
+                  onChanged: (val) {
+                    context.read<TrainingBloc>().add(
+                          UpdatePreferenceEvent(
+                            'audio_effects',
+                            val.toString(),
                           ),
-                        ),
-                      ),
-                      _ProfileItem(
-                        icon: Icons.vibration_rounded,
-                        label: 'Vibrazione',
-                        trailing: Transform.scale(
-                          scale: 0.8,
-                          child: Switch(
-                            value: isVibrationEnabled,
-                            onChanged: (val) {
-                              context.read<TrainingBloc>().add(UpdatePreferenceEvent('vibration', val.toString()));
-                            },
-                            activeThumbColor: theme.colorScheme.primary,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                        );
+                  },
+                  activeThumbColor: theme.colorScheme.primary,
+                ),
+              ),
+            ),
+            _ProfileItem(
+              icon: Icons.vibration_rounded,
+              label: 'Vibrazione',
+              trailing: Transform.scale(
+                scale: 0.8,
+                child: Switch(
+                  value: isVibrationEnabled,
+                  onChanged: (val) {
+                    context.read<TrainingBloc>().add(
+                          UpdatePreferenceEvent('vibration', val.toString()),
+                        );
+                  },
+                  activeThumbColor: theme.colorScheme.primary,
+                ),
+              ),
+            ),
+          ],
+        ),
 
-                  // Community & Feedback
-                  const _ProfileSection(
-                    title: 'Community & Feedback',
-                    items: [
-                       _ProfileItem(
-                        icon: Icons.star_rounded,
-                        label: 'Valuta GymCorpus',
-                        trailingText: 'Prossimamente',
-                        isBadge: true,
-                      ),
-                       _ProfileItem(
-                        icon: Icons.bug_report_rounded, 
-                        label: 'Segnala un Problema',
-                        trailingText: 'Prossimamente',
-                        isBadge: true,
-                      ),
-                       _ProfileItem(
-                        icon: Icons.gavel_rounded, 
-                        label: 'Termini di Servizio',
-                        trailingText: 'Prossimamente',
-                        isBadge: true,
-                      ),
-                       _ProfileItem(
-                        icon: Icons.privacy_tip_rounded, 
-                        label: 'Privacy Policy',
-                        trailingText: 'Prossimamente',
-                        isBadge: true,
-                      ),
-                    ],
-                  ),
+        // Community & Feedback
+        const _ProfileSection(
+          title: 'Community & Feedback',
+          items: [
+            _ProfileItem(
+              icon: Icons.star_rounded,
+              label: 'Valuta GymCorpus',
+              trailingText: 'Prossimamente',
+              isBadge: true,
+            ),
+            _ProfileItem(
+              icon: Icons.bug_report_rounded,
+              label: 'Segnala un Problema',
+              trailingText: 'Prossimamente',
+              isBadge: true,
+            ),
+            _ProfileItem(
+              icon: Icons.gavel_rounded,
+              label: 'Termini di Servizio',
+              trailingText: 'Prossimamente',
+              isBadge: true,
+            ),
+            _ProfileItem(
+              icon: Icons.privacy_tip_rounded,
+              label: 'Privacy Policy',
+              trailingText: 'Prossimamente',
+              isBadge: true,
+            ),
+          ],
+        ),
 
-                  const SizedBox(height: 24),
+        const SizedBox(height: 24),
 
-                  // Logout Button
-                  SizedBox(
-                    width: double.infinity,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(24),
-                        boxShadow: [
-                          BoxShadow(
-                            color: theme.colorScheme.error.withValues(alpha: 0.1),
-                            blurRadius: 20,
-                            offset: const Offset(0, 10),
-                          ),
-                        ],
-                      ),
-                      child: TextButton.icon(
-                        onPressed: () {
-                          context.read<AuthBloc>().add(const AuthEvent.logoutRequested());
-                        },
-                        icon: const Icon(Icons.logout_rounded, size: 20),
-                        label: const Text('DISCONNETTI ACCOUNT'),
-                        style: TextButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 22),
-                          backgroundColor: theme.colorScheme.errorContainer.withValues(alpha: 0.1),
-                          foregroundColor: theme.colorScheme.error,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(24),
-                            side: BorderSide(color: theme.colorScheme.errorContainer.withValues(alpha: 0.3)),
-                          ),
-                          textStyle: const TextStyle(
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 1.5,
-                            fontSize: 13,
-                            fontFamily: 'Lexend',
-                          ),
-                        ),
-                      ),
-                    ),
+        // Logout Button
+        SizedBox(
+          width: double.infinity,
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: theme.colorScheme.error.withValues(alpha: 0.1),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
+                ),
+              ],
+            ),
+            child: TextButton.icon(
+              onPressed: () {
+                context.read<AuthBloc>().add(const AuthEvent.logoutRequested());
+              },
+              icon: const Icon(Icons.logout_rounded, size: 20),
+              label: const Text('DISCONNETTI ACCOUNT'),
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 22),
+                backgroundColor:
+                    theme.colorScheme.errorContainer.withValues(alpha: 0.1),
+                foregroundColor: theme.colorScheme.error,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(24),
+                  side: BorderSide(
+                    color:
+                        theme.colorScheme.errorContainer.withValues(alpha: 0.3),
                   ),
-                ],
-              );
+                ),
+                textStyle: const TextStyle(
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1.5,
+                  fontSize: 13,
+                  fontFamily: 'Lexend',
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   void _showTimerPickerSheet(BuildContext context, String currentTimer) {
@@ -512,26 +620,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildPhysicalStats(
-    BuildContext context, 
-    ThemeData theme, 
-    UserEntity? user, 
+    BuildContext context,
+    ThemeData theme,
+    UserEntity? user,
     TrainingState trainingState,
   ) {
     if (user == null) return const SizedBox.shrink();
 
-    final settings = trainingState is TrainingLoaded ? trainingState.settings : <String, String>{};
+    final settings = trainingState is TrainingLoaded
+        ? trainingState.settings
+        : <String, String>{};
     final isImperial = (settings['units'] ?? 'KG') == 'LB';
+    final latestWeight = trainingState is TrainingLoaded &&
+            trainingState.bodyWeightLogs.isNotEmpty
+        ? trainingState.bodyWeightLogs.first.weight
+        : user.weight;
 
     var weightLabel = '? kg';
-    if (user.weight != null) {
-      final value = isImperial ? UnitConverter.kgToLb(user.weight!) : user.weight!;
+    if (latestWeight != null) {
+      final value =
+          isImperial ? UnitConverter.kgToLb(latestWeight) : latestWeight;
       weightLabel = '${value.toStringAsFixed(1)}${isImperial ? 'lb' : 'kg'}';
     }
 
     var heightLabel = '? cm';
     final heightValue = user.height;
     if (heightValue != null) {
-      final value = isImperial ? UnitConverter.cmToInch(heightValue) : heightValue;
+      final value =
+          isImperial ? UnitConverter.cmToInch(heightValue) : heightValue;
       heightLabel = '${value.toInt()}${isImperial ? 'in' : 'cm'}';
     }
 
@@ -540,13 +656,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final now = DateTime.now();
       final birthDate = user.birthDate!;
       var calculatedAge = now.year - birthDate.year;
-      if (now.month < birthDate.month || (now.month == birthDate.month && now.day < birthDate.day)) {
+      if (now.month < birthDate.month ||
+          (now.month == birthDate.month && now.day < birthDate.day)) {
         calculatedAge--;
       }
       age = '$calculatedAge anni';
     }
 
-    final hasMissingData = user.weight == null || user.height == null || user.birthDate == null;
+    final hasMissingData =
+        latestWeight == null || user.height == null || user.birthDate == null;
 
     return GestureDetector(
       onTap: hasMissingData ? () => context.push('/profile/edit') : null,
@@ -564,7 +682,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildTrainingSettings(BuildContext context, TrainingState state) {
-    final settings = state is TrainingLoaded ? state.settings : <String, String>{};
+    final settings =
+        state is TrainingLoaded ? state.settings : <String, String>{};
     final restTimer = settings['rest_timer'] ?? '90';
     final unit = settings['units'] ?? 'KG';
 
@@ -592,24 +711,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-
   Widget _buildStatItem(IconData icon, String value, ThemeData theme) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface.withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.1)),
+        border:
+            Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.1)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            icon, 
-            size: 14, 
-            color: icon == Icons.monitor_weight_outlined 
-                ? theme.colorScheme.primary 
-                : (icon == Icons.height ? theme.colorScheme.tertiary : Colors.orangeAccent),
+            icon,
+            size: 14,
+            color: icon == Icons.monitor_weight_outlined
+                ? theme.colorScheme.primary
+                : (icon == Icons.height
+                    ? theme.colorScheme.tertiary
+                    : Colors.orangeAccent),
           ),
           const SizedBox(width: 6),
           Text(
@@ -652,7 +773,10 @@ class _ProfileSection extends StatelessWidget {
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
-                      colors: [theme.colorScheme.primary, theme.colorScheme.tertiary],
+                      colors: [
+                        theme.colorScheme.primary,
+                        theme.colorScheme.tertiary,
+                      ],
                     ),
                     borderRadius: BorderRadius.circular(2),
                   ),
@@ -672,9 +796,12 @@ class _ProfileSection extends StatelessWidget {
           ),
           Container(
             decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.4),
+              color:
+                  theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.4),
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.05)),
+              border: Border.all(
+                color: theme.colorScheme.outline.withValues(alpha: 0.05),
+              ),
             ),
             child: ListView.separated(
               shrinkWrap: true,
@@ -730,7 +857,7 @@ class _ProfileItem extends StatelessWidget {
           child: Row(
             children: [
               Icon(
-                icon, 
+                icon,
                 color: iconColor,
                 size: 24,
               ),
@@ -747,7 +874,8 @@ class _ProfileItem extends StatelessWidget {
               if (trailingText != null) ...[
                 if (isBadge)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
                       color: isComingSoon
                           ? theme.colorScheme.outline.withValues(alpha: 0.12)
@@ -787,6 +915,7 @@ class _ProfileItem extends StatelessWidget {
     );
   }
 }
+
 class _TimerPickerSheet extends StatefulWidget {
   const _TimerPickerSheet({required this.initialValue});
   final String initialValue;
@@ -850,7 +979,8 @@ class _TimerPickerSheetState extends State<_TimerPickerSheet> {
                   onPressed: () => Navigator.pop(context),
                   icon: const Icon(Icons.close),
                   style: IconButton.styleFrom(
-                    backgroundColor: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                    backgroundColor: theme.colorScheme.surfaceContainerHighest
+                        .withValues(alpha: 0.5),
                   ),
                 ),
               ],
@@ -872,20 +1002,28 @@ class _TimerPickerSheetState extends State<_TimerPickerSheet> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  context.read<TrainingBloc>().add(UpdatePreferenceEvent('rest_timer', _value.toString()));
+                  context.read<TrainingBloc>().add(
+                        UpdatePreferenceEvent('rest_timer', _value.toString()),
+                      );
                   Navigator.pop(context);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: theme.colorScheme.primary,
                   foregroundColor: theme.colorScheme.onPrimary,
                   padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                   elevation: 8,
                   shadowColor: theme.colorScheme.primary.withValues(alpha: 0.4),
                 ),
                 child: const Text(
                   'APPLICA MODIFICHE',
-                  style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1.1, fontSize: 13),
+                  style: TextStyle(
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1.1,
+                    fontSize: 13,
+                  ),
                 ),
               ),
             ),
@@ -962,37 +1100,38 @@ class _UnitPickerSheetState extends State<_UnitPickerSheet> {
                   onPressed: () => Navigator.pop(context),
                   icon: const Icon(Icons.close),
                   style: IconButton.styleFrom(
-                    backgroundColor: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                    backgroundColor: theme.colorScheme.surfaceContainerHighest
+                        .withValues(alpha: 0.5),
                   ),
                 ),
               ],
             ),
           ),
           const SizedBox(height: 24),
-          
+
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Row(
               children: [
-                 Expanded(
-                   child: _UnitCard(
-                     title: 'Metrico',
-                     subtitle: 'Kg / cm',
-                     isSelected: _selectedUnit == 'KG',
-                     onTap: () => setState(() => _selectedUnit = 'KG'),
-                     theme: theme,
-                   ),
-                 ),
-                 const SizedBox(width: 16),
-                 Expanded(
-                   child: _UnitCard(
-                     title: 'Imperiale',
-                     subtitle: 'Lb / inch',
-                     isSelected: _selectedUnit == 'LB',
-                     onTap: () => setState(() => _selectedUnit = 'LB'),
-                     theme: theme,
-                   ),
-                 ),
+                Expanded(
+                  child: _UnitCard(
+                    title: 'Metrico',
+                    subtitle: 'Kg / cm',
+                    isSelected: _selectedUnit == 'KG',
+                    onTap: () => setState(() => _selectedUnit = 'KG'),
+                    theme: theme,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _UnitCard(
+                    title: 'Imperiale',
+                    subtitle: 'Lb / inch',
+                    isSelected: _selectedUnit == 'LB',
+                    onTap: () => setState(() => _selectedUnit = 'LB'),
+                    theme: theme,
+                  ),
+                ),
               ],
             ),
           ),
@@ -1005,19 +1144,27 @@ class _UnitPickerSheetState extends State<_UnitPickerSheet> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  context.read<TrainingBloc>().add(UpdatePreferenceEvent('units', _selectedUnit));
+                  context
+                      .read<TrainingBloc>()
+                      .add(UpdatePreferenceEvent('units', _selectedUnit));
                   Navigator.pop(context);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: theme.colorScheme.primary,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                   elevation: 0,
                 ),
                 child: const Text(
                   'APPLICA MODIFICHE',
-                  style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1.1, fontSize: 13),
+                  style: TextStyle(
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1.1,
+                    fontSize: 13,
+                  ),
                 ),
               ),
             ),
@@ -1050,32 +1197,45 @@ class _UnitCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 24),
         decoration: BoxDecoration(
-          color: isSelected ? theme.colorScheme.primaryContainer : theme.colorScheme.surfaceContainerHigh,
+          color: isSelected
+              ? theme.colorScheme.primaryContainer
+              : theme.colorScheme.surfaceContainerHigh,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? theme.colorScheme.primary : theme.colorScheme.outline.withValues(alpha: 0.1),
+            color: isSelected
+                ? theme.colorScheme.primary
+                : theme.colorScheme.outline.withValues(alpha: 0.1),
             width: isSelected ? 2 : 1,
           ),
         ),
         child: Column(
           children: [
             Icon(
-              isSelected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
-              color: isSelected ? theme.colorScheme.primary : theme.colorScheme.outline,
+              isSelected
+                  ? Icons.radio_button_checked
+                  : Icons.radio_button_unchecked,
+              color: isSelected
+                  ? theme.colorScheme.primary
+                  : theme.colorScheme.outline,
             ),
             const SizedBox(height: 12),
             Text(
               title,
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: isSelected ? theme.colorScheme.onPrimaryContainer : theme.colorScheme.onSurface,
+                color: isSelected
+                    ? theme.colorScheme.onPrimaryContainer
+                    : theme.colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 4),
             Text(
               subtitle,
               style: theme.textTheme.labelMedium?.copyWith(
-                color: isSelected ? theme.colorScheme.onPrimaryContainer.withValues(alpha: 0.7) : theme.colorScheme.outline,
+                color: isSelected
+                    ? theme.colorScheme.onPrimaryContainer
+                        .withValues(alpha: 0.7)
+                    : theme.colorScheme.outline,
               ),
             ),
           ],

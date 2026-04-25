@@ -10,6 +10,7 @@ import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
+import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
 import 'package:latlong2/latlong.dart';
 
 class CardioTrackerScreen extends StatefulWidget {
@@ -85,7 +86,8 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
       final newPoint = LatLng(pos.latitude, pos.longitude);
       setState(() {
         if (_route.isNotEmpty) {
-          final dist = const Distance().as(LengthUnit.Meter, _route.last, newPoint);
+          final dist =
+              const Distance().as(LengthUnit.Meter, _route.last, newPoint);
           _distanceMeters += dist;
         }
         _route.add(newPoint);
@@ -111,15 +113,17 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
     await _positionStream?.cancel();
 
     final distKm = _distanceMeters / 1000;
-    final avgSpeed = _elapsedSeconds > 0 ? (distKm / (_elapsedSeconds / 3600)) : 0.0;
-    
+    final avgSpeed =
+        _elapsedSeconds > 0 ? (distKm / (_elapsedSeconds / 3600)) : 0.0;
+
     // Pace: minutes per km
     var pace = '--:--';
     if (distKm > 0) {
       final paceMinutes = (_elapsedSeconds / 60) / distKm;
       final pMins = paceMinutes.floor();
       final pSecs = ((paceMinutes - pMins) * 60).round();
-      pace = '${pMins.toString().padLeft(2, '0')}:${pSecs.toString().padLeft(2, '0')}';
+      pace =
+          '${pMins.toString().padLeft(2, '0')}:${pSecs.toString().padLeft(2, '0')}';
     }
 
     // MET-based calorie estimation
@@ -128,18 +132,22 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
     final calories = (metValue * userWeight * (_elapsedSeconds / 3600)).round();
 
     // Route JSON
-    final routeJson = jsonEncode(_route.map((p) => {'lat': p.latitude, 'lng': p.longitude}).toList());
+    final routeJson = jsonEncode(
+      _route.map((p) => {'lat': p.latitude, 'lng': p.longitude}).toList(),
+    );
 
     if (mounted) {
-      context.read<TrainingBloc>().add(SaveCardioSessionEvent(
-        type: widget.type,
-        distance: double.parse(distKm.toStringAsFixed(2)),
-        duration: _elapsedSeconds,
-        avgSpeed: double.parse(avgSpeed.toStringAsFixed(1)),
-        pace: pace,
-        calories: calories,
-        routeJson: routeJson,
-      ),);
+      context.read<TrainingBloc>().add(
+            SaveCardioSessionEvent(
+              type: widget.type,
+              distance: double.parse(distKm.toStringAsFixed(2)),
+              duration: _elapsedSeconds,
+              avgSpeed: double.parse(avgSpeed.toStringAsFixed(1)),
+              pace: pace,
+              calories: calories,
+              routeJson: routeJson,
+            ),
+          );
 
       await Future<void>.delayed(const Duration(milliseconds: 500));
       if (mounted) context.pop();
@@ -147,6 +155,12 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
   }
 
   double _getUserWeight() {
+    final trainingState = context.read<TrainingBloc>().state;
+    if (trainingState is TrainingLoaded &&
+        trainingState.bodyWeightLogs.isNotEmpty) {
+      return trainingState.bodyWeightLogs.first.weight;
+    }
+
     final authState = context.read<AuthBloc>().state;
     return authState.maybeWhen(
       authenticated: (user) => user.weight ?? 70.0,
@@ -158,7 +172,9 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
     final h = seconds ~/ 3600;
     final m = (seconds % 3600) ~/ 60;
     final s = seconds % 60;
-    if (h > 0) return '${h.toString().padLeft(2, '0')}:${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
+    if (h > 0) {
+      return '${h.toString().padLeft(2, '0')}:${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
+    }
     return '${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
   }
 
@@ -183,7 +199,8 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
           FlutterMap(
             mapController: _mapController,
             options: MapOptions(
-              initialCenter: _currentPosition ?? const LatLng(41.9028, 12.4964), // Roma default
+              initialCenter: _currentPosition ??
+                  const LatLng(41.9028, 12.4964), // Roma default
               initialZoom: 16,
             ),
             children: [
@@ -196,7 +213,9 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
                   polylines: [
                     Polyline(
                       points: _route,
-                      color: isRun ? theme.colorScheme.primary : Colors.orangeAccent,
+                      color: isRun
+                          ? theme.colorScheme.primary
+                          : Colors.orangeAccent,
                       strokeWidth: 5,
                     ),
                   ],
@@ -210,12 +229,17 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
                       height: 24,
                       child: Container(
                         decoration: BoxDecoration(
-                          color: isRun ? theme.colorScheme.primary : Colors.orangeAccent,
+                          color: isRun
+                              ? theme.colorScheme.primary
+                              : Colors.orangeAccent,
                           shape: BoxShape.circle,
                           border: Border.all(color: Colors.white, width: 3),
                           boxShadow: [
                             BoxShadow(
-                              color: (isRun ? theme.colorScheme.primary : Colors.orangeAccent).withValues(alpha: 0.4),
+                              color: (isRun
+                                      ? theme.colorScheme.primary
+                                      : Colors.orangeAccent)
+                                  .withValues(alpha: 0.4),
                               blurRadius: 10,
                               spreadRadius: 2,
                             ),
@@ -245,9 +269,18 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
                 decoration: BoxDecoration(
                   color: theme.colorScheme.surface,
                   shape: BoxShape.circle,
-                  boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.15), blurRadius: 10)],
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.15),
+                      blurRadius: 10,
+                    ),
+                  ],
                 ),
-                child: Icon(Icons.arrow_back_ios_new, size: 20, color: theme.colorScheme.onSurface),
+                child: Icon(
+                  Icons.arrow_back_ios_new,
+                  size: 20,
+                  color: theme.colorScheme.onSurface,
+                ),
               ),
             ),
           ),
@@ -275,11 +308,23 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
             right: 0,
             bottom: 0,
             child: Container(
-              padding: EdgeInsets.fromLTRB(24, 28, 24, MediaQuery.of(context).padding.bottom + 20),
+              padding: EdgeInsets.fromLTRB(
+                24,
+                28,
+                24,
+                MediaQuery.of(context).padding.bottom + 20,
+              ),
               decoration: BoxDecoration(
                 color: theme.colorScheme.surface,
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-                boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.15), blurRadius: 20, offset: const Offset(0, -8))],
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(32)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.15),
+                    blurRadius: 20,
+                    offset: const Offset(0, -8),
+                  ),
+                ],
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -288,13 +333,18 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
                   Row(
                     children: [
                       Container(
-                        width: 4, height: 20,
+                        width: 4,
+                        height: 20,
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
-                            begin: Alignment.topCenter, end: Alignment.bottomCenter,
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
                             colors: isRun
-                              ? [theme.colorScheme.primary, theme.colorScheme.tertiary]
-                              : [Colors.orangeAccent, Colors.deepOrange],
+                                ? [
+                                    theme.colorScheme.primary,
+                                    theme.colorScheme.tertiary,
+                                  ]
+                                : [Colors.orangeAccent, Colors.deepOrange],
                           ),
                           borderRadius: BorderRadius.circular(2),
                         ),
@@ -303,8 +353,12 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
                       Text(
                         isRun ? 'CORSA' : 'CAMMINATA',
                         style: theme.textTheme.labelSmall?.copyWith(
-                          fontWeight: FontWeight.w900, letterSpacing: 2, fontSize: 10,
-                          color: isRun ? theme.colorScheme.primary : Colors.orangeAccent,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 2,
+                          fontSize: 10,
+                          color: isRun
+                              ? theme.colorScheme.primary
+                              : Colors.orangeAccent,
                         ),
                       ),
                     ],
@@ -315,17 +369,39 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      _StatColumn(label: 'DISTANZA', value: '${distKm.toStringAsFixed(2)} km', theme: theme),
-                      _StatColumn(label: 'DURATA', value: _formatDuration(_elapsedSeconds), theme: theme),
-                      _StatColumn(label: 'VEL. MEDIA', value: '${(_elapsedSeconds > 0 ? (distKm / (_elapsedSeconds / 3600)) : 0).toStringAsFixed(1)} km/h', theme: theme),
+                      _StatColumn(
+                        label: 'DISTANZA',
+                        value: '${distKm.toStringAsFixed(2)} km',
+                        theme: theme,
+                      ),
+                      _StatColumn(
+                        label: 'DURATA',
+                        value: _formatDuration(_elapsedSeconds),
+                        theme: theme,
+                      ),
+                      _StatColumn(
+                        label: 'VEL. MEDIA',
+                        value:
+                            '${(_elapsedSeconds > 0 ? (distKm / (_elapsedSeconds / 3600)) : 0).toStringAsFixed(1)} km/h',
+                        theme: theme,
+                      ),
                     ],
                   ),
                   const SizedBox(height: 12),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      _StatColumn(label: 'VELOCITÀ', value: '${_currentSpeedKmh.toStringAsFixed(1)} km/h', theme: theme),
-                      _StatColumn(label: 'CALORIE', value: '${(_getUserWeight() * (widget.type == "run" ? 9.8 : 3.8) * (_elapsedSeconds / 3600)).round()} kcal', theme: theme),
+                      _StatColumn(
+                        label: 'VELOCITÀ',
+                        value: '${_currentSpeedKmh.toStringAsFixed(1)} km/h',
+                        theme: theme,
+                      ),
+                      _StatColumn(
+                        label: 'CALORIE',
+                        value:
+                            '${(_getUserWeight() * (widget.type == "run" ? 9.8 : 3.8) * (_elapsedSeconds / 3600)).round()} kcal',
+                        theme: theme,
+                      ),
                     ],
                   ),
                   const SizedBox(height: 28),
@@ -336,16 +412,26 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
                       width: double.infinity,
                       child: ElevatedButton.icon(
                         onPressed: _startTracking,
-                        icon: Icon(isRun ? Icons.directions_run : Icons.directions_walk),
+                        icon: Icon(
+                          isRun ? Icons.directions_run : Icons.directions_walk,
+                        ),
                         label: Text(
                           'INIZIA ${isRun ? "CORSA" : "CAMMINATA"}',
-                          style: const TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1.5, fontSize: 14),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 1.5,
+                            fontSize: 14,
+                          ),
                         ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: isRun ? theme.colorScheme.primary : Colors.orangeAccent,
+                          backgroundColor: isRun
+                              ? theme.colorScheme.primary
+                              : Colors.orangeAccent,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 18),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
                           elevation: 0,
                         ),
                       ),
@@ -355,17 +441,29 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
                       children: [
                         Expanded(
                           child: ElevatedButton.icon(
-                            onPressed: _isPaused ? _resumeTracking : _pauseTracking,
-                            icon: Icon(_isPaused ? Icons.play_arrow_rounded : Icons.pause_rounded),
+                            onPressed:
+                                _isPaused ? _resumeTracking : _pauseTracking,
+                            icon: Icon(
+                              _isPaused
+                                  ? Icons.play_arrow_rounded
+                                  : Icons.pause_rounded,
+                            ),
                             label: Text(
                               _isPaused ? 'RIPRENDI' : 'PAUSA',
-                              style: const TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1, fontSize: 13),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 1,
+                                fontSize: 13,
+                              ),
                             ),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: theme.colorScheme.surfaceContainerHigh,
+                              backgroundColor:
+                                  theme.colorScheme.surfaceContainerHigh,
                               foregroundColor: theme.colorScheme.onSurface,
                               padding: const EdgeInsets.symmetric(vertical: 18),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
                               elevation: 0,
                             ),
                           ),
@@ -375,17 +473,30 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
                           child: ElevatedButton.icon(
                             onPressed: _isSaving ? null : _stopAndSave,
                             icon: _isSaving
-                              ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                              : const Icon(Icons.stop_rounded),
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                : const Icon(Icons.stop_rounded),
                             label: Text(
                               _isSaving ? 'SALVO...' : 'FINE',
-                              style: const TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1, fontSize: 13),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 1,
+                                fontSize: 13,
+                              ),
                             ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.redAccent,
                               foregroundColor: Colors.white,
                               padding: const EdgeInsets.symmetric(vertical: 18),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
                               elevation: 0,
                             ),
                           ),
@@ -408,12 +519,21 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
       builder: (ctx) => AlertDialog(
         backgroundColor: theme.colorScheme.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: const Text('Interrompere la sessione?', style: TextStyle(fontWeight: FontWeight.w900, fontFamily: 'Lexend')),
+        title: const Text(
+          'Interrompere la sessione?',
+          style: TextStyle(fontWeight: FontWeight.w900, fontFamily: 'Lexend'),
+        ),
         content: const Text('I dati non salvati andranno persi.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text('ANNULLA', style: TextStyle(color: theme.colorScheme.outline, fontWeight: FontWeight.w900)),
+            child: Text(
+              'ANNULLA',
+              style: TextStyle(
+                color: theme.colorScheme.outline,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
           ),
           TextButton(
             onPressed: () {
@@ -423,7 +543,10 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
               context.pop();
             },
             style: TextButton.styleFrom(foregroundColor: Colors.redAccent),
-            child: const Text('INTERROMPI', style: TextStyle(fontWeight: FontWeight.w900)),
+            child: const Text(
+              'INTERROMPI',
+              style: TextStyle(fontWeight: FontWeight.w900),
+            ),
           ),
         ],
       ),
@@ -432,7 +555,11 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
 }
 
 class _StatColumn extends StatelessWidget {
-  const _StatColumn({required this.label, required this.value, required this.theme});
+  const _StatColumn({
+    required this.label,
+    required this.value,
+    required this.theme,
+  });
 
   final String label;
   final String value;
@@ -442,18 +569,24 @@ class _StatColumn extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(label, style: theme.textTheme.labelSmall?.copyWith(
-          color: theme.colorScheme.outline,
-          fontWeight: FontWeight.w900,
-          letterSpacing: 1,
-          fontSize: 9,
-        ),),
+        Text(
+          label,
+          style: theme.textTheme.labelSmall?.copyWith(
+            color: theme.colorScheme.outline,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 1,
+            fontSize: 9,
+          ),
+        ),
         const SizedBox(height: 4),
-        Text(value, style: theme.textTheme.titleMedium?.copyWith(
-          fontWeight: FontWeight.w900,
-          fontFamily: 'Lexend',
-          fontSize: 16,
-        ),),
+        Text(
+          value,
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w900,
+            fontFamily: 'Lexend',
+            fontSize: 16,
+          ),
+        ),
       ],
     );
   }

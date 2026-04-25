@@ -97,19 +97,19 @@ class _GymAppState extends State<GymApp> {
       refreshListenable: _routerRefresh,
       redirect: (context, state) {
         final authState = _authBloc.state;
-        
+
         return authState.maybeWhen(
           authenticated: (_) {
-            if (state.matchedLocation == '/login' || 
-                state.matchedLocation == '/signup' || 
+            if (state.matchedLocation == '/login' ||
+                state.matchedLocation == '/signup' ||
                 state.matchedLocation == '/splash') {
               return '/training';
             }
             return null;
           },
           unauthenticated: () {
-            if (state.matchedLocation != '/login' && 
-                state.matchedLocation != '/signup' && 
+            if (state.matchedLocation != '/login' &&
+                state.matchedLocation != '/signup' &&
                 state.matchedLocation != '/splash') {
               return '/login';
             }
@@ -119,9 +119,9 @@ class _GymAppState extends State<GymApp> {
             // If we have a previousUser, the user was authenticated
             // before the error — don't redirect to login
             if (previousUser != null) return null;
-            
-            if (state.matchedLocation != '/login' && 
-                state.matchedLocation != '/signup' && 
+
+            if (state.matchedLocation != '/login' &&
+                state.matchedLocation != '/signup' &&
                 state.matchedLocation != '/splash') {
               return '/login';
             }
@@ -152,7 +152,6 @@ class _GymAppState extends State<GymApp> {
             return RootScreen(child: child);
           },
           routes: [
-
             GoRoute(
               path: '/training',
               builder: (context, state) => const TrainingDashboardScreen(),
@@ -172,7 +171,6 @@ class _GymAppState extends State<GymApp> {
                 ),
               ],
             ),
-
             GoRoute(
               path: '/custom',
               builder: (context, state) => const CustomWorkoutsScreen(),
@@ -293,6 +291,7 @@ class _GymAppState extends State<GymApp> {
           create: (_) => di.sl<TrainingBloc>()
             ..add(LoadExercisesEvent())
             ..add(LoadRoutinesEvent())
+            ..add(LoadBodyWeightLogsEvent())
             ..add(LoadSettingsEvent()),
         ),
       ],

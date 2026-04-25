@@ -41,8 +41,10 @@ class TrainingRepositoryImpl implements TrainingRepository {
   }
 
   @override
-  Future<Either<Failure, void>> toggleExerciseFavorite(int id,
-      {required bool isFavorite,}) async {
+  Future<Either<Failure, void>> toggleExerciseFavorite(
+    int id, {
+    required bool isFavorite,
+  }) async {
     try {
       await database.toggleExerciseFavorite(id, isFavorite: isFavorite);
       return const Right(null);
@@ -63,9 +65,10 @@ class TrainingRepositoryImpl implements TrainingRepository {
         // Get exercises for this routine
         final exercisesQuery = database.select(database.routineExercises).join([
           innerJoin(
-              database.exercises,
-              database.exercises.id
-                  .equalsExp(database.routineExercises.exerciseId),),
+            database.exercises,
+            database.exercises.id
+                .equalsExp(database.routineExercises.exerciseId),
+          ),
         ])
           ..where(database.routineExercises.routineId.equals(routineData.id));
 
@@ -116,8 +119,11 @@ class TrainingRepositoryImpl implements TrainingRepository {
   }
 
   @override
-  Future<Either<Failure, int>> addRoutine(String title,
-      List<RoutineExerciseEntity> routineExercises, int? estDuration,) async {
+  Future<Either<Failure, int>> addRoutine(
+    String title,
+    List<RoutineExerciseEntity> routineExercises,
+    int? estDuration,
+  ) async {
     try {
       return await database.transaction(() async {
         final routineId = await database.into(database.routines).insert(
@@ -149,8 +155,12 @@ class TrainingRepositoryImpl implements TrainingRepository {
   }
 
   @override
-  Future<Either<Failure, void>> updateRoutine(int id, String title,
-      List<RoutineExerciseEntity> exercises, int? estDuration,) async {
+  Future<Either<Failure, void>> updateRoutine(
+    int id,
+    String title,
+    List<RoutineExerciseEntity> exercises,
+    int? estDuration,
+  ) async {
     try {
       await database.transaction(() async {
         // Update routine metadata
@@ -229,7 +239,8 @@ class TrainingRepositoryImpl implements TrainingRepository {
     try {
       if (reps < 0 || weight < 0) {
         return const Left(
-            DatabaseFailure('Negative weight or reps are invalid.'),);
+          DatabaseFailure('Negative weight or reps are invalid.'),
+        );
       }
 
       await database.insertSet(
@@ -266,6 +277,12 @@ class TrainingRepositoryImpl implements TrainingRepository {
   @override
   Future<Either<Failure, int>> addBodyWeightLogEntry(double weight) async {
     try {
+      if (!_isValidBodyWeight(weight)) {
+        return const Left(
+          DatabaseFailure('Il peso deve essere maggiore di 0 e realistico.'),
+        );
+      }
+
       final id = await database.insertWeightLog(
         WeightLogsCompanion(
           weight: Value(weight),
@@ -290,8 +307,16 @@ class TrainingRepositoryImpl implements TrainingRepository {
 
   @override
   Future<Either<Failure, void>> updateBodyWeightLogEntry(
-      int id, double weight,) async {
+    int id,
+    double weight,
+  ) async {
     try {
+      if (!_isValidBodyWeight(weight)) {
+        return const Left(
+          DatabaseFailure('Il peso deve essere maggiore di 0 e realistico.'),
+        );
+      }
+
       await database.updateWeightLog(id, weight);
       return const Right(null);
     } catch (e) {
@@ -300,7 +325,7 @@ class TrainingRepositoryImpl implements TrainingRepository {
   }
 
   @override
-  Future<Either<Failure, void>> reseedWeightHistory() async {
+  Future<Either<Failure, double?>> reseedWeightHistory() async {
     try {
       await database.deleteAllWeightLogs();
 
@@ -319,9 +344,11 @@ class TrainingRepositoryImpl implements TrainingRepository {
         -0.1,
       ];
 
+      double? latestWeight;
       for (var i = 0; i < 10; i++) {
         final date = now.subtract(Duration(days: 9 - i));
         final weight = baseWeight + variations[i];
+        latestWeight = weight;
         await database.insertWeightLog(
           WeightLogsCompanion(
             weight: Value(weight),
@@ -329,10 +356,14 @@ class TrainingRepositoryImpl implements TrainingRepository {
           ),
         );
       }
-      return const Right(null);
+      return Right(latestWeight);
     } catch (e) {
       return Left(DatabaseFailure(e.toString()));
     }
+  }
+
+  bool _isValidBodyWeight(double weight) {
+    return weight.isFinite && weight > 0 && weight <= 500;
   }
 
   @override
@@ -353,7 +384,9 @@ class TrainingRepositoryImpl implements TrainingRepository {
 
   @override
   Future<Either<Failure, int>> addBodyMeasurement(
-      String part, double value,) async {
+    String part,
+    double value,
+  ) async {
     try {
       final id = await database.insertMeasurement(
         BodyMeasurementsCompanion(
@@ -380,7 +413,9 @@ class TrainingRepositoryImpl implements TrainingRepository {
 
   @override
   Future<Either<Failure, void>> updateBodyMeasurement(
-      int id, double value,) async {
+    int id,
+    double value,
+  ) async {
     try {
       await database.updateMeasurement(id, value);
       return const Right(null);
@@ -403,7 +438,9 @@ class TrainingRepositoryImpl implements TrainingRepository {
 
   @override
   Future<Either<Failure, void>> updatePreference(
-      String key, String value,) async {
+    String key,
+    String value,
+  ) async {
     try {
       await database.updateSetting(key, value);
       return const Right(null);

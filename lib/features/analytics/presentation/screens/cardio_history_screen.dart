@@ -59,19 +59,151 @@ class _CardioHistoryScreenState extends State<CardioHistoryScreen> {
             );
           }
 
-          // Sort sessions by date (newest first)
           final sortedSessions = List<CardioSessionEntity>.from(sessions)
             ..sort((a, b) => b.date.compareTo(a.date));
 
-          return ListView.builder(
+          final now = DateTime.now();
+          final today = DateTime(now.year, now.month, now.day);
+          final recentThreshold = today.subtract(const Duration(days: 7));
+
+          final recentSessions = sortedSessions
+              .where((s) => s.date.isAfter(recentThreshold))
+              .toList();
+          final olderSessions = sortedSessions
+              .where((s) => s.date.isBefore(recentThreshold) || s.date.isAtSameMomentAs(recentThreshold))
+              .toList();
+
+          return ListView(
             padding: const EdgeInsets.all(24),
-            itemCount: sortedSessions.length,
-            itemBuilder: (context, index) {
-              return _DetailedCardioCard(session: sortedSessions[index]);
-            },
+            children: [
+              if (recentSessions.isNotEmpty) ...[
+                _SectionHeader(
+                  title: 'RECENTI',
+                  color: theme.colorScheme.primary,
+                ),
+                ...recentSessions.map((s) => _DismissibleCardioCard(session: s)),
+                const SizedBox(height: 24),
+              ],
+              if (olderSessions.isNotEmpty) ...[
+                _SectionHeader(
+                  title: 'PRECEDENTI',
+                  color: theme.colorScheme.outline,
+                ),
+                ...olderSessions.map((s) => _DismissibleCardioCard(session: s)),
+              ],
+              const SizedBox(height: 80),
+            ],
           );
         },
       ),
+    );
+  }
+}
+
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader({required this.title, required this.color});
+  final String title;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16, left: 4),
+      child: Row(
+        children: [
+          Container(
+            width: 4,
+            height: 16,
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            title,
+            style: theme.textTheme.labelLarge?.copyWith(
+              color: color,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 1.2,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DismissibleCardioCard extends StatelessWidget {
+  const _DismissibleCardioCard({required this.session});
+  final CardioSessionEntity session;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Dismissible(
+      key: Key('cardio_${session.id}'),
+      direction: DismissDirection.endToStart,
+      confirmDismiss: (direction) async {
+        return await showDialog<bool>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            backgroundColor: theme.colorScheme.surface,
+            title: const Text(
+              'ELIMINA SESSIONE',
+              style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
+            ),
+            content: const Text(
+              'Sei sicuro di voler eliminare definitivamente questa sessione di cardio?',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: Text(
+                  'ANNULLA',
+                  style: TextStyle(color: theme.colorScheme.outline),
+                ),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                child: const Text(
+                  'ELIMINA',
+                  style: TextStyle(
+                    color: Colors.redAccent,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+      onDismissed: (direction) {
+        context.read<TrainingBloc>().add(DeleteCardioSessionEvent(session.id));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Sessione eliminata'),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        );
+      },
+      background: Container(
+        margin: const EdgeInsets.only(bottom: 20),
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 24),
+        decoration: BoxDecoration(
+          color: Colors.redAccent.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(24),
+        ),
+        child: const Icon(
+          Icons.delete_outline,
+          color: Colors.redAccent,
+        ),
+      ),
+      child: _DetailedCardioCard(session: session),
     );
   }
 }
@@ -82,18 +214,8 @@ class _DetailedCardioCard extends StatelessWidget {
 
   String _formatDate(DateTime date) {
     final months = [
-      'Gen',
-      'Feb',
-      'Mar',
-      'Apr',
-      'Mag',
-      'Giu',
-      'Lug',
-      'Ago',
-      'Set',
-      'Ott',
-      'Nov',
-      'Dic',
+      'Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu',
+      'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic',
     ];
     return '${date.day} ${months[date.month - 1]} ${date.year} • ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
   }
@@ -135,24 +257,22 @@ class _DetailedCardioCard extends StatelessWidget {
       }
     }
 
-    return GestureDetector(
-      onTap: () => _openFullMap(context, route, accentColor),
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 20),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: theme.colorScheme.surfaceContainerHigh,
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          children: [
+    return Container(
+      margin: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHigh,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -193,8 +313,7 @@ class _DetailedCardioCard extends StatelessWidget {
                   ],
                 ),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
                     color: accentColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
@@ -250,8 +369,7 @@ class _DetailedCardioCard extends StatelessWidget {
                       ),
                       children: [
                         TileLayer(
-                          urlTemplate:
-                              'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                           userAgentPackageName: 'com.gymcorpus.app',
                         ),
                         if (route.length > 1)
@@ -267,19 +385,17 @@ class _DetailedCardioCard extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 8),
-              const Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Text(
-                    '© OpenStreetMap',
-                    style: TextStyle(fontSize: 8, color: Colors.grey),
-                  ),
-                ],
+              const SizedBox(height: 12),
+              Align(
+                alignment: Alignment.centerRight,
+                child: FilledButton.icon(
+                  onPressed: () => _openFullMap(context, route, accentColor),
+                  icon: const Icon(Icons.map_outlined, size: 18),
+                  label: const Text('Apri mappa'),
+                ),
               ),
             ],
-          ],
-        ),
+        ],
       ),
     );
   }
@@ -318,106 +434,96 @@ class _DetailedCardioCard extends StatelessWidget {
                 ),
               ),
               Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'DETTAGLIO PERCORSO',
-                            style: theme.textTheme.labelSmall?.copyWith(
-                              letterSpacing: 1.5,
-                              fontWeight: FontWeight.w900,
-                              color: color,
-                            ),
+                padding: const EdgeInsets.all(24),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'DETTAGLIO PERCORSO',
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            letterSpacing: 1.5,
+                            fontWeight: FontWeight.w900,
+                            color: color,
                           ),
-                          Text(
-                            _formatDate(session.date),
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'Lexend',
-                            ),
+                        ),
+                        Text(
+                          _formatDate(session.date),
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Lexend',
                           ),
-                        ],
-                      ),
-                      IconButton(
-                        onPressed: () => Navigator.pop(ctx),
-                        icon: const Icon(Icons.close),
-                      ),
-                    ],
-                  ),
+                        ),
+                      ],
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.pop(ctx),
+                      icon: const Icon(Icons.close),
+                    ),
+                  ],
                 ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(24),
-                      child: route.isNotEmpty
-                          ? FlutterMap(
-                              options: MapOptions(
-                                initialCenter: route.length > 1
-                                    ? route[route.length ~/ 2]
-                                    : route[0],
-                                initialZoom: 15,
-                                initialCameraFit:
-                                    route.length > 1 && bounds != null
-                                        ? CameraFit.bounds(
-                                            bounds: bounds,
-                                            padding: const EdgeInsets.all(40),
-                                          )
-                                        : null,
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(24),
+                    child: route.isNotEmpty
+                        ? FlutterMap(
+                            options: MapOptions(
+                              initialCenter: route.length > 1
+                                  ? route[route.length ~/ 2]
+                                  : route[0],
+                              initialZoom: 15,
+                              initialCameraFit: route.length > 1 && bounds != null
+                                  ? CameraFit.bounds(
+                                      bounds: bounds,
+                                      padding: const EdgeInsets.all(40),
+                                    )
+                                  : null,
+                            ),
+                            children: [
+                              TileLayer(
+                                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                userAgentPackageName: 'com.gymcorpus.app',
                               ),
-                              children: [
-                                TileLayer(
-                                  urlTemplate:
-                                      'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                                  userAgentPackageName: 'com.gymcorpus.app',
-                                ),
-                                if (route.length > 1)
-                                  PolylineLayer(polylines: [
-                                    Polyline(
-                                      points: route,
-                                      color: color,
-                                      strokeWidth: 5,
-                                    ),
-                                  ],),
-                                MarkerLayer(
-                                  markers: [
+                              if (route.length > 1)
+                                PolylineLayer(polylines: [
+                                  Polyline(
+                                    points: route,
+                                    color: color,
+                                    strokeWidth: 5,
+                                  ),
+                                ],),
+                              MarkerLayer(
+                                markers: [
+                                  Marker(
+                                    point: route[0],
+                                    width: 32,
+                                    height: 32,
+                                    child: const Icon(Icons.location_on, color: Colors.green, size: 32),
+                                  ),
+                                  if (route.length > 1)
                                     Marker(
-                                      point: route[0],
+                                      point: route.last,
                                       width: 32,
                                       height: 32,
-                                      child: const Icon(
-                                        Icons.location_on,
-                                        color: Colors.green,
-                                        size: 32,
-                                      ),
+                                      child: const Icon(Icons.flag, color: Colors.red, size: 32),
                                     ),
-                                    if (route.length > 1)
-                                      Marker(
-                                        point: route.last,
-                                        width: 32,
-                                        height: 32,
-                                        child: const Icon(
-                                          Icons.flag,
-                                          color: Colors.red,
-                                          size: 32,
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                              ],
-                            )
-                          : const Center(child: Text('Mappa non disponibile')),
-                    ),
+                                ],
+                              ),
+                            ],
+                          )
+                        : const Center(child: Text('Mappa non disponibile')),
                   ),
                 ),
-                const SizedBox(height: 24),
-              ],
-            ),
-          );
+              ),
+              const SizedBox(height: 24),
+            ],
+          ),
+        );
       },
     );
   }

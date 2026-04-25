@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/utils/unit_converter.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:gym_corpus/features/auth/presentation/bloc/auth_event.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
 import 'package:gym_corpus/features/training/domain/entities/body_weight.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_session.dart';
@@ -943,9 +942,6 @@ class _WeightTrackingCardState extends State<_WeightTrackingCard> {
                   context
                       .read<TrainingBloc>()
                       .add(AddBodyWeightLogEvent(weight));
-                  context
-                      .read<AuthBloc>()
-                      .add(AuthEvent.updateProfileRequested(weight: weight));
                 } else {
                   context
                       .read<TrainingBloc>()
@@ -1243,6 +1239,8 @@ class _BMICard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final trainingState = context.watch<TrainingBloc>().state;
+
     return BlocBuilder<AuthBloc, AuthState>(
       builder: (context, state) {
         double? bmi;
@@ -1254,9 +1252,14 @@ class _BMICard extends StatelessWidget {
           orElse: () => null,
         );
 
-        if (user != null && user.weight != null && user.height != null) {
+        final latestWeight = trainingState is TrainingLoaded &&
+                trainingState.bodyWeightLogs.isNotEmpty
+            ? trainingState.bodyWeightLogs.first.weight
+            : user?.weight;
+
+        if (user != null && latestWeight != null && user.height != null) {
           final hMetri = user.height! / 100;
-          final calculatedBmi = user.weight! / (hMetri * hMetri);
+          final calculatedBmi = latestWeight / (hMetri * hMetri);
           bmi = calculatedBmi;
 
           if (calculatedBmi < 18.5) {
@@ -1385,95 +1388,106 @@ class _CardioHistorySection extends StatelessWidget {
 
     final displaySessions = sessions.take(3).toList();
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                Container(
-                  width: 4,
-                  height: 20,
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [Color(0xFFFF9494), Colors.deepOrange],
-                    ),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  'RECENTI CARDIO',
-                  style: theme.textTheme.labelSmall?.copyWith(
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 2,
-                    fontSize: 11,
-                  ),
-                ),
-              ],
-            ),
-            if (sessions.isNotEmpty)
-              TextButton(
-                onPressed: () => context.push('/analytics/cardio-history'),
-                style: TextButton.styleFrom(
-                  visualDensity: VisualDensity.compact,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  backgroundColor:
-                      theme.colorScheme.primary.withValues(alpha: 0.05),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      'GUARDA TUTTE',
-                      style: TextStyle(
-                        fontSize: 9,
-                        fontWeight: FontWeight.w900,
-                        color: theme.colorScheme.primary,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    Icon(
-                      Icons.arrow_forward_ios_rounded,
-                      size: 10,
-                      color: theme.colorScheme.primary,
-                    ),
-                  ],
-                ),
-              ),
-          ],
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHigh,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: theme.colorScheme.outline.withValues(alpha: 0.08),
         ),
-        const SizedBox(height: 12),
-        if (sessions.isEmpty)
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceContainerHighest
-                  .withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Center(
-              child: Text(
-                'Nessuna sessione registrata',
-                style: theme.textTheme.bodySmall
-                    ?.copyWith(color: theme.colorScheme.outline),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 4,
+                    height: 20,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [Color(0xFFFF9494), Colors.deepOrange],
+                      ),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    'RECENTI CARDIO',
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 2,
+                      fontSize: 11,
+                    ),
+                  ),
+                ],
               ),
-            ),
-          )
-        else
-          ...displaySessions
-              .map((session) => _CompactCardioCard(session: session)),
-      ],
+              if (sessions.isNotEmpty)
+                TextButton(
+                  onPressed: () => context.push('/analytics/cardio-history'),
+                  style: TextButton.styleFrom(
+                    visualDensity: VisualDensity.compact,
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    backgroundColor:
+                        theme.colorScheme.primary.withValues(alpha: 0.05),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'GUARDA TUTTE',
+                        style: TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w900,
+                          color: theme.colorScheme.primary,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        size: 10,
+                        color: theme.colorScheme.primary,
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          if (sessions.isEmpty)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surfaceContainerHighest
+                    .withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Center(
+                child: Text(
+                  'Nessuna sessione registrata',
+                  style: theme.textTheme.bodySmall
+                      ?.copyWith(color: theme.colorScheme.outline),
+                ),
+              ),
+            )
+          else
+            ...displaySessions
+                .map((session) => _CompactCardioCard(session: session)),
+        ],
+      ),
     );
   }
 }
@@ -1510,7 +1524,7 @@ class _CompactCardioCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHigh,
+        color: theme.colorScheme.surfaceContainer,
         borderRadius: BorderRadius.circular(16),
         border: Border(left: BorderSide(color: accentColor, width: 3)),
       ),
@@ -1572,13 +1586,56 @@ class _CompactCardioCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(width: 8),
-          Icon(
-            Icons.chevron_right_rounded,
-            size: 20,
-            color: theme.colorScheme.outline.withValues(alpha: 0.3),
+          const SizedBox(width: 4),
+          IconButton(
+            visualDensity: VisualDensity.compact,
+            tooltip: 'Elimina sessione',
+            onPressed: () => _confirmDelete(context),
+            icon: Icon(
+              Icons.delete_outline_rounded,
+              size: 20,
+              color: theme.colorScheme.error,
+            ),
           ),
         ],
+      ),
+    );
+  }
+
+  Future<void> _confirmDelete(BuildContext context) async {
+    final theme = Theme.of(context);
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Elimina sessione'),
+        content: const Text(
+          'Vuoi eliminare definitivamente questa sessione di cardio?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Annulla'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: theme.colorScheme.error,
+              foregroundColor: theme.colorScheme.onError,
+            ),
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Elimina'),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldDelete != true || !context.mounted) return;
+
+    context.read<TrainingBloc>().add(DeleteCardioSessionEvent(session.id));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('Sessione cardio eliminata'),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
   }

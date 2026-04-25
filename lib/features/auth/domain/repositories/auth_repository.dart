@@ -3,6 +3,7 @@ import 'package:gym_corpus/core/error/failures.dart';
 import 'package:gym_corpus/features/auth/domain/entities/user_entity.dart';
 
 abstract class AuthRepository {
+  Stream<UserEntity?> get userStream;
   Future<Either<Failure, UserEntity>> login(String email, String password);
   Future<Either<Failure, UserEntity>> signUp(String email, String password);
   Future<Either<Failure, void>> logout();
@@ -20,8 +21,12 @@ abstract class AuthRepository {
     double? height,
     DateTime? birthDate,
     String? trainingObjective,
+    bool clearWeight = false,
   });
-  Future<Either<Failure, void>> changePassword(String currentPassword, String newPassword);
+  Future<Either<Failure, void>> changePassword(
+    String currentPassword,
+    String newPassword,
+  );
   Future<Either<Failure, void>> deleteAccount({String? currentPassword});
   Future<bool> isBiometricEnabled();
   Future<void> setBiometricEnabled({required bool enabled});

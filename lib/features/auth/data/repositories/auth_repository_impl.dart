@@ -35,6 +35,11 @@ class AuthRepositoryImpl implements AuthRepository {
   final AuthLocalDataSource _localDataSource;
   final AuthRemoteDataSource _remoteDataSource;
 
+  final _userStreamController = StreamController<UserEntity?>.broadcast();
+
+  @override
+  Stream<UserEntity?> get userStream => _userStreamController.stream;
+
   bool _isPortablePhotoUrl(String? photoUrl) {
     if (photoUrl == null || photoUrl.isEmpty) {
       return false;
@@ -111,12 +116,16 @@ class AuthRepositoryImpl implements AuthRepository {
           .saveUserProfile(_sanitizeRemoteUser(updatedUser))
           .timeout(const Duration(seconds: 5));
     } catch (e) {
-      debugPrint('AuthRepositoryImpl._updateLoginHistory remote sync error: $e');
+      debugPrint(
+        'AuthRepositoryImpl._updateLoginHistory remote sync error: $e',
+      );
     }
     try {
       await _localDataSource.saveUserSession(updatedUser);
     } catch (e) {
-      debugPrint('AuthRepositoryImpl._updateLoginHistory local cache error: $e');
+      debugPrint(
+        'AuthRepositoryImpl._updateLoginHistory local cache error: $e',
+      );
     }
     return updatedUser;
   }
@@ -139,6 +148,7 @@ class AuthRepositoryImpl implements AuthRepository {
             .copyWith(authProviders: baseUser.authProviders);
 
         final finalUser = await _updateLoginHistory(user);
+        _userStreamController.add(finalUser);
         return Right(finalUser);
       }
       return const Left(
@@ -213,7 +223,9 @@ class AuthRepositoryImpl implements AuthRepository {
           await _localDataSource.saveUserSession(mergedRemoteUser);
         }
       } catch (e) {
-        debugPrint('AuthRepositoryImpl.checkSession remote profile sync error: $e');
+        debugPrint(
+          'AuthRepositoryImpl.checkSession remote profile sync error: $e',
+        );
       }
 
       final finalUser = mergedUser!;
@@ -232,11 +244,13 @@ class AuthRepositoryImpl implements AuthRepository {
         authProviders: baseUser.authProviders,
       );
       final finalSessionUser = await _updateLoginHistory(updatedSessionUser);
+      _userStreamController.add(finalSessionUser);
       return Right(finalSessionUser);
     }
 
     if (cachedUser != null) {
       final finalSessionUser = await _updateLoginHistory(cachedUser);
+      _userStreamController.add(finalSessionUser);
       return Right(finalSessionUser);
     }
 
@@ -343,7 +357,8 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, UserEntity>> updateProfileImage(
-      String filePath,) async {
+    String filePath,
+  ) async {
     try {
       final user = _firebaseAuth.currentUser;
       if (user != null) {
@@ -372,6 +387,7 @@ class AuthRepositoryImpl implements AuthRepository {
     double? height,
     DateTime? birthDate,
     String? trainingObjective,
+    bool clearWeight = false,
   }) async {
     try {
       final user = _firebaseAuth.currentUser;
@@ -400,6 +416,7 @@ class AuthRepositoryImpl implements AuthRepository {
             : currentUser.username,
         gender: gender ?? currentUser.gender,
         weight: weight ?? currentUser.weight,
+        clearWeight: clearWeight,
         height: height ?? currentUser.height,
         birthDate: birthDate ?? currentUser.birthDate,
         trainingObjective: trainingObjective ?? currentUser.trainingObjective,
@@ -412,6 +429,7 @@ class AuthRepositoryImpl implements AuthRepository {
           .saveUserProfile(_sanitizeRemoteUser(updatedUser))
           .timeout(const Duration(seconds: 5));
 
+      _userStreamController.add(updatedUser);
       return Right(updatedUser);
     } catch (e) {
       return Left(AuthFailure('Errore durante aggiornamento: $e'));
@@ -420,7 +438,9 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, void>> changePassword(
-      String currentPassword, String newPassword,) async {
+    String currentPassword,
+    String newPassword,
+  ) async {
     try {
       final user = _firebaseAuth.currentUser;
       if (user == null) {
@@ -489,7 +509,9 @@ class AuthRepositoryImpl implements AuthRepository {
         final email = user.email;
         if (email == null || email.isEmpty) {
           return const Left(
-            AuthFailure("Email account non disponibile per confermare l'operazione"),
+            AuthFailure(
+              "Email account non disponibile per confermare l'operazione",
+            ),
           );
         }
         if (currentPassword == null || currentPassword.isEmpty) {
@@ -558,7 +580,9 @@ class AuthRepositoryImpl implements AuthRepository {
         ),
       );
     } on FirebaseAuthException catch (e) {
-      return Left(AuthFailure(e.message ?? 'Errore durante la conferma account'));
+      return Left(
+        AuthFailure(e.message ?? 'Errore durante la conferma account'),
+      );
     } catch (e) {
       return Left(AuthFailure(e.toString()));
     }
