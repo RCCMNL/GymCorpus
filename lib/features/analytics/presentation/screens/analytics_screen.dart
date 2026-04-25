@@ -100,18 +100,18 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
 
                   // Stats Cards Grid
                   _StatSection(
-                    title: 'All-Time Stats',
+                    title: 'Statistiche Totali',
                     color: theme.colorScheme.primary,
                     stats: [
                       _StatItem(
                         icon: Icons.fitness_center,
                         value: sessionsCount.toString(),
-                        label: 'Workouts',
+                        label: 'Allenamenti',
                       ),
                       _StatItem(
                         icon: Icons.schedule,
                         value: '${(sessionsCount * 0.8).toStringAsFixed(1)}h',
-                        label: 'Time Spent',
+                        label: 'Tempo totale',
                       ),
                       _StatItem(
                         icon: Icons.scale,
@@ -124,18 +124,18 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   ),
                   const SizedBox(height: 16),
                   _StatSection(
-                    title: 'This Month',
+                    title: 'Questo Mese',
                     color: theme.colorScheme.tertiary,
                     stats: [
                       _StatItem(
                         icon: Icons.calendar_month,
                         value: monthSessions.toString(),
-                        label: 'Workouts',
+                        label: 'Allenamenti',
                       ),
                       _StatItem(
                         icon: Icons.timer,
                         value: '${(monthSessions * 0.8).toStringAsFixed(1)}h',
-                        label: 'Time spent',
+                        label: 'Tempo trascorso',
                       ),
                       _StatItem(
                         icon: Icons.trending_up,
@@ -382,7 +382,7 @@ class _StatSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(16),
@@ -398,7 +398,7 @@ class _StatSection extends StatelessWidget {
               fontWeight: FontWeight.w900,
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 10),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: stats,
@@ -471,7 +471,7 @@ class _ActivityCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'THIS WEEK ACTIVITY',
+            'ATTIVITÀ SETTIMANALE',
             style: theme.textTheme.labelSmall?.copyWith(letterSpacing: 1.5),
           ),
           const SizedBox(height: 20),
