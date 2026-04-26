@@ -1011,13 +1011,11 @@ class _MetricTile extends StatelessWidget {
     required this.label,
     required this.value,
     required this.accentColor,
-    this.padding,
   });
 
   final String label;
   final String value;
   final Color accentColor;
-  final EdgeInsetsGeometry? padding;
 
   @override
   Widget build(BuildContext context) {
@@ -1025,7 +1023,7 @@ class _MetricTile extends StatelessWidget {
 
     return Container(
       constraints: const BoxConstraints(minHeight: 60),
-      padding: padding ?? const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.45),
         borderRadius: BorderRadius.circular(16),

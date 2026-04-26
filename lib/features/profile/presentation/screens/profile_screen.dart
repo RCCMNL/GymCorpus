@@ -15,7 +15,6 @@ import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dar
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:gym_corpus/features/profile/presentation/screens/legal_screens.dart';
 import 'package:gym_corpus/features/profile/presentation/widgets/feedback_dialog.dart';
 
 class ProfileScreen extends StatefulWidget {
