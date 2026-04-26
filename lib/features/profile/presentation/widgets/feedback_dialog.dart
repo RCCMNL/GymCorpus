@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gym_corpus/core/constants/app_constants.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
 
 class FeedbackDialog extends StatefulWidget {
   const FeedbackDialog({super.key});
