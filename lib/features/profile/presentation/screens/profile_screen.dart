@@ -15,6 +15,8 @@ import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dar
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:gym_corpus/features/profile/presentation/screens/legal_screens.dart';
+import 'package:gym_corpus/features/profile/presentation/widgets/feedback_dialog.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -522,7 +524,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
 
         // Community & Feedback
-        const _ProfileSection(
+        _ProfileSection(
           title: 'Community & Feedback',
           items: [
             _ProfileItem(
@@ -534,20 +536,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
             _ProfileItem(
               icon: Icons.bug_report_rounded,
               label: 'Segnala un Problema',
-              trailingText: 'Prossimamente',
-              isBadge: true,
+              onTap: () {
+                showDialog<void>(
+                  context: context,
+                  builder: (context) => const FeedbackDialog(),
+                );
+              },
             ),
             _ProfileItem(
               icon: Icons.gavel_rounded,
               label: 'Termini di Servizio',
-              trailingText: 'Prossimamente',
-              isBadge: true,
+              onTap: () => context.push('/profile/terms'),
             ),
             _ProfileItem(
               icon: Icons.privacy_tip_rounded,
               label: 'Privacy Policy',
-              trailingText: 'Prossimamente',
-              isBadge: true,
+              onTap: () => context.push('/profile/privacy'),
             ),
           ],
         ),
@@ -697,7 +701,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         _ProfileItem(
           icon: Icons.straighten,
-          label: 'UnitÃ  di Misura',
+          label: 'Unità di Misura',
           trailingText: unit == 'LB' ? 'Lb / inch' : 'Kg / cm',
           onTap: () => _showUnitPickerSheet(context, unit),
         ),
@@ -1089,7 +1093,7 @@ class _UnitPickerSheetState extends State<_UnitPickerSheet> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'UnitÃ  di Misura',
+                  'Unità di Misura',
                   style: theme.textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                     fontFamily: 'Lexend',

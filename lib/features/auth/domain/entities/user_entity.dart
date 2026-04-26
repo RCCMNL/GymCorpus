@@ -1,5 +1,28 @@
 import 'package:equatable/equatable.dart';
 
+class LoginEntry extends Equatable {
+  const LoginEntry({
+    required this.date,
+    required this.device,
+  });
+
+  factory LoginEntry.fromJson(Map<String, dynamic> json) => LoginEntry(
+        date: DateTime.parse(json['date'] as String),
+        device: json['device'] as String,
+      );
+
+  Map<String, dynamic> toJson() => {
+        'date': date.toIso8601String(),
+        'device': device,
+      };
+
+  final DateTime date;
+  final String device;
+
+  @override
+  List<Object?> get props => [date, device];
+}
+
 class UserEntity extends Equatable {
   const UserEntity({
     required this.id,
@@ -16,6 +39,7 @@ class UserEntity extends Equatable {
     this.lastLoginDevice,
     this.gender,
     this.authProviders = const [],
+    this.loginHistory = const [],
   });
 
   factory UserEntity.fromJson(Map<String, dynamic> json) {
@@ -54,6 +78,10 @@ class UserEntity extends Equatable {
               ?.map((e) => e as String)
               .toList() ??
           const [],
+      loginHistory: (json['loginHistory'] as List<dynamic>?)
+              ?.map((e) => LoginEntry.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
     );
   }
 
@@ -72,6 +100,7 @@ class UserEntity extends Equatable {
         'lastLoginDevice': lastLoginDevice,
         'gender': gender,
         'authProviders': authProviders,
+        'loginHistory': loginHistory.map((e) => e.toJson()).toList(),
       };
 
   final String id;
@@ -88,6 +117,7 @@ class UserEntity extends Equatable {
   final String? lastLoginDevice;
   final String? gender;
   final List<String> authProviders;
+  final List<LoginEntry> loginHistory;
 
   String get fullName => '${firstName ?? ''} ${lastName ?? ''}'.trim();
 
@@ -106,6 +136,7 @@ class UserEntity extends Equatable {
     String? lastLoginDevice,
     String? gender,
     List<String>? authProviders,
+    List<LoginEntry>? loginHistory,
     bool clearWeight = false,
   }) {
     return UserEntity(
@@ -123,6 +154,7 @@ class UserEntity extends Equatable {
       lastLoginDevice: lastLoginDevice ?? this.lastLoginDevice,
       gender: gender ?? this.gender,
       authProviders: authProviders ?? this.authProviders,
+      loginHistory: loginHistory ?? this.loginHistory,
     );
   }
 
@@ -142,5 +174,6 @@ class UserEntity extends Equatable {
         lastLoginDevice,
         gender,
         authProviders,
+        loginHistory,
       ];
 }

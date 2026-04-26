@@ -9,6 +9,7 @@ import 'package:gym_corpus/features/auth/domain/repositories/auth_repository.dar
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_event.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
+import 'package:gym_corpus/features/auth/domain/entities/user_entity.dart';
 import 'package:intl/intl.dart';
 import 'package:local_auth/local_auth.dart';
 
@@ -300,10 +301,6 @@ class _SecurityScreenState extends State<SecurityScreen> {
       );
     });
 
-    final loginDate = currentUser?.lastLoginDate;
-    final loginDevice = currentUser?.lastLoginDevice ?? 'Dispositivo Corrente';
-    final formattedDate = loginDate != null ? DateFormat('dd MMM yyyy, HH:mm', 'it_IT').format(loginDate) : 'Sconosciuto';
-
     return Scaffold(
       appBar: const GymHeader(),
       body: SafeArea(
@@ -375,50 +372,67 @@ class _SecurityScreenState extends State<SecurityScreen> {
               const SizedBox(height: 32),
               _buildSectionTitle('CRONOLOGIA ACCESSI', theme),
               const SizedBox(height: 12),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.surfaceContainerHigh,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.important_devices, color: theme.colorScheme.primary),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(loginDevice, style: const TextStyle(fontWeight: FontWeight.bold)),
-                          Text('Ultimo accesso: $formattedDate', style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.outline)),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            theme.colorScheme.primary.withValues(alpha: 0.2),
-                            theme.colorScheme.tertiary.withValues(alpha: 0.2),
+              ...((currentUser?.loginHistory.isNotEmpty ?? false)
+                  ? currentUser!.loginHistory.take(2).toList()
+                  : [
+                      if (currentUser?.lastLoginDate != null)
+                        LoginEntry(
+                          date: currentUser!.lastLoginDate!,
+                          device: currentUser.lastLoginDevice ?? 'Dispositivo Corrente',
+                        ),
+                    ]).asMap().entries.map((entry) {
+                final index = entry.key;
+                final login = entry.value;
+                final date = DateFormat('dd MMM yyyy, HH:mm', 'it_IT').format(login.date);
+                
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surfaceContainerHigh,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.important_devices, color: theme.colorScheme.primary),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(login.device, style: const TextStyle(fontWeight: FontWeight.bold)),
+                            Text(index == 0 ? 'Ultimo accesso: $date' : 'Accesso precedente: $date', 
+                                 style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.outline)),
                           ],
                         ),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: theme.colorScheme.primary.withValues(alpha: 0.2)),
                       ),
-                      child: Text(
-                        'ATTIVO', 
-                        style: TextStyle(
-                          color: theme.colorScheme.primary, 
-                          fontSize: 10, 
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 1.1,
+                      if (index == 0)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                theme.colorScheme.primary.withValues(alpha: 0.2),
+                                theme.colorScheme.tertiary.withValues(alpha: 0.2),
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: theme.colorScheme.primary.withValues(alpha: 0.2)),
+                          ),
+                          child: Text(
+                            'ATTIVO', 
+                            style: TextStyle(
+                              color: theme.colorScheme.primary, 
+                              fontSize: 10, 
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 1.1,
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+                    ],
+                  ),
+                );
+              }),
 
               const SizedBox(height: 48),
               _buildSectionTitle('ZONA PERICOLOSA', theme),

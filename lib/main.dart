@@ -24,6 +24,7 @@ import 'package:gym_corpus/features/profile/presentation/screens/edit_profile_sc
 import 'package:gym_corpus/features/profile/presentation/screens/integrations_screen.dart';
 import 'package:gym_corpus/features/profile/presentation/screens/profile_screen.dart';
 import 'package:gym_corpus/features/profile/presentation/screens/security_screen.dart';
+import 'package:gym_corpus/features/profile/presentation/screens/legal_screens.dart';
 import 'package:gym_corpus/features/exercises/presentation/screens/favorite_exercises_screen.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
@@ -260,6 +261,16 @@ class _GymAppState extends State<GymApp> {
                 GoRoute(
                   path: 'favorites',
                   builder: (context, state) => const FavoriteExercisesScreen(),
+                ),
+                GoRoute(
+                  path: 'terms',
+                  parentNavigatorKey: _rootNavigatorKey,
+                  builder: (context, state) => const TermsOfServiceScreen(),
+                ),
+                GoRoute(
+                  path: 'privacy',
+                  parentNavigatorKey: _rootNavigatorKey,
+                  builder: (context, state) => const PrivacyPolicyScreen(),
                 ),
               ],
             ),

@@ -107,9 +107,27 @@ class AuthRepositoryImpl implements AuthRepository {
 
   Future<UserEntity> _updateLoginHistory(UserEntity user) async {
     final device = await _getDeviceInfo();
+    final now = DateTime.now();
+
+    final newEntry = LoginEntry(date: now, device: device);
+    
+    // Seed history if empty using previous lastLogin data
+    final List<LoginEntry> currentHistory = List.from(user.loginHistory);
+    if (currentHistory.isEmpty && user.lastLoginDate != null) {
+      currentHistory.add(
+        LoginEntry(
+          date: user.lastLoginDate!,
+          device: user.lastLoginDevice ?? 'Dispositivo Precedente',
+        ),
+      );
+    }
+
+    final updatedHistory = [newEntry, ...currentHistory].take(5).toList();
+
     final updatedUser = user.copyWith(
-      lastLoginDate: DateTime.now(),
+      lastLoginDate: now,
       lastLoginDevice: device,
+      loginHistory: updatedHistory,
     );
     try {
       await _remoteDataSource
