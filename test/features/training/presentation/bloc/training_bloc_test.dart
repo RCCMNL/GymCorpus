@@ -6,6 +6,7 @@ import 'package:gym_corpus/features/auth/domain/entities/user_entity.dart';
 import 'package:gym_corpus/features/auth/domain/repositories/auth_repository.dart';
 import 'package:gym_corpus/features/training/domain/entities/body_weight.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
+import 'package:gym_corpus/features/training/domain/entities/workout_session.dart';
 import 'package:gym_corpus/features/training/domain/repositories/training_repository.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
@@ -31,6 +32,8 @@ void main() {
     when(() => mockRepository.watchRoutines())
         .thenAnswer((_) => const Stream.empty());
     when(() => mockRepository.watchWeightLogs())
+        .thenAnswer((_) => const Stream.empty());
+    when(() => mockRepository.watchWorkoutSessions())
         .thenAnswer((_) => const Stream.empty());
     when(() => mockRepository.watchBodyWeightLogs())
         .thenAnswer((_) => const Stream.empty());
@@ -89,6 +92,85 @@ void main() {
       expect: () => [
         TrainingLoaded(exercises: tExercises),
       ],
+    );
+
+    blocTest<TrainingBloc, TrainingState>(
+      'aggiorna le sessioni workout completate dallo stream repository',
+      build: () {
+        final sessions = [
+          WorkoutSessionEntity(
+            id: 1,
+            date: DateTime(2026, 4, 26),
+            name: 'Push',
+            completedAt: DateTime(2026, 4, 26, 11),
+            durationSeconds: 3600,
+          ),
+        ];
+        when(() => mockRepository.watchWorkoutSessions())
+            .thenAnswer((_) => Stream.value(sessions));
+        return bloc;
+      },
+      act: (bloc) => bloc.add(LoadWorkoutSessionsEvent()),
+      expect: () => [
+        isA<TrainingLoaded>().having(
+          (state) => state.workoutSessions.single.name,
+          'session name',
+          'Push',
+        ),
+      ],
+    );
+
+    blocTest<TrainingBloc, TrainingState>(
+      'inoltra start e complete della workout session al repository',
+      build: () {
+        when(
+          () => mockRepository.startWorkoutSession(
+            id: 100,
+            name: 'Push',
+            routineId: 7,
+          ),
+        ).thenAnswer((_) async => const Right(100));
+        when(
+          () => mockRepository.completeWorkoutSession(
+            workoutId: 100,
+            durationSeconds: 1800,
+          ),
+        ).thenAnswer((_) async => const Right(null));
+        return bloc;
+      },
+      seed: () => const TrainingLoaded(exercises: []),
+      act: (bloc) {
+        bloc
+          ..add(
+            const StartWorkoutSessionEvent(
+              id: 100,
+              name: 'Push',
+              routineId: 7,
+            ),
+          )
+          ..add(
+            const CompleteWorkoutSessionEvent(
+              workoutId: 100,
+              durationSeconds: 1800,
+            ),
+          );
+      },
+      expect: () => <TrainingState>[],
+      verify: (_) {
+        verify(
+          () => mockRepository.startWorkoutSession(
+            id: 100,
+            name: 'Push',
+            routineId: 7,
+          ),
+        ).called(1);
+        verify(
+          () => mockRepository.completeWorkoutSession(
+            workoutId: 100,
+            durationSeconds: 1800,
+          ),
+        ).called(1);
+      },
     );
 
     blocTest<TrainingBloc, TrainingState>(

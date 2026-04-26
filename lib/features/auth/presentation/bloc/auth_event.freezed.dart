@@ -225,7 +225,15 @@ extension AuthEventPatterns on AuthEvent {
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? checkSessionRequested,
     TResult Function(String email, String password)? loginRequested,
-    TResult Function(String email, String password)? signUpRequested,
+    TResult Function(
+            String email,
+            String password,
+            String firstName,
+            String lastName,
+            String username,
+            DateTime birthDate,
+            String gender)?
+        signUpRequested,
     TResult Function(String email)? forgotPasswordRequested,
     TResult Function()? googleSignInRequested,
     TResult Function()? appleSignInRequested,
@@ -253,7 +261,8 @@ extension AuthEventPatterns on AuthEvent {
       case _LoginRequested() when loginRequested != null:
         return loginRequested(_that.email, _that.password);
       case _SignUpRequested() when signUpRequested != null:
-        return signUpRequested(_that.email, _that.password);
+        return signUpRequested(_that.email, _that.password, _that.firstName,
+            _that.lastName, _that.username, _that.birthDate, _that.gender);
       case _ForgotPasswordRequested() when forgotPasswordRequested != null:
         return forgotPasswordRequested(_that.email);
       case _GoogleSignInRequested() when googleSignInRequested != null:
@@ -302,7 +311,9 @@ extension AuthEventPatterns on AuthEvent {
   TResult when<TResult extends Object?>({
     required TResult Function() checkSessionRequested,
     required TResult Function(String email, String password) loginRequested,
-    required TResult Function(String email, String password) signUpRequested,
+    required TResult Function(String email, String password, String firstName,
+            String lastName, String username, DateTime birthDate, String gender)
+        signUpRequested,
     required TResult Function(String email) forgotPasswordRequested,
     required TResult Function() googleSignInRequested,
     required TResult Function() appleSignInRequested,
@@ -329,7 +340,8 @@ extension AuthEventPatterns on AuthEvent {
       case _LoginRequested():
         return loginRequested(_that.email, _that.password);
       case _SignUpRequested():
-        return signUpRequested(_that.email, _that.password);
+        return signUpRequested(_that.email, _that.password, _that.firstName,
+            _that.lastName, _that.username, _that.birthDate, _that.gender);
       case _ForgotPasswordRequested():
         return forgotPasswordRequested(_that.email);
       case _GoogleSignInRequested():
@@ -376,7 +388,15 @@ extension AuthEventPatterns on AuthEvent {
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? checkSessionRequested,
     TResult? Function(String email, String password)? loginRequested,
-    TResult? Function(String email, String password)? signUpRequested,
+    TResult? Function(
+            String email,
+            String password,
+            String firstName,
+            String lastName,
+            String username,
+            DateTime birthDate,
+            String gender)?
+        signUpRequested,
     TResult? Function(String email)? forgotPasswordRequested,
     TResult? Function()? googleSignInRequested,
     TResult? Function()? appleSignInRequested,
@@ -403,7 +423,8 @@ extension AuthEventPatterns on AuthEvent {
       case _LoginRequested() when loginRequested != null:
         return loginRequested(_that.email, _that.password);
       case _SignUpRequested() when signUpRequested != null:
-        return signUpRequested(_that.email, _that.password);
+        return signUpRequested(_that.email, _that.password, _that.firstName,
+            _that.lastName, _that.username, _that.birthDate, _that.gender);
       case _ForgotPasswordRequested() when forgotPasswordRequested != null:
         return forgotPasswordRequested(_that.email);
       case _GoogleSignInRequested() when googleSignInRequested != null:
@@ -521,10 +542,22 @@ class __$LoginRequestedCopyWithImpl<$Res>
 /// @nodoc
 
 class _SignUpRequested implements AuthEvent {
-  const _SignUpRequested({required this.email, required this.password});
+  const _SignUpRequested(
+      {required this.email,
+      required this.password,
+      required this.firstName,
+      required this.lastName,
+      required this.username,
+      required this.birthDate,
+      required this.gender});
 
   final String email;
   final String password;
+  final String firstName;
+  final String lastName;
+  final String username;
+  final DateTime birthDate;
+  final String gender;
 
   /// Create a copy of AuthEvent
   /// with the given fields replaced by the non-null parameter values.
@@ -540,11 +573,21 @@ class _SignUpRequested implements AuthEvent {
             other is _SignUpRequested &&
             (identical(other.email, email) || other.email == email) &&
             (identical(other.password, password) ||
-                other.password == password));
+                other.password == password) &&
+            (identical(other.firstName, firstName) ||
+                other.firstName == firstName) &&
+            (identical(other.lastName, lastName) ||
+                other.lastName == lastName) &&
+            (identical(other.username, username) ||
+                other.username == username) &&
+            (identical(other.birthDate, birthDate) ||
+                other.birthDate == birthDate) &&
+            (identical(other.gender, gender) || other.gender == gender));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, email, password);
+  int get hashCode => Object.hash(runtimeType, email, password, firstName,
+      lastName, username, birthDate, gender);
 }
 
 /// @nodoc
@@ -554,7 +597,14 @@ abstract mixin class _$SignUpRequestedCopyWith<$Res>
           _SignUpRequested value, $Res Function(_SignUpRequested) _then) =
       __$SignUpRequestedCopyWithImpl;
   @useResult
-  $Res call({String email, String password});
+  $Res call(
+      {String email,
+      String password,
+      String firstName,
+      String lastName,
+      String username,
+      DateTime birthDate,
+      String gender});
 }
 
 /// @nodoc
@@ -571,6 +621,11 @@ class __$SignUpRequestedCopyWithImpl<$Res>
   $Res call({
     Object? email = null,
     Object? password = null,
+    Object? firstName = null,
+    Object? lastName = null,
+    Object? username = null,
+    Object? birthDate = null,
+    Object? gender = null,
   }) {
     return _then(_SignUpRequested(
       email: null == email
@@ -580,6 +635,26 @@ class __$SignUpRequestedCopyWithImpl<$Res>
       password: null == password
           ? _self.password
           : password // ignore: cast_nullable_to_non_nullable
+              as String,
+      firstName: null == firstName
+          ? _self.firstName
+          : firstName // ignore: cast_nullable_to_non_nullable
+              as String,
+      lastName: null == lastName
+          ? _self.lastName
+          : lastName // ignore: cast_nullable_to_non_nullable
+              as String,
+      username: null == username
+          ? _self.username
+          : username // ignore: cast_nullable_to_non_nullable
+              as String,
+      birthDate: null == birthDate
+          ? _self.birthDate
+          : birthDate // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      gender: null == gender
+          ? _self.gender
+          : gender // ignore: cast_nullable_to_non_nullable
               as String,
     ));
   }

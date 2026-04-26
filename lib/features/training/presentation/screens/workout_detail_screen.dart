@@ -69,7 +69,7 @@ class WorkoutDetailScreen extends StatelessWidget {
   }
 
   void _showNotesDialog(BuildContext context, ExerciseEntity exercise, ThemeData theme) {
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (ctx) {
         return AlertDialog(

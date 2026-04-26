@@ -8,6 +8,7 @@ import 'package:gym_corpus/features/training/domain/entities/body_weight.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_session.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
+import 'package:gym_corpus/features/training/domain/entities/workout_session.dart';
 import 'package:gym_corpus/features/training/domain/repositories/training_repository.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
@@ -42,6 +43,16 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
       _weightLogsSubscription = repository.watchWeightLogs().listen(
         (logs) {
           add(UpdateWeightLogsList(logs));
+        },
+        onError: (Object e) => add(StreamErrorEvent(e.toString())),
+      );
+    });
+
+    on<LoadWorkoutSessionsEvent>((event, emit) async {
+      await _workoutSessionsSubscription?.cancel();
+      _workoutSessionsSubscription = repository.watchWorkoutSessions().listen(
+        (sessions) {
+          add(UpdateWorkoutSessionsList(sessions));
         },
         onError: (Object e) => add(StreamErrorEvent(e.toString())),
       );
@@ -98,6 +109,23 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
         emit((state as TrainingLoaded).copyWith(weightLogs: event.weightLogs));
       } else {
         emit(TrainingLoaded(exercises: const [], weightLogs: event.weightLogs));
+      }
+    });
+
+    on<UpdateWorkoutSessionsList>((event, emit) {
+      if (state is TrainingLoaded) {
+        emit(
+          (state as TrainingLoaded).copyWith(
+            workoutSessions: event.workoutSessions,
+          ),
+        );
+      } else {
+        emit(
+          TrainingLoaded(
+            exercises: const [],
+            workoutSessions: event.workoutSessions,
+          ),
+        );
       }
     });
 
@@ -187,6 +215,29 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
       final result = await repository.deleteRoutine(event.id);
       result.fold(
         (f) => emit(TrainingError(f.message)),
+        (_) => null,
+      );
+    });
+
+    on<StartWorkoutSessionEvent>((event, emit) async {
+      final result = await repository.startWorkoutSession(
+        id: event.id,
+        name: event.name,
+        routineId: event.routineId,
+      );
+      result.fold(
+        (failure) => emit(TrainingError(failure.message)),
+        (_) => null,
+      );
+    });
+
+    on<CompleteWorkoutSessionEvent>((event, emit) async {
+      final result = await repository.completeWorkoutSession(
+        workoutId: event.workoutId,
+        durationSeconds: event.durationSeconds,
+      );
+      result.fold(
+        (failure) => emit(TrainingError(failure.message)),
         (_) => null,
       );
     });
@@ -386,6 +437,7 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
   StreamSubscription<List<ExerciseEntity>>? _exercisesSubscription;
   StreamSubscription<List<RoutineEntity>>? _routinesSubscription;
   StreamSubscription<List<WorkoutSetEntity>>? _weightLogsSubscription;
+  StreamSubscription<List<WorkoutSessionEntity>>? _workoutSessionsSubscription;
   StreamSubscription<List<BodyWeightLogEntity>>? _bodyWeightLogsSubscription;
   StreamSubscription<List<BodyMeasurementEntity>>?
       _bodyMeasurementsSubscription;
@@ -407,6 +459,7 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
     _exercisesSubscription?.cancel();
     _routinesSubscription?.cancel();
     _weightLogsSubscription?.cancel();
+    _workoutSessionsSubscription?.cancel();
     _bodyWeightLogsSubscription?.cancel();
     _bodyMeasurementsSubscription?.cancel();
     _cardioSessionsSubscription?.cancel();

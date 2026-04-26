@@ -4,6 +4,7 @@ import 'package:gym_corpus/features/training/domain/entities/body_weight.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_session.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
+import 'package:gym_corpus/features/training/domain/entities/workout_session.dart';
 
 part 'training_state.freezed.dart';
 
@@ -15,6 +16,7 @@ class TrainingState with _$TrainingState {
     required List<ExerciseEntity> exercises,
     @Default([]) List<RoutineEntity> routines,
     @Default([]) List<WorkoutSetEntity> weightLogs,
+    @Default([]) List<WorkoutSessionEntity> workoutSessions,
     @Default([]) List<BodyWeightLogEntity> bodyWeightLogs,
     @Default([]) List<BodyMeasurementEntity> bodyMeasurements,
     @Default([]) List<CardioSessionEntity> cardioSessions,

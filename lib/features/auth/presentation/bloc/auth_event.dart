@@ -12,6 +12,11 @@ class AuthEvent with _$AuthEvent {
   const factory AuthEvent.signUpRequested({
     required String email,
     required String password,
+    required String firstName,
+    required String lastName,
+    required String username,
+    required DateTime birthDate,
+    required String gender,
   }) = _SignUpRequested;
   const factory AuthEvent.forgotPasswordRequested({
     required String email,
@@ -22,7 +27,9 @@ class AuthEvent with _$AuthEvent {
   const factory AuthEvent.appleSignInRequested() = _AppleSignInRequested;
 
   const factory AuthEvent.logoutRequested() = _LogoutRequested;
-  const factory AuthEvent.updateProfileImageRequested({required String filePath}) = _UpdateProfileImageRequested;
+  const factory AuthEvent.updateProfileImageRequested({
+    required String filePath,
+  }) = _UpdateProfileImageRequested;
 
   const factory AuthEvent.updateProfileRequested({
     String? firstName,

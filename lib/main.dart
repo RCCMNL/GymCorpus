@@ -24,7 +24,9 @@ import 'package:gym_corpus/features/profile/presentation/screens/edit_profile_sc
 import 'package:gym_corpus/features/profile/presentation/screens/integrations_screen.dart';
 import 'package:gym_corpus/features/profile/presentation/screens/profile_screen.dart';
 import 'package:gym_corpus/features/profile/presentation/screens/cycle_calendar_screen.dart';
+import 'package:gym_corpus/features/profile/presentation/screens/records_screen.dart';
 import 'package:gym_corpus/features/profile/presentation/screens/security_screen.dart';
+import 'package:gym_corpus/features/profile/presentation/screens/trophy_board_screen.dart';
 import 'package:gym_corpus/features/profile/presentation/screens/legal_screens.dart';
 import 'package:gym_corpus/features/exercises/presentation/screens/favorite_exercises_screen.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
@@ -283,6 +285,16 @@ class _GymAppState extends State<GymApp> {
                   builder: (context, state) => const ProgressScreen(),
                 ),
                 GoRoute(
+                  path: 'trophies',
+                  parentNavigatorKey: _rootNavigatorKey,
+                  builder: (context, state) => const TrophyBoardScreen(),
+                ),
+                GoRoute(
+                  path: 'records',
+                  parentNavigatorKey: _rootNavigatorKey,
+                  builder: (context, state) => const RecordsScreen(),
+                ),
+                GoRoute(
                   path: 'favorites',
                   builder: (context, state) => const FavoriteExercisesScreen(),
                 ),
@@ -341,6 +353,7 @@ class _GymAppState extends State<GymApp> {
       ],
       child: MaterialApp.router(
         title: 'GYM 2.0',
+        debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,
         darkTheme: AppTheme.darkTheme,
         routerConfig: _router,

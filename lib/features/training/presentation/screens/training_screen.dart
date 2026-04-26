@@ -36,7 +36,7 @@ class _TrainingScreenState extends State<TrainingScreen>
   Duration _elapsedBeforePause = Duration.zero;
   bool _isPaused = false;
   bool _durationSaved = false;
-  DateTime? _restEndTime; 
+  DateTime? _restEndTime;
   Timer? _executionTimer;
   String _execTimeStr = "00:00:00";
 
@@ -47,17 +47,34 @@ class _TrainingScreenState extends State<TrainingScreen>
     _workoutId = DateTime.now().millisecondsSinceEpoch;
     _lastResumeTime = DateTime.now();
     _startExecutionTimer();
-    context.read<TrainingBloc>().add(LoadWeightLogsEvent());
-    _pulseCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 1200))..repeat(reverse: true);
+    context.read<TrainingBloc>()
+      ..add(LoadWeightLogsEvent())
+      ..add(LoadWorkoutSessionsEvent())
+      ..add(
+        StartWorkoutSessionEvent(
+          id: _workoutId,
+          name: widget.routine?.title ?? 'Allenamento',
+          routineId: widget.routine?.id,
+        ),
+      );
+    _pulseCtrl = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 1200))
+      ..repeat(reverse: true);
+  }
+
+  int get _elapsedSessionSeconds {
+    final runningTime = _lastResumeTime == null
+        ? Duration.zero
+        : DateTime.now().difference(_lastResumeTime!);
+    return (_elapsedBeforePause + runningTime).inSeconds;
   }
 
   void _startExecutionTimer() {
     _executionTimer?.cancel();
     _executionTimer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (!_isPaused && mounted) {
-        final total = _elapsedBeforePause + DateTime.now().difference(_lastResumeTime!);
         setState(() {
-          _execTimeStr = _fmtFull(total.inSeconds);
+          _execTimeStr = _fmtFull(_elapsedSessionSeconds);
         });
       }
     });
@@ -113,7 +130,8 @@ class _TrainingScreenState extends State<TrainingScreen>
   }
 
   List<RoutineExerciseEntity> get _exercises => widget.routine?.exercises ?? [];
-  RoutineExerciseEntity? get _curEx => _exIdx < _exercises.length ? _exercises[_exIdx] : null;
+  RoutineExerciseEntity? get _curEx =>
+      _exIdx < _exercises.length ? _exercises[_exIdx] : null;
   int get _totalSets => _curEx?.sets ?? 0;
   bool get _isLastSet => _setIdx + 1 >= _totalSets;
   bool get _isLastEx => _exIdx + 1 >= _exercises.length;
@@ -123,7 +141,8 @@ class _TrainingScreenState extends State<TrainingScreen>
     final total = _exercises.fold<int>(0, (s, e) => s + e.sets);
     if (total == 0) return 0;
     var done = 0;
-    for (var i = 0; i < _exIdx && i < _exercises.length; i++) done += _exercises[i].sets;
+    for (var i = 0; i < _exIdx && i < _exercises.length; i++)
+      done += _exercises[i].sets;
     done += _setIdx;
     return done / total;
   }
@@ -141,20 +160,31 @@ class _TrainingScreenState extends State<TrainingScreen>
         // placeholder: lo aggiorniamo al termine
       }
       if (isLastSet && !_durationSaved) {
-        final currentSession = DateTime.now().difference(_lastResumeTime!);
-        rpePayload = (_elapsedBeforePause + currentSession).inSeconds;
+        rpePayload = _elapsedSessionSeconds;
         _durationSaved = true;
       }
       context.read<TrainingBloc>().add(AddSetToExercise(
-        workoutId: _workoutId,
-        exerciseId: ex.exercise.id,
-        reps: ex.reps,
-        weight: ex.weight,
-        rpe: rpePayload,
-      ));
+            workoutId: _workoutId,
+            exerciseId: ex.exercise.id,
+            reps: ex.reps,
+            weight: ex.weight,
+            rpe: rpePayload,
+          ));
     }
-    if (_isLastSet && _isLastEx) { setState(() => _phase = _Phase.completed); return; }
-    setState(() { _phase = _Phase.resting; _seconds = _restDuration; });
+    if (_isLastSet && _isLastEx) {
+      context.read<TrainingBloc>().add(
+            CompleteWorkoutSessionEvent(
+              workoutId: _workoutId,
+              durationSeconds: _elapsedSessionSeconds,
+            ),
+          );
+      setState(() => _phase = _Phase.completed);
+      return;
+    }
+    setState(() {
+      _phase = _Phase.resting;
+      _seconds = _restDuration;
+    });
     _startTimer();
   }
 
@@ -166,7 +196,8 @@ class _TrainingScreenState extends State<TrainingScreen>
     Future.delayed(Duration(seconds: _seconds), () {
       // Spara la notifica solo se ancora in recupero e l'app NON è in primo piano
       if (mounted && _phase == _Phase.resting) {
-        final isForeground = WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed;
+        final isForeground =
+            WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed;
         if (!isForeground) {
           NotificationService.instance.showNotification(
             id: 100,
@@ -177,7 +208,11 @@ class _TrainingScreenState extends State<TrainingScreen>
       }
     });
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (_seconds > 0) { setState(() => _seconds--); } else { _onRestDone(); }
+      if (_seconds > 0) {
+        setState(() => _seconds--);
+      } else {
+        _onRestDone();
+      }
     });
   }
 
@@ -186,8 +221,14 @@ class _TrainingScreenState extends State<TrainingScreen>
     _restEndTime = null;
     NotificationService.instance.cancelNotification(100);
     setState(() {
-      if (_isLastSet) { _exIdx++; _setIdx = 0; } else { _setIdx++; }
-      _phase = _Phase.working; _seconds = 0;
+      if (_isLastSet) {
+        _exIdx++;
+        _setIdx = 0;
+      } else {
+        _setIdx++;
+      }
+      _phase = _Phase.working;
+      _seconds = 0;
     });
   }
 
@@ -197,6 +238,7 @@ class _TrainingScreenState extends State<TrainingScreen>
     setState(() => _seconds = _restDuration);
     _startTimer(); // aggiorna anche _restEndTime
   }
+
   void _skipRest() {
     if (_phase != _Phase.resting) return;
     NotificationService.instance.cancelNotification(100);
@@ -211,19 +253,35 @@ class _TrainingScreenState extends State<TrainingScreen>
 
   void _confirmEnd() {
     final theme = Theme.of(context);
-    showDialog<void>(context: context, builder: (ctx) => AlertDialog(
-      backgroundColor: theme.colorScheme.surface,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-      title: const Text('Terminare l allenamento?', style: TextStyle(fontFamily: 'Lexend', fontWeight: FontWeight.bold)),
-      content: const Text('Le serie completate finora sono state salvate correttamente nel tuo storico.'),
-      actions: [
-        TextButton(onPressed: () => Navigator.pop(ctx),
-          child: Text('CONTINUA', style: TextStyle(color: theme.colorScheme.outline, fontWeight: FontWeight.w900))),
-        TextButton(onPressed: () { Navigator.pop(ctx); context.go('/training'); },
-          style: TextButton.styleFrom(foregroundColor: Colors.redAccent),
-          child: const Text('CHIUDI ORA', style: TextStyle(fontWeight: FontWeight.w900))),
-      ],
-    ));
+    showDialog<void>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+              backgroundColor: theme.colorScheme.surface,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(24)),
+              title: const Text('Terminare l allenamento?',
+                  style: TextStyle(
+                      fontFamily: 'Lexend', fontWeight: FontWeight.bold)),
+              content: const Text(
+                  'Le serie completate finora sono state salvate correttamente nel tuo storico.'),
+              actions: [
+                TextButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    child: Text('CONTINUA',
+                        style: TextStyle(
+                            color: theme.colorScheme.outline,
+                            fontWeight: FontWeight.w900))),
+                TextButton(
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      context.go('/training');
+                    },
+                    style:
+                        TextButton.styleFrom(foregroundColor: Colors.redAccent),
+                    child: const Text('CHIUDI ORA',
+                        style: TextStyle(fontWeight: FontWeight.w900))),
+              ],
+            ));
   }
 
   @override
@@ -242,16 +300,21 @@ class _TrainingScreenState extends State<TrainingScreen>
     return BlocBuilder<TrainingBloc, TrainingState>(builder: (context, state) {
       if (state is TrainingLoaded) {
         final d = int.tryParse(state.settings['rest_timer'] ?? '90') ?? 90;
-        if (_restDuration != d) { _restDuration = d; if (_phase != _Phase.resting) _seconds = d; }
+        if (_restDuration != d) {
+          _restDuration = d;
+          if (_phase != _Phase.resting) _seconds = d;
+        }
       }
       if (_phase == _Phase.completed) return _completedScreen(theme);
       if (_exercises.isEmpty) return _emptyScreen(theme);
       final ex = _curEx!;
       final prog = _restDuration > 0 ? (_seconds / _restDuration) : 0.0;
       final isResting = _phase == _Phase.resting;
-      final accentColor = isResting ? const Color(0xFFFFA07A) : theme.colorScheme.primary;
+      final accentColor =
+          isResting ? const Color(0xFFFFA07A) : theme.colorScheme.primary;
 
-      final unitStr = state is TrainingLoaded ? (state.settings['units'] ?? 'KG') : 'KG';
+      final unitStr =
+          state is TrainingLoaded ? (state.settings['units'] ?? 'KG') : 'KG';
       final isImperial = unitStr == 'LB';
       final weightUnit = isImperial ? WeightUnit.lb : WeightUnit.kg;
 
@@ -270,34 +333,78 @@ class _TrainingScreenState extends State<TrainingScreen>
                   children: [
                     // ── MAIN CONTENT (NO SCROLL) ──
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
                       child: Column(
                         children: [
                           const SizedBox(height: 4),
                           // ── EXERCISE CARD ──
                           Expanded(
                             flex: 5,
-                            child: _buildExerciseCard(theme, accentColor, ex, isResting, weightUnit),
+                            child: _buildExerciseCard(
+                                theme, accentColor, ex, isResting, weightUnit),
                           ),
                           const SizedBox(height: 12),
 
                           // ── ACTION BUTTONS ──
-                          SizedBox(width: double.infinity, child: Container(
-                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(20),
-                              gradient: isResting ? null : LinearGradient(colors: [theme.colorScheme.tertiary, theme.colorScheme.tertiary.withValues(alpha: 0.8)]),
-                              color: isResting ? theme.colorScheme.surfaceContainerHigh : null,
-                            ),
-                            child: Material(color: Colors.transparent, child: InkWell(
-                              onTap: _phase == _Phase.working ? _completeSet : null,
-                              borderRadius: BorderRadius.circular(20),
-                              child: Padding(padding: const EdgeInsets.symmetric(vertical: 16), child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                                Icon(isResting ? Icons.timer : Icons.check_circle_rounded, size: 22, color: isResting ? theme.colorScheme.outline : Colors.black),
-                                const SizedBox(width: 10),
-                                Text(isResting ? 'RECUPERO IN CORSO...' : 'SEGNA SET COMPLETATO',
-                                  style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1, fontSize: 14, fontFamily: 'Lexend', color: isResting ? theme.colorScheme.outline : Colors.black)),
-                              ])),
-                            )),
-                          )),
+                          SizedBox(
+                              width: double.infinity,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(20),
+                                  gradient: isResting
+                                      ? null
+                                      : LinearGradient(colors: [
+                                          theme.colorScheme.tertiary,
+                                          theme.colorScheme.tertiary
+                                              .withValues(alpha: 0.8)
+                                        ]),
+                                  color: isResting
+                                      ? theme.colorScheme.surfaceContainerHigh
+                                      : null,
+                                ),
+                                child: Material(
+                                    color: Colors.transparent,
+                                    child: InkWell(
+                                      onTap: _phase == _Phase.working
+                                          ? _completeSet
+                                          : null,
+                                      borderRadius: BorderRadius.circular(20),
+                                      child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 16),
+                                          child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Icon(
+                                                    isResting
+                                                        ? Icons.timer
+                                                        : Icons
+                                                            .check_circle_rounded,
+                                                    size: 22,
+                                                    color: isResting
+                                                        ? theme
+                                                            .colorScheme.outline
+                                                        : Colors.black),
+                                                const SizedBox(width: 10),
+                                                Text(
+                                                    isResting
+                                                        ? 'RECUPERO IN CORSO...'
+                                                        : 'SEGNA SET COMPLETATO',
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.w900,
+                                                        letterSpacing: 1,
+                                                        fontSize: 14,
+                                                        fontFamily: 'Lexend',
+                                                        color: isResting
+                                                            ? theme.colorScheme
+                                                                .outline
+                                                            : Colors.black)),
+                                              ])),
+                                    )),
+                              )),
                           const SizedBox(height: 12),
 
                           // ── NEXT UP ──
@@ -312,43 +419,121 @@ class _TrainingScreenState extends State<TrainingScreen>
                       Container(
                         color: Colors.black.withValues(alpha: 0.85),
                         child: Center(
-                          child: AnimatedBuilder(animation: _pulseCtrl ?? kAlwaysCompleteAnimation, builder: (context, child) {
-                            final scale = 1.0 + ((_pulseCtrl?.value ?? 0.0) * 0.02);
-                            return Transform.scale(scale: scale, child: child);
-                          }, child: Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 32),
-                            padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
-                            decoration: BoxDecoration(
-                              color: theme.colorScheme.surfaceContainerHigh,
-                              borderRadius: BorderRadius.circular(40),
-                              border: Border.all(color: accentColor.withValues(alpha: 0.3), width: 2),
-                              boxShadow: [BoxShadow(color: accentColor.withValues(alpha: 0.15), blurRadius: 40, spreadRadius: 10)],
-                            ),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                              // Ring
-                              SizedBox(width: 200, height: 200, child: Stack(alignment: Alignment.center, children: [
-                                SizedBox(width: 200, height: 200, child: CustomPaint(painter: _TimerRingPainter(progress: prog, color: accentColor, trackColor: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.2)))),
-                                Column(mainAxisSize: MainAxisSize.min, children: [
-                                  Text('RECUPERO', style: theme.textTheme.labelSmall?.copyWith(letterSpacing: 2, color: theme.colorScheme.outline, fontSize: 11, fontWeight: FontWeight.w900)),
-                                  const SizedBox(height: 4),
-                                  Text(_fmt(_seconds), style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w900, fontFamily: 'Lexend', fontSize: 56, color: accentColor)),
-                                ]),
-                              ])),
-                              const SizedBox(height: 40),
-                              Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-                                _ActionPill(icon: Icons.refresh_rounded, label: 'Riavvia', onTap: _restartTimer, filled: false, theme: theme),
-                                _ActionPill(icon: Icons.skip_next_rounded, label: 'Salta', onTap: _skipRest, filled: true, theme: theme),
-                              ]),
-                              const SizedBox(height: 24),
-                              TextButton.icon(
-                                onPressed: _confirmEnd,
-                                icon: const Icon(Icons.stop_circle_outlined, size: 18, color: Colors.redAccent),
-                                label: const Text('TERMINA ALLENAMENTO', style: TextStyle(color: Colors.redAccent, fontSize: 11, fontWeight: FontWeight.bold)),
-                              ),
-                            ]),
-                          )),
+                          child: AnimatedBuilder(
+                              animation: _pulseCtrl ?? kAlwaysCompleteAnimation,
+                              builder: (context, child) {
+                                final scale =
+                                    1.0 + ((_pulseCtrl?.value ?? 0.0) * 0.02);
+                                return Transform.scale(
+                                    scale: scale, child: child);
+                              },
+                              child: Container(
+                                margin:
+                                    const EdgeInsets.symmetric(horizontal: 32),
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 40, horizontal: 24),
+                                decoration: BoxDecoration(
+                                  color: theme.colorScheme.surfaceContainerHigh,
+                                  borderRadius: BorderRadius.circular(40),
+                                  border: Border.all(
+                                      color: accentColor.withValues(alpha: 0.3),
+                                      width: 2),
+                                  boxShadow: [
+                                    BoxShadow(
+                                        color:
+                                            accentColor.withValues(alpha: 0.15),
+                                        blurRadius: 40,
+                                        spreadRadius: 10)
+                                  ],
+                                ),
+                                child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      // Ring
+                                      SizedBox(
+                                          width: 200,
+                                          height: 200,
+                                          child: Stack(
+                                              alignment: Alignment.center,
+                                              children: [
+                                                SizedBox(
+                                                    width: 200,
+                                                    height: 200,
+                                                    child: CustomPaint(
+                                                        painter: _TimerRingPainter(
+                                                            progress: prog,
+                                                            color: accentColor,
+                                                            trackColor: theme
+                                                                .colorScheme
+                                                                .surfaceContainerHighest
+                                                                .withValues(
+                                                                    alpha:
+                                                                        0.2)))),
+                                                Column(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: [
+                                                      Text('RECUPERO',
+                                                          style: theme.textTheme
+                                                              .labelSmall
+                                                              ?.copyWith(
+                                                                  letterSpacing:
+                                                                      2,
+                                                                  color: theme
+                                                                      .colorScheme
+                                                                      .outline,
+                                                                  fontSize: 11,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w900)),
+                                                      const SizedBox(height: 4),
+                                                      Text(_fmt(_seconds),
+                                                          style: theme.textTheme
+                                                              .headlineMedium
+                                                              ?.copyWith(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w900,
+                                                                  fontFamily:
+                                                                      'Lexend',
+                                                                  fontSize: 56,
+                                                                  color:
+                                                                      accentColor)),
+                                                    ]),
+                                              ])),
+                                      const SizedBox(height: 40),
+                                      Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceEvenly,
+                                          children: [
+                                            _ActionPill(
+                                                icon: Icons.refresh_rounded,
+                                                label: 'Riavvia',
+                                                onTap: _restartTimer,
+                                                filled: false,
+                                                theme: theme),
+                                            _ActionPill(
+                                                icon: Icons.skip_next_rounded,
+                                                label: 'Salta',
+                                                onTap: _skipRest,
+                                                filled: true,
+                                                theme: theme),
+                                          ]),
+                                      const SizedBox(height: 24),
+                                      TextButton.icon(
+                                        onPressed: _confirmEnd,
+                                        icon: const Icon(
+                                            Icons.stop_circle_outlined,
+                                            size: 18,
+                                            color: Colors.redAccent),
+                                        label: const Text('TERMINA ALLENAMENTO',
+                                            style: TextStyle(
+                                                color: Colors.redAccent,
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.bold)),
+                                      ),
+                                    ]),
+                              )),
                         ),
                       ),
 
@@ -365,15 +550,32 @@ class _TrainingScreenState extends State<TrainingScreen>
                                 decoration: BoxDecoration(
                                   color: theme.colorScheme.surface,
                                   shape: BoxShape.circle,
-                                  border: Border.all(color: accentColor, width: 4),
-                                  boxShadow: [BoxShadow(color: accentColor.withValues(alpha: 0.3), blurRadius: 30)],
+                                  border:
+                                      Border.all(color: accentColor, width: 4),
+                                  boxShadow: [
+                                    BoxShadow(
+                                        color:
+                                            accentColor.withValues(alpha: 0.3),
+                                        blurRadius: 30)
+                                  ],
                                 ),
-                                child: Icon(Icons.pause_rounded, size: 64, color: accentColor),
+                                child: Icon(Icons.pause_rounded,
+                                    size: 64, color: accentColor),
                               ),
                               const SizedBox(height: 24),
-                              Text('IN PAUSA', style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w900, fontFamily: 'Lexend', color: Colors.white)),
+                              Text('IN PAUSA',
+                                  style: theme.textTheme.headlineMedium
+                                      ?.copyWith(
+                                          fontWeight: FontWeight.w900,
+                                          fontFamily: 'Lexend',
+                                          color: Colors.white)),
                               const SizedBox(height: 32),
-                              _ActionPill(icon: Icons.play_arrow_rounded, label: 'RIPRENDI', onTap: _togglePause, filled: true, theme: theme),
+                              _ActionPill(
+                                  icon: Icons.play_arrow_rounded,
+                                  label: 'RIPRENDI',
+                                  onTap: _togglePause,
+                                  filled: true,
+                                  theme: theme),
                             ],
                           ),
                         ),
@@ -393,7 +595,10 @@ class _TrainingScreenState extends State<TrainingScreen>
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [accentColor.withValues(alpha: 0.15), accentColor.withValues(alpha: 0.03)], begin: Alignment.topLeft, end: Alignment.bottomRight),
+        gradient: LinearGradient(colors: [
+          accentColor.withValues(alpha: 0.15),
+          accentColor.withValues(alpha: 0.03)
+        ], begin: Alignment.topLeft, end: Alignment.bottomRight),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: accentColor.withValues(alpha: 0.1)),
       ),
@@ -410,14 +615,13 @@ class _TrainingScreenState extends State<TrainingScreen>
                           fontWeight: FontWeight.w900,
                           fontFamily: 'Lexend',
                           letterSpacing: -0.5)),
-                  Text(_execTimeStr, 
+                  Text(_execTimeStr,
                       style: TextStyle(
-                        color: accentColor, 
-                        fontSize: 12, 
-                        fontWeight: FontWeight.w900, 
-                        fontFamily: 'Lexend',
-                        letterSpacing: 1
-                      )),
+                          color: accentColor,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w900,
+                          fontFamily: 'Lexend',
+                          letterSpacing: 1)),
                 ],
               ),
             ),
@@ -426,8 +630,12 @@ class _TrainingScreenState extends State<TrainingScreen>
               children: [
                 IconButton(
                   onPressed: _togglePause,
-                  icon: Icon(_isPaused ? Icons.play_arrow_rounded : Icons.pause_rounded,
-                      color: accentColor, size: 28),
+                  icon: Icon(
+                      _isPaused
+                          ? Icons.play_arrow_rounded
+                          : Icons.pause_rounded,
+                      color: accentColor,
+                      size: 28),
                   visualDensity: VisualDensity.compact,
                   tooltip: _isPaused ? 'Riprendi' : 'Pausa',
                 ),
@@ -444,24 +652,45 @@ class _TrainingScreenState extends State<TrainingScreen>
         ),
         const SizedBox(height: 12),
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          Text('Esercizio ' + (_exIdx + 1).toString() + ' di ' + _exercises.length.toString(), style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.outline, fontWeight: FontWeight.w700, fontSize: 10)),
-          Text((_progress * 100).toInt().toString() + '%', style: theme.textTheme.labelSmall?.copyWith(color: accentColor, fontWeight: FontWeight.w900, fontSize: 10)),
+          Text(
+              'Esercizio ' +
+                  (_exIdx + 1).toString() +
+                  ' di ' +
+                  _exercises.length.toString(),
+              style: theme.textTheme.labelSmall?.copyWith(
+                  color: theme.colorScheme.outline,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 10)),
+          Text((_progress * 100).toInt().toString() + '%',
+              style: theme.textTheme.labelSmall?.copyWith(
+                  color: accentColor,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 10)),
         ]),
         const SizedBox(height: 8),
-        ClipRRect(borderRadius: BorderRadius.circular(4), child: LinearProgressIndicator(value: _progress, minHeight: 6, backgroundColor: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3), valueColor: AlwaysStoppedAnimation(accentColor))),
+        ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+                value: _progress,
+                minHeight: 6,
+                backgroundColor: theme.colorScheme.surfaceContainerHighest
+                    .withValues(alpha: 0.3),
+                valueColor: AlwaysStoppedAnimation(accentColor))),
       ]),
     );
   }
 
-  Widget _buildExerciseCard(ThemeData theme, Color accentColor, RoutineExerciseEntity ex, bool isResting, WeightUnit unit) {
+  Widget _buildExerciseCard(ThemeData theme, Color accentColor,
+      RoutineExerciseEntity ex, bool isResting, WeightUnit unit) {
     // Get specs for current set
     final currentSpecs = _getSetSpecs(ex, _setIdx);
-    
+
     return Container(
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.08)),
+        border: Border.all(
+            color: theme.colorScheme.outline.withValues(alpha: 0.08)),
       ),
       clipBehavior: Clip.antiAlias,
       child: Stack(
@@ -472,10 +701,12 @@ class _TrainingScreenState extends State<TrainingScreen>
                     ex.exercise.imageUrl!,
                     fit: BoxFit.cover,
                     alignment: Alignment.topCenter,
-                    errorBuilder: (context, error, stackTrace) =>
-                        Image.asset('assets/images/placeholder-image.png', fit: BoxFit.cover),
+                    errorBuilder: (context, error, stackTrace) => Image.asset(
+                        'assets/images/placeholder-image.png',
+                        fit: BoxFit.cover),
                   )
-                : Image.asset('assets/images/placeholder-image.png', fit: BoxFit.cover),
+                : Image.asset('assets/images/placeholder-image.png',
+                    fit: BoxFit.cover),
           ),
           Positioned.fill(
             child: Container(
@@ -506,9 +737,11 @@ class _TrainingScreenState extends State<TrainingScreen>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 4),
                             decoration: BoxDecoration(
-                              color: theme.colorScheme.surface.withValues(alpha: 0.5),
+                              color: theme.colorScheme.surface
+                                  .withValues(alpha: 0.5),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
@@ -530,7 +763,11 @@ class _TrainingScreenState extends State<TrainingScreen>
                               height: 1.1,
                               fontSize: 22,
                               color: Colors.white,
-                              shadows: [Shadow(color: Colors.black.withValues(alpha: 0.5), blurRadius: 4)],
+                              shadows: [
+                                Shadow(
+                                    color: Colors.black.withValues(alpha: 0.5),
+                                    blurRadius: 4)
+                              ],
                             ),
                           ),
                         ],
@@ -541,23 +778,41 @@ class _TrainingScreenState extends State<TrainingScreen>
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         IconButton(
-                          onPressed: () => _showNotesDialog(context, ex.exercise, theme),
-                          icon: const Icon(Icons.info_outline, color: Colors.white),
+                          onPressed: () =>
+                              _showNotesDialog(context, ex.exercise, theme),
+                          icon: const Icon(Icons.info_outline,
+                              color: Colors.white),
                           style: IconButton.styleFrom(
-                            backgroundColor: theme.colorScheme.surface.withValues(alpha: 0.3),
+                            backgroundColor: theme.colorScheme.surface
+                                .withValues(alpha: 0.3),
                           ),
                         ),
                         const SizedBox(width: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 10),
                           decoration: BoxDecoration(
-                            color: theme.colorScheme.tertiary.withValues(alpha: 0.8),
+                            color: theme.colorScheme.tertiary
+                                .withValues(alpha: 0.8),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Column(
                             children: [
-                              Text('SET', style: TextStyle(color: theme.colorScheme.onTertiary, fontSize: 9, fontWeight: FontWeight.w900, fontFamily: 'Lexend')),
-                              Text((_setIdx + 1).toString() + '/' + _totalSets.toString(), style: TextStyle(color: theme.colorScheme.onTertiary, fontSize: 20, fontWeight: FontWeight.w900, fontFamily: 'Lexend')),
+                              Text('SET',
+                                  style: TextStyle(
+                                      color: theme.colorScheme.onTertiary,
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.w900,
+                                      fontFamily: 'Lexend')),
+                              Text(
+                                  (_setIdx + 1).toString() +
+                                      '/' +
+                                      _totalSets.toString(),
+                                  style: TextStyle(
+                                      color: theme.colorScheme.onTertiary,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w900,
+                                      fontFamily: 'Lexend')),
                             ],
                           ),
                         ),
@@ -568,9 +823,20 @@ class _TrainingScreenState extends State<TrainingScreen>
                 const Spacer(),
                 Row(
                   children: [
-                    Expanded(child: _GlassChip(label: 'RIPETIZIONI', value: currentSpecs.reps.toString(), color: theme.colorScheme.primary, theme: theme)),
+                    Expanded(
+                        child: _GlassChip(
+                            label: 'RIPETIZIONI',
+                            value: currentSpecs.reps.toString(),
+                            color: theme.colorScheme.primary,
+                            theme: theme)),
                     const SizedBox(width: 12),
-                    Expanded(child: _GlassChip(label: 'PESO', value: UnitConverter.formatWeight(currentSpecs.weight, unit), color: theme.colorScheme.secondary, theme: theme)),
+                    Expanded(
+                        child: _GlassChip(
+                            label: 'PESO',
+                            value: UnitConverter.formatWeight(
+                                currentSpecs.weight, unit),
+                            color: theme.colorScheme.secondary,
+                            theme: theme)),
                   ],
                 ),
               ],
@@ -581,29 +847,38 @@ class _TrainingScreenState extends State<TrainingScreen>
     );
   }
 
-  void _showNotesDialog(BuildContext context, ExerciseEntity exercise, ThemeData theme) {
-    showDialog(
+  void _showNotesDialog(
+      BuildContext context, ExerciseEntity exercise, ThemeData theme) {
+    showDialog<void>(
       context: context,
       builder: (ctx) {
         return AlertDialog(
           backgroundColor: theme.colorScheme.surfaceContainerHigh,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
           title: Row(
             children: [
               Icon(Icons.notes, color: theme.colorScheme.primary),
               const SizedBox(width: 8),
-              const Text('Le tue note', style: TextStyle(fontFamily: 'Lexend', fontWeight: FontWeight.w900, fontSize: 18)),
+              const Text('Le tue note',
+                  style: TextStyle(
+                      fontFamily: 'Lexend',
+                      fontWeight: FontWeight.w900,
+                      fontSize: 18)),
             ],
           ),
           content: Text(
-            (exercise.userNotes != null && exercise.userNotes!.trim().isNotEmpty)
+            (exercise.userNotes != null &&
+                    exercise.userNotes!.trim().isNotEmpty)
                 ? exercise.userNotes!
                 : "Nessuna nota presente per questo esercizio.\n\nPuoi aggiungere appunti dalla schermata dei dettagli dell'esercizio.",
             style: theme.textTheme.bodyMedium?.copyWith(
-              color: (exercise.userNotes != null && exercise.userNotes!.trim().isNotEmpty)
+              color: (exercise.userNotes != null &&
+                      exercise.userNotes!.trim().isNotEmpty)
                   ? theme.colorScheme.onSurface
                   : theme.colorScheme.outline,
-              fontStyle: (exercise.userNotes != null && exercise.userNotes!.trim().isNotEmpty)
+              fontStyle: (exercise.userNotes != null &&
+                      exercise.userNotes!.trim().isNotEmpty)
                   ? FontStyle.normal
                   : FontStyle.italic,
             ),
@@ -611,7 +886,10 @@ class _TrainingScreenState extends State<TrainingScreen>
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: Text('CHIUDI', style: TextStyle(color: theme.colorScheme.primary, fontWeight: FontWeight.w900)),
+              child: Text('CHIUDI',
+                  style: TextStyle(
+                      color: theme.colorScheme.primary,
+                      fontWeight: FontWeight.w900)),
             ),
           ],
         );
@@ -619,7 +897,8 @@ class _TrainingScreenState extends State<TrainingScreen>
     );
   }
 
-  ({double weight, int reps}) _getSetSpecs(RoutineExerciseEntity re, int setIdx) {
+  ({double weight, int reps}) _getSetSpecs(
+      RoutineExerciseEntity re, int setIdx) {
     if (re.setsData != null) {
       try {
         final list = jsonDecode(re.setsData!) as List<dynamic>;
@@ -636,18 +915,22 @@ class _TrainingScreenState extends State<TrainingScreen>
   }
 
   Widget _buildNextUp(ThemeData theme, Color accent, WeightUnit unit) {
-    String nextName; String nextInfo; IconData nextIcon;
+    String nextName;
+    String nextInfo;
+    IconData nextIcon;
     if (!_isLastSet) {
       nextName = _curEx!.exercise.name;
       final ns = _setIdx + 2;
       final nextSpecs = _getSetSpecs(_curEx!, _setIdx + 1);
-      nextInfo = 'Prossima: ${nextSpecs.reps} x ${UnitConverter.formatWeight(nextSpecs.weight, unit)} (Serie $ns di $_totalSets)';
+      nextInfo =
+          'Prossima: ${nextSpecs.reps} x ${UnitConverter.formatWeight(nextSpecs.weight, unit)} (Serie $ns di $_totalSets)';
       nextIcon = Icons.replay_rounded;
     } else if (!_isLastEx) {
       final ne = _exercises[_exIdx + 1];
       nextName = ne.exercise.name;
       final firstSpecs = _getSetSpecs(ne, 0);
-      nextInfo = 'Inizio: ${firstSpecs.reps} x ${UnitConverter.formatWeight(firstSpecs.weight, unit)} (${ne.sets} serie totali)';
+      nextInfo =
+          'Inizio: ${firstSpecs.reps} x ${UnitConverter.formatWeight(firstSpecs.weight, unit)} (${ne.sets} serie totali)';
       nextIcon = Icons.arrow_forward_rounded;
     } else {
       nextName = 'Ultimo esercizio!';
@@ -657,9 +940,13 @@ class _TrainingScreenState extends State<TrainingScreen>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.4), theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.15)]),
+        gradient: LinearGradient(colors: [
+          theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.4),
+          theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.15)
+        ]),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.05)),
+        border: Border.all(
+            color: theme.colorScheme.outline.withValues(alpha: 0.05)),
       ),
       child: Row(children: [
         ClipRRect(
@@ -703,117 +990,278 @@ class _TrainingScreenState extends State<TrainingScreen>
           ),
         ),
         const SizedBox(width: 14),
-        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text('PROSSIMO', style: theme.textTheme.labelSmall?.copyWith(letterSpacing: 2, fontWeight: FontWeight.w900, fontSize: 8, color: theme.colorScheme.outline)),
+        Expanded(
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text('PROSSIMO',
+              style: theme.textTheme.labelSmall?.copyWith(
+                  letterSpacing: 2,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 8,
+                  color: theme.colorScheme.outline)),
           const SizedBox(height: 4),
-          Text(nextName, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w900, fontFamily: 'Lexend', fontSize: 13)),
+          Text(nextName,
+              style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w900,
+                  fontFamily: 'Lexend',
+                  fontSize: 13)),
           const SizedBox(height: 2),
-          Text(nextInfo, style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.outline, fontSize: 9)),
+          Text(nextInfo,
+              style: theme.textTheme.labelSmall
+                  ?.copyWith(color: theme.colorScheme.outline, fontSize: 9)),
         ])),
-        Icon(Icons.chevron_right_rounded, color: theme.colorScheme.outline.withValues(alpha: 0.3), size: 20),
+        Icon(Icons.chevron_right_rounded,
+            color: theme.colorScheme.outline.withValues(alpha: 0.3), size: 20),
       ]),
     );
   }
 
   Widget _completedScreen(ThemeData theme) {
-    return Scaffold(backgroundColor: theme.colorScheme.surface, appBar: const GymHeader(),
-      body: SafeArea(child: Center(child: Padding(padding: const EdgeInsets.all(32), child: Column(mainAxisSize: MainAxisSize.min, children: [
-        Container(width: 120, height: 120,
-          decoration: BoxDecoration(shape: BoxShape.circle,
-            gradient: RadialGradient(colors: [const Color(0xFF8DE8C7).withValues(alpha: 0.25), const Color(0xFF8DE8C7).withValues(alpha: 0.05)]),
-            boxShadow: [BoxShadow(color: const Color(0xFF8DE8C7).withValues(alpha: 0.15), blurRadius: 40, spreadRadius: 10)],
-          ),
-          child: const Icon(Icons.emoji_events_rounded, color: Color(0xFF8DE8C7), size: 56)),
-        const SizedBox(height: 32),
-        Text('ALLENAMENTO', style: theme.textTheme.labelSmall?.copyWith(letterSpacing: 3, fontWeight: FontWeight.w900, fontSize: 12, color: const Color(0xFF8DE8C7))),
-        const SizedBox(height: 4),
-        Text('COMPLETATO!', style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w900, fontFamily: 'Lexend', color: const Color(0xFF8DE8C7))),
-        const SizedBox(height: 16),
-        Text('Ottimo lavoro! Hai completato tutti gli esercizi.', textAlign: TextAlign.center, style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.outline)),
-        const SizedBox(height: 8),
-        Container(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6), decoration: BoxDecoration(color: theme.colorScheme.surfaceContainerHigh, borderRadius: BorderRadius.circular(12)),
-          child: Text((widget.routine?.title ?? 'Allenamento').toUpperCase(), style: theme.textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w900, letterSpacing: 1, fontSize: 11))),
-        const SizedBox(height: 40),
-        SizedBox(width: double.infinity, child: Container(
-          decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), gradient: const LinearGradient(colors: [Color(0xFF3367FF), Color(0xFF94AAFF)])),
-          child: Material(color: Colors.transparent, child: InkWell(onTap: () => context.go('/training'), borderRadius: BorderRadius.circular(20),
-            child: const Padding(padding: EdgeInsets.symmetric(vertical: 18),
-              child: Center(child: Text('TORNA ALLA DASHBOARD', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, letterSpacing: 1.5, fontSize: 14, fontFamily: 'Lexend')))),
-          )),
-        )),
-      ])))),
+    return Scaffold(
+      backgroundColor: theme.colorScheme.surface,
+      appBar: const GymHeader(),
+      body: SafeArea(
+          child: Center(
+              child: Padding(
+                  padding: const EdgeInsets.all(32),
+                  child: Column(mainAxisSize: MainAxisSize.min, children: [
+                    Container(
+                        width: 120,
+                        height: 120,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: RadialGradient(colors: [
+                            const Color(0xFF8DE8C7).withValues(alpha: 0.25),
+                            const Color(0xFF8DE8C7).withValues(alpha: 0.05)
+                          ]),
+                          boxShadow: [
+                            BoxShadow(
+                                color: const Color(0xFF8DE8C7)
+                                    .withValues(alpha: 0.15),
+                                blurRadius: 40,
+                                spreadRadius: 10)
+                          ],
+                        ),
+                        child: const Icon(Icons.emoji_events_rounded,
+                            color: Color(0xFF8DE8C7), size: 56)),
+                    const SizedBox(height: 32),
+                    Text('ALLENAMENTO',
+                        style: theme.textTheme.labelSmall?.copyWith(
+                            letterSpacing: 3,
+                            fontWeight: FontWeight.w900,
+                            fontSize: 12,
+                            color: const Color(0xFF8DE8C7))),
+                    const SizedBox(height: 4),
+                    Text('COMPLETATO!',
+                        style: theme.textTheme.headlineMedium?.copyWith(
+                            fontWeight: FontWeight.w900,
+                            fontFamily: 'Lexend',
+                            color: const Color(0xFF8DE8C7))),
+                    const SizedBox(height: 16),
+                    Text('Ottimo lavoro! Hai completato tutti gli esercizi.',
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.bodyMedium
+                            ?.copyWith(color: theme.colorScheme.outline)),
+                    const SizedBox(height: 8),
+                    Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 6),
+                        decoration: BoxDecoration(
+                            color: theme.colorScheme.surfaceContainerHigh,
+                            borderRadius: BorderRadius.circular(12)),
+                        child: Text(
+                            (widget.routine?.title ?? 'Allenamento')
+                                .toUpperCase(),
+                            style: theme.textTheme.labelSmall?.copyWith(
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 1,
+                                fontSize: 11))),
+                    const SizedBox(height: 40),
+                    SizedBox(
+                        width: double.infinity,
+                        child: Container(
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              gradient: const LinearGradient(colors: [
+                                Color(0xFF3367FF),
+                                Color(0xFF94AAFF)
+                              ])),
+                          child: Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                onTap: () => context.go('/training'),
+                                borderRadius: BorderRadius.circular(20),
+                                child: const Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 18),
+                                    child: Center(
+                                        child: Text('TORNA ALLA DASHBOARD',
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.w900,
+                                                letterSpacing: 1.5,
+                                                fontSize: 14,
+                                                fontFamily: 'Lexend')))),
+                              )),
+                        )),
+                  ])))),
     );
   }
 
   Widget _emptyScreen(ThemeData theme) {
-    return Scaffold(backgroundColor: theme.colorScheme.surface, appBar: const GymHeader(),
-      body: SafeArea(child: Center(child: Padding(padding: const EdgeInsets.all(32), child: Column(mainAxisSize: MainAxisSize.min, children: [
-        Icon(Icons.fitness_center_outlined, size: 64, color: theme.colorScheme.outline.withValues(alpha: 0.3)),
-        const SizedBox(height: 24),
-        Text('Nessun esercizio in questa routine', textAlign: TextAlign.center, style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.outline)),
-        const SizedBox(height: 24),
-        TextButton(onPressed: () => context.go('/training'), child: const Text('TORNA INDIETRO')),
-      ])))),
+    return Scaffold(
+      backgroundColor: theme.colorScheme.surface,
+      appBar: const GymHeader(),
+      body: SafeArea(
+          child: Center(
+              child: Padding(
+                  padding: const EdgeInsets.all(32),
+                  child: Column(mainAxisSize: MainAxisSize.min, children: [
+                    Icon(Icons.fitness_center_outlined,
+                        size: 64,
+                        color:
+                            theme.colorScheme.outline.withValues(alpha: 0.3)),
+                    const SizedBox(height: 24),
+                    Text('Nessun esercizio in questa routine',
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.bodyLarge
+                            ?.copyWith(color: theme.colorScheme.outline)),
+                    const SizedBox(height: 24),
+                    TextButton(
+                        onPressed: () => context.go('/training'),
+                        child: const Text('TORNA INDIETRO')),
+                  ])))),
     );
   }
 }
 
 class _GlassChip extends StatelessWidget {
-  const _GlassChip({required this.label, required this.value, required this.color, required this.theme});
-  final String label, value; final Color color; final ThemeData theme;
+  const _GlassChip(
+      {required this.label,
+      required this.value,
+      required this.color,
+      required this.theme});
+  final String label, value;
+  final Color color;
+  final ThemeData theme;
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [color.withValues(alpha: 0.12), color.withValues(alpha: 0.04)]),
+        gradient: LinearGradient(colors: [
+          color.withValues(alpha: 0.12),
+          color.withValues(alpha: 0.04)
+        ]),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: color.withValues(alpha: 0.08)),
       ),
       child: Column(children: [
-        Text(label, style: TextStyle(color: color.withValues(alpha: 0.7), fontSize: 7, fontWeight: FontWeight.w900, fontFamily: 'Lexend', letterSpacing: 1)),
+        Text(label,
+            style: TextStyle(
+                color: color.withValues(alpha: 0.7),
+                fontSize: 7,
+                fontWeight: FontWeight.w900,
+                fontFamily: 'Lexend',
+                letterSpacing: 1)),
         const SizedBox(height: 4),
-        Text(value, style: TextStyle(color: color, fontSize: 14, fontWeight: FontWeight.w900, fontFamily: 'Lexend')),
+        Text(value,
+            style: TextStyle(
+                color: color,
+                fontSize: 14,
+                fontWeight: FontWeight.w900,
+                fontFamily: 'Lexend')),
       ]),
     );
   }
 }
 
 class _ActionPill extends StatelessWidget {
-  const _ActionPill({required this.icon, required this.label, required this.onTap, required this.filled, required this.theme});
-  final IconData icon; final String label; final VoidCallback onTap; final bool filled; final ThemeData theme;
+  const _ActionPill(
+      {required this.icon,
+      required this.label,
+      required this.onTap,
+      required this.filled,
+      required this.theme});
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  final bool filled;
+  final ThemeData theme;
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(onTap: onTap, child: Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      decoration: BoxDecoration(
-        gradient: filled ? const LinearGradient(colors: [Color(0xFF94AAFF), Color(0xFF3367FF)]) : null,
-        color: filled ? null : Colors.transparent,
-        borderRadius: BorderRadius.circular(24),
-        border: filled ? null : Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.2)),
-      ),
-      child: Row(mainAxisSize: MainAxisSize.min, children: [
-        Icon(icon, size: 16, color: filled ? Colors.white : theme.colorScheme.onSurface),
-        const SizedBox(width: 8),
-        Text(label, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12, fontFamily: 'Lexend', color: filled ? Colors.white : theme.colorScheme.onSurface)),
-      ]),
-    ));
+    return GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          decoration: BoxDecoration(
+            gradient: filled
+                ? const LinearGradient(
+                    colors: [Color(0xFF94AAFF), Color(0xFF3367FF)])
+                : null,
+            color: filled ? null : Colors.transparent,
+            borderRadius: BorderRadius.circular(24),
+            border: filled
+                ? null
+                : Border.all(
+                    color: theme.colorScheme.outline.withValues(alpha: 0.2)),
+          ),
+          child: Row(mainAxisSize: MainAxisSize.min, children: [
+            Icon(icon,
+                size: 16,
+                color: filled ? Colors.white : theme.colorScheme.onSurface),
+            const SizedBox(width: 8),
+            Text(label,
+                style: TextStyle(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 12,
+                    fontFamily: 'Lexend',
+                    color:
+                        filled ? Colors.white : theme.colorScheme.onSurface)),
+          ]),
+        ));
   }
 }
 
 class _TimerRingPainter extends CustomPainter {
-  const _TimerRingPainter({required this.progress, required this.color, required this.trackColor});
-  final double progress; final Color color, trackColor;
+  const _TimerRingPainter(
+      {required this.progress, required this.color, required this.trackColor});
+  final double progress;
+  final Color color, trackColor;
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
     final radius = size.width / 2;
     const sw = 8.0;
-    canvas.drawCircle(center, radius, Paint()..color = trackColor..style = PaintingStyle.stroke..strokeWidth = sw);
+    canvas.drawCircle(
+        center,
+        radius,
+        Paint()
+          ..color = trackColor
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = sw);
     final sweep = 2 * math.pi * progress;
-    canvas.drawArc(Rect.fromCircle(center: center, radius: radius), -math.pi / 2, sweep, false, Paint()..color = color..style = PaintingStyle.stroke..strokeWidth = sw..strokeCap = StrokeCap.round);
-    canvas.drawArc(Rect.fromCircle(center: center, radius: radius), -math.pi / 2, sweep, false, Paint()..color = color.withValues(alpha: 0.2)..style = PaintingStyle.stroke..strokeWidth = sw + 6..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6));
+    canvas.drawArc(
+        Rect.fromCircle(center: center, radius: radius),
+        -math.pi / 2,
+        sweep,
+        false,
+        Paint()
+          ..color = color
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = sw
+          ..strokeCap = StrokeCap.round);
+    canvas.drawArc(
+        Rect.fromCircle(center: center, radius: radius),
+        -math.pi / 2,
+        sweep,
+        false,
+        Paint()
+          ..color = color.withValues(alpha: 0.2)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = sw + 6
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6));
   }
+
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

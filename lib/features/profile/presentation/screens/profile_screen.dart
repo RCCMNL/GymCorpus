@@ -10,6 +10,7 @@ import 'package:gym_corpus/features/auth/domain/entities/user_entity.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_event.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
+import 'package:gym_corpus/features/profile/domain/services/athlete_progress_service.dart';
 import 'package:gym_corpus/features/profile/presentation/widgets/custom_segmented_control.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
@@ -26,6 +27,16 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   int _selectedTab = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    final trainingBloc = context.read<TrainingBloc>();
+    trainingBloc
+      ..add(LoadWeightLogsEvent())
+      ..add(LoadWorkoutSessionsEvent())
+      ..add(LoadCardioSessionsEvent());
+  }
 
   ImageProvider? _resolveProfileImageProvider(String? photoUrl) {
     if (photoUrl == null || photoUrl.isEmpty) {
@@ -135,6 +146,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         final photoUrl = user?.photoUrl;
                         final photoProvider =
                             _resolveProfileImageProvider(photoUrl);
+                        final athleteProgress = trainingState.maybeWhen(
+                          loaded: (exercises,
+                              routines,
+                                  weightLogs,
+                                  workoutSessions,
+                                  bodyWeightLogs,
+                                  bodyMeasurements,
+                                  cardioSessions,
+                                  settings,
+                                  lastEstimated1RM) =>
+                              AthleteProgressService.calculate(
+                            workoutSessions: workoutSessions,
+                            workoutSets: weightLogs,
+                            cardioSessions: cardioSessions,
+                            exercises: exercises,
+                          ),
+                          orElse: () => AthleteProgress.empty(),
+                        );
 
                         return Column(
                           children: [
@@ -258,7 +287,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           ),
                                         ),
                                         child: Text(
-                                          'LIVELLO 1',
+                                          'LIVELLO ${athleteProgress.level}',
                                           style: theme.textTheme.labelSmall
                                               ?.copyWith(
                                             color: theme.colorScheme.tertiary,
@@ -266,6 +295,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             fontSize: 10,
                                             letterSpacing: 1.1,
                                           ),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 5),
+                                      Text(
+                                        '${athleteProgress.levelTitle} - ${athleteProgress.xp} XP',
+                                        style: theme.textTheme.labelSmall
+                                            ?.copyWith(
+                                          color: theme.colorScheme.outline,
+                                          fontWeight: FontWeight.w700,
                                         ),
                                       ),
                                     ],
@@ -334,16 +372,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
       key: const ValueKey('profile_menu'),
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const _ProfileSection(
+        _ProfileSection(
           title: 'Community & Gamification',
           items: [
-            _ProfileItem(
+            const _ProfileItem(
               icon: Icons.leaderboard,
               label: 'Classifica Utenti',
               trailingText: 'Prossimamente',
               isBadge: true,
             ),
-            _ProfileItem(
+            const _ProfileItem(
               icon: Icons.campaign,
               label: 'Sfide Community',
               trailingText: 'Prossimamente',
@@ -352,19 +390,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
             _ProfileItem(
               icon: Icons.military_tech,
               label: 'Bacheca Trofei & Livelli',
-              trailingText: 'Prossimamente',
-              isBadge: true,
+              onTap: () => context.push('/profile/trophies'),
             ),
           ],
         ),
         _ProfileSection(
           title: 'Performance & Dati',
           items: [
-            const _ProfileItem(
+            _ProfileItem(
               icon: Icons.emoji_events,
               label: 'Record',
-              trailingText: 'Prossimamente',
-              isBadge: true,
+              onTap: () => context.push('/profile/records'),
             ),
             const _ProfileItem(
               icon: Icons.track_changes,
@@ -396,6 +432,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             _ProfileItem(
               icon: Icons.auto_awesome_rounded,
               label: 'Calendario ciclo',
+              trailingText: 'BETA',
+              isBadge: true,
               onTap: () => context.push('/profile/cycle-calendar'),
             ),
           ],
@@ -858,8 +896,8 @@ class _ProfileItem extends StatelessWidget {
           constraints: const BoxConstraints(minHeight: 60),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: label == 'Calendario ciclo' 
-                ? const Color(0xFFFF4B72).withValues(alpha: 0.05) 
+            color: label == 'Calendario ciclo'
+                ? const Color(0xFFFF4B72).withValues(alpha: 0.05)
                 : null,
             borderRadius: BorderRadius.circular(20),
           ),

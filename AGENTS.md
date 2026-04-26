@@ -37,7 +37,7 @@
 - `lib/features/analytics/`
   Schermate progressi e storico cardio.
 - `lib/features/profile/`
-  Modifica profilo, sicurezza e integrazioni.
+  Modifica profilo, sicurezza, integrazioni, record e bacheca trofei/livelli.
 - `test/`
   Copertura unit, bloc e golden.
 - `assets/images/`
@@ -49,8 +49,11 @@
 - Firebase viene inizializzato tramite `lib/firebase_options.dart`; il progetto al momento e' configurato per Android e iOS. Non assumere supporto web/desktop.
 - Il routing di autenticazione dipende dallo stato di `AuthBloc` e dai redirect GoRouter definiti in `lib/main.dart`.
 - Il database Drift locale vive nella directory documenti dell'app come `gym_db.sqlite`.
-- `AppDatabase` usa attualmente `schemaVersion => 10` e fa seed dei dati iniziali quando la tabella esercizi e' vuota.
+- `AppDatabase` usa attualmente `schemaVersion => 13` e fa seed dei dati iniziali quando la tabella esercizi e' vuota.
 - La strategia di migrazione ricrea le tabelle quando si aggiorna da versioni precedenti alla 9. Tratta i cambiamenti database con attenzione e aggiorna le migration in modo esplicito.
+- La tabella `Workouts` rappresenta le sessioni di allenamento tracciabili: una sessione viene considerata completata solo quando `completedAt` e' valorizzato.
+- `WorkoutSet.workoutId` deve riferirsi a una riga `Workouts`; evita nuovi flussi che usano timestamp sciolti senza creare prima una sessione workout.
+- Il sistema livelli/trofei/record e' local-first e calcolato dai dati gia' presenti tramite `AthleteProgressService`, non da dati remoti.
 
 ## File Generati
 
@@ -73,7 +76,18 @@ flutter pub run build_runner build --delete-conflicting-outputs
 - Preserva il copy UI rivolto all'utente in italiano, salvo task espliciti di localizzazione o revisione contenuti.
 - Molti metodi dei repository restituiscono `Either<Failure, ...>` e si appoggiano a stream per aggiornare lo stato UI. Mantieni coerente questo pattern.
 - L'app usa gia' in alcuni punti un comportamento local-first, soprattutto nei flussi auth/profile. Evita modifiche che rendano la UI dipendente da round-trip remoti lenti quando ci si aspetta un aggiornamento locale immediato.
+- Per gamification, tieni le definizioni statiche dei badge in codice e salva/calcola solo lo stato utente necessario. Non creare tabelle di definizioni badge statiche salvo esigenza esplicita.
 - Rispetta il worktree sporco corrente. Non revertare modifiche dell'utente non correlate.
+
+## Gamification, Record E Livelli
+
+- La logica di XP, livelli, trofei e record vive in `lib/features/profile/domain/services/athlete_progress_service.dart`.
+- Le schermate dedicate sono `TrophyBoardScreen` e `RecordsScreen`, raggiungibili dal menu profilo.
+- `TrainingState.loaded` espone `workoutSessions`, `weightLogs`, `cardioSessions` ed `exercises`; usa questi dati come input per `AthleteProgressService.calculate`.
+- `TrainingScreen` deve creare una sessione con `StartWorkoutSessionEvent` all'avvio e completarla con `CompleteWorkoutSessionEvent` quando l'ultimo set viene concluso.
+- Prima di aggiungere badge basati sulla "singola sessione", verifica che i dati richiesti siano aggregabili per `workoutId`.
+- Evita badge facilmente farmabili tramite micro-azioni. Preferisci milestone basate su workout completati, cardio completati, record, varieta' e streak.
+- Per record personali, mantieni separata la logica utile all'utente dalla bacheca trofei: record e trofei possono usare gli stessi dati, ma hanno scopi UI diversi.
 
 ## Test E Verifica
 
@@ -93,6 +107,7 @@ Comandi comuni:
 ```bash
 flutter test
 flutter test test/core/utils/training_calculations_test.dart
+flutter test test/features/profile/domain/services/athlete_progress_service_test.dart
 flutter test test/features/training/presentation/bloc/training_bloc_test.dart
 flutter test test/features/training/presentation/widgets/exercise_card_test.dart
 flutter test --update-goldens
@@ -108,6 +123,7 @@ Note:
 - Per cambiamenti di routing, verifica sia il flusso autenticato sia quello non autenticato, perche' i redirect sono centralizzati in `lib/main.dart`.
 - Per cambiamenti auth, controlla sia lo stato Firebase sia la gestione sessione locale in `auth_repository_impl.dart`.
 - Per cambiamenti training, ispeziona insieme `TrainingBloc`, `TrainingRepository` e l'accesso Drift prima di modificare il comportamento, perche' molti flussi sono guidati da stream.
+- Per cambiamenti a trofei, livelli o record, aggiorna `AthleteProgressService` e il test mirato `test/features/profile/domain/services/athlete_progress_service_test.dart`.
 - Per cambiamenti database, aggiorna schema, comportamento di migrazione e qualsiasi seed data toccato dalla feature.
 - Per cambiamenti alla dependency injection, rigenera l'output Injectable prima di chiudere il lavoro.
 

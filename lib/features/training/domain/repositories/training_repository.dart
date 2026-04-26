@@ -5,6 +5,7 @@ import 'package:gym_corpus/features/training/domain/entities/body_weight.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_session.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
+import 'package:gym_corpus/features/training/domain/entities/workout_session.dart';
 
 abstract class TrainingRepository {
   Stream<List<ExerciseEntity>> watchExercises();
@@ -31,6 +32,18 @@ abstract class TrainingRepository {
   Future<Either<Failure, void>> deleteRoutine(int id);
 
   Stream<List<WorkoutSetEntity>> watchWeightLogs();
+  Stream<List<WorkoutSessionEntity>> watchWorkoutSessions();
+
+  Future<Either<Failure, int>> startWorkoutSession({
+    required int id,
+    required String name,
+    int? routineId,
+  });
+
+  Future<Either<Failure, void>> completeWorkoutSession({
+    required int workoutId,
+    required int durationSeconds,
+  });
 
   Future<Either<Failure, void>> addSetToExercise({
     required int workoutId,

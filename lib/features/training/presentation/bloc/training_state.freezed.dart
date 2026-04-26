@@ -150,6 +150,7 @@ extension TrainingStatePatterns on TrainingState {
             List<ExerciseEntity> exercises,
             List<RoutineEntity> routines,
             List<WorkoutSetEntity> weightLogs,
+            List<WorkoutSessionEntity> workoutSessions,
             List<BodyWeightLogEntity> bodyWeightLogs,
             List<BodyMeasurementEntity> bodyMeasurements,
             List<CardioSessionEntity> cardioSessions,
@@ -168,6 +169,7 @@ extension TrainingStatePatterns on TrainingState {
             _that.exercises,
             _that.routines,
             _that.weightLogs,
+            _that.workoutSessions,
             _that.bodyWeightLogs,
             _that.bodyMeasurements,
             _that.cardioSessions,
@@ -200,6 +202,7 @@ extension TrainingStatePatterns on TrainingState {
             List<ExerciseEntity> exercises,
             List<RoutineEntity> routines,
             List<WorkoutSetEntity> weightLogs,
+            List<WorkoutSessionEntity> workoutSessions,
             List<BodyWeightLogEntity> bodyWeightLogs,
             List<BodyMeasurementEntity> bodyMeasurements,
             List<CardioSessionEntity> cardioSessions,
@@ -217,6 +220,7 @@ extension TrainingStatePatterns on TrainingState {
             _that.exercises,
             _that.routines,
             _that.weightLogs,
+            _that.workoutSessions,
             _that.bodyWeightLogs,
             _that.bodyMeasurements,
             _that.cardioSessions,
@@ -248,6 +252,7 @@ extension TrainingStatePatterns on TrainingState {
             List<ExerciseEntity> exercises,
             List<RoutineEntity> routines,
             List<WorkoutSetEntity> weightLogs,
+            List<WorkoutSessionEntity> workoutSessions,
             List<BodyWeightLogEntity> bodyWeightLogs,
             List<BodyMeasurementEntity> bodyMeasurements,
             List<CardioSessionEntity> cardioSessions,
@@ -265,6 +270,7 @@ extension TrainingStatePatterns on TrainingState {
             _that.exercises,
             _that.routines,
             _that.weightLogs,
+            _that.workoutSessions,
             _that.bodyWeightLogs,
             _that.bodyMeasurements,
             _that.cardioSessions,
@@ -305,6 +311,7 @@ class TrainingLoaded implements TrainingState {
       {required final List<ExerciseEntity> exercises,
       final List<RoutineEntity> routines = const [],
       final List<WorkoutSetEntity> weightLogs = const [],
+      final List<WorkoutSessionEntity> workoutSessions = const [],
       final List<BodyWeightLogEntity> bodyWeightLogs = const [],
       final List<BodyMeasurementEntity> bodyMeasurements = const [],
       final List<CardioSessionEntity> cardioSessions = const [],
@@ -313,6 +320,7 @@ class TrainingLoaded implements TrainingState {
       : _exercises = exercises,
         _routines = routines,
         _weightLogs = weightLogs,
+        _workoutSessions = workoutSessions,
         _bodyWeightLogs = bodyWeightLogs,
         _bodyMeasurements = bodyMeasurements,
         _cardioSessions = cardioSessions,
@@ -339,6 +347,14 @@ class TrainingLoaded implements TrainingState {
     if (_weightLogs is EqualUnmodifiableListView) return _weightLogs;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableListView(_weightLogs);
+  }
+
+  final List<WorkoutSessionEntity> _workoutSessions;
+  @JsonKey()
+  List<WorkoutSessionEntity> get workoutSessions {
+    if (_workoutSessions is EqualUnmodifiableListView) return _workoutSessions;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_workoutSessions);
   }
 
   final List<BodyWeightLogEntity> _bodyWeightLogs;
@@ -394,6 +410,8 @@ class TrainingLoaded implements TrainingState {
             const DeepCollectionEquality()
                 .equals(other._weightLogs, _weightLogs) &&
             const DeepCollectionEquality()
+                .equals(other._workoutSessions, _workoutSessions) &&
+            const DeepCollectionEquality()
                 .equals(other._bodyWeightLogs, _bodyWeightLogs) &&
             const DeepCollectionEquality()
                 .equals(other._bodyMeasurements, _bodyMeasurements) &&
@@ -410,6 +428,7 @@ class TrainingLoaded implements TrainingState {
       const DeepCollectionEquality().hash(_exercises),
       const DeepCollectionEquality().hash(_routines),
       const DeepCollectionEquality().hash(_weightLogs),
+      const DeepCollectionEquality().hash(_workoutSessions),
       const DeepCollectionEquality().hash(_bodyWeightLogs),
       const DeepCollectionEquality().hash(_bodyMeasurements),
       const DeepCollectionEquality().hash(_cardioSessions),
@@ -418,7 +437,7 @@ class TrainingLoaded implements TrainingState {
 
   @override
   String toString() {
-    return 'TrainingState.loaded(exercises: $exercises, routines: $routines, weightLogs: $weightLogs, bodyWeightLogs: $bodyWeightLogs, bodyMeasurements: $bodyMeasurements, cardioSessions: $cardioSessions, settings: $settings, lastEstimated1RM: $lastEstimated1RM)';
+    return 'TrainingState.loaded(exercises: $exercises, routines: $routines, weightLogs: $weightLogs, workoutSessions: $workoutSessions, bodyWeightLogs: $bodyWeightLogs, bodyMeasurements: $bodyMeasurements, cardioSessions: $cardioSessions, settings: $settings, lastEstimated1RM: $lastEstimated1RM)';
   }
 }
 
@@ -433,6 +452,7 @@ abstract mixin class $TrainingLoadedCopyWith<$Res>
       {List<ExerciseEntity> exercises,
       List<RoutineEntity> routines,
       List<WorkoutSetEntity> weightLogs,
+      List<WorkoutSessionEntity> workoutSessions,
       List<BodyWeightLogEntity> bodyWeightLogs,
       List<BodyMeasurementEntity> bodyMeasurements,
       List<CardioSessionEntity> cardioSessions,
@@ -455,6 +475,7 @@ class _$TrainingLoadedCopyWithImpl<$Res>
     Object? exercises = null,
     Object? routines = null,
     Object? weightLogs = null,
+    Object? workoutSessions = null,
     Object? bodyWeightLogs = null,
     Object? bodyMeasurements = null,
     Object? cardioSessions = null,
@@ -474,6 +495,10 @@ class _$TrainingLoadedCopyWithImpl<$Res>
           ? _self._weightLogs
           : weightLogs // ignore: cast_nullable_to_non_nullable
               as List<WorkoutSetEntity>,
+      workoutSessions: null == workoutSessions
+          ? _self._workoutSessions
+          : workoutSessions // ignore: cast_nullable_to_non_nullable
+              as List<WorkoutSessionEntity>,
       bodyWeightLogs: null == bodyWeightLogs
           ? _self._bodyWeightLogs
           : bodyWeightLogs // ignore: cast_nullable_to_non_nullable

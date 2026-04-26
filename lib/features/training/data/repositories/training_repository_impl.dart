@@ -7,6 +7,7 @@ import 'package:gym_corpus/features/training/domain/entities/body_weight.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_session.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
+import 'package:gym_corpus/features/training/domain/entities/workout_session.dart';
 import 'package:gym_corpus/features/training/domain/repositories/training_repository.dart';
 import 'package:injectable/injectable.dart';
 
@@ -55,7 +56,8 @@ class TrainingRepositoryImpl implements TrainingRepository {
   }
 
   @override
-  Future<Either<Failure, void>> updateExerciseNotes(int id, String notes) async {
+  Future<Either<Failure, void>> updateExerciseNotes(
+      int id, String notes) async {
     try {
       await database.updateExerciseNotes(id, notes);
       return const Right(null);
@@ -238,6 +240,58 @@ class TrainingRepositoryImpl implements TrainingRepository {
           )
           .toList();
     });
+  }
+
+  @override
+  Stream<List<WorkoutSessionEntity>> watchWorkoutSessions() {
+    return database.watchCompletedWorkouts().map((workouts) {
+      return workouts
+          .map(
+            (w) => WorkoutSessionEntity(
+              id: w.id,
+              date: w.date,
+              name: w.name,
+              routineId: w.routineId,
+              completedAt: w.completedAt,
+              durationSeconds: w.durationSeconds,
+            ),
+          )
+          .toList();
+    });
+  }
+
+  @override
+  Future<Either<Failure, int>> startWorkoutSession({
+    required int id,
+    required String name,
+    int? routineId,
+  }) async {
+    try {
+      final workoutId = await database.insertWorkoutSession(
+        WorkoutsCompanion(
+          id: Value(id),
+          date: Value(DateTime.now()),
+          name: Value(name),
+          routineId: Value(routineId),
+        ),
+      );
+      return Right(workoutId);
+    } catch (e) {
+      return Left(DatabaseFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> completeWorkoutSession({
+    required int workoutId,
+    required int durationSeconds,
+  }) async {
+    try {
+      await database.completeWorkoutSession(workoutId, durationSeconds);
+      return const Right(null);
+    } catch (e) {
+      return Left(DatabaseFailure(e.toString()));
+    }
   }
 
   @override

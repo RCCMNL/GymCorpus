@@ -12,12 +12,22 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       await event.map(
         checkSessionRequested: (e) async => _onCheckSession(emit),
         loginRequested: (e) async => _onLogin(e.email, e.password, emit),
-        signUpRequested: (e) async => _onSignUp(e.email, e.password, emit),
+        signUpRequested: (e) async => _onSignUp(
+          email: e.email,
+          password: e.password,
+          firstName: e.firstName,
+          lastName: e.lastName,
+          username: e.username,
+          birthDate: e.birthDate,
+          gender: e.gender,
+          emit: emit,
+        ),
         forgotPasswordRequested: (e) async => _onForgotPassword(e.email, emit),
         googleSignInRequested: (e) async => _onGoogleSignIn(emit),
         appleSignInRequested: (e) async => _onAppleSignIn(emit),
         logoutRequested: (e) async => _onLogout(emit),
-        updateProfileImageRequested: (e) async => _onUpdateProfileImage(e.filePath, emit),
+        updateProfileImageRequested: (e) async =>
+            _onUpdateProfileImage(e.filePath, emit),
         updateProfileRequested: (e) async => _onUpdateProfile(
           firstName: e.firstName,
           lastName: e.lastName,
@@ -29,7 +39,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           trainingObjective: e.trainingObjective,
           emit: emit,
         ),
-        changePasswordRequested: (e) async => _onChangePassword(e.currentPassword, e.newPassword, emit),
+        changePasswordRequested: (e) async =>
+            _onChangePassword(e.currentPassword, e.newPassword, emit),
         deleteAccountRequested: (e) async => _onDeleteAccount(emit),
       );
     });
@@ -46,7 +57,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
-  Future<void> _onLogin(String email, String password, Emitter<AuthState> emit) async {
+  Future<void> _onLogin(
+    String email,
+    String password,
+    Emitter<AuthState> emit,
+  ) async {
     emit(const AuthState.loading());
     final result = await _repository.login(email, password);
     result.fold(
@@ -55,12 +70,51 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
-  Future<void> _onSignUp(String email, String password, Emitter<AuthState> emit) async {
+  Future<void> _onSignUp({
+    required String email,
+    required String password,
+    required String firstName,
+    required String lastName,
+    required String username,
+    required DateTime birthDate,
+    required String gender,
+    required Emitter<AuthState> emit,
+  }) async {
     emit(const AuthState.loading());
     final result = await _repository.signUp(email, password);
-    result.fold(
-      (failure) => emit(AuthState.error(failure.props.first.toString())),
-      (user) => emit(AuthState.authenticated(user)),
+
+    await result.fold(
+      (failure) async => emit(AuthState.error(failure.props.first.toString())),
+      (user) async {
+        // Immediately update profile with additional info
+        final updateResult = await _repository.updateProfileDetails(
+          firstName: firstName,
+          lastName: lastName,
+          username: username,
+          birthDate: birthDate,
+          gender: gender,
+        );
+
+        updateResult.fold(
+          (failure) {
+            debugPrint(
+              'AuthBloc._onSignUp profile update error: ${failure.message}',
+            );
+            emit(
+              AuthState.authenticated(
+                user.copyWith(
+                  firstName: firstName,
+                  lastName: lastName,
+                  username: username,
+                  birthDate: birthDate,
+                  gender: gender,
+                ),
+              ),
+            );
+          },
+          (updatedUser) => emit(AuthState.authenticated(updatedUser)),
+        );
+      },
     );
   }
 
@@ -96,9 +150,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(const AuthState.unauthenticated());
   }
 
-  Future<void> _onUpdateProfileImage(String filePath, Emitter<AuthState> emit) async {
+  Future<void> _onUpdateProfileImage(
+    String filePath,
+    Emitter<AuthState> emit,
+  ) async {
     final currentUser = state.maybeWhen(
-      authenticated: (user) => user, 
+      authenticated: (user) => user,
       loading: (prev) => prev,
       error: (msg, prev) => prev,
       orElse: () => null,
@@ -106,7 +163,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthState.loading(previousUser: currentUser));
     final result = await _repository.updateProfileImage(filePath);
     result.fold(
-      (failure) => emit(AuthState.error(failure.props.first.toString(), previousUser: currentUser)),
+      (failure) => emit(
+        AuthState.error(
+          failure.props.first.toString(),
+          previousUser: currentUser,
+        ),
+      ),
       (user) => emit(AuthState.authenticated(user)),
     );
   }
@@ -142,16 +204,26 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
-  Future<void> _onChangePassword(String currentPassword, String newPassword, Emitter<AuthState> emit) async {
-    final result = await _repository.changePassword(currentPassword, newPassword);
+  Future<void> _onChangePassword(
+    String currentPassword,
+    String newPassword,
+    Emitter<AuthState> emit,
+  ) async {
+    final result =
+        await _repository.changePassword(currentPassword, newPassword);
     result.fold(
       (failure) {
         // Handle failure locally in UI instead of emitting state, as the UI stays open
         final currentUser = state.maybeWhen(
-          authenticated: (user) => user, 
+          authenticated: (user) => user,
           orElse: () => null,
         );
-        emit(AuthState.error(failure.props.first.toString(), previousUser: currentUser));
+        emit(
+          AuthState.error(
+            failure.props.first.toString(),
+            previousUser: currentUser,
+          ),
+        );
       },
       (_) {
         // Success - UI will close itself, state remains authenticated
@@ -164,10 +236,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     result.fold(
       (failure) {
         final currentUser = state.maybeWhen(
-          authenticated: (user) => user, 
+          authenticated: (user) => user,
           orElse: () => null,
         );
-        emit(AuthState.error(failure.props.first.toString(), previousUser: currentUser));
+        emit(
+          AuthState.error(
+            failure.props.first.toString(),
+            previousUser: currentUser,
+          ),
+        );
       },
       (_) => emit(const AuthState.unauthenticated()),
     );
