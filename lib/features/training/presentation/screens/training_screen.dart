@@ -3,9 +3,11 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gym_corpus/core/services/notification_service.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
+import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
 
 enum _Phase { working, resting, completed }
@@ -17,7 +19,8 @@ class TrainingScreen extends StatefulWidget {
   State<TrainingScreen> createState() => _TrainingScreenState();
 }
 
-class _TrainingScreenState extends State<TrainingScreen> with SingleTickerProviderStateMixin {
+class _TrainingScreenState extends State<TrainingScreen>
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   Timer? _timer;
   int _seconds = 0;
   int _restDuration = 90;
@@ -25,11 +28,44 @@ class _TrainingScreenState extends State<TrainingScreen> with SingleTickerProvid
   int _exIdx = 0;
   int _setIdx = 0;
   AnimationController? _pulseCtrl;
+  late int _workoutId;
+  late DateTime _startTime;
+  bool _durationSaved = false;
+  DateTime? _restEndTime; // quando scade il recupero (usato per background)
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _workoutId = DateTime.now().millisecondsSinceEpoch;
+    _startTime = DateTime.now();
+    context.read<TrainingBloc>().add(LoadWeightLogsEvent());
     _pulseCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 1200))..repeat(reverse: true);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      // App tornata in foreground: ricalcola i secondi rimanenti
+      if (_phase == _Phase.resting && _restEndTime != null) {
+        final remaining = _restEndTime!.difference(DateTime.now()).inSeconds;
+        if (remaining <= 0) {
+          // Recupero già scaduto in background
+          NotificationService.instance.cancelNotification(100);
+          _onRestDone();
+        } else {
+          // Ancora in recupero: aggiorna il countdown e riavvia il timer
+          _timer?.cancel();
+          setState(() => _seconds = remaining);
+          _startTimer();
+        }
+      }
+    } else if (state == AppLifecycleState.paused) {
+      // App in background: il Timer.periodic si ferma su alcuni dispositivi;
+      // la notifica avviserà l'utente quando il recupero finisce
+      _timer?.cancel();
+    }
   }
 
   List<RoutineExerciseEntity> get _exercises => widget.routine?.exercises ?? [];
@@ -50,6 +86,28 @@ class _TrainingScreenState extends State<TrainingScreen> with SingleTickerProvid
 
   void _completeSet() {
     if (_phase != _Phase.working) return;
+    final ex = _curEx;
+    if (ex != null) {
+      final isFirstSet = _exIdx == 0 && _setIdx == 0;
+      final isLastSet = _isLastSet && _isLastEx;
+      // Al primo set: salva la durata reale come rpe (secondi dall'inizio)
+      // Al completamento: salva la durata finale definitiva
+      int? rpePayload;
+      if (isFirstSet && !_durationSaved) {
+        // placeholder: lo aggiorniamo al termine
+      }
+      if (isLastSet && !_durationSaved) {
+        rpePayload = DateTime.now().difference(_startTime).inSeconds;
+        _durationSaved = true;
+      }
+      context.read<TrainingBloc>().add(AddSetToExercise(
+        workoutId: _workoutId,
+        exerciseId: ex.exercise.id,
+        reps: ex.reps,
+        weight: ex.weight,
+        rpe: rpePayload,
+      ));
+    }
     if (_isLastSet && _isLastEx) { setState(() => _phase = _Phase.completed); return; }
     setState(() { _phase = _Phase.resting; _seconds = _restDuration; });
     _startTimer();
@@ -57,6 +115,19 @@ class _TrainingScreenState extends State<TrainingScreen> with SingleTickerProvid
 
   void _startTimer() {
     _timer?.cancel();
+    // Registra quando finisce il recupero (usato per ricalcolo al resume)
+    _restEndTime = DateTime.now().add(Duration(seconds: _seconds));
+    // Schedula notifica locale per quando scade il recupero
+    Future.delayed(Duration(seconds: _seconds), () {
+      // Spara la notifica solo se ancora in recupero (non saltato/già avanzato)
+      if (mounted && _phase == _Phase.resting) {
+        NotificationService.instance.showNotification(
+          id: 100,
+          title: 'GymCorpus - Recupero terminato',
+          body: 'Inizia la serie successiva! 💪',
+        );
+      }
+    });
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (_seconds > 0) { setState(() => _seconds--); } else { _onRestDone(); }
     });
@@ -64,14 +135,25 @@ class _TrainingScreenState extends State<TrainingScreen> with SingleTickerProvid
 
   void _onRestDone() {
     _timer?.cancel();
+    _restEndTime = null;
+    NotificationService.instance.cancelNotification(100);
     setState(() {
       if (_isLastSet) { _exIdx++; _setIdx = 0; } else { _setIdx++; }
       _phase = _Phase.working; _seconds = 0;
     });
   }
 
-  void _restartTimer() { if (_phase != _Phase.resting) return; _timer?.cancel(); setState(() => _seconds = _restDuration); _startTimer(); }
-  void _skipRest() { if (_phase != _Phase.resting) return; _onRestDone(); }
+  void _restartTimer() {
+    if (_phase != _Phase.resting) return;
+    _timer?.cancel();
+    setState(() => _seconds = _restDuration);
+    _startTimer(); // aggiorna anche _restEndTime
+  }
+  void _skipRest() {
+    if (_phase != _Phase.resting) return;
+    NotificationService.instance.cancelNotification(100);
+    _onRestDone();
+  }
 
   String _fmt(int s) {
     final m = (s ~/ 60).toString().padLeft(2, '0');
@@ -97,7 +179,13 @@ class _TrainingScreenState extends State<TrainingScreen> with SingleTickerProvid
   }
 
   @override
-  void dispose() { _timer?.cancel(); _pulseCtrl?.dispose(); super.dispose(); }
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _timer?.cancel();
+    _pulseCtrl?.dispose();
+    NotificationService.instance.cancelAll();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -158,10 +246,28 @@ class _TrainingScreenState extends State<TrainingScreen> with SingleTickerProvid
               ),
               child: Column(children: [
                 Row(children: [
-                  Container(width: 56, height: 56, decoration: BoxDecoration(
-                    gradient: LinearGradient(colors: [accentColor.withValues(alpha: 0.2), accentColor.withValues(alpha: 0.05)]),
-                    borderRadius: BorderRadius.circular(18)),
-                    child: Icon(Icons.fitness_center_rounded, color: accentColor, size: 26)),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(18),
+                    child: Container(
+                      width: 56,
+                      height: 56,
+                      color: accentColor.withValues(alpha: 0.1),
+                      child: ex.exercise.imageUrl != null
+                          ? Image.network(
+                              ex.exercise.imageUrl!,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  Image.asset(
+                                'assets/images/placeholder-image.png',
+                                fit: BoxFit.cover,
+                              ),
+                            )
+                          : Image.asset(
+                              'assets/images/placeholder-image.png',
+                              fit: BoxFit.cover,
+                            ),
+                    ),
+                  ),
                   const SizedBox(width: 16),
                   Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                     Text('ESERCIZIO CORRENTE', style: theme.textTheme.labelSmall?.copyWith(letterSpacing: 1.5, color: theme.colorScheme.outline, fontSize: 8, fontWeight: FontWeight.w900)),
@@ -290,10 +396,46 @@ class _TrainingScreenState extends State<TrainingScreen> with SingleTickerProvid
         border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.05)),
       ),
       child: Row(children: [
-        Container(width: 48, height: 48, decoration: BoxDecoration(
-          gradient: LinearGradient(colors: [accent.withValues(alpha: 0.2), accent.withValues(alpha: 0.05)]),
-          borderRadius: BorderRadius.circular(16)),
-          child: Icon(nextIcon, color: accent, size: 22)),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            width: 48,
+            height: 48,
+            color: accent.withValues(alpha: 0.1),
+            child: (nextName != 'Ultimo esercizio!' &&
+                    _exIdx + 1 < _exercises.length)
+                ? (_isLastSet
+                    ? (_exercises[_exIdx + 1].exercise.imageUrl != null
+                        ? Image.network(
+                            _exercises[_exIdx + 1].exercise.imageUrl!,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                Image.asset(
+                              'assets/images/placeholder-image.png',
+                              fit: BoxFit.cover,
+                            ),
+                          )
+                        : Image.asset(
+                            'assets/images/placeholder-image.png',
+                            fit: BoxFit.cover,
+                          ))
+                    : (_curEx?.exercise.imageUrl != null
+                        ? Image.network(
+                            _curEx!.exercise.imageUrl!,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                Image.asset(
+                              'assets/images/placeholder-image.png',
+                              fit: BoxFit.cover,
+                            ),
+                          )
+                        : Image.asset(
+                            'assets/images/placeholder-image.png',
+                            fit: BoxFit.cover,
+                          )))
+                : Icon(nextIcon, color: accent, size: 22),
+          ),
+        ),
         const SizedBox(width: 14),
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text('PROSSIMO', style: theme.textTheme.labelSmall?.copyWith(letterSpacing: 2, fontWeight: FontWeight.w900, fontSize: 8, color: theme.colorScheme.outline)),

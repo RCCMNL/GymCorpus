@@ -96,12 +96,9 @@ class ExerciseDetailScreen extends StatelessWidget {
                   ),
                   child: exercise.imageUrl != null
                       ? Image.network(exercise.imageUrl!, fit: BoxFit.cover)
-                      : Center(
-                          child: Icon(Icons.fitness_center,
-                              size: 80,
-                              color: theme.colorScheme.primary.withValues(
-                                alpha: 0.2,
-                              ),),
+                      : Image.asset(
+                          'assets/images/placeholder-image.png',
+                          fit: BoxFit.cover,
                         ),
                 ),
                 Positioned.fill(

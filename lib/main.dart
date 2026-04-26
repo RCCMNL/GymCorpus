@@ -40,6 +40,7 @@ import 'package:gym_corpus/features/training/presentation/screens/workout_page.d
 import 'package:gym_corpus/features/training/presentation/screens/yoga_screen.dart';
 import 'package:gym_corpus/features/training/presentation/screens/nutrition_screen.dart';
 import 'package:gym_corpus/features/training/presentation/screens/article_detail_screen.dart';
+import 'package:gym_corpus/core/services/notification_service.dart';
 import 'package:gym_corpus/firebase_options.dart';
 
 void main() async {
@@ -54,6 +55,8 @@ void main() async {
     DeviceOrientation.portraitDown,
   ]);
   await di.configureDependencies();
+  await NotificationService.instance.init();
+  await NotificationService.instance.requestPermissions();
   runApp(const GymApp());
 }
 
@@ -174,22 +177,22 @@ class _GymAppState extends State<GymApp> {
                     type: (state.extra as String?) ?? 'run',
                   ),
                 ),
+              ],
+            ),
+            GoRoute(
+              path: '/yoga',
+              builder: (context, state) => const YogaScreen(),
+            ),
+            GoRoute(
+              path: '/nutrition',
+              builder: (context, state) => const NutritionScreen(),
+              routes: [
                 GoRoute(
-                  path: 'yoga',
-                  builder: (context, state) => const YogaScreen(),
-                ),
-                GoRoute(
-                  path: 'nutrition',
-                  builder: (context, state) => const NutritionScreen(),
-                  routes: [
-                    GoRoute(
-                      path: 'article',
-                      parentNavigatorKey: _rootNavigatorKey,
-                      builder: (context, state) => ArticleDetailScreen(
-                        data: state.extra as Map<String, dynamic>? ?? {},
-                      ),
-                    ),
-                  ],
+                  path: 'article',
+                  parentNavigatorKey: _rootNavigatorKey,
+                  builder: (context, state) => ArticleDetailScreen(
+                    data: state.extra as Map<String, dynamic>? ?? {},
+                  ),
                 ),
               ],
             ),

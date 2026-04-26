@@ -22,6 +22,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   flutter_map: ^7.0.2
+  flutter_local_notifications: ^18.0.1
   flutter_native_splash: ^2.4.7
   flutter_secure_storage: ^9.0.0
   flutter_svg: ^2.0.9

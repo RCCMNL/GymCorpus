@@ -215,28 +215,45 @@ class _ExerciseTile extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      theme.colorScheme.surfaceContainerHigh,
-                      theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Icon(
-                  Icons.fitness_center_rounded,
-                  color: exercise.targetMuscle.toLowerCase().contains('petto') 
-                    ? Colors.orangeAccent 
-                    : (exercise.targetMuscle.toLowerCase().contains('schiena')
-                        ? theme.colorScheme.tertiary
-                        : theme.colorScheme.primary),
-                  size: 24,
+              ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: Container(
+                  width: 60,
+                  height: 60,
+                  color: theme.colorScheme.surfaceContainerHigh,
+                  child: exercise.imageUrl != null
+                      ? Image.network(
+                          exercise.imageUrl!,
+                          fit: BoxFit.cover,
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Container(
+                              color: theme.colorScheme.surfaceContainerHighest,
+                              child: Center(
+                                child: SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    value: loadingProgress.expectedTotalBytes != null
+                                        ? loadingProgress.cumulativeBytesLoaded /
+                                            loadingProgress.expectedTotalBytes!
+                                        : null,
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                          errorBuilder: (context, error, stackTrace) =>
+                              Image.asset(
+                            'assets/images/placeholder-image.png',
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                      : Image.asset(
+                          'assets/images/placeholder-image.png',
+                          fit: BoxFit.cover,
+                        ),
                 ),
               ),
               const SizedBox(width: 16),

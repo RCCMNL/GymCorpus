@@ -8,6 +8,7 @@ import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
 import 'package:gym_corpus/features/training/domain/entities/body_weight.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_session.dart';
+import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
@@ -42,6 +43,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             double totalWeight = 0;
             var monthSessions = 0;
             double monthWeight = 0;
+            var totalRealMinutes = 0;
+            var monthRealMinutes = 0;
 
             var currentUnit = 'KG';
             if (state is TrainingLoaded) {
@@ -49,6 +52,28 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
               final logs = state.weightLogs;
               sessionsCount = logs.map((e) => e.workoutId).toSet().length;
               totalWeight = logs.fold(0, (sum, e) => sum + (e.weight * e.reps));
+
+              // Calcolo durata reale per workoutId:
+              // - se l'ultimo set ha rpe != null → è la durata reale in secondi
+              // - altrimenti fallback: max(timestamp) - workoutId (start ms)
+              final workoutIds = logs.map((e) => e.workoutId).toSet();
+              for (final wid in workoutIds) {
+                final sessionLogs = logs.where((e) => e.workoutId == wid).toList();
+                // Cerca il set con rpe (durata salvata)
+                final withRpe = sessionLogs.where((e) => e.rpe != null).toList();
+                int durationSec;
+                if (withRpe.isNotEmpty) {
+                  durationSec = withRpe.last.rpe!;
+                } else {
+                  // Fallback: differenza tra ultimo timestamp e inizio sessione
+                  final maxTs = sessionLogs
+                      .map((e) => e.timestamp.millisecondsSinceEpoch)
+                      .reduce((a, b) => a > b ? a : b);
+                  durationSec = ((maxTs - wid) / 1000).round();
+                  if (durationSec < 0) durationSec = sessionLogs.length * 180;
+                }
+                totalRealMinutes += (durationSec / 60).round();
+              }
 
               final now = DateTime.now();
               final monthLogs = logs
@@ -61,8 +86,43 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
               monthSessions = monthLogs.map((e) => e.workoutId).toSet().length;
               monthWeight =
                   monthLogs.fold(0, (sum, e) => sum + (e.weight * e.reps));
+              // Durata reale solo per sessioni del mese
+              final monthWorkoutIds = monthLogs.map((e) => e.workoutId).toSet();
+              for (final wid in monthWorkoutIds) {
+                final sessionLogs = logs.where((e) => e.workoutId == wid).toList();
+                final withRpe = sessionLogs.where((e) => e.rpe != null).toList();
+                int durationSec;
+                if (withRpe.isNotEmpty) {
+                  durationSec = withRpe.last.rpe!;
+                } else {
+                  final maxTs = sessionLogs
+                      .map((e) => e.timestamp.millisecondsSinceEpoch)
+                      .reduce((a, b) => a > b ? a : b);
+                  durationSec = ((maxTs - wid) / 1000).round();
+                  if (durationSec < 0) durationSec = sessionLogs.length * 180;
+                }
+                monthRealMinutes += (durationSec / 60).round();
+              }
             }
             final isImperial = currentUnit == 'LB';
+
+            String _fmtDuration(int minutes) {
+              if (minutes < 60) return '${minutes}min';
+              final h = minutes ~/ 60;
+              final m = minutes % 60;
+              return m == 0 ? '${h}h' : '${h}h${m}m';
+            }
+
+            String _fmtVolume(double kg) {
+              if (kg < 1000) return '${kg.toStringAsFixed(0)} kg';
+              return '${(kg / 1000).toStringAsFixed(1)}k kg';
+            }
+
+            String _fmtVolumeImperial(double kg) {
+              final lb = UnitConverter.kgToLb(kg);
+              if (lb < 1000) return '${lb.toStringAsFixed(0)} lb';
+              return '${(lb / 1000).toStringAsFixed(1)}k lb';
+            }
 
             return SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -110,15 +170,15 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                       ),
                       _StatItem(
                         icon: Icons.schedule,
-                        value: '${(sessionsCount * 0.8).toStringAsFixed(1)}h',
+                        value: _fmtDuration(totalRealMinutes),
                         label: 'Tempo totale',
                       ),
                       _StatItem(
                         icon: Icons.scale,
                         value: isImperial
-                            ? '${(UnitConverter.kgToLb(totalWeight) / 1000).toStringAsFixed(1)}k'
-                            : '${(totalWeight / 1000).toStringAsFixed(1)}k',
-                        label: isImperial ? 'Volume (lb)' : 'Volume (kg)',
+                            ? _fmtVolumeImperial(totalWeight)
+                            : _fmtVolume(totalWeight),
+                        label: 'Volume',
                       ),
                     ],
                   ),
@@ -134,15 +194,15 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                       ),
                       _StatItem(
                         icon: Icons.timer,
-                        value: '${(monthSessions * 0.8).toStringAsFixed(1)}h',
+                        value: _fmtDuration(monthRealMinutes),
                         label: 'Tempo trascorso',
                       ),
                       _StatItem(
                         icon: Icons.trending_up,
                         value: isImperial
-                            ? '${(UnitConverter.kgToLb(monthWeight) / 1000).toStringAsFixed(1)}k'
-                            : '${(monthWeight / 1000).toStringAsFixed(1)}k',
-                        label: isImperial ? 'Volume (lb)' : 'Volume (kg)',
+                            ? _fmtVolumeImperial(monthWeight)
+                            : _fmtVolume(monthWeight),
+                        label: 'Volume',
                       ),
                     ],
                   ),
@@ -150,7 +210,11 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   const SizedBox(height: 24),
 
                   // This Week Activity Card
-                  const _ActivityCard(),
+                  _ActivityCard(
+                    weightLogs: state is TrainingLoaded
+                        ? state.weightLogs
+                        : [],
+                  ),
 
                   const SizedBox(height: 24),
 
@@ -450,13 +514,31 @@ class _StatItem extends StatelessWidget {
 // ─── ACTIVITY ──────────────────────────────────────────────────────────────
 
 class _ActivityCard extends StatelessWidget {
-  const _ActivityCard();
+  const _ActivityCard({required this.weightLogs});
+  final List<WorkoutSetEntity> weightLogs;
+
+  // Calcola quali giorni della settimana corrente (lun-dom) hanno sessioni
+  List<bool> _getWeekActivity() {
+    final now = DateTime.now();
+    final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
+    final result = List<bool>.filled(7, false);
+    for (final log in weightLogs) {
+      final ts = log.timestamp;
+      final diff = DateTime(ts.year, ts.month, ts.day)
+          .difference(DateTime(startOfWeek.year, startOfWeek.month, startOfWeek.day))
+          .inDays;
+      if (diff >= 0 && diff < 7) result[diff] = true;
+    }
+    return result;
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final days = ['LUN', 'MAR', 'MER', 'GIO', 'VEN', 'SAB', 'OGGI'];
-    final completed = [true, false, true, true, false, true, false];
+    final days = ['LUN', 'MAR', 'MER', 'GIO', 'VEN', 'SAB', 'DOM'];
+    final now = DateTime.now();
+    final todayIndex = now.weekday - 1; // 0=lun, 6=dom
+    final completed = _getWeekActivity();
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -478,7 +560,7 @@ class _ActivityCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: List.generate(days.length, (index) {
-              final isToday = index == days.length - 1;
+              final isToday = index == todayIndex;
               final isDone = completed[index];
               return Column(
                 children: [

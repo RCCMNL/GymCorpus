@@ -1,92 +1,145 @@
-﻿import 'package:flutter/material.dart';
-import 'package:gym_corpus/core/widgets/gym_header.dart';
+import 'package:flutter/material.dart';
 
 class ArticleDetailScreen extends StatelessWidget {
-  const ArticleDetailScreen({required this.data, super.key});
   final Map<String, dynamic> data;
+
+  const ArticleDetailScreen({super.key, required this.data});
 
   @override
   Widget build(BuildContext context) {
-    final t = Theme.of(context);
-    final title = data['title'] as String? ?? '';
-    final body = data['body'] as String? ?? '';
-    final date = data['date'] as String? ?? '';
-    final tag = data['tag'] as String? ?? '';
-    final readMin = data['readMin'] as int? ?? 5;
-    final colorVal = data['color'] as int? ?? 0xFFFDE047;
-    final color = Color(colorVal);
+    final theme = Theme.of(context);
+    final title = data['title'] as String? ?? 'Articolo';
+    final content = data['content'] as String? ?? '';
+    final imageUrl = data['imageUrl'] as String?;
 
     return Scaffold(
-      backgroundColor: t.colorScheme.surface,
-      appBar: const GymHeader(),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          child: Padding(
-            padding: const EdgeInsets.all(24),
+      backgroundColor: theme.colorScheme.surface,
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            expandedHeight: 300,
+            pinned: true,
+            flexibleSpace: FlexibleSpaceBar(
+              background: imageUrl != null
+                  ? Image.network(
+                      imageUrl,
+                      fit: BoxFit.cover,
+                    )
+                  : Container(color: theme.colorScheme.primary),
+            ),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.share_outlined),
+                onPressed: () {},
+              ),
+              const SizedBox(width: 8),
+            ],
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      'BENESSERE',
+                      style: TextStyle(
+                        color: theme.colorScheme.primary,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 10,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    title,
+                    style: theme.textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.w900,
+                      fontFamily: 'Lexend',
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    content,
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      height: 1.6,
+                      fontWeight: FontWeight.bold,
+                      color: theme.colorScheme.onSurface,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.\n\nExcepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.',
+                    style: TextStyle(
+                      height: 1.8,
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                    ),
+                  ),
+                  const SizedBox(height: 40),
+                  const Divider(),
+                  const SizedBox(height: 32),
+                  _buildSectionTitle('TI POTREBBE INTERESSARE', theme),
+                  const SizedBox(height: 16),
+                  _buildRelatedArticle(theme, 'Allenamento HIIT', '10 min di lettura'),
+                  _buildRelatedArticle(theme, 'Recupero Muscolare', '5 min di lettura'),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title, ThemeData theme) {
+    return Text(
+      title,
+      style: theme.textTheme.labelSmall?.copyWith(
+        letterSpacing: 1.5,
+        fontWeight: FontWeight.w900,
+        color: theme.colorScheme.primary,
+      ),
+    );
+  }
+
+  Widget _buildRelatedArticle(ThemeData theme, String title, String time) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHigh,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primary.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(Icons.article_outlined, color: theme.colorScheme.primary, size: 20),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Tag + meta
-                Row(children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(color: color.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(20)),
-                    child: Text(tag, style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.w900, fontFamily: 'Lexend', letterSpacing: 0.5)),
-                  ),
-                  const SizedBox(width: 12),
-                  Icon(Icons.calendar_today_outlined, size: 12, color: t.colorScheme.outline),
-                  const SizedBox(width: 4),
-                  Text(date, style: t.textTheme.labelSmall?.copyWith(color: t.colorScheme.outline, fontSize: 10)),
-                  const SizedBox(width: 12),
-                  Icon(Icons.timer_outlined, size: 12, color: t.colorScheme.outline),
-                  const SizedBox(width: 4),
-                  Text('$readMin min lettura', style: t.textTheme.labelSmall?.copyWith(color: t.colorScheme.outline, fontSize: 10)),
-                ]),
-                const SizedBox(height: 20),
-                // Title
-                Text(title, style: t.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold, fontFamily: 'Lexend', height: 1.2)),
-                const SizedBox(height: 8),
-                // Divider accent
-                Container(
-                  width: 60, height: 4,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(colors: [color, color.withValues(alpha: 0.3)]),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                const SizedBox(height: 28),
-                // Body paragraphs
-                ...body.split('\n\n').map((paragraph) => Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: paragraph.startsWith('- ') 
-                    ? Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: paragraph.split('\n').map((line) {
-                          if (line.startsWith('- ')) {
-                            return Padding(
-                              padding: const EdgeInsets.only(bottom: 8, left: 4),
-                              child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                                Container(
-                                  margin: const EdgeInsets.only(top: 7),
-                                  width: 6, height: 6,
-                                  decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(child: Text(line.substring(2), style: t.textTheme.bodyMedium?.copyWith(height: 1.6))),
-                              ]),
-                            );
-                          }
-                          return Text(line, style: t.textTheme.bodyMedium?.copyWith(height: 1.6));
-                        }).toList(),
-                      )
-                    : Text(paragraph, style: t.textTheme.bodyMedium?.copyWith(height: 1.6)),
-                )),
-                const SizedBox(height: 60),
+                Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+                Text(time, style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.outline)),
               ],
             ),
           ),
-        ),
+          Icon(Icons.arrow_forward_ios, color: theme.colorScheme.outline.withValues(alpha: 0.3), size: 14),
+        ],
       ),
     );
   }

@@ -227,25 +227,27 @@ class WorkoutDetailScreen extends StatelessWidget {
                           children: [
                             ListTile(
                               contentPadding: const EdgeInsets.fromLTRB(20, 16, 8, 16),
-                              leading: Container(
-                                width: 56,
-                                height: 56,
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                    colors: [
-                                      theme.colorScheme.primary.withValues(alpha: 0.15),
-                                      theme.colorScheme.tertiary.withValues(alpha: 0.1),
-                                    ],
-                                  ),
-                                  borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(color: theme.colorScheme.primary.withValues(alpha: 0.1)),
-                                ),
-                                child: Icon(
-                                  Icons.fitness_center_rounded,
-                                  color: theme.colorScheme.primary,
-                                  size: 24,
+                              leading: ClipRRect(
+                                borderRadius: BorderRadius.circular(16),
+                                child: Container(
+                                  width: 56,
+                                  height: 56,
+                                  color: theme.colorScheme.surfaceContainerHigh,
+                                  child: re.exercise.imageUrl != null
+                                      ? Image.network(
+                                          re.exercise.imageUrl!,
+                                          fit: BoxFit.cover,
+                                          errorBuilder: (context, error,
+                                                  stackTrace) =>
+                                              Image.asset(
+                                            'assets/images/placeholder-image.png',
+                                            fit: BoxFit.cover,
+                                          ),
+                                        )
+                                      : Image.asset(
+                                          'assets/images/placeholder-image.png',
+                                          fit: BoxFit.cover,
+                                        ),
                                 ),
                               ),
                               title: Text(
