@@ -91,16 +91,34 @@ class _CustomWorkoutsScreenState extends State<CustomWorkoutsScreen> {
                         GestureDetector(
                           onTap: () => context.push('/custom/new'),
                           child: Container(
-                            padding: const EdgeInsets.all(12),
+                            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
                             decoration: BoxDecoration(
-                              color: theme.colorScheme.primary
-                                  .withValues(alpha: 0.1),
-                              shape: BoxShape.circle,
+                              gradient: LinearGradient(
+                                colors: [theme.colorScheme.primary, theme.colorScheme.tertiary],
+                              ),
+                              borderRadius: BorderRadius.circular(24),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: theme.colorScheme.primary.withValues(alpha: 0.3),
+                                  blurRadius: 12,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
                             ),
-                            child: Icon(
-                              Icons.add,
-                              color: theme.colorScheme.primary,
-                              size: 24,
+                            child: Row(
+                              children: [
+                                const Icon(Icons.add_rounded, color: Colors.white, size: 20),
+                                const SizedBox(width: 6),
+                                Text(
+                                  'NUOVO',
+                                  style: theme.textTheme.labelMedium?.copyWith(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w900,
+                                    letterSpacing: 1,
+                                    fontFamily: 'Lexend',
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
@@ -112,13 +130,37 @@ class _CustomWorkoutsScreenState extends State<CustomWorkoutsScreen> {
                     if (routines.isEmpty)
                       Center(
                         child: Padding(
-                          padding: const EdgeInsets.all(40),
-                          child: Text(
-                            'Non hai ancora workout personalizzati.',
-                            textAlign: TextAlign.center,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: theme.colorScheme.outline,
-                            ),
+                          padding: const EdgeInsets.symmetric(vertical: 60, horizontal: 24),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(24),
+                                decoration: BoxDecoration(
+                                  color: theme.colorScheme.surfaceContainerHigh,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(Icons.edit_document, size: 48, color: theme.colorScheme.outline.withValues(alpha: 0.5)),
+                              ),
+                              const SizedBox(height: 24),
+                              Text(
+                                'Nessun workout creato',
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.w900,
+                                  fontFamily: 'Lexend',
+                                  color: theme.colorScheme.onSurface,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Tocca il pulsante "NUOVO" in alto per creare il tuo primo protocollo di allenamento personalizzato.',
+                                textAlign: TextAlign.center,
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: theme.colorScheme.outline,
+                                  height: 1.5,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       )
@@ -142,29 +184,7 @@ class _CustomWorkoutsScreenState extends State<CustomWorkoutsScreen> {
 
                     const SizedBox(height: 24),
 
-                    // Create New Routine Button
-                    OutlinedButton(
-                      onPressed: () => context.push('/custom/new'),
-                      style: OutlinedButton.styleFrom(
-                        minimumSize: const Size(double.infinity, 80),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                        side: BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.3), width: 2),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.add_circle, color: theme.colorScheme.primary),
-                          const SizedBox(width: 12),
-                          Text(
-                            'Create workout',
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: theme.colorScheme.onSurface,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                    // Rimosso vecchio pulsante Create Workout in basso
 
                     const SizedBox(height: 100), // Space for Nav
                   ],
@@ -276,9 +296,23 @@ class _WorkoutCard extends StatelessWidget {
     return Container(
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainer,
-        borderRadius: BorderRadius.circular(20),
-        border: Border(left: BorderSide(color: color, width: 4)),
+        gradient: LinearGradient(
+          colors: [
+            theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.6),
+            theme.colorScheme.surfaceContainer.withValues(alpha: 0.4),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: color.withValues(alpha: 0.15), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: Material(
         color: Colors.transparent,
@@ -300,54 +334,64 @@ class _WorkoutCard extends StatelessWidget {
                           Text(
                             routine.title,
                             style: theme.textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w900,
                               fontFamily: 'Lexend',
-                              fontSize: 20,
+                              fontSize: 18,
+                              color: theme.colorScheme.onSurface,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
-                          const SizedBox(height: 12),
-                          // Row 1: Manubrio + N. Esercizi
+                          const SizedBox(height: 16),
                           Row(
                             children: [
-                              Icon(
-                                Icons.fitness_center,
-                                size: 14,
-                                color: color,
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                '${routine.exercises.length} esercizi'
-                                    .toUpperCase(),
-                                style: theme.textTheme.labelSmall?.copyWith(
-                                  color: theme.colorScheme.onSurfaceVariant,
-                                  fontWeight: FontWeight.w900,
-                                  letterSpacing: 0.5,
-                                  fontSize: 9,
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: color.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.fitness_center_rounded, size: 14, color: color),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      '${routine.exercises.length} ESERCIZI',
+                                      style: theme.textTheme.labelSmall?.copyWith(
+                                        color: color,
+                                        fontWeight: FontWeight.w900,
+                                        letterSpacing: 0.5,
+                                        fontSize: 9,
+                                        fontFamily: 'Lexend',
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          // Row 2: Orologio + Durata
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.timer_outlined,
-                                size: 14,
-                                color: theme.colorScheme.tertiary,
-                              ),
                               const SizedBox(width: 8),
-                              Text(
-                                'Est. ${routine.estimatedDuration ?? "--"}m'
-                                    .toUpperCase(),
-                                style: theme.textTheme.labelSmall?.copyWith(
-                                  color: theme.colorScheme.onSurfaceVariant
-                                      .withValues(alpha: 0.7),
-                                  fontWeight: FontWeight.w900,
-                                  letterSpacing: 0.5,
-                                  fontSize: 9,
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: theme.colorScheme.tertiary.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.timer_outlined, size: 14, color: theme.colorScheme.tertiary),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      '${routine.estimatedDuration ?? "--"} MIN',
+                                      style: theme.textTheme.labelSmall?.copyWith(
+                                        color: theme.colorScheme.tertiary,
+                                        fontWeight: FontWeight.w900,
+                                        letterSpacing: 0.5,
+                                        fontSize: 9,
+                                        fontFamily: 'Lexend',
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],
@@ -356,31 +400,18 @@ class _WorkoutCard extends StatelessWidget {
                       ),
                     ),
                     Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        IconButton(
-                          onPressed: () => context.push('/custom/edit', extra: routine),
-                          icon: Icon(
-                            Icons.mode_edit_outline,
-                            color: theme.colorScheme.primary.withValues(
-                              alpha: 0.5,
-                            ),
-                            size: 20,
-                          ),
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
+                        _ActionButton(
+                          icon: Icons.edit_rounded,
+                          color: theme.colorScheme.primary,
+                          onTap: () => context.push('/custom/edit', extra: routine),
                         ),
-                        const SizedBox(width: 12),
-                        IconButton(
-                          onPressed: () => _showDeleteDialog(context),
-                          icon: Icon(
-                            Icons.delete_outline,
-                            color: theme.colorScheme.error.withValues(
-                              alpha: 0.5,
-                            ),
-                            size: 22,
-                          ),
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
+                        const SizedBox(width: 8),
+                        _ActionButton(
+                          icon: Icons.delete_rounded,
+                          color: Colors.redAccent,
+                          onTap: () => _showDeleteDialog(context),
                         ),
                       ],
                     ),
@@ -390,6 +421,28 @@ class _WorkoutCard extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _ActionButton extends StatelessWidget {
+  const _ActionButton({required this.icon, required this.color, required this.onTap});
+  final IconData icon;
+  final Color color;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.1),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(icon, size: 18, color: color),
       ),
     );
   }

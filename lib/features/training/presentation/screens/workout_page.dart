@@ -217,48 +217,31 @@ class _WorkoutPageState extends State<WorkoutPage> {
                     const SizedBox(height: 16),
 
                     // Routine Title Input Section
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        TextField(
-                          controller: _nameController,
-                          cursorColor: theme.colorScheme.primary,
-                          style: theme.textTheme.headlineLarge?.copyWith(
-                            fontWeight: FontWeight.w900,
-                            fontFamily: 'Lexend',
-                            fontSize: 28,
-                            color: theme.colorScheme.onSurface,
-                          ),
-                          decoration: InputDecoration(
-                            hintText: 'Nome workout',
-                            hintStyle: TextStyle(
-                              color: theme.colorScheme.outline.withValues(
-                                alpha: 0.2,
-                              ),
-                            ),
-                            border: InputBorder.none,
-                            contentPadding: EdgeInsets.zero,
-                          ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.5),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.1)),
+                      ),
+                      child: TextField(
+                        controller: _nameController,
+                        cursorColor: theme.colorScheme.primary,
+                        style: theme.textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.w900,
+                          fontFamily: 'Lexend',
+                          color: theme.colorScheme.onSurface,
                         ),
-                        const SizedBox(height: 4),
-                        // Aesthetic Underline
-                        Container(
-                          height: 2,
-                          width: 40,
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.primary,
-                            borderRadius: BorderRadius.circular(2),
-                            boxShadow: [
-                              BoxShadow(
-                                color: theme.colorScheme.primary
-                                    .withValues(alpha: 0.5),
-                                blurRadius: 4,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
+                        decoration: InputDecoration(
+                          hintText: 'Nome del tuo workout',
+                          hintStyle: TextStyle(
+                            color: theme.colorScheme.outline.withValues(alpha: 0.4),
                           ),
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.zero,
+                          icon: Icon(Icons.edit_note_rounded, color: theme.colorScheme.primary, size: 28),
                         ),
-                      ],
+                      ),
                     ),
                     const SizedBox(height: 24),
 
@@ -278,37 +261,53 @@ class _WorkoutPageState extends State<WorkoutPage> {
                                 color: theme.colorScheme.primary,
                               ),
                             ),
-                            const SizedBox(height: 2),
-                            Text(
-                              '${_selectedExercises.length} esercizi aggiunti',
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: theme.colorScheme.outline.withValues(
-                                  alpha: 0.6,
+                            const SizedBox(height: 4),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: theme.colorScheme.tertiary.withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                '${_selectedExercises.length} ESERCIZI',
+                                style: theme.textTheme.labelSmall?.copyWith(
+                                  color: theme.colorScheme.tertiary,
+                                  fontWeight: FontWeight.w900,
                                 ),
                               ),
                             ),
                           ],
                         ),
-                        FilledButton.icon(
-                          onPressed: () => _showExercisePicker(context),
-                          icon: const Icon(Icons.add, size: 16),
-                          label: const Text(
-                            'Aggiungi',
-                            style: TextStyle(fontSize: 12),
-                          ),
-                          style: FilledButton.styleFrom(
-                            backgroundColor: theme.colorScheme.primary
-                                .withValues(alpha: 0.1),
-                            foregroundColor: theme.colorScheme.primary,
-                            elevation: 0,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 8,
+                        GestureDetector(
+                          onTap: () => _showExercisePicker(context),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [theme.colorScheme.primary, theme.colorScheme.tertiary],
+                              ),
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: theme.colorScheme.primary.withValues(alpha: 0.3),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 3),
+                                ),
+                              ],
                             ),
-                            minimumSize: Size.zero,
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.add_rounded, color: Colors.white, size: 16),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'AGGIUNGI',
+                                  style: theme.textTheme.labelSmall?.copyWith(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w900,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
@@ -322,18 +321,33 @@ class _WorkoutPageState extends State<WorkoutPage> {
                           padding: const EdgeInsets.symmetric(vertical: 40),
                           child: Column(
                             children: [
-                              Icon(
-                                Icons.fitness_center_outlined,
-                                size: 48,
-                                color: theme.colorScheme.outline.withValues(
-                                  alpha: 0.3,
+                              Container(
+                                padding: const EdgeInsets.all(24),
+                                decoration: BoxDecoration(
+                                  color: theme.colorScheme.surfaceContainerHigh,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  Icons.fitness_center_rounded,
+                                  size: 48,
+                                  color: theme.colorScheme.outline.withValues(alpha: 0.4),
                                 ),
                               ),
-                              const SizedBox(height: 16),
+                              const SizedBox(height: 20),
                               Text(
-                                'Nessun esercizio aggiunto',
-                                style:
-                                    TextStyle(color: theme.colorScheme.outline),
+                                'Nessun esercizio',
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.w900,
+                                  fontFamily: 'Lexend',
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Aggiungi il tuo primo esercizio premendo\nil tasto in alto a destra.',
+                                textAlign: TextAlign.center,
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: theme.colorScheme.outline,
+                                ),
                               ),
                             ],
                           ),
@@ -402,30 +416,46 @@ class _WorkoutPageState extends State<WorkoutPage> {
                 color: theme.colorScheme.surface,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
-                    blurRadius: 10,
+                    color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                    blurRadius: 20,
                     offset: const Offset(0, -5),
                   ),
                 ],
               ),
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _saveRoutine,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: theme.colorScheme.primary,
-                    foregroundColor: theme.colorScheme.onPrimary,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+              child: GestureDetector(
+                onTap: _saveRoutine,
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 18),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [theme.colorScheme.primary, theme.colorScheme.tertiary],
                     ),
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: theme.colorScheme.primary.withValues(alpha: 0.3),
+                        blurRadius: 15,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
                   ),
-                  child: const Text(
-                    'SALVA WORKOUT',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.2,
-                    ),
+                  alignment: Alignment.center,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.check_circle_rounded, color: Colors.white, size: 22),
+                      const SizedBox(width: 10),
+                      Text(
+                        'SALVA WORKOUT',
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 1.2,
+                          fontFamily: 'Lexend',
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -494,7 +524,7 @@ class _SelectedExerciseTileState extends State<_SelectedExerciseTile> {
   late List<ExerciseSet> sets;
   late List<TextEditingController> weightControllers;
   late List<TextEditingController> repsControllers;
-  bool isCollapsed = false;
+  bool isCollapsed = true;
 
   @override
   void initState() {
@@ -591,12 +621,20 @@ class _SelectedExerciseTileState extends State<_SelectedExerciseTile> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHigh,
+        gradient: LinearGradient(
+          colors: [
+            theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.8),
+            theme.colorScheme.surfaceContainer.withValues(alpha: 0.5),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: theme.colorScheme.outline.withValues(alpha: 0.05),
+          color: theme.colorScheme.outline.withValues(alpha: 0.1),
+          width: 1.5,
         ),
       ),
       child: Column(
@@ -611,21 +649,28 @@ class _SelectedExerciseTileState extends State<_SelectedExerciseTile> {
                   child: AnimatedRotation(
                     turns: isCollapsed ? -0.25 : 0,
                     duration: const Duration(milliseconds: 200),
-                    child: const Icon(Icons.keyboard_arrow_down, color: Colors.grey, size: 28),
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surfaceContainerHighest,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.grey, size: 24),
+                    ),
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 12),
                 Container(
-                  width: 44,
-                  height: 44,
+                  width: 48,
+                  height: 48,
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(10),
+                    color: theme.colorScheme.primary.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(14),
                   ),
                   child: Icon(
-                    Icons.fitness_center,
+                    Icons.fitness_center_rounded,
                     color: theme.colorScheme.primary,
-                    size: 20,
+                    size: 22,
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -657,23 +702,27 @@ class _SelectedExerciseTileState extends State<_SelectedExerciseTile> {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    IconButton(
-                      icon: Icon(
-                        Icons.delete_outline,
-                        color: theme.colorScheme.error.withValues(alpha: 0.6),
-                        size: 22,
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.error.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
                       ),
-                      onPressed: widget.onRemove,
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
+                      child: GestureDetector(
+                        onTap: widget.onRemove,
+                        child: Icon(Icons.delete_outline, color: theme.colorScheme.error.withValues(alpha: 0.8), size: 18),
+                      ),
                     ),
                     const SizedBox(width: 8),
                     ReorderableDragStartListener(
                       index: widget.index,
-                      child: Icon(
-                        Icons.reorder,
-                        color: theme.colorScheme.outline.withValues(alpha: 0.3),
-                        size: 22,
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.outline.withValues(alpha: 0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(Icons.reorder_rounded, color: theme.colorScheme.outline.withValues(alpha: 0.8), size: 18),
                       ),
                     ),
                   ],
@@ -691,22 +740,31 @@ class _SelectedExerciseTileState extends State<_SelectedExerciseTile> {
                   const Divider(height: 1, thickness: 0.5, color: Colors.white10),
                   const SizedBox(height: 16),
                   ...List.generate(sets.length, (index) {
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: index.isEven ? theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3) : Colors.transparent,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                       child: Row(
                         children: [
                           Container(
                             width: 28,
                             height: 28,
                             decoration: BoxDecoration(
-                              color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                              gradient: LinearGradient(
+                                colors: [theme.colorScheme.primary.withValues(alpha: 0.2), theme.colorScheme.primary.withValues(alpha: 0.05)],
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                              ),
                               shape: BoxShape.circle,
                             ),
                             child: Center(
                               child: Text(
                                 '${index + 1}',
                                 style: theme.textTheme.labelSmall?.copyWith(
-                                  fontWeight: FontWeight.bold,
+                                  fontWeight: FontWeight.w900,
                                   color: theme.colorScheme.primary,
                                 ),
                               ),
@@ -729,7 +787,7 @@ class _SelectedExerciseTileState extends State<_SelectedExerciseTile> {
                           Expanded(
                             child: _SetInputCell(
                               controller: repsControllers[index],
-                              label: 'RIP.',
+                              label: 'REPS',
                               onChanged: (v) {
                                 sets[index].reps = int.tryParse(v) ?? 0;
                                 widget.onSetsUpdated(sets);
@@ -737,39 +795,45 @@ class _SelectedExerciseTileState extends State<_SelectedExerciseTile> {
                             ),
                           ),
                           const SizedBox(width: 4),
-                          IconButton(
-                            icon: Icon(Icons.close, size: 18, color: theme.colorScheme.error.withValues(alpha: 0.4)),
-                            onPressed: () => _removeSet(index),
-                            padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints(),
+                          GestureDetector(
+                            onTap: () => _removeSet(index),
+                            child: Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: const BoxDecoration(shape: BoxShape.circle),
+                              child: Icon(Icons.close_rounded, size: 18, color: theme.colorScheme.error.withValues(alpha: 0.5)),
+                            ),
                           ),
                         ],
                       ),
                     );
                   }),
-                  const SizedBox(height: 8),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: _addSet,
-                      icon: const Icon(Icons.add, size: 18),
-                      label: const Text(
-                        'AGGIUNGI UNA SERIE',
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 0.5,
-                        ),
+                  const SizedBox(height: 12),
+                  GestureDetector(
+                    onTap: _addSet,
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: theme.colorScheme.primary.withValues(alpha: 0.2)),
                       ),
-                      style: ElevatedButton.styleFrom(
-                        foregroundColor: theme.colorScheme.primary,
-                        backgroundColor:
-                            theme.colorScheme.primary.withValues(alpha: 0.08),
-                        elevation: 0,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                      alignment: Alignment.center,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.add_rounded, size: 18, color: theme.colorScheme.primary),
+                          const SizedBox(width: 6),
+                          Text(
+                            'AGGIUNGI UNA SERIE',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 0.5,
+                              color: theme.colorScheme.primary,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),

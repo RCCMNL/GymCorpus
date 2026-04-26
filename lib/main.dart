@@ -23,6 +23,7 @@ import 'package:gym_corpus/features/exercises/presentation/screens/exercises_scr
 import 'package:gym_corpus/features/profile/presentation/screens/edit_profile_screen.dart';
 import 'package:gym_corpus/features/profile/presentation/screens/integrations_screen.dart';
 import 'package:gym_corpus/features/profile/presentation/screens/profile_screen.dart';
+import 'package:gym_corpus/features/profile/presentation/screens/cycle_calendar_screen.dart';
 import 'package:gym_corpus/features/profile/presentation/screens/security_screen.dart';
 import 'package:gym_corpus/features/profile/presentation/screens/legal_screens.dart';
 import 'package:gym_corpus/features/exercises/presentation/screens/favorite_exercises_screen.dart';
@@ -294,6 +295,10 @@ class _GymAppState extends State<GymApp> {
                   path: 'privacy',
                   parentNavigatorKey: _rootNavigatorKey,
                   builder: (context, state) => const PrivacyPolicyScreen(),
+                ),
+                GoRoute(
+                  path: 'cycle-calendar',
+                  builder: (context, state) => const CycleCalendarScreen(),
                 ),
               ],
             ),

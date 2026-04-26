@@ -394,10 +394,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               isBadge: true,
             ),
             _ProfileItem(
-              icon: Icons.event_repeat,
+              icon: Icons.auto_awesome_rounded,
               label: 'Calendario ciclo',
-              trailingText: 'Prossimamente',
-              isBadge: true,
+              onTap: () => context.push('/profile/cycle-calendar'),
             ),
           ],
         ),
@@ -842,11 +841,13 @@ class _ProfileItem extends StatelessWidget {
     final isComingSoon = isBadge && trailingText == 'Prossimamente';
     final iconColor = isComingSoon
         ? theme.colorScheme.outline
-        : label == 'Sicurezza' || label == 'Esercizi Preferiti'
-            ? theme.colorScheme.tertiary
-            : (label == 'Valuta GymCorpus'
-                ? Colors.orangeAccent
-                : theme.colorScheme.primary);
+        : label == 'Calendario ciclo'
+            ? const Color(0xFFFF4B72)
+            : (label == 'Sicurezza' || label == 'Esercizi Preferiti'
+                ? theme.colorScheme.tertiary
+                : (label == 'Valuta GymCorpus'
+                    ? Colors.orangeAccent
+                    : theme.colorScheme.primary));
 
     return Material(
       color: Colors.transparent,
@@ -856,6 +857,12 @@ class _ProfileItem extends StatelessWidget {
         child: Container(
           constraints: const BoxConstraints(minHeight: 60),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: label == 'Calendario ciclo' 
+                ? const Color(0xFFFF4B72).withValues(alpha: 0.05) 
+                : null,
+            borderRadius: BorderRadius.circular(20),
+          ),
           child: Row(
             children: [
               Icon(

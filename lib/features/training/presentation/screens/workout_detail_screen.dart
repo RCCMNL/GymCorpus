@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:gym_corpus/core/utils/unit_converter.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
+import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
@@ -67,7 +68,43 @@ class WorkoutDetailScreen extends StatelessWidget {
     );
   }
 
-
+  void _showNotesDialog(BuildContext context, ExerciseEntity exercise, ThemeData theme) {
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          backgroundColor: theme.colorScheme.surfaceContainerHigh,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          title: Row(
+            children: [
+              Icon(Icons.notes_rounded, color: theme.colorScheme.primary),
+              const SizedBox(width: 8),
+              const Text('Le tue note', style: TextStyle(fontFamily: 'Lexend', fontWeight: FontWeight.w900, fontSize: 18)),
+            ],
+          ),
+          content: Text(
+            (exercise.userNotes != null && exercise.userNotes!.trim().isNotEmpty)
+                ? exercise.userNotes!
+                : "Nessuna nota presente per questo esercizio.\n\nPuoi aggiungere appunti dalla schermata dei dettagli dell'esercizio.",
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: (exercise.userNotes != null && exercise.userNotes!.trim().isNotEmpty)
+                  ? theme.colorScheme.onSurface
+                  : theme.colorScheme.outline,
+              fontStyle: (exercise.userNotes != null && exercise.userNotes!.trim().isNotEmpty)
+                  ? FontStyle.normal
+                  : FontStyle.italic,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text('CHIUDI', style: TextStyle(color: theme.colorScheme.primary, fontWeight: FontWeight.w900)),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -207,47 +244,45 @@ class WorkoutDetailScreen extends StatelessWidget {
                       }
 
                       return Container(
-                        margin: const EdgeInsets.only(bottom: 24),
+                        margin: const EdgeInsets.only(bottom: 16),
                         decoration: BoxDecoration(
-                          color: theme.colorScheme.surface,
-                          borderRadius: BorderRadius.circular(24),
-                          border: Border.all(
-                            color: theme.colorScheme.outline.withValues(alpha: 0.08),
+                          gradient: LinearGradient(
+                            colors: [
+                              theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.8),
+                              theme.colorScheme.surfaceContainer.withValues(alpha: 0.5),
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
                           ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.05),
-                              blurRadius: 20,
-                              offset: const Offset(0, 8),
-                            ),
-                          ],
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: theme.colorScheme.outline.withValues(alpha: 0.1),
+                            width: 1.5,
+                          ),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             ListTile(
-                              contentPadding: const EdgeInsets.fromLTRB(20, 16, 8, 16),
-                              leading: ClipRRect(
-                                borderRadius: BorderRadius.circular(16),
-                                child: Container(
-                                  width: 56,
-                                  height: 56,
-                                  color: theme.colorScheme.surfaceContainerHigh,
+                              contentPadding: const EdgeInsets.fromLTRB(16, 16, 8, 16),
+                              leading: Container(
+                                width: 48,
+                                height: 48,
+                                decoration: BoxDecoration(
+                                  color: theme.colorScheme.primary.withValues(alpha: 0.15),
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(14),
                                   child: re.exercise.imageUrl != null
                                       ? Image.network(
                                           re.exercise.imageUrl!,
                                           fit: BoxFit.cover,
                                           errorBuilder: (context, error,
                                                   stackTrace) =>
-                                              Image.asset(
-                                            'assets/images/placeholder-image.png',
-                                            fit: BoxFit.cover,
-                                          ),
+                                              Icon(Icons.fitness_center_rounded, color: theme.colorScheme.primary, size: 22),
                                         )
-                                      : Image.asset(
-                                          'assets/images/placeholder-image.png',
-                                          fit: BoxFit.cover,
-                                        ),
+                                      : Icon(Icons.fitness_center_rounded, color: theme.colorScheme.primary, size: 22),
                                 ),
                               ),
                               title: Text(
@@ -259,86 +294,106 @@ class WorkoutDetailScreen extends StatelessWidget {
                                 ),
                               ),
                               subtitle: Padding(
-                                padding: const EdgeInsets.only(top: 4),
+                                padding: const EdgeInsets.only(top: 6),
                                 child: Row(
                                   children: [
                                     Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                       decoration: BoxDecoration(
-                                        color: Colors.orangeAccent.withValues(alpha: 0.1),
+                                        color: theme.colorScheme.tertiary.withValues(alpha: 0.15),
                                         borderRadius: BorderRadius.circular(6),
                                       ),
                                       child: Text(
                                         '${setsList.length} SERIE',
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           fontSize: 9,
-                                          color: Colors.orangeAccent,
+                                          color: theme.colorScheme.tertiary,
                                           fontWeight: FontWeight.w900,
                                           letterSpacing: 0.5,
                                         ),
                                       ),
                                     ),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      re.exercise.targetMuscle.toUpperCase(),
-                                      style: TextStyle(
-                                        fontSize: 9,
-                                        color: theme.colorScheme.outline,
-                                        fontWeight: FontWeight.w900,
-                                        letterSpacing: 0.5,
+                                    const SizedBox(width: 6),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                      decoration: BoxDecoration(
+                                        color: theme.colorScheme.outline.withValues(alpha: 0.1),
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      child: Text(
+                                        re.exercise.targetMuscle.toUpperCase(),
+                                        style: TextStyle(
+                                          fontSize: 9,
+                                          color: theme.colorScheme.outline,
+                                          fontWeight: FontWeight.w900,
+                                          letterSpacing: 0.5,
+                                        ),
                                       ),
                                     ),
                                   ],
                                 ),
                               ),
-                              trailing: PopupMenuButton<String>(
-                                onSelected: (val) {
-                                  if (val == 'edit') {
-                                    _showEditExerciseSheet(context, re, currentRoutine);
-                                  } else if (val == 'remove_exercise') {
-                                    _removeSingleExercise(context, re, currentRoutine);
-                                  } else if (val == 'delete_routine') {
-                                    _showDeleteDialog(context);
-                                  }
-                                },
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                                color: Color.alphaBlend(
-                                  theme.colorScheme.primary.withValues(alpha: 0.15), 
-                                  theme.colorScheme.surface,
-                                ),
-                                elevation: 6,
-                                icon: Icon(Icons.more_horiz_rounded, color: theme.colorScheme.outline.withValues(alpha: 0.5)),
-                                itemBuilder: (context) => [
-                                  PopupMenuItem(
-                                    value: 'edit',
-                                    child: Row(
-                                      children: [
-                                        Icon(Icons.edit_note_rounded, size: 20, color: theme.colorScheme.primary),
-                                        const SizedBox(width: 12),
-                                        const Text('Modifica serie', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
-                                      ],
-                                    ),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: Icon(Icons.info_outline_rounded, color: theme.colorScheme.primary),
+                                    onPressed: () => _showNotesDialog(context, re.exercise, theme),
                                   ),
-                                  const PopupMenuItem(
-                                    value: 'remove_exercise',
-                                    child: Row(
-                                      children: [
-                                        Icon(Icons.remove_circle_outline_rounded, size: 20, color: Colors.orangeAccent),
-                                        SizedBox(width: 12),
-                                        Text('Rimuovi esercizio', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.orangeAccent)),
-                                      ],
+                                  PopupMenuButton<String>(
+                                    onSelected: (val) {
+                                      if (val == 'edit') {
+                                        _showEditExerciseSheet(context, re, currentRoutine);
+                                      } else if (val == 'remove_exercise') {
+                                        _removeSingleExercise(context, re, currentRoutine);
+                                      } else if (val == 'delete_routine') {
+                                        _showDeleteDialog(context);
+                                      }
+                                    },
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                    color: theme.colorScheme.surfaceContainerHigh,
+                                    elevation: 8,
+                                    icon: Container(
+                                      padding: const EdgeInsets.all(4),
+                                      decoration: BoxDecoration(
+                                        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Icon(Icons.more_horiz_rounded, color: theme.colorScheme.primary),
                                     ),
-                                  ),
-                                  const PopupMenuDivider(),
-                                  const PopupMenuItem(
-                                    value: 'delete_routine',
-                                    child: Row(
-                                      children: [
-                                        Icon(Icons.delete_forever_rounded, size: 20, color: Colors.redAccent),
-                                        SizedBox(width: 12),
-                                        Text('Elimina routine', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.redAccent)),
-                                      ],
-                                    ),
+                                    itemBuilder: (context) => [
+                                      PopupMenuItem(
+                                        value: 'edit',
+                                        child: Row(
+                                          children: [
+                                            Icon(Icons.edit_note_rounded, size: 20, color: theme.colorScheme.primary),
+                                            const SizedBox(width: 12),
+                                            const Text('Modifica serie', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+                                          ],
+                                        ),
+                                      ),
+                                      PopupMenuItem(
+                                        value: 'remove_exercise',
+                                        child: Row(
+                                          children: [
+                                            Icon(Icons.remove_circle_outline_rounded, size: 20, color: theme.colorScheme.error),
+                                            const SizedBox(width: 12),
+                                            Text('Rimuovi esercizio', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: theme.colorScheme.error)),
+                                          ],
+                                        ),
+                                      ),
+                                      const PopupMenuDivider(),
+                                      PopupMenuItem(
+                                        value: 'delete_routine',
+                                        child: Row(
+                                          children: [
+                                            Icon(Icons.delete_forever_rounded, size: 20, color: theme.colorScheme.error),
+                                            const SizedBox(width: 12),
+                                            Text('Elimina routine', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: theme.colorScheme.error)),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
@@ -355,53 +410,78 @@ class WorkoutDetailScreen extends StatelessWidget {
                                       final idx = entry.key;
                                       final setData =
                                           entry.value as Map<String, dynamic>;
-                                      return Padding(
-                                        padding: const EdgeInsets.only(bottom: 10),
+                                      return Container(
+                                        margin: const EdgeInsets.only(bottom: 8),
+                                        padding: const EdgeInsets.all(12),
+                                        decoration: BoxDecoration(
+                                          color: idx.isEven ? theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3) : Colors.transparent,
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
                                         child: Row(
                                           children: [
                                             Container(
-                                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                              width: 28,
+                                              height: 28,
                                               decoration: BoxDecoration(
-                                                color: theme.colorScheme.primary.withValues(alpha: 0.05),
-                                                borderRadius: BorderRadius.circular(8),
+                                                gradient: LinearGradient(
+                                                  colors: [theme.colorScheme.primary.withValues(alpha: 0.2), theme.colorScheme.primary.withValues(alpha: 0.05)],
+                                                  begin: Alignment.topCenter,
+                                                  end: Alignment.bottomCenter,
+                                                ),
+                                                shape: BoxShape.circle,
                                               ),
-                                              child: Text('SET ${idx + 1}',
+                                              child: Center(
+                                                child: Text(
+                                                  '${idx + 1}',
                                                   style: theme.textTheme.labelSmall?.copyWith(
-                                                         fontWeight: FontWeight.w900,
-                                                         color: theme.colorScheme.primary,
-                                                         fontSize: 9,
-                                                         letterSpacing: 1,
-                                                       ),
-                                               ),
-                                            ),
-                                            const Spacer(),
-                                            Text(
-                                              isImperial 
-                                                ? UnitConverter.kgToLb((setData['weight'] as num).toDouble()).toStringAsFixed(1) 
-                                                : (setData['weight'] as num).toDouble().toStringAsFixed(1),
-                                              style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13),
-                                            ),
-                                            const SizedBox(width: 4),
-                                            Text(
-                                              isImperial ? 'LB' : 'KG',
-                                              style: TextStyle(
-                                                color: theme.colorScheme.outline,
-                                                fontSize: 10,
-                                                fontWeight: FontWeight.w900,
+                                                    fontWeight: FontWeight.w900,
+                                                    color: theme.colorScheme.primary,
+                                                  ),
+                                                ),
                                               ),
                                             ),
-                                            const SizedBox(width: 24),
-                                            Text(
-                                              '${setData['reps']}',
-                                              style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13),
-                                            ),
-                                            const SizedBox(width: 4),
-                                            Text(
-                                              'REPS',
-                                              style: TextStyle(
-                                                color: theme.colorScheme.outline,
-                                                fontSize: 10,
-                                                fontWeight: FontWeight.w900,
+                                            const SizedBox(width: 16),
+                                            Expanded(
+                                              child: Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                children: [
+                                                  Row(
+                                                    children: [
+                                                      Text(
+                                                        isImperial 
+                                                          ? UnitConverter.kgToLb((setData['weight'] as num).toDouble()).toStringAsFixed(1) 
+                                                          : (setData['weight'] as num).toDouble().toStringAsFixed(1),
+                                                        style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
+                                                      ),
+                                                      const SizedBox(width: 4),
+                                                      Text(
+                                                        isImperial ? 'LB' : 'KG',
+                                                        style: TextStyle(
+                                                          color: theme.colorScheme.outline,
+                                                          fontSize: 10,
+                                                          fontWeight: FontWeight.w900,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  Row(
+                                                    children: [
+                                                      Text(
+                                                        '${setData['reps']}',
+                                                        style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900),
+                                                      ),
+                                                      const SizedBox(width: 4),
+                                                      Text(
+                                                        'REPS',
+                                                        style: TextStyle(
+                                                          color: theme.colorScheme.outline,
+                                                          fontSize: 10,
+                                                          fontWeight: FontWeight.w900,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
                                               ),
                                             ),
                                           ],
