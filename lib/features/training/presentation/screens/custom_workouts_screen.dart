@@ -51,7 +51,7 @@ class _CustomWorkoutsScreenState extends State<CustomWorkoutsScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Your Routines',
+                                'I tuoi workout',
                                 style: theme.textTheme.headlineMedium?.copyWith(
                                   fontWeight: FontWeight.bold,
                                   fontFamily: 'Lexend',
@@ -60,7 +60,7 @@ class _CustomWorkoutsScreenState extends State<CustomWorkoutsScreen> {
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                'Personalized training protocols designed for maximum kinetic output.',
+                                'Protocolli di allenamento personalizzati',
                                 style: theme.textTheme.bodyMedium?.copyWith(
                                   color: theme.colorScheme.onSurfaceVariant,
                                 ),
@@ -114,7 +114,7 @@ class _CustomWorkoutsScreenState extends State<CustomWorkoutsScreen> {
                         child: Padding(
                           padding: const EdgeInsets.all(40),
                           child: Text(
-                            'Non hai ancora routine personalizzate.',
+                            'Non hai ancora workout personalizzati.',
                             textAlign: TextAlign.center,
                             style: theme.textTheme.bodyMedium?.copyWith(
                               color: theme.colorScheme.outline,
@@ -156,7 +156,7 @@ class _CustomWorkoutsScreenState extends State<CustomWorkoutsScreen> {
                           Icon(Icons.add_circle, color: theme.colorScheme.primary),
                           const SizedBox(width: 12),
                           Text(
-                            'Create New Routine',
+                            'Create workout',
                             style: theme.textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: theme.colorScheme.onSurface,
@@ -196,7 +196,7 @@ class _WorkoutCard extends StatelessWidget {
         backgroundColor: theme.colorScheme.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         title: Text(
-          'Elimina Routine?',
+          'Elimina workout?',
           style: theme.textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.bold,
           ),
@@ -241,7 +241,7 @@ class _WorkoutCard extends StatelessWidget {
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
-                            'Routine "${routine.title}" eliminata',
+                            'Workout "${routine.title}" eliminata',
                             style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.w900,

@@ -69,7 +69,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
                 SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'Inserisci il nome della routine',
+                    'Inserisci il nome del tuo workout',
                     style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontFamily: 'Lexend', fontSize: 13),
                   ),
                 ),
@@ -191,7 +191,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              widget.routineToEdit != null ? 'Modifica Routine' : 'Nuova Routine',
+                              widget.routineToEdit != null ? 'Modifica workout' : 'Nuovo workout',
                               style: theme.textTheme.headlineMedium?.copyWith(
                                 fontWeight: FontWeight.bold,
                                 fontFamily: 'Lexend',
@@ -421,7 +421,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
                     ),
                   ),
                   child: const Text(
-                    'SALVA ROUTINE',
+                    'SALVA WORKOUT',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       letterSpacing: 1.2,

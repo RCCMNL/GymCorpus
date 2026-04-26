@@ -378,14 +378,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ],
         ),
-        const _ProfileSection(
+        _ProfileSection(
           title: 'Allenamento',
           items: [
             _ProfileItem(
               icon: Icons.favorite,
               label: 'Esercizi Preferiti',
-              trailingText: 'Prossimamente',
-              isBadge: true,
+              onTap: () => context.push('/profile/favorites'),
             ),
             _ProfileItem(
               icon: Icons.calendar_today,

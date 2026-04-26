@@ -24,6 +24,7 @@ import 'package:gym_corpus/features/profile/presentation/screens/edit_profile_sc
 import 'package:gym_corpus/features/profile/presentation/screens/integrations_screen.dart';
 import 'package:gym_corpus/features/profile/presentation/screens/profile_screen.dart';
 import 'package:gym_corpus/features/profile/presentation/screens/security_screen.dart';
+import 'package:gym_corpus/features/exercises/presentation/screens/favorite_exercises_screen.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
@@ -255,6 +256,10 @@ class _GymAppState extends State<GymApp> {
                   path: 'progress',
                   parentNavigatorKey: _rootNavigatorKey,
                   builder: (context, state) => const ProgressScreen(),
+                ),
+                GoRoute(
+                  path: 'favorites',
+                  builder: (context, state) => const FavoriteExercisesScreen(),
                 ),
               ],
             ),

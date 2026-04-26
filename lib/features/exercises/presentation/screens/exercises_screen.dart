@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
+import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
 
 class ExercisesScreen extends StatefulWidget {
@@ -240,90 +241,106 @@ class _ExerciseTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Container(
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainer.withValues(alpha: 0.4),
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(20),
+      child: InkWell(
+        onTap: () {
+          context.push('/exercises/detail', extra: exercise);
+        },
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: theme.colorScheme.outline.withValues(alpha: 0.05),
-        ),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () => context.push('/exercises/detail', extra: exercise),
-          borderRadius: BorderRadius.circular(20),
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Row(
-              children: [
-                Container(
-                  width: 60,
-                  height: 60,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        theme.colorScheme.surfaceContainerHigh,
-                        theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-                      ],
-                    ),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Icon(
-                    Icons.fitness_center_rounded,
-                    color: exercise.targetMuscle.toLowerCase().contains('petto') 
-                      ? Colors.orangeAccent 
-                      : (exercise.targetMuscle.toLowerCase().contains('schiena')
-                          ? theme.colorScheme.tertiary
-                          : theme.colorScheme.primary),
-                    size: 24,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        exercise.name,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w900,
-                          fontFamily: 'Lexend',
-                          fontSize: 15,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          Icon(Icons.bolt, size: 12, color: theme.colorScheme.outline.withValues(alpha: 0.5)),
-                          const SizedBox(width: 4),
-                          Expanded(
-                            child: Text(
-                              exercise.equipment?.toUpperCase() ?? 'CORPO LIBERO',
-                              style: theme.textTheme.labelSmall?.copyWith(
-                                color: theme.colorScheme.outline.withValues(alpha: 0.7),
-                                fontSize: 9,
-                                fontWeight: FontWeight.w900,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
+        child: Ink(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surfaceContainer.withValues(alpha: 0.4),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: theme.colorScheme.outline.withValues(alpha: 0.05),
+            ),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      theme.colorScheme.surfaceContainerHigh,
+                      theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
                     ],
                   ),
+                  borderRadius: BorderRadius.circular(16),
                 ),
-                Icon(
-                  Icons.chevron_right,
-                  color: theme.colorScheme.outline.withValues(alpha: 0.3),
+                child: Icon(
+                  Icons.fitness_center_rounded,
+                  color: exercise.targetMuscle.toLowerCase().contains('petto') 
+                    ? Colors.orangeAccent 
+                    : (exercise.targetMuscle.toLowerCase().contains('schiena')
+                        ? theme.colorScheme.tertiary
+                        : theme.colorScheme.primary),
+                  size: 24,
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      exercise.name,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w900,
+                        fontFamily: 'Lexend',
+                        fontSize: 15,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Icon(Icons.bolt, size: 12, color: theme.colorScheme.outline.withValues(alpha: 0.5)),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            exercise.equipment?.toUpperCase() ?? 'CORPO LIBERO',
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              color: theme.colorScheme.outline.withValues(alpha: 0.7),
+                              fontSize: 9,
+                              fontWeight: FontWeight.w900,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  context.read<TrainingBloc>().add(
+                        ToggleExerciseFavoriteEvent(
+                          exercise.id,
+                          isFavorite: !exercise.isFavorite,
+                        ),
+                      );
+                },
+                behavior: HitTestBehavior.opaque,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Icon(
+                    exercise.isFavorite ? Icons.favorite : Icons.favorite_border,
+                    color: Colors.redAccent.withValues(alpha: 0.8),
+                    size: 22,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
