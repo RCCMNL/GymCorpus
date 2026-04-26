@@ -24,6 +24,16 @@ class ArticleDetailScreen extends StatelessWidget {
                   ? Image.network(
                       imageUrl,
                       fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        color: theme.colorScheme.surfaceContainerHighest,
+                        child: Center(
+                          child: Icon(
+                            Icons.broken_image_rounded,
+                            color: theme.colorScheme.outline.withValues(alpha: 0.3),
+                            size: 48,
+                          ),
+                        ),
+                      ),
                     )
                   : Container(color: theme.colorScheme.primary),
             ),

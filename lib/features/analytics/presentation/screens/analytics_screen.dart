@@ -53,27 +53,35 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
               sessionsCount = logs.map((e) => e.workoutId).toSet().length;
               totalWeight = logs.fold(0, (sum, e) => sum + (e.weight * e.reps));
 
-              // Calcolo durata reale per workoutId:
-              // - se l'ultimo set ha rpe != null → è la durata reale in secondi
-              // - altrimenti fallback: max(timestamp) - workoutId (start ms)
+              double totalSeconds = 0;
+              double monthSeconds = 0;
+
               final workoutIds = logs.map((e) => e.workoutId).toSet();
               for (final wid in workoutIds) {
                 final sessionLogs = logs.where((e) => e.workoutId == wid).toList();
-                // Cerca il set con rpe (durata salvata)
                 final withRpe = sessionLogs.where((e) => e.rpe != null).toList();
                 int durationSec;
                 if (withRpe.isNotEmpty) {
                   durationSec = withRpe.last.rpe!;
                 } else {
-                  // Fallback: differenza tra ultimo timestamp e inizio sessione
                   final maxTs = sessionLogs
                       .map((e) => e.timestamp.millisecondsSinceEpoch)
                       .reduce((a, b) => a > b ? a : b);
-                  durationSec = ((maxTs - wid) / 1000).round();
+                  // Se wid sembra un timestamp (ms), calcoliamo la differenza reale
+                  if (wid > 1000000000000) {
+                    durationSec = ((maxTs - wid) / 1000).round();
+                  } else {
+                    // Se wid è un ID incrementale (fallback), usiamo la differenza tra i set
+                    final minTs = sessionLogs
+                        .map((e) => e.timestamp.millisecondsSinceEpoch)
+                        .reduce((a, b) => a < b ? a : b);
+                    durationSec = ((maxTs - minTs) / 1000).round();
+                  }
                   if (durationSec < 0) durationSec = sessionLogs.length * 180;
                 }
-                totalRealMinutes += (durationSec / 60).round();
+                totalSeconds += durationSec;
               }
+              totalRealMinutes = (totalSeconds / 60).round();
 
               final now = DateTime.now();
               final monthLogs = logs
@@ -86,7 +94,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
               monthSessions = monthLogs.map((e) => e.workoutId).toSet().length;
               monthWeight =
                   monthLogs.fold(0, (sum, e) => sum + (e.weight * e.reps));
-              // Durata reale solo per sessioni del mese
+
               final monthWorkoutIds = monthLogs.map((e) => e.workoutId).toSet();
               for (final wid in monthWorkoutIds) {
                 final sessionLogs = logs.where((e) => e.workoutId == wid).toList();
@@ -98,11 +106,19 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   final maxTs = sessionLogs
                       .map((e) => e.timestamp.millisecondsSinceEpoch)
                       .reduce((a, b) => a > b ? a : b);
-                  durationSec = ((maxTs - wid) / 1000).round();
+                  if (wid > 1000000000000) {
+                    durationSec = ((maxTs - wid) / 1000).round();
+                  } else {
+                    final minTs = sessionLogs
+                        .map((e) => e.timestamp.millisecondsSinceEpoch)
+                        .reduce((a, b) => a < b ? a : b);
+                    durationSec = ((maxTs - minTs) / 1000).round();
+                  }
                   if (durationSec < 0) durationSec = sessionLogs.length * 180;
                 }
-                monthRealMinutes += (durationSec / 60).round();
+                monthSeconds += durationSec;
               }
+              monthRealMinutes = (monthSeconds / 60).round();
             }
             final isImperial = currentUnit == 'LB';
 

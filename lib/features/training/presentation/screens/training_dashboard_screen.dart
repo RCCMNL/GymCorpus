@@ -198,6 +198,7 @@ class TrainingDashboardScreen extends StatelessWidget {
           subtitle: 'Trova il tuo equilibrio interiore',
           icon: Icons.self_improvement,
           color: const Color(0xFF8DE8C7),
+          isBeta: true,
           onTap: () => context.go('/training/yoga'),
         ),
         const SizedBox(height: 16),
@@ -206,6 +207,7 @@ class TrainingDashboardScreen extends StatelessWidget {
           subtitle: 'Ottimizza i tuoi risultati a tavola',
           icon: Icons.restaurant,
           color: const Color(0xFFFDE047),
+          isBeta: true,
           onTap: () => context.go('/training/nutrition'),
         ),
       ],
@@ -331,6 +333,7 @@ class _DashboardCard extends StatelessWidget {
     required this.icon,
     required this.color,
     this.onTap,
+    this.isBeta = false,
   });
 
   final String title;
@@ -338,6 +341,7 @@ class _DashboardCard extends StatelessWidget {
   final IconData icon;
   final Color color;
   final VoidCallback? onTap;
+  final bool isBeta;
 
   @override
   Widget build(BuildContext context) {
@@ -369,12 +373,36 @@ class _DashboardCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    title,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Lexend',
-                    ),
+                  Row(
+                    children: [
+                      Text(
+                        title,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Lexend',
+                        ),
+                      ),
+                      if (isBeta) ...[
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.tertiary.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: theme.colorScheme.tertiary.withValues(alpha: 0.3)),
+                          ),
+                          child: Text(
+                            'BETA',
+                            style: TextStyle(
+                              color: theme.colorScheme.tertiary,
+                              fontSize: 8,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                   Text(
                     subtitle,

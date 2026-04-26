@@ -29,18 +29,59 @@ class _TrainingScreenState extends State<TrainingScreen>
   int _setIdx = 0;
   AnimationController? _pulseCtrl;
   late int _workoutId;
-  late DateTime _startTime;
+  DateTime? _lastResumeTime;
+  Duration _elapsedBeforePause = Duration.zero;
+  bool _isPaused = false;
   bool _durationSaved = false;
-  DateTime? _restEndTime; // quando scade il recupero (usato per background)
+  DateTime? _restEndTime; 
+  Timer? _executionTimer;
+  String _execTimeStr = "00:00:00";
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _workoutId = DateTime.now().millisecondsSinceEpoch;
-    _startTime = DateTime.now();
+    _lastResumeTime = DateTime.now();
+    _startExecutionTimer();
     context.read<TrainingBloc>().add(LoadWeightLogsEvent());
     _pulseCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 1200))..repeat(reverse: true);
+  }
+
+  void _startExecutionTimer() {
+    _executionTimer?.cancel();
+    _executionTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (!_isPaused && mounted) {
+        final total = _elapsedBeforePause + DateTime.now().difference(_lastResumeTime!);
+        setState(() {
+          _execTimeStr = _fmtFull(total.inSeconds);
+        });
+      }
+    });
+  }
+
+  String _fmtFull(int s) {
+    final h = (s ~/ 3600).toString().padLeft(2, '0');
+    final m = ((s % 3600) ~/ 60).toString().padLeft(2, '0');
+    final sc = (s % 60).toString().padLeft(2, '0');
+    return "$h:$m:$sc";
+  }
+
+  void _togglePause() {
+    setState(() {
+      _isPaused = !_isPaused;
+      if (_isPaused) {
+        _elapsedBeforePause += DateTime.now().difference(_lastResumeTime!);
+        _lastResumeTime = null;
+        _timer?.cancel();
+        NotificationService.instance.cancelNotification(100);
+      } else {
+        _lastResumeTime = DateTime.now();
+        if (_phase == _Phase.resting) {
+          _startTimer();
+        }
+      }
+    });
   }
 
   @override
@@ -97,7 +138,8 @@ class _TrainingScreenState extends State<TrainingScreen>
         // placeholder: lo aggiorniamo al termine
       }
       if (isLastSet && !_durationSaved) {
-        rpePayload = DateTime.now().difference(_startTime).inSeconds;
+        final currentSession = DateTime.now().difference(_lastResumeTime!);
+        rpePayload = (_elapsedBeforePause + currentSession).inSeconds;
         _durationSaved = true;
       }
       context.read<TrainingBloc>().add(AddSetToExercise(
@@ -119,13 +161,16 @@ class _TrainingScreenState extends State<TrainingScreen>
     _restEndTime = DateTime.now().add(Duration(seconds: _seconds));
     // Schedula notifica locale per quando scade il recupero
     Future.delayed(Duration(seconds: _seconds), () {
-      // Spara la notifica solo se ancora in recupero (non saltato/già avanzato)
+      // Spara la notifica solo se ancora in recupero e l'app NON è in primo piano
       if (mounted && _phase == _Phase.resting) {
-        NotificationService.instance.showNotification(
-          id: 100,
-          title: 'GymCorpus - Recupero terminato',
-          body: 'Inizia la serie successiva! 💪',
-        );
+        final isForeground = WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed;
+        if (!isForeground) {
+          NotificationService.instance.showNotification(
+            id: 100,
+            title: 'GymCorpus - Recupero terminato',
+            body: 'Inizia la serie successiva! 💪',
+          );
+        }
       }
     });
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
@@ -167,13 +212,13 @@ class _TrainingScreenState extends State<TrainingScreen>
       backgroundColor: theme.colorScheme.surface,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       title: const Text('Terminare l allenamento?', style: TextStyle(fontFamily: 'Lexend', fontWeight: FontWeight.bold)),
-      content: const Text('I progressi di questa sessione andranno persi.'),
+      content: const Text('Le serie completate finora sono state salvate correttamente nel tuo storico.'),
       actions: [
         TextButton(onPressed: () => Navigator.pop(ctx),
-          child: Text('ANNULLA', style: TextStyle(color: theme.colorScheme.outline, fontWeight: FontWeight.w900))),
+          child: Text('CONTINUA', style: TextStyle(color: theme.colorScheme.outline, fontWeight: FontWeight.w900))),
         TextButton(onPressed: () { Navigator.pop(ctx); context.go('/training'); },
           style: TextButton.styleFrom(foregroundColor: Colors.redAccent),
-          child: const Text('CONFERMA', style: TextStyle(fontWeight: FontWeight.w900))),
+          child: const Text('CHIUDI ORA', style: TextStyle(fontWeight: FontWeight.w900))),
       ],
     ));
   }
@@ -182,6 +227,7 @@ class _TrainingScreenState extends State<TrainingScreen>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _timer?.cancel();
+    _executionTimer?.cancel();
     _pulseCtrl?.dispose();
     NotificationService.instance.cancelAll();
     super.dispose();
@@ -205,170 +251,257 @@ class _TrainingScreenState extends State<TrainingScreen>
       return Scaffold(
         backgroundColor: theme.colorScheme.surface,
         appBar: const GymHeader(),
-        body: SafeArea(child: SingleChildScrollView(physics: const BouncingScrollPhysics(),
-          child: Padding(padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8), child: Column(children: [
-            // ── HEADER ──
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(colors: [accentColor.withValues(alpha: 0.15), accentColor.withValues(alpha: 0.03)], begin: Alignment.topLeft, end: Alignment.bottomRight),
-                borderRadius: BorderRadius.circular(28),
-                border: Border.all(color: accentColor.withValues(alpha: 0.1)),
+        body: SafeArea(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                child: _buildHeader(theme, accentColor),
               ),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Row(children: [
-                  Container(width: 4, height: 20, decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [accentColor, theme.colorScheme.tertiary]), borderRadius: BorderRadius.circular(2))),
-                  const SizedBox(width: 12),
-                  Text(isResting ? 'RECUPERO' : 'IN ALLENAMENTO', style: theme.textTheme.labelSmall?.copyWith(letterSpacing: 2, fontWeight: FontWeight.w900, fontSize: 10, color: accentColor)),
-                ]),
-                const SizedBox(height: 12),
-                Text((widget.routine?.title ?? 'ALLENAMENTO').toUpperCase(), style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900, fontFamily: 'Lexend', letterSpacing: -0.5)),
-                const SizedBox(height: 12),
-                // Progress
-                Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                  Text('Esercizio ' + (_exIdx + 1).toString() + ' di ' + _exercises.length.toString(), style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.outline, fontWeight: FontWeight.w700, fontSize: 10)),
-                  Text((_progress * 100).toInt().toString() + '%', style: theme.textTheme.labelSmall?.copyWith(color: accentColor, fontWeight: FontWeight.w900, fontSize: 10)),
-                ]),
-                const SizedBox(height: 8),
-                ClipRRect(borderRadius: BorderRadius.circular(4), child: LinearProgressIndicator(value: _progress, minHeight: 6, backgroundColor: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3), valueColor: AlwaysStoppedAnimation(accentColor))),
-              ]),
-            ),
-            const SizedBox(height: 16),
+              Expanded(
+                child: Stack(
+                  children: [
+                    // ── MAIN CONTENT (NO SCROLL) ──
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      child: Column(
+                        children: [
+                          const SizedBox(height: 4),
+                          // ── EXERCISE CARD ──
+                          Expanded(
+                            flex: 5,
+                            child: _buildExerciseCard(theme, accentColor, ex, isResting),
+                          ),
+                          const SizedBox(height: 12),
 
-            // ── EXERCISE CARD ──
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.4),
-                borderRadius: BorderRadius.circular(28),
-                border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.08)),
-              ),
-              child: Column(children: [
-                Row(children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(18),
-                    child: Container(
-                      width: 56,
-                      height: 56,
-                      color: accentColor.withValues(alpha: 0.1),
-                      child: ex.exercise.imageUrl != null
-                          ? Image.network(
-                              ex.exercise.imageUrl!,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  Image.asset(
-                                'assets/images/placeholder-image.png',
-                                fit: BoxFit.cover,
-                              ),
-                            )
-                          : Image.asset(
-                              'assets/images/placeholder-image.png',
-                              fit: BoxFit.cover,
+                          // ── ACTION BUTTONS ──
+                          SizedBox(width: double.infinity, child: Container(
+                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(20),
+                              gradient: isResting ? null : LinearGradient(colors: [theme.colorScheme.tertiary, theme.colorScheme.tertiary.withValues(alpha: 0.8)]),
+                              color: isResting ? theme.colorScheme.surfaceContainerHigh : null,
                             ),
+                            child: Material(color: Colors.transparent, child: InkWell(
+                              onTap: _phase == _Phase.working ? _completeSet : null,
+                              borderRadius: BorderRadius.circular(20),
+                              child: Padding(padding: const EdgeInsets.symmetric(vertical: 16), child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                                Icon(isResting ? Icons.timer : Icons.check_circle_rounded, size: 22, color: isResting ? theme.colorScheme.outline : Colors.black),
+                                const SizedBox(width: 10),
+                                Text(isResting ? 'RECUPERO IN CORSO...' : 'SEGNA SET COMPLETATO',
+                                  style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1, fontSize: 14, fontFamily: 'Lexend', color: isResting ? theme.colorScheme.outline : Colors.black)),
+                              ])),
+                            )),
+                          )),
+                          const SizedBox(height: 12),
+
+                          // ── NEXT UP ──
+                          _buildNextUp(theme, accentColor),
+                          const SizedBox(height: 8),
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Text('ESERCIZIO CORRENTE', style: theme.textTheme.labelSmall?.copyWith(letterSpacing: 1.5, color: theme.colorScheme.outline, fontSize: 8, fontWeight: FontWeight.w900)),
-                    const SizedBox(height: 4),
-                    Text(ex.exercise.name, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900, fontFamily: 'Lexend', height: 1.1, fontSize: 16)),
-                  ])),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                    decoration: BoxDecoration(color: theme.colorScheme.tertiary.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(16)),
-                    child: Column(children: [
-                      Text('SET', style: TextStyle(color: theme.colorScheme.tertiary, fontSize: 8, fontWeight: FontWeight.w900, fontFamily: 'Lexend')),
-                      Text((_setIdx + 1).toString() + '/' + _totalSets.toString(), style: TextStyle(color: theme.colorScheme.tertiary, fontSize: 18, fontWeight: FontWeight.w900, fontFamily: 'Lexend')),
-                    ]),
-                  ),
-                ]),
-                const SizedBox(height: 16),
-                // Chips row
-                Row(children: [
-                  Expanded(child: _GlassChip(label: 'RIPETIZIONI', value: ex.reps.toString(), color: theme.colorScheme.primary, theme: theme)),
-                  const SizedBox(width: 10),
-                  Expanded(child: _GlassChip(label: 'PESO', value: ex.weight.toStringAsFixed(1) + ' kg', color: theme.colorScheme.secondary, theme: theme)),
-                  if (isResting) ...[const SizedBox(width: 10),
-                    Expanded(child: _GlassChip(label: 'STATO', value: 'RIPOSO', color: const Color(0xFFFFA07A), theme: theme))],
-                ]),
-              ]),
-            ),
-            const SizedBox(height: 20),
 
-            // ── TIMER SECTION ──
-            AnimatedBuilder(animation: _pulseCtrl ?? kAlwaysCompleteAnimation, builder: (context, child) {
-              final scale = isResting ? 1.0 + ((_pulseCtrl?.value ?? 0.0) * 0.02) : 1.0;
-              return Transform.scale(scale: scale, child: child);
-            }, child: Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceContainer.withValues(alpha: 0.5),
-                borderRadius: BorderRadius.circular(32),
-                border: Border.all(color: accentColor.withValues(alpha: isResting ? 0.15 : 0.05)),
-                boxShadow: isResting ? [BoxShadow(color: accentColor.withValues(alpha: 0.08), blurRadius: 30, spreadRadius: 5)] : [],
+                    // ── TIMER MODAL OVERLAY ──
+                    if (isResting)
+                      Container(
+                        color: Colors.black.withValues(alpha: 0.85),
+                        child: Center(
+                          child: AnimatedBuilder(animation: _pulseCtrl ?? kAlwaysCompleteAnimation, builder: (context, child) {
+                            final scale = 1.0 + ((_pulseCtrl?.value ?? 0.0) * 0.02);
+                            return Transform.scale(scale: scale, child: child);
+                          }, child: Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 32),
+                            padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.surfaceContainerHigh,
+                              borderRadius: BorderRadius.circular(40),
+                              border: Border.all(color: accentColor.withValues(alpha: 0.3), width: 2),
+                              boxShadow: [BoxShadow(color: accentColor.withValues(alpha: 0.15), blurRadius: 40, spreadRadius: 10)],
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                              // Ring
+                              SizedBox(width: 200, height: 200, child: Stack(alignment: Alignment.center, children: [
+                                SizedBox(width: 200, height: 200, child: CustomPaint(painter: _TimerRingPainter(progress: prog, color: accentColor, trackColor: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.2)))),
+                                Column(mainAxisSize: MainAxisSize.min, children: [
+                                  Text('RECUPERO', style: theme.textTheme.labelSmall?.copyWith(letterSpacing: 2, color: theme.colorScheme.outline, fontSize: 11, fontWeight: FontWeight.w900)),
+                                  const SizedBox(height: 4),
+                                  Text(_fmt(_seconds), style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w900, fontFamily: 'Lexend', fontSize: 56, color: accentColor)),
+                                ]),
+                              ])),
+                              const SizedBox(height: 40),
+                              Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+                                _ActionPill(icon: Icons.refresh_rounded, label: 'Riavvia', onTap: _restartTimer, filled: false, theme: theme),
+                                _ActionPill(icon: Icons.skip_next_rounded, label: 'Salta', onTap: _skipRest, filled: true, theme: theme),
+                              ]),
+                              const SizedBox(height: 24),
+                              TextButton.icon(
+                                onPressed: _confirmEnd,
+                                icon: const Icon(Icons.stop_circle_outlined, size: 18, color: Colors.redAccent),
+                                label: const Text('TERMINA ALLENAMENTO', style: TextStyle(color: Colors.redAccent, fontSize: 11, fontWeight: FontWeight.bold)),
+                              ),
+                            ]),
+                          )),
+                        ),
+                      ),
+
+                    // ── PAUSE OVERLAY ──
+                    if (_isPaused)
+                      Container(
+                        color: Colors.black.withValues(alpha: 0.8),
+                        child: Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(32),
+                                decoration: BoxDecoration(
+                                  color: theme.colorScheme.surface,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: accentColor, width: 4),
+                                  boxShadow: [BoxShadow(color: accentColor.withValues(alpha: 0.3), blurRadius: 30)],
+                                ),
+                                child: Icon(Icons.pause_rounded, size: 64, color: accentColor),
+                              ),
+                              const SizedBox(height: 24),
+                              Text('IN PAUSA', style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w900, fontFamily: 'Lexend', color: Colors.white)),
+                              const SizedBox(height: 32),
+                              _ActionPill(icon: Icons.play_arrow_rounded, label: 'RIPRENDI', onTap: _togglePause, filled: true, theme: theme),
+                            ],
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
               ),
-              child: Column(children: [
-                // Ring
-                SizedBox(width: 160, height: 160, child: Stack(alignment: Alignment.center, children: [
-                  SizedBox(width: 160, height: 160, child: CustomPaint(painter: _TimerRingPainter(progress: prog, color: accentColor, trackColor: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.2)))),
-                  Column(mainAxisSize: MainAxisSize.min, children: [
-                    Text(isResting ? 'RECUPERO' : 'PRONTO', style: theme.textTheme.labelSmall?.copyWith(letterSpacing: 1.5, color: theme.colorScheme.outline, fontSize: 8, fontWeight: FontWeight.w900)),
-                    const SizedBox(height: 4),
-                    Text(_fmt(_seconds), style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w900, fontFamily: 'Lexend', fontSize: 36, color: isResting ? accentColor : theme.colorScheme.onSurface)),
-                    const SizedBox(height: 2),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(color: accentColor.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
-                      child: Text(isResting ? 'IN CORSO' : 'IDLE', style: TextStyle(color: accentColor, fontSize: 8, fontWeight: FontWeight.w900, fontFamily: 'Lexend', letterSpacing: 1)),
-                    ),
-                  ]),
-                ])),
-                if (isResting) ...[const SizedBox(height: 16),
-                  Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                    _ActionPill(icon: Icons.refresh_rounded, label: 'Riavvia', onTap: _restartTimer, filled: false, theme: theme),
-                    const SizedBox(width: 12),
-                    _ActionPill(icon: Icons.skip_next_rounded, label: 'Salta', onTap: _skipRest, filled: true, theme: theme),
-                  ]),
-                ],
-              ]),
-            )),
-            const SizedBox(height: 20),
-
-            // ── ACTION BUTTONS ──
-            SizedBox(width: double.infinity, child: Container(
-              decoration: BoxDecoration(borderRadius: BorderRadius.circular(20),
-                gradient: isResting ? null : LinearGradient(colors: [theme.colorScheme.tertiary, theme.colorScheme.tertiary.withValues(alpha: 0.8)]),
-                color: isResting ? theme.colorScheme.surfaceContainerHigh : null,
-              ),
-              child: Material(color: Colors.transparent, child: InkWell(
-                onTap: _phase == _Phase.working ? _completeSet : null,
-                borderRadius: BorderRadius.circular(20),
-                child: Padding(padding: const EdgeInsets.symmetric(vertical: 16), child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                  Icon(isResting ? Icons.timer : Icons.check_circle_rounded, size: 22, color: isResting ? theme.colorScheme.outline : Colors.black),
-                  const SizedBox(width: 10),
-                  Text(isResting ? 'RECUPERO IN CORSO...' : 'SEGNA SET COMPLETATO',
-                    style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1, fontSize: 14, fontFamily: 'Lexend', color: isResting ? theme.colorScheme.outline : Colors.black)),
-                ])),
-              )),
-            )),
-            const SizedBox(height: 10),
-            // End workout
-            SizedBox(width: double.infinity, child: TextButton.icon(
-              onPressed: _confirmEnd,
-              icon: const Icon(Icons.stop_circle_outlined, size: 20),
-              label: const Text('FINE ALLENAMENTO', style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1, fontSize: 13)),
-              style: TextButton.styleFrom(backgroundColor: theme.colorScheme.surfaceContainerHigh, foregroundColor: const Color(0xFFFF9494),
-                padding: const EdgeInsets.symmetric(vertical: 14), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
-            )),
-            const SizedBox(height: 20),
-
-            // ── NEXT UP ──
-            _buildNextUp(theme, accentColor),
-            const SizedBox(height: 100),
-          ])))),
+            ],
+          ),
+        ),
       );
     });
+  }
+
+  Widget _buildHeader(ThemeData theme, Color accentColor) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(colors: [accentColor.withValues(alpha: 0.15), accentColor.withValues(alpha: 0.03)], begin: Alignment.topLeft, end: Alignment.bottomRight),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: accentColor.withValues(alpha: 0.1)),
+      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text((widget.routine?.title ?? 'ALLENAMENTO').toUpperCase(),
+                      style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w900,
+                          fontFamily: 'Lexend',
+                          letterSpacing: -0.5)),
+                  Text(_execTimeStr, 
+                      style: TextStyle(
+                        color: accentColor, 
+                        fontSize: 12, 
+                        fontWeight: FontWeight.w900, 
+                        fontFamily: 'Lexend',
+                        letterSpacing: 1
+                      )),
+                ],
+              ),
+            ),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  onPressed: _togglePause,
+                  icon: Icon(_isPaused ? Icons.play_arrow_rounded : Icons.pause_rounded,
+                      color: accentColor, size: 28),
+                  visualDensity: VisualDensity.compact,
+                  tooltip: _isPaused ? 'Riprendi' : 'Pausa',
+                ),
+                IconButton(
+                  onPressed: _confirmEnd,
+                  icon: const Icon(Icons.stop_circle_outlined,
+                      color: Colors.redAccent, size: 24),
+                  visualDensity: VisualDensity.compact,
+                  tooltip: 'Termina Allenamento',
+                ),
+              ],
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+          Text('Esercizio ' + (_exIdx + 1).toString() + ' di ' + _exercises.length.toString(), style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.outline, fontWeight: FontWeight.w700, fontSize: 10)),
+          Text((_progress * 100).toInt().toString() + '%', style: theme.textTheme.labelSmall?.copyWith(color: accentColor, fontWeight: FontWeight.w900, fontSize: 10)),
+        ]),
+        const SizedBox(height: 8),
+        ClipRRect(borderRadius: BorderRadius.circular(4), child: LinearProgressIndicator(value: _progress, minHeight: 6, backgroundColor: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3), valueColor: AlwaysStoppedAnimation(accentColor))),
+      ]),
+    );
+  }
+
+  Widget _buildExerciseCard(ThemeData theme, Color accentColor, RoutineExerciseEntity ex, bool isResting) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.4),
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.08)),
+      ),
+      child: Column(children: [
+        Row(children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: Container(
+              width: 72,
+              height: 72,
+              color: accentColor.withValues(alpha: 0.1),
+              child: ex.exercise.imageUrl != null
+                  ? Image.network(
+                      ex.exercise.imageUrl!,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) =>
+                          Image.asset(
+                        'assets/images/placeholder-image.png',
+                        fit: BoxFit.cover,
+                      ),
+                    )
+                  : Image.asset(
+                      'assets/images/placeholder-image.png',
+                      fit: BoxFit.cover,
+                    ),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text('ESERCIZIO CORRENTE', style: theme.textTheme.labelSmall?.copyWith(letterSpacing: 1.5, color: theme.colorScheme.outline, fontSize: 8, fontWeight: FontWeight.w900)),
+            const SizedBox(height: 6),
+            Text(ex.exercise.name, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900, fontFamily: 'Lexend', height: 1.1, fontSize: 18)),
+          ])),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            decoration: BoxDecoration(color: theme.colorScheme.tertiary.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(20)),
+            child: Column(children: [
+              Text('SET', style: TextStyle(color: theme.colorScheme.tertiary, fontSize: 9, fontWeight: FontWeight.w900, fontFamily: 'Lexend')),
+              Text((_setIdx + 1).toString() + '/' + _totalSets.toString(), style: TextStyle(color: theme.colorScheme.tertiary, fontSize: 22, fontWeight: FontWeight.w900, fontFamily: 'Lexend')),
+            ]),
+          ),
+        ]),
+        const Spacer(),
+        // Chips row
+        Row(children: [
+          Expanded(child: _GlassChip(label: 'RIPETIZIONI', value: ex.reps.toString(), color: theme.colorScheme.primary, theme: theme)),
+          const SizedBox(width: 12),
+          Expanded(child: _GlassChip(label: 'PESO', value: ex.weight.toStringAsFixed(1) + ' kg', color: theme.colorScheme.secondary, theme: theme)),
+        ]),
+      ]),
+    );
   }
 
   Widget _buildNextUp(ThemeData theme, Color accent) {

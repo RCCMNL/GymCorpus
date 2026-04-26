@@ -95,7 +95,20 @@ class ExerciseDetailScreen extends StatelessWidget {
                     color: theme.colorScheme.surfaceContainerHigh,
                   ),
                   child: exercise.imageUrl != null
-                      ? Image.network(exercise.imageUrl!, fit: BoxFit.cover)
+                      ? Image.network(
+                          exercise.imageUrl!,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) => Container(
+                            color: theme.colorScheme.surfaceContainerHighest,
+                            child: Center(
+                              child: Icon(
+                                Icons.broken_image_rounded,
+                                color: theme.colorScheme.outline.withValues(alpha: 0.3),
+                                size: 48,
+                              ),
+                            ),
+                          ),
+                        )
                       : Image.asset(
                           'assets/images/placeholder-image.png',
                           fit: BoxFit.cover,

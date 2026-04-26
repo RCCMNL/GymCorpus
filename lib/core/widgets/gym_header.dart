@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
 class GymHeader extends StatelessWidget implements PreferredSizeWidget {
-  const GymHeader({super.key, this.title});
+  const GymHeader({super.key, this.title, this.actions});
   final String? title;
+  final List<Widget>? actions;
 
   @override
   Widget build(BuildContext context) {
@@ -43,15 +44,16 @@ class GymHeader extends StatelessWidget implements PreferredSizeWidget {
         ),
       ),
       centerTitle: false,
-      actions: [
-        IconButton(
-          onPressed: () {
-            // Placeholder: Notifiche UI
-          },
-          icon: const Icon(Icons.notifications_none_rounded, size: 24),
-        ),
-        const SizedBox(width: 4),
-      ],
+      actions: actions ??
+          [
+            IconButton(
+              onPressed: () {
+                // Placeholder: Notifiche UI
+              },
+              icon: const Icon(Icons.notifications_none_rounded, size: 24),
+            ),
+            const SizedBox(width: 4),
+          ],
       bottom: PreferredSize(
         preferredSize: const Size.fromHeight(1),
         child: Container(

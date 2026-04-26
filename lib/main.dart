@@ -177,22 +177,22 @@ class _GymAppState extends State<GymApp> {
                     type: (state.extra as String?) ?? 'run',
                   ),
                 ),
-              ],
-            ),
-            GoRoute(
-              path: '/yoga',
-              builder: (context, state) => const YogaScreen(),
-            ),
-            GoRoute(
-              path: '/nutrition',
-              builder: (context, state) => const NutritionScreen(),
-              routes: [
                 GoRoute(
-                  path: 'article',
-                  parentNavigatorKey: _rootNavigatorKey,
-                  builder: (context, state) => ArticleDetailScreen(
-                    data: state.extra as Map<String, dynamic>? ?? {},
-                  ),
+                  path: 'yoga',
+                  builder: (context, state) => const YogaScreen(),
+                ),
+                GoRoute(
+                  path: 'nutrition',
+                  builder: (context, state) => const NutritionScreen(),
+                  routes: [
+                    GoRoute(
+                      path: 'article',
+                      parentNavigatorKey: _rootNavigatorKey,
+                      builder: (context, state) => ArticleDetailScreen(
+                        data: state.extra as Map<String, dynamic>? ?? {},
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
