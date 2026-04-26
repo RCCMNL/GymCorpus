@@ -37,6 +37,9 @@ import 'package:gym_corpus/features/training/presentation/screens/training_dashb
 import 'package:gym_corpus/features/training/presentation/screens/training_screen.dart';
 import 'package:gym_corpus/features/training/presentation/screens/workout_detail_screen.dart';
 import 'package:gym_corpus/features/training/presentation/screens/workout_page.dart';
+import 'package:gym_corpus/features/training/presentation/screens/yoga_screen.dart';
+import 'package:gym_corpus/features/training/presentation/screens/nutrition_screen.dart';
+import 'package:gym_corpus/features/training/presentation/screens/article_detail_screen.dart';
 import 'package:gym_corpus/firebase_options.dart';
 
 void main() async {
@@ -170,6 +173,23 @@ class _GymAppState extends State<GymApp> {
                   builder: (context, state) => CardioTrackerScreen(
                     type: (state.extra as String?) ?? 'run',
                   ),
+                ),
+                GoRoute(
+                  path: 'yoga',
+                  builder: (context, state) => const YogaScreen(),
+                ),
+                GoRoute(
+                  path: 'nutrition',
+                  builder: (context, state) => const NutritionScreen(),
+                  routes: [
+                    GoRoute(
+                      path: 'article',
+                      parentNavigatorKey: _rootNavigatorKey,
+                      builder: (context, state) => ArticleDetailScreen(
+                        data: state.extra as Map<String, dynamic>? ?? {},
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

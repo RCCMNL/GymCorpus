@@ -7,6 +7,10 @@ import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
+// ignore: unused_import
+import 'package:gym_corpus/features/training/presentation/screens/yoga_screen.dart';
+// ignore: unused_import
+import 'package:gym_corpus/features/training/presentation/screens/nutrition_screen.dart';
 
 class TrainingDashboardScreen extends StatelessWidget {
   const TrainingDashboardScreen({super.key});
@@ -39,7 +43,7 @@ class TrainingDashboardScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 32),
 
-                    // NEW SECION: Your Routines
+                    // UNIFIED SECTION: Your Routines & Start Action
                     _buildYourRoutinesSection(context, state, theme),
 
                     const SizedBox(height: 40),
@@ -49,9 +53,7 @@ class TrainingDashboardScreen extends StatelessWidget {
                     const SizedBox(height: 16),
                     _buildDashboardGrid(context, theme),
 
-                    const SizedBox(height: 40),
-                    _buildStartWorkoutButton(context, theme),
-                    const SizedBox(height: 120), // Extra space for nav bar
+                    const SizedBox(height: 60), // Space for nav bar
                   ],
                 ),
               ),
@@ -99,33 +101,49 @@ class TrainingDashboardScreen extends StatelessWidget {
   }
 
   Widget _buildYourRoutinesSection(BuildContext context, TrainingState state, ThemeData theme) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildSectionTitle(theme, 'I TUOI ALLENAMENTI'),
-        const SizedBox(height: 16),
-        if (state is TrainingLoaded && state.routines.isNotEmpty)
-          SizedBox(
-            height: 180,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              physics: const BouncingScrollPhysics(),
-              itemCount: state.routines.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 16),
-              itemBuilder: (context, index) {
-                final routine = state.routines[index];
-                return _RoutineCard(
-                  routine: routine,
-                  onTap: () => context.go('/training/session', extra: routine),
-                );
-              },
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(32),
+        border: Border.all(
+          color: theme.colorScheme.outline.withValues(alpha: 0.05),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionTitle(theme, 'I TUOI ALLENAMENTI'),
+          const SizedBox(height: 20),
+          if (state is TrainingLoaded && state.routines.isNotEmpty)
+            SizedBox(
+              height: 180,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
+                itemCount: state.routines.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 16),
+                itemBuilder: (context, index) {
+                  final routine = state.routines[index];
+                  return _RoutineCard(
+                    routine: routine,
+                    onTap: () => context.go('/training/session', extra: routine),
+                  );
+                },
+              ),
+            )
+          else if (state is TrainingLoaded && state.routines.isEmpty)
+            _buildEmptyRoutinesPlaceholder(context, theme)
+          else
+            const SizedBox(
+              height: 180,
+              child: Center(child: CircularProgressIndicator()),
             ),
-          )
-        else if (state is TrainingLoaded && state.routines.isEmpty)
-          _buildEmptyRoutinesPlaceholder(context, theme)
-        else
-          const Center(child: CircularProgressIndicator()),
-      ],
+          const SizedBox(height: 24),
+          _buildStartWorkoutButton(context, theme),
+        ],
+      ),
     );
   }
 
@@ -167,14 +185,6 @@ class TrainingDashboardScreen extends StatelessWidget {
   Widget _buildDashboardGrid(BuildContext context, ThemeData theme) {
     return Column(
       children: [
-        const _DashboardCard(
-          title: 'Yoga & Mindfulness',
-          subtitle: 'Trova il tuo equilibrio interiore',
-          icon: Icons.self_improvement,
-          color: Color(0xFF8DE8C7),
-          badgeText: 'Prossimamente',
-        ),
-        const SizedBox(height: 16),
         _DashboardCard(
           title: 'Cardio Training',
           subtitle: 'Brucia calorie e potenzia il cuore',
@@ -183,12 +193,20 @@ class TrainingDashboardScreen extends StatelessWidget {
           onTap: () => _showCardioSelector(context, theme),
         ),
         const SizedBox(height: 16),
-        const _DashboardCard(
+        _DashboardCard(
+          title: 'Yoga & Mindfulness',
+          subtitle: 'Trova il tuo equilibrio interiore',
+          icon: Icons.self_improvement,
+          color: const Color(0xFF8DE8C7),
+          onTap: () => context.go('/training/yoga'),
+        ),
+        const SizedBox(height: 16),
+        _DashboardCard(
           title: 'Nutrizione & Dieta',
           subtitle: 'Ottimizza i tuoi risultati a tavola',
           icon: Icons.restaurant,
-          color: Color(0xFFFDE047),
-          badgeText: 'Prossimamente',
+          color: const Color(0xFFFDE047),
+          onTap: () => context.go('/training/nutrition'),
         ),
       ],
     );
@@ -541,84 +559,119 @@ class _RoutineCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final primary = theme.colorScheme.primary;
+    final secondary = theme.colorScheme.secondary;
+    final tertiary = theme.colorScheme.tertiary;
 
     return GestureDetector(
       onTap: onTap,
       child: Container(
         width: horizontal ? 240 : double.infinity,
-        padding: const EdgeInsets.all(20),
+        height: horizontal ? 180 : null,
+        padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-              theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.1),
+              secondary.withValues(alpha: 0.2),
+              primary.withValues(alpha: 0.05),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
-          borderRadius: BorderRadius.circular(28),
+          borderRadius: BorderRadius.circular(32),
           border: Border.all(
-            color: theme.colorScheme.outline.withValues(alpha: 0.1),
+            color: primary.withValues(alpha: 0.15),
+            width: 1.5,
           ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.2),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
+            ),
+          ],
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Stack(
           children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.primary,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(
+            // Decorative background icon
+            Positioned(
+              right: -10,
+              bottom: -10,
+              child: Icon(
                 Icons.fitness_center_rounded,
-                color: Colors.white,
-                size: 20,
+                size: 80,
+                color: primary.withValues(alpha: 0.05),
               ),
             ),
-            if (horizontal) const Spacer() else const SizedBox(height: 20),
-            Text(
-              routine.title,
-              maxLines: horizontal ? 2 : 1,
-              overflow: TextOverflow.ellipsis,
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w900,
-                fontFamily: 'Lexend',
-                height: 1.1,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Row(
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(
-                  Icons.layers_outlined,
-                  size: 14,
-                  color: theme.colorScheme.outline,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  '${routine.exercises.length} esercizi',
-                  style: theme.textTheme.labelSmall?.copyWith(
-                    color: theme.colorScheme.outline,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                if (routine.estimatedDuration != null) ...[
-                  const SizedBox(width: 12),
-                  Icon(
-                    Icons.timer_outlined,
-                    size: 14,
-                    color: theme.colorScheme.outline,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    '${routine.estimatedDuration}m',
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: theme.colorScheme.outline,
-                      fontWeight: FontWeight.w600,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: primary.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Icon(
+                        Icons.bolt_rounded,
+                        color: primary,
+                        size: 20,
+                      ),
                     ),
+                    if (routine.estimatedDuration != null)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: tertiary.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          '${routine.estimatedDuration} MIN',
+                          style: TextStyle(
+                            color: tertiary,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w900,
+                            fontFamily: 'Lexend',
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                if (horizontal) const Spacer() else const SizedBox(height: 24),
+                Text(
+                  routine.title.toUpperCase(),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w900,
+                    fontFamily: 'Lexend',
+                    fontSize: 18,
+                    height: 1.1,
+                    letterSpacing: -0.5,
                   ),
-                ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.layers_outlined,
+                      size: 14,
+                      color: theme.colorScheme.outline,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      '${routine.exercises.length} ESERCIZI',
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: theme.colorScheme.outline,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ],

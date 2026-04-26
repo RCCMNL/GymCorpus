@@ -104,87 +104,103 @@ class _TrainingScreenState extends State<TrainingScreen> {
                     const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                 child: Column(
                   children: [
-                    const SizedBox(height: 8),
-                    // Current Exercise Header
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                    // Workout Title Header
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        (widget.routine?.title ?? 'ALLENAMENTO LIBERO').toUpperCase(),
+                        style: theme.textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.w900,
+                          fontFamily: 'Lexend',
+                          letterSpacing: -0.5,
+                          color: theme.colorScheme.primary,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Current Exercise Card
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surfaceContainerHigh
+                            .withValues(alpha: 0.4),
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(
+                          color:
+                              theme.colorScheme.outline.withValues(alpha: 0.1),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 52,
+                            height: 52,
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.surfaceContainerHighest,
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Icon(
+                              Icons.bolt_rounded,
+                              color: theme.colorScheme.primary,
+                              size: 24,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'ESERCIZIO CORRENTE',
+                                  style: theme.textTheme.labelSmall?.copyWith(
+                                    letterSpacing: 1,
+                                    color: theme.colorScheme.outline,
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.w900,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  widget.routine?.exercises.isNotEmpty == true
+                                      ? widget.routine!.exercises.first.exercise
+                                          .name
+                                      : 'Panca Piana Bilanciere',
+                                  style: theme.textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: 'Lexend',
+                                    height: 1.1,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Text(
-                                'ESERCIZIO CORRENTE',
+                                'SET',
                                 style: theme.textTheme.labelSmall?.copyWith(
-                                  letterSpacing: 1,
-                                  color: theme.colorScheme.outline,
+                                  color: theme.colorScheme.tertiary,
+                                  fontWeight: FontWeight.w900,
                                   fontSize: 8,
                                 ),
                               ),
-                              const SizedBox(height: 4),
                               Text(
-                                widget.routine?.title ??
-                                    'Panca Piana Bilanciere',
-                                style: theme.textTheme.titleLarge?.copyWith(
-                                  fontWeight: FontWeight.bold,
+                                '3/5',
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  color: theme.colorScheme.tertiary,
+                                  fontWeight: FontWeight.w900,
                                   fontFamily: 'Lexend',
-                                  height: 1.1,
-                                  fontSize: 18,
                                 ),
                               ),
                             ],
                           ),
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              'Set',
-                              style: theme.textTheme.labelSmall?.copyWith(
-                                color: theme.colorScheme.tertiary,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(
-                              '3/5',
-                              style: theme.textTheme.titleMedium?.copyWith(
-                                color: theme.colorScheme.tertiary,
-                                fontWeight: FontWeight.w900,
-                                fontFamily: 'Lexend',
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                    const SizedBox(height: 16),
-
-                    // Target Metrics Cards
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _MetricCard(
-                            label: 'RIPETIZIONI TARGET',
-                            value: '12',
-                            theme: theme,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: _MetricCard(
-                            label: 'CARICO (${currentUnit.toUpperCase()})',
-                            // In a real app this value 85 would be converted if LB
-                            value: currentUnit == 'LB'
-                                ? UnitConverter.kgToLb(85).toStringAsFixed(1)
-                                : '85.0',
-                            theme: theme,
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 8),
 
                     // circular Rest Timer
                     Center(

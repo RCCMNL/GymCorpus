@@ -77,12 +77,12 @@ class _FeedbackDialogState extends State<FeedbackDialog> {
               <li>Modello: $deviceModel</li>
               <li>OS: $osVersion</li>
               <li>App Version: 1.0.0</li>
-              <li>User ID: ${user?.uid ?? 'N/D'}</li>
+              <li>User ID: ${user?.id ?? 'N/D'}</li>
             </ul>
           ''',
         },
         'createdAt': FieldValue.serverTimestamp(),
-        'userId': user?.uid,
+        'userId': user?.id,
         'metadata': {
           'device': deviceModel,
           'os': osVersion,
