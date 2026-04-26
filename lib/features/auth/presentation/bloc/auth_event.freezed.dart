@@ -232,11 +232,19 @@ extension AuthEventPatterns on AuthEvent {
             String lastName,
             String username,
             DateTime birthDate,
-            String gender)?
+            String gender,
+            bool acceptedTerms,
+            bool acceptedPrivacy,
+            bool marketingConsent,
+            bool profilingConsent)?
         signUpRequested,
     TResult Function(String email)? forgotPasswordRequested,
-    TResult Function()? googleSignInRequested,
-    TResult Function()? appleSignInRequested,
+    TResult Function(bool acceptedTerms, bool acceptedPrivacy,
+            bool marketingConsent, bool profilingConsent)?
+        googleSignInRequested,
+    TResult Function(bool acceptedTerms, bool acceptedPrivacy,
+            bool marketingConsent, bool profilingConsent)?
+        appleSignInRequested,
     TResult Function()? logoutRequested,
     TResult Function(String filePath)? updateProfileImageRequested,
     TResult Function(
@@ -261,14 +269,26 @@ extension AuthEventPatterns on AuthEvent {
       case _LoginRequested() when loginRequested != null:
         return loginRequested(_that.email, _that.password);
       case _SignUpRequested() when signUpRequested != null:
-        return signUpRequested(_that.email, _that.password, _that.firstName,
-            _that.lastName, _that.username, _that.birthDate, _that.gender);
+        return signUpRequested(
+            _that.email,
+            _that.password,
+            _that.firstName,
+            _that.lastName,
+            _that.username,
+            _that.birthDate,
+            _that.gender,
+            _that.acceptedTerms,
+            _that.acceptedPrivacy,
+            _that.marketingConsent,
+            _that.profilingConsent);
       case _ForgotPasswordRequested() when forgotPasswordRequested != null:
         return forgotPasswordRequested(_that.email);
       case _GoogleSignInRequested() when googleSignInRequested != null:
-        return googleSignInRequested();
+        return googleSignInRequested(_that.acceptedTerms, _that.acceptedPrivacy,
+            _that.marketingConsent, _that.profilingConsent);
       case _AppleSignInRequested() when appleSignInRequested != null:
-        return appleSignInRequested();
+        return appleSignInRequested(_that.acceptedTerms, _that.acceptedPrivacy,
+            _that.marketingConsent, _that.profilingConsent);
       case _LogoutRequested() when logoutRequested != null:
         return logoutRequested();
       case _UpdateProfileImageRequested()
@@ -311,12 +331,26 @@ extension AuthEventPatterns on AuthEvent {
   TResult when<TResult extends Object?>({
     required TResult Function() checkSessionRequested,
     required TResult Function(String email, String password) loginRequested,
-    required TResult Function(String email, String password, String firstName,
-            String lastName, String username, DateTime birthDate, String gender)
+    required TResult Function(
+            String email,
+            String password,
+            String firstName,
+            String lastName,
+            String username,
+            DateTime birthDate,
+            String gender,
+            bool acceptedTerms,
+            bool acceptedPrivacy,
+            bool marketingConsent,
+            bool profilingConsent)
         signUpRequested,
     required TResult Function(String email) forgotPasswordRequested,
-    required TResult Function() googleSignInRequested,
-    required TResult Function() appleSignInRequested,
+    required TResult Function(bool acceptedTerms, bool acceptedPrivacy,
+            bool marketingConsent, bool profilingConsent)
+        googleSignInRequested,
+    required TResult Function(bool acceptedTerms, bool acceptedPrivacy,
+            bool marketingConsent, bool profilingConsent)
+        appleSignInRequested,
     required TResult Function() logoutRequested,
     required TResult Function(String filePath) updateProfileImageRequested,
     required TResult Function(
@@ -340,14 +374,26 @@ extension AuthEventPatterns on AuthEvent {
       case _LoginRequested():
         return loginRequested(_that.email, _that.password);
       case _SignUpRequested():
-        return signUpRequested(_that.email, _that.password, _that.firstName,
-            _that.lastName, _that.username, _that.birthDate, _that.gender);
+        return signUpRequested(
+            _that.email,
+            _that.password,
+            _that.firstName,
+            _that.lastName,
+            _that.username,
+            _that.birthDate,
+            _that.gender,
+            _that.acceptedTerms,
+            _that.acceptedPrivacy,
+            _that.marketingConsent,
+            _that.profilingConsent);
       case _ForgotPasswordRequested():
         return forgotPasswordRequested(_that.email);
       case _GoogleSignInRequested():
-        return googleSignInRequested();
+        return googleSignInRequested(_that.acceptedTerms, _that.acceptedPrivacy,
+            _that.marketingConsent, _that.profilingConsent);
       case _AppleSignInRequested():
-        return appleSignInRequested();
+        return appleSignInRequested(_that.acceptedTerms, _that.acceptedPrivacy,
+            _that.marketingConsent, _that.profilingConsent);
       case _LogoutRequested():
         return logoutRequested();
       case _UpdateProfileImageRequested():
@@ -395,11 +441,19 @@ extension AuthEventPatterns on AuthEvent {
             String lastName,
             String username,
             DateTime birthDate,
-            String gender)?
+            String gender,
+            bool acceptedTerms,
+            bool acceptedPrivacy,
+            bool marketingConsent,
+            bool profilingConsent)?
         signUpRequested,
     TResult? Function(String email)? forgotPasswordRequested,
-    TResult? Function()? googleSignInRequested,
-    TResult? Function()? appleSignInRequested,
+    TResult? Function(bool acceptedTerms, bool acceptedPrivacy,
+            bool marketingConsent, bool profilingConsent)?
+        googleSignInRequested,
+    TResult? Function(bool acceptedTerms, bool acceptedPrivacy,
+            bool marketingConsent, bool profilingConsent)?
+        appleSignInRequested,
     TResult? Function()? logoutRequested,
     TResult? Function(String filePath)? updateProfileImageRequested,
     TResult? Function(
@@ -423,14 +477,26 @@ extension AuthEventPatterns on AuthEvent {
       case _LoginRequested() when loginRequested != null:
         return loginRequested(_that.email, _that.password);
       case _SignUpRequested() when signUpRequested != null:
-        return signUpRequested(_that.email, _that.password, _that.firstName,
-            _that.lastName, _that.username, _that.birthDate, _that.gender);
+        return signUpRequested(
+            _that.email,
+            _that.password,
+            _that.firstName,
+            _that.lastName,
+            _that.username,
+            _that.birthDate,
+            _that.gender,
+            _that.acceptedTerms,
+            _that.acceptedPrivacy,
+            _that.marketingConsent,
+            _that.profilingConsent);
       case _ForgotPasswordRequested() when forgotPasswordRequested != null:
         return forgotPasswordRequested(_that.email);
       case _GoogleSignInRequested() when googleSignInRequested != null:
-        return googleSignInRequested();
+        return googleSignInRequested(_that.acceptedTerms, _that.acceptedPrivacy,
+            _that.marketingConsent, _that.profilingConsent);
       case _AppleSignInRequested() when appleSignInRequested != null:
-        return appleSignInRequested();
+        return appleSignInRequested(_that.acceptedTerms, _that.acceptedPrivacy,
+            _that.marketingConsent, _that.profilingConsent);
       case _LogoutRequested() when logoutRequested != null:
         return logoutRequested();
       case _UpdateProfileImageRequested()
@@ -549,7 +615,11 @@ class _SignUpRequested implements AuthEvent {
       required this.lastName,
       required this.username,
       required this.birthDate,
-      required this.gender});
+      required this.gender,
+      required this.acceptedTerms,
+      required this.acceptedPrivacy,
+      required this.marketingConsent,
+      required this.profilingConsent});
 
   final String email;
   final String password;
@@ -558,6 +628,10 @@ class _SignUpRequested implements AuthEvent {
   final String username;
   final DateTime birthDate;
   final String gender;
+  final bool acceptedTerms;
+  final bool acceptedPrivacy;
+  final bool marketingConsent;
+  final bool profilingConsent;
 
   /// Create a copy of AuthEvent
   /// with the given fields replaced by the non-null parameter values.
@@ -582,12 +656,31 @@ class _SignUpRequested implements AuthEvent {
                 other.username == username) &&
             (identical(other.birthDate, birthDate) ||
                 other.birthDate == birthDate) &&
-            (identical(other.gender, gender) || other.gender == gender));
+            (identical(other.gender, gender) || other.gender == gender) &&
+            (identical(other.acceptedTerms, acceptedTerms) ||
+                other.acceptedTerms == acceptedTerms) &&
+            (identical(other.acceptedPrivacy, acceptedPrivacy) ||
+                other.acceptedPrivacy == acceptedPrivacy) &&
+            (identical(other.marketingConsent, marketingConsent) ||
+                other.marketingConsent == marketingConsent) &&
+            (identical(other.profilingConsent, profilingConsent) ||
+                other.profilingConsent == profilingConsent));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, email, password, firstName,
-      lastName, username, birthDate, gender);
+  int get hashCode => Object.hash(
+      runtimeType,
+      email,
+      password,
+      firstName,
+      lastName,
+      username,
+      birthDate,
+      gender,
+      acceptedTerms,
+      acceptedPrivacy,
+      marketingConsent,
+      profilingConsent);
 }
 
 /// @nodoc
@@ -604,7 +697,11 @@ abstract mixin class _$SignUpRequestedCopyWith<$Res>
       String lastName,
       String username,
       DateTime birthDate,
-      String gender});
+      String gender,
+      bool acceptedTerms,
+      bool acceptedPrivacy,
+      bool marketingConsent,
+      bool profilingConsent});
 }
 
 /// @nodoc
@@ -626,6 +723,10 @@ class __$SignUpRequestedCopyWithImpl<$Res>
     Object? username = null,
     Object? birthDate = null,
     Object? gender = null,
+    Object? acceptedTerms = null,
+    Object? acceptedPrivacy = null,
+    Object? marketingConsent = null,
+    Object? profilingConsent = null,
   }) {
     return _then(_SignUpRequested(
       email: null == email
@@ -656,6 +757,22 @@ class __$SignUpRequestedCopyWithImpl<$Res>
           ? _self.gender
           : gender // ignore: cast_nullable_to_non_nullable
               as String,
+      acceptedTerms: null == acceptedTerms
+          ? _self.acceptedTerms
+          : acceptedTerms // ignore: cast_nullable_to_non_nullable
+              as bool,
+      acceptedPrivacy: null == acceptedPrivacy
+          ? _self.acceptedPrivacy
+          : acceptedPrivacy // ignore: cast_nullable_to_non_nullable
+              as bool,
+      marketingConsent: null == marketingConsent
+          ? _self.marketingConsent
+          : marketingConsent // ignore: cast_nullable_to_non_nullable
+              as bool,
+      profilingConsent: null == profilingConsent
+          ? _self.profilingConsent
+          : profilingConsent // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }
@@ -723,31 +840,197 @@ class __$ForgotPasswordRequestedCopyWithImpl<$Res>
 /// @nodoc
 
 class _GoogleSignInRequested implements AuthEvent {
-  const _GoogleSignInRequested();
+  const _GoogleSignInRequested(
+      {this.acceptedTerms = false,
+      this.acceptedPrivacy = false,
+      this.marketingConsent = false,
+      this.profilingConsent = false});
+
+  @JsonKey()
+  final bool acceptedTerms;
+  @JsonKey()
+  final bool acceptedPrivacy;
+  @JsonKey()
+  final bool marketingConsent;
+  @JsonKey()
+  final bool profilingConsent;
+
+  /// Create a copy of AuthEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  _$GoogleSignInRequestedCopyWith<_GoogleSignInRequested> get copyWith =>
+      __$GoogleSignInRequestedCopyWithImpl<_GoogleSignInRequested>(
+          this, _$identity);
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is _GoogleSignInRequested);
+        (other.runtimeType == runtimeType &&
+            other is _GoogleSignInRequested &&
+            (identical(other.acceptedTerms, acceptedTerms) ||
+                other.acceptedTerms == acceptedTerms) &&
+            (identical(other.acceptedPrivacy, acceptedPrivacy) ||
+                other.acceptedPrivacy == acceptedPrivacy) &&
+            (identical(other.marketingConsent, marketingConsent) ||
+                other.marketingConsent == marketingConsent) &&
+            (identical(other.profilingConsent, profilingConsent) ||
+                other.profilingConsent == profilingConsent));
   }
 
   @override
-  int get hashCode => runtimeType.hashCode;
+  int get hashCode => Object.hash(runtimeType, acceptedTerms, acceptedPrivacy,
+      marketingConsent, profilingConsent);
+}
+
+/// @nodoc
+abstract mixin class _$GoogleSignInRequestedCopyWith<$Res>
+    implements $AuthEventCopyWith<$Res> {
+  factory _$GoogleSignInRequestedCopyWith(_GoogleSignInRequested value,
+          $Res Function(_GoogleSignInRequested) _then) =
+      __$GoogleSignInRequestedCopyWithImpl;
+  @useResult
+  $Res call(
+      {bool acceptedTerms,
+      bool acceptedPrivacy,
+      bool marketingConsent,
+      bool profilingConsent});
+}
+
+/// @nodoc
+class __$GoogleSignInRequestedCopyWithImpl<$Res>
+    implements _$GoogleSignInRequestedCopyWith<$Res> {
+  __$GoogleSignInRequestedCopyWithImpl(this._self, this._then);
+
+  final _GoogleSignInRequested _self;
+  final $Res Function(_GoogleSignInRequested) _then;
+
+  /// Create a copy of AuthEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  $Res call({
+    Object? acceptedTerms = null,
+    Object? acceptedPrivacy = null,
+    Object? marketingConsent = null,
+    Object? profilingConsent = null,
+  }) {
+    return _then(_GoogleSignInRequested(
+      acceptedTerms: null == acceptedTerms
+          ? _self.acceptedTerms
+          : acceptedTerms // ignore: cast_nullable_to_non_nullable
+              as bool,
+      acceptedPrivacy: null == acceptedPrivacy
+          ? _self.acceptedPrivacy
+          : acceptedPrivacy // ignore: cast_nullable_to_non_nullable
+              as bool,
+      marketingConsent: null == marketingConsent
+          ? _self.marketingConsent
+          : marketingConsent // ignore: cast_nullable_to_non_nullable
+              as bool,
+      profilingConsent: null == profilingConsent
+          ? _self.profilingConsent
+          : profilingConsent // ignore: cast_nullable_to_non_nullable
+              as bool,
+    ));
+  }
 }
 
 /// @nodoc
 
 class _AppleSignInRequested implements AuthEvent {
-  const _AppleSignInRequested();
+  const _AppleSignInRequested(
+      {this.acceptedTerms = false,
+      this.acceptedPrivacy = false,
+      this.marketingConsent = false,
+      this.profilingConsent = false});
+
+  @JsonKey()
+  final bool acceptedTerms;
+  @JsonKey()
+  final bool acceptedPrivacy;
+  @JsonKey()
+  final bool marketingConsent;
+  @JsonKey()
+  final bool profilingConsent;
+
+  /// Create a copy of AuthEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  _$AppleSignInRequestedCopyWith<_AppleSignInRequested> get copyWith =>
+      __$AppleSignInRequestedCopyWithImpl<_AppleSignInRequested>(
+          this, _$identity);
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is _AppleSignInRequested);
+        (other.runtimeType == runtimeType &&
+            other is _AppleSignInRequested &&
+            (identical(other.acceptedTerms, acceptedTerms) ||
+                other.acceptedTerms == acceptedTerms) &&
+            (identical(other.acceptedPrivacy, acceptedPrivacy) ||
+                other.acceptedPrivacy == acceptedPrivacy) &&
+            (identical(other.marketingConsent, marketingConsent) ||
+                other.marketingConsent == marketingConsent) &&
+            (identical(other.profilingConsent, profilingConsent) ||
+                other.profilingConsent == profilingConsent));
   }
 
   @override
-  int get hashCode => runtimeType.hashCode;
+  int get hashCode => Object.hash(runtimeType, acceptedTerms, acceptedPrivacy,
+      marketingConsent, profilingConsent);
+}
+
+/// @nodoc
+abstract mixin class _$AppleSignInRequestedCopyWith<$Res>
+    implements $AuthEventCopyWith<$Res> {
+  factory _$AppleSignInRequestedCopyWith(_AppleSignInRequested value,
+          $Res Function(_AppleSignInRequested) _then) =
+      __$AppleSignInRequestedCopyWithImpl;
+  @useResult
+  $Res call(
+      {bool acceptedTerms,
+      bool acceptedPrivacy,
+      bool marketingConsent,
+      bool profilingConsent});
+}
+
+/// @nodoc
+class __$AppleSignInRequestedCopyWithImpl<$Res>
+    implements _$AppleSignInRequestedCopyWith<$Res> {
+  __$AppleSignInRequestedCopyWithImpl(this._self, this._then);
+
+  final _AppleSignInRequested _self;
+  final $Res Function(_AppleSignInRequested) _then;
+
+  /// Create a copy of AuthEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  $Res call({
+    Object? acceptedTerms = null,
+    Object? acceptedPrivacy = null,
+    Object? marketingConsent = null,
+    Object? profilingConsent = null,
+  }) {
+    return _then(_AppleSignInRequested(
+      acceptedTerms: null == acceptedTerms
+          ? _self.acceptedTerms
+          : acceptedTerms // ignore: cast_nullable_to_non_nullable
+              as bool,
+      acceptedPrivacy: null == acceptedPrivacy
+          ? _self.acceptedPrivacy
+          : acceptedPrivacy // ignore: cast_nullable_to_non_nullable
+              as bool,
+      marketingConsent: null == marketingConsent
+          ? _self.marketingConsent
+          : marketingConsent // ignore: cast_nullable_to_non_nullable
+              as bool,
+      profilingConsent: null == profilingConsent
+          ? _self.profilingConsent
+          : profilingConsent // ignore: cast_nullable_to_non_nullable
+              as bool,
+    ));
+  }
 }
 
 /// @nodoc

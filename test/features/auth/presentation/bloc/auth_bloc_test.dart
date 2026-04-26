@@ -20,6 +20,7 @@ void main() {
 
   group('AuthBloc', () {
     final birthDate = DateTime(1994, 6, 12);
+    final consentDate = DateTime(2026, 4, 26, 12);
     const baseUser = UserEntity(
       id: 'u1',
       email: 'mario@example.com',
@@ -31,10 +32,17 @@ void main() {
       username: 'mario_rossi',
       birthDate: birthDate,
       gender: 'Uomo',
+      termsAcceptedAt: consentDate,
+      privacyAcceptedAt: consentDate,
+      legalVersion: currentLegalVersion,
+      marketingConsent: true,
+      profilingConsent: false,
+      marketingConsentUpdatedAt: consentDate,
+      profilingConsentUpdatedAt: consentDate,
     );
 
     blocTest<AuthBloc, AuthState>(
-      'registra l utente e salva i campi profilo richiesti',
+      'registra l utente e salva profilo e consensi granulari',
       build: () {
         when(() => repository.signUp('mario@example.com', 'password123'))
             .thenAnswer((_) async => const Right(baseUser));
@@ -45,6 +53,13 @@ void main() {
             username: 'mario_rossi',
             birthDate: birthDate,
             gender: 'Uomo',
+            termsAcceptedAt: any(named: 'termsAcceptedAt'),
+            privacyAcceptedAt: any(named: 'privacyAcceptedAt'),
+            legalVersion: currentLegalVersion,
+            marketingConsent: true,
+            profilingConsent: false,
+            marketingConsentUpdatedAt: any(named: 'marketingConsentUpdatedAt'),
+            profilingConsentUpdatedAt: any(named: 'profilingConsentUpdatedAt'),
           ),
         ).thenAnswer((_) async => Right(completedUser));
 
@@ -59,6 +74,10 @@ void main() {
           username: 'mario_rossi',
           birthDate: birthDate,
           gender: 'Uomo',
+          acceptedTerms: true,
+          acceptedPrivacy: true,
+          marketingConsent: true,
+          profilingConsent: false,
         ),
       ),
       expect: () => [
@@ -75,6 +94,13 @@ void main() {
             username: 'mario_rossi',
             birthDate: birthDate,
             gender: 'Uomo',
+            termsAcceptedAt: any(named: 'termsAcceptedAt'),
+            privacyAcceptedAt: any(named: 'privacyAcceptedAt'),
+            legalVersion: currentLegalVersion,
+            marketingConsent: true,
+            profilingConsent: false,
+            marketingConsentUpdatedAt: any(named: 'marketingConsentUpdatedAt'),
+            profilingConsentUpdatedAt: any(named: 'profilingConsentUpdatedAt'),
           ),
         ).called(1);
       },
@@ -92,6 +118,13 @@ void main() {
             username: 'mario_rossi',
             birthDate: birthDate,
             gender: 'Uomo',
+            termsAcceptedAt: any(named: 'termsAcceptedAt'),
+            privacyAcceptedAt: any(named: 'privacyAcceptedAt'),
+            legalVersion: currentLegalVersion,
+            marketingConsent: true,
+            profilingConsent: false,
+            marketingConsentUpdatedAt: any(named: 'marketingConsentUpdatedAt'),
+            profilingConsentUpdatedAt: any(named: 'profilingConsentUpdatedAt'),
           ),
         ).thenAnswer((_) async => const Left(ServerFailure('offline')));
 
@@ -106,11 +139,47 @@ void main() {
           username: 'mario_rossi',
           birthDate: birthDate,
           gender: 'Uomo',
+          acceptedTerms: true,
+          acceptedPrivacy: true,
+          marketingConsent: true,
+          profilingConsent: false,
         ),
       ),
       expect: () => [
         const AuthState.loading(),
-        AuthState.authenticated(completedUser),
+        isA<AuthState>()
+            .having(
+              (state) => state.maybeWhen(
+                authenticated: (user) => user.firstName,
+                orElse: () => null,
+              ),
+              'firstName',
+              'Mario',
+            )
+            .having(
+              (state) => state.maybeWhen(
+                authenticated: (user) => user.termsAcceptedAt,
+                orElse: () => null,
+              ),
+              'termsAcceptedAt',
+              isNotNull,
+            )
+            .having(
+              (state) => state.maybeWhen(
+                authenticated: (user) => user.marketingConsent,
+                orElse: () => null,
+              ),
+              'marketingConsent',
+              true,
+            )
+            .having(
+              (state) => state.maybeWhen(
+                authenticated: (user) => user.profilingConsent,
+                orElse: () => null,
+              ),
+              'profilingConsent',
+              false,
+            ),
       ],
     );
 
@@ -131,6 +200,10 @@ void main() {
           username: 'mario_rossi',
           birthDate: birthDate,
           gender: 'Uomo',
+          acceptedTerms: true,
+          acceptedPrivacy: true,
+          marketingConsent: false,
+          profilingConsent: false,
         ),
       ),
       expect: () => [
@@ -147,6 +220,34 @@ void main() {
             gender: any(named: 'gender'),
           ),
         );
+      },
+    );
+
+    blocTest<AuthBloc, AuthState>(
+      'blocca la registrazione se mancano i consensi obbligatori',
+      build: () => AuthBloc(repository),
+      act: (bloc) => bloc.add(
+        AuthEvent.signUpRequested(
+          email: 'mario@example.com',
+          password: 'password123',
+          firstName: 'Mario',
+          lastName: 'Rossi',
+          username: 'mario_rossi',
+          birthDate: birthDate,
+          gender: 'Uomo',
+          acceptedTerms: false,
+          acceptedPrivacy: true,
+          marketingConsent: false,
+          profilingConsent: false,
+        ),
+      ),
+      expect: () => [
+        const AuthState.error(
+          'Per creare un account devi accettare Termini e Privacy Policy.',
+        ),
+      ],
+      verify: (_) {
+        verifyNever(() => repository.signUp(any(), any()));
       },
     );
   });

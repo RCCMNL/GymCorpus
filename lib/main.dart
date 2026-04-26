@@ -45,7 +45,10 @@ import 'package:gym_corpus/features/training/presentation/screens/nutrition_scre
 import 'package:gym_corpus/features/training/presentation/screens/article_detail_screen.dart';
 import 'package:gym_corpus/core/services/notification_service.dart';
 import 'package:gym_corpus/firebase_options.dart';
-
+import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_bloc.dart';
+import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_event.dart';
+import 'package:gym_corpus/features/notifications/presentation/screens/notifications_screen.dart';
+import 'package:gym_corpus/features/notifications/presentation/screens/notification_settings_screen.dart';
 void main() async {
   final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
@@ -121,6 +124,7 @@ class _GymAppState extends State<GymApp> {
           unauthenticated: () {
             if (state.matchedLocation != '/login' &&
                 state.matchedLocation != '/signup' &&
+                !state.matchedLocation.startsWith('/legal') &&
                 state.matchedLocation != '/splash') {
               return '/login';
             }
@@ -133,6 +137,7 @@ class _GymAppState extends State<GymApp> {
 
             if (state.matchedLocation != '/login' &&
                 state.matchedLocation != '/signup' &&
+                !state.matchedLocation.startsWith('/legal') &&
                 state.matchedLocation != '/splash') {
               return '/login';
             }
@@ -157,6 +162,22 @@ class _GymAppState extends State<GymApp> {
         GoRoute(
           path: '/signup',
           builder: (context, state) => const SignUpScreen(),
+        ),
+        GoRoute(
+          path: '/legal/terms',
+          builder: (context, state) => const TermsOfServiceScreen(),
+        ),
+        GoRoute(
+          path: '/legal/privacy',
+          builder: (context, state) => const PrivacyPolicyScreen(),
+        ),
+        GoRoute(
+          path: '/legal/cookies',
+          builder: (context, state) => const CookiePolicyScreen(),
+        ),
+        GoRoute(
+          path: '/notifications',
+          builder: (context, state) => const NotificationsScreen(),
         ),
         ShellRoute(
           builder: (context, state, child) {
@@ -275,6 +296,12 @@ class _GymAppState extends State<GymApp> {
                   builder: (context, state) => const SecurityScreen(),
                 ),
                 GoRoute(
+                  path: 'notifications',
+                  parentNavigatorKey: _rootNavigatorKey,
+                  builder: (context, state) =>
+                      const NotificationSettingsScreen(),
+                ),
+                GoRoute(
                   path: 'integrations',
                   parentNavigatorKey: _rootNavigatorKey,
                   builder: (context, state) => const IntegrationsScreen(),
@@ -307,6 +334,11 @@ class _GymAppState extends State<GymApp> {
                   path: 'privacy',
                   parentNavigatorKey: _rootNavigatorKey,
                   builder: (context, state) => const PrivacyPolicyScreen(),
+                ),
+                GoRoute(
+                  path: 'cookies',
+                  parentNavigatorKey: _rootNavigatorKey,
+                  builder: (context, state) => const CookiePolicyScreen(),
                 ),
                 GoRoute(
                   path: 'cycle-calendar',
@@ -349,6 +381,10 @@ class _GymAppState extends State<GymApp> {
             ..add(LoadRoutinesEvent())
             ..add(LoadBodyWeightLogsEvent())
             ..add(LoadSettingsEvent()),
+        ),
+        BlocProvider<NotificationsBloc>(
+          create: (_) => di.sl<NotificationsBloc>()
+            ..add(LoadNotificationsEvent()),
         ),
       ],
       child: MaterialApp.router(

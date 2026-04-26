@@ -7,6 +7,16 @@ import 'package:gym_corpus/core/constants/app_constants.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
 
+/// Shows the feedback bottom sheet instead of a dialog.
+void showFeedbackSheet(BuildContext context) {
+  showModalBottomSheet<void>(
+    context: context,
+    backgroundColor: Colors.transparent,
+    isScrollControlled: true,
+    builder: (context) => const FeedbackDialog(),
+  );
+}
+
 class FeedbackDialog extends StatefulWidget {
   const FeedbackDialog({super.key});
 
@@ -113,70 +123,243 @@ class _FeedbackDialogState extends State<FeedbackDialog> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
+    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
 
-    return AlertDialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-      backgroundColor: theme.colorScheme.surface,
-      title: Row(
-        children: [
-          Icon(Icons.bug_report_rounded, color: theme.colorScheme.primary),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              'Segnala un Problema',
-              style: theme.textTheme.titleLarge?.copyWith(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.2),
+            blurRadius: 20,
+            offset: const Offset(0, -5),
           ),
         ],
       ),
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: _subjectController,
-              decoration: const InputDecoration(
-                labelText: 'Oggetto',
-                hintText: 'Esempio: Errore nel salvataggio peso',
+      child: Padding(
+        padding: EdgeInsets.only(bottom: keyboardHeight),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 12),
+              // Handle bar
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.outline.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(2),
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _descriptionController,
-              maxLines: 5,
-              decoration: const InputDecoration(
-                labelText: 'Descrizione',
-                hintText: 'Cosa è successo? Come possiamo riprodurre il problema?',
-                alignLabelWithHint: true,
+              const SizedBox(height: 24),
+
+              // Header
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                theme.colorScheme.primary.withValues(alpha: 0.15),
+                                theme.colorScheme.tertiary.withValues(alpha: 0.1),
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(
+                              color: theme.colorScheme.primary.withValues(alpha: 0.2),
+                            ),
+                          ),
+                          child: Icon(
+                            Icons.bug_report_rounded,
+                            color: theme.colorScheme.primary,
+                            size: 22,
+                          ),
+                        ),
+                        const SizedBox(width: 14),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Segnala un Problema',
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.w800,
+                                fontFamily: 'Lexend',
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'FEEDBACK & SUPPORTO',
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                letterSpacing: 1.5,
+                                color: theme.colorScheme.outline,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(Icons.close),
+                      style: IconButton.styleFrom(
+                        backgroundColor: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: 28),
+
+              // Subject field
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'OGGETTO',
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        letterSpacing: 1.5,
+                        fontWeight: FontWeight.w900,
+                        color: theme.colorScheme.outline,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: _subjectController,
+                      style: theme.textTheme.bodyLarge,
+                      decoration: InputDecoration(
+                        hintText: 'Es: Errore nel salvataggio peso',
+                        prefixIcon: Padding(
+                          padding: const EdgeInsets.only(left: 12, right: 8),
+                          child: Icon(Icons.subject_rounded, size: 20, color: theme.colorScheme.primary.withValues(alpha: 0.6)),
+                        ),
+                        prefixIconConstraints: const BoxConstraints(minWidth: 40, minHeight: 0),
+                        filled: true,
+                        fillColor: theme.colorScheme.surfaceContainerHigh,
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.1))),
+                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.1))),
+                        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: theme.colorScheme.primary)),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Description field
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'DESCRIZIONE',
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        letterSpacing: 1.5,
+                        fontWeight: FontWeight.w900,
+                        color: theme.colorScheme.outline,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: _descriptionController,
+                      maxLines: 5,
+                      style: theme.textTheme.bodyLarge,
+                      decoration: InputDecoration(
+                        hintText: 'Cosa è successo? Come possiamo riprodurre il problema?',
+                        alignLabelWithHint: true,
+                        filled: true,
+                        fillColor: theme.colorScheme.surfaceContainerHigh,
+                        contentPadding: const EdgeInsets.all(16),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.1))),
+                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.1))),
+                        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: theme.colorScheme.primary)),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 32),
+
+              // Action buttons
+              Padding(
+                padding: EdgeInsets.fromLTRB(24, 0, 24, 24 + bottomPadding),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            side: BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.15)),
+                          ),
+                        ),
+                        child: Text(
+                          'ANNULLA',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 1,
+                            fontSize: 13,
+                            fontFamily: 'Lexend',
+                            color: theme.colorScheme.outline,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      flex: 2,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: theme.colorScheme.primary.withValues(alpha: 0.3),
+                              blurRadius: 16,
+                              offset: const Offset(0, 6),
+                            ),
+                          ],
+                        ),
+                        child: ElevatedButton(
+                          onPressed: _isLoading ? null : _sendFeedback,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: theme.colorScheme.primary,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            disabledBackgroundColor: theme.colorScheme.primary.withValues(alpha: 0.5),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                            elevation: 0,
+                          ),
+                          child: _isLoading
+                              ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                              : const Text('INVIA SEGNALAZIONE', style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1.1, fontSize: 13, fontFamily: 'Lexend')),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('ANNULLA'),
-        ),
-        ElevatedButton(
-          onPressed: _isLoading ? null : _sendFeedback,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: theme.colorScheme.primary,
-            foregroundColor: theme.colorScheme.onPrimary,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          ),
-          child: _isLoading
-              ? const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                )
-              : const Text('INVIA SEGNALAZIONE'),
-        ),
-      ],
     );
   }
 }

@@ -38,6 +38,13 @@ class UserEntity extends Equatable {
     this.lastLoginDate,
     this.lastLoginDevice,
     this.gender,
+    this.termsAcceptedAt,
+    this.privacyAcceptedAt,
+    this.legalVersion,
+    this.marketingConsent = false,
+    this.profilingConsent = false,
+    this.marketingConsentUpdatedAt,
+    this.profilingConsentUpdatedAt,
     this.authProviders = const [],
     this.loginHistory = const [],
   });
@@ -74,6 +81,21 @@ class UserEntity extends Equatable {
           : null,
       lastLoginDevice: json['lastLoginDevice'] as String?,
       gender: json['gender'] as String?,
+      termsAcceptedAt: json['termsAcceptedAt'] != null
+          ? DateTime.parse(json['termsAcceptedAt'] as String)
+          : null,
+      privacyAcceptedAt: json['privacyAcceptedAt'] != null
+          ? DateTime.parse(json['privacyAcceptedAt'] as String)
+          : null,
+      legalVersion: json['legalVersion'] as String?,
+      marketingConsent: json['marketingConsent'] as bool? ?? false,
+      profilingConsent: json['profilingConsent'] as bool? ?? false,
+      marketingConsentUpdatedAt: json['marketingConsentUpdatedAt'] != null
+          ? DateTime.parse(json['marketingConsentUpdatedAt'] as String)
+          : null,
+      profilingConsentUpdatedAt: json['profilingConsentUpdatedAt'] != null
+          ? DateTime.parse(json['profilingConsentUpdatedAt'] as String)
+          : null,
       authProviders: (json['authProviders'] as List<dynamic>?)
               ?.map((e) => e as String)
               .toList() ??
@@ -99,6 +121,15 @@ class UserEntity extends Equatable {
         'lastLoginDate': lastLoginDate?.toIso8601String(),
         'lastLoginDevice': lastLoginDevice,
         'gender': gender,
+        'termsAcceptedAt': termsAcceptedAt?.toIso8601String(),
+        'privacyAcceptedAt': privacyAcceptedAt?.toIso8601String(),
+        'legalVersion': legalVersion,
+        'marketingConsent': marketingConsent,
+        'profilingConsent': profilingConsent,
+        'marketingConsentUpdatedAt':
+            marketingConsentUpdatedAt?.toIso8601String(),
+        'profilingConsentUpdatedAt':
+            profilingConsentUpdatedAt?.toIso8601String(),
         'authProviders': authProviders,
         'loginHistory': loginHistory.map((e) => e.toJson()).toList(),
       };
@@ -116,6 +147,13 @@ class UserEntity extends Equatable {
   final DateTime? lastLoginDate;
   final String? lastLoginDevice;
   final String? gender;
+  final DateTime? termsAcceptedAt;
+  final DateTime? privacyAcceptedAt;
+  final String? legalVersion;
+  final bool marketingConsent;
+  final bool profilingConsent;
+  final DateTime? marketingConsentUpdatedAt;
+  final DateTime? profilingConsentUpdatedAt;
   final List<String> authProviders;
   final List<LoginEntry> loginHistory;
 
@@ -135,6 +173,13 @@ class UserEntity extends Equatable {
     DateTime? lastLoginDate,
     String? lastLoginDevice,
     String? gender,
+    DateTime? termsAcceptedAt,
+    DateTime? privacyAcceptedAt,
+    String? legalVersion,
+    bool? marketingConsent,
+    bool? profilingConsent,
+    DateTime? marketingConsentUpdatedAt,
+    DateTime? profilingConsentUpdatedAt,
     List<String>? authProviders,
     List<LoginEntry>? loginHistory,
     bool clearWeight = false,
@@ -153,6 +198,15 @@ class UserEntity extends Equatable {
       lastLoginDate: lastLoginDate ?? this.lastLoginDate,
       lastLoginDevice: lastLoginDevice ?? this.lastLoginDevice,
       gender: gender ?? this.gender,
+      termsAcceptedAt: termsAcceptedAt ?? this.termsAcceptedAt,
+      privacyAcceptedAt: privacyAcceptedAt ?? this.privacyAcceptedAt,
+      legalVersion: legalVersion ?? this.legalVersion,
+      marketingConsent: marketingConsent ?? this.marketingConsent,
+      profilingConsent: profilingConsent ?? this.profilingConsent,
+      marketingConsentUpdatedAt:
+          marketingConsentUpdatedAt ?? this.marketingConsentUpdatedAt,
+      profilingConsentUpdatedAt:
+          profilingConsentUpdatedAt ?? this.profilingConsentUpdatedAt,
       authProviders: authProviders ?? this.authProviders,
       loginHistory: loginHistory ?? this.loginHistory,
     );
@@ -173,6 +227,13 @@ class UserEntity extends Equatable {
         lastLoginDate,
         lastLoginDevice,
         gender,
+        termsAcceptedAt,
+        privacyAcceptedAt,
+        legalVersion,
+        marketingConsent,
+        profilingConsent,
+        marketingConsentUpdatedAt,
+        profilingConsentUpdatedAt,
         authProviders,
         loginHistory,
       ];

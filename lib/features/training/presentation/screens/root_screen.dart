@@ -4,12 +4,67 @@ import 'dart:ui' as ui;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_bloc.dart';
+import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_event.dart';
+import 'package:gym_corpus/features/profile/domain/services/athlete_progress_service.dart';
+import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
+import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
 
-class RootScreen extends StatelessWidget {
+class RootScreen extends StatefulWidget {
   const RootScreen({required this.child, super.key});
 
   final Widget child;
+
+  @override
+  State<RootScreen> createState() => _RootScreenState();
+}
+
+class _RootScreenState extends State<RootScreen> {
+  int _lastUnlockedCount = -1;
+
+  void _checkBadges(BuildContext context, TrainingLoaded state) {
+    // Calcoliamo i progressi
+    final progress = AthleteProgressService.calculate(
+      workoutSessions: state.workoutSessions,
+      workoutSets: state.weightLogs,
+      cardioSessions: state.cardioSessions,
+      exercises: state.exercises,
+    );
+
+    final unlockedBadges = progress.achievements.where((a) => a.isUnlocked).toList();
+    final unlockedCount = unlockedBadges.length;
+
+    // Se è la prima volta che carichiamo, salviamo solo il conteggio
+    if (_lastUnlockedCount == -1) {
+      _lastUnlockedCount = unlockedCount;
+      return;
+    }
+
+    // Se ci sono nuovi badge
+    if (unlockedCount > _lastUnlockedCount) {
+      final newBadgesCount = unlockedCount - _lastUnlockedCount;
+      
+      // Controlliamo se le notifiche badge sono abilitate nelle impostazioni
+      final badgeEnabled = state.settings['notif_badge_enabled'] != 'false';
+
+      if (badgeEnabled) {
+        for (int i = 0; i < newBadgesCount; i++) {
+          final badge = unlockedBadges[unlockedCount - 1 - i];
+          context.read<NotificationsBloc>().add(
+                AddNotificationLogEvent(
+                  title: '🏆 Nuovo Badge Sbloccato!',
+                  body: 'Hai ottenuto: ${badge.definition.title}. ${badge.definition.description}',
+                  type: 'badge',
+                ),
+              );
+        }
+      }
+      
+      _lastUnlockedCount = unlockedCount;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,8 +72,10 @@ class RootScreen extends StatelessWidget {
     final screenWidth = MediaQuery.of(context).size.width;
     final isDesktop = screenWidth > 800;
 
+    Widget scaffoldWidget;
+
     if (isDesktop) {
-      return Scaffold(
+      scaffoldWidget = Scaffold(
         body: SafeArea(
           child: Row(
             children: [
@@ -41,7 +98,7 @@ class RootScreen extends StatelessWidget {
                 onDestinationSelected: (index) => _onItemTapped(index, context),
               ),
               const VerticalDivider(thickness: 1, width: 1),
-              Expanded(child: child),
+              Expanded(child: widget.child),
             ],
           ),
         ),
@@ -49,8 +106,8 @@ class RootScreen extends StatelessWidget {
     }
 
     // Piattaforme iOS (Cupertino) per schermi standard
-    if (!kIsWeb && Platform.isIOS) {
-      return CupertinoTabScaffold(
+    else if (!kIsWeb && Platform.isIOS) {
+      scaffoldWidget = CupertinoTabScaffold(
         tabBar: CupertinoTabBar(
           items: const [
             BottomNavigationBarItem(icon: Icon(CupertinoIcons.flame), label: 'Training'),
@@ -63,16 +120,34 @@ class RootScreen extends StatelessWidget {
         tabBuilder: (context, index) {
           // Cupertino impone la tab construction in modo specifico,
           // qui passiamo semplicemente il current branch gestito da ShellRoute
-          return CupertinoPageScaffold(child: child);
+          return CupertinoPageScaffold(child: widget.child);
         },
       );
     }
-
     // Material 3 / Custom Stitch Design Default 
-    return Scaffold(
-      extendBody: true, // Important to see blur over content
-      body: child,
-      bottomNavigationBar: _buildCustomNavBar(context),
+    else {
+      scaffoldWidget = Scaffold(
+        extendBody: true, // Important to see blur over content
+        body: widget.child,
+        bottomNavigationBar: _buildCustomNavBar(context),
+      );
+    }
+
+    return BlocListener<TrainingBloc, TrainingState>(
+      listenWhen: (previous, current) {
+        if (previous is TrainingLoaded && current is TrainingLoaded) {
+          return previous.workoutSessions.length != current.workoutSessions.length ||
+                 previous.weightLogs.length != current.weightLogs.length ||
+                 previous.cardioSessions.length != current.cardioSessions.length;
+        }
+        return false;
+      },
+      listener: (context, state) {
+        if (state is TrainingLoaded) {
+          _checkBadges(context, state);
+        }
+      },
+      child: scaffoldWidget,
     );
   }
 

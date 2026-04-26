@@ -92,6 +92,16 @@ class CardioSessions extends Table {
   DateTimeColumn get date => dateTime()();
 }
 
+class NotificationLogs extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get title => text()();
+  TextColumn get body => text()();
+  DateTimeColumn get timestamp =>
+      dateTime().withDefault(currentDateAndTime)();
+  BoolColumn get isRead => boolean().withDefault(const Constant(false))();
+  TextColumn get type => text().withDefault(const Constant('general'))();
+}
+
 @DriftDatabase(tables: [
   Workouts,
   Exercises,
@@ -101,13 +111,14 @@ class CardioSessions extends Table {
   WeightLogs,
   AppSettings,
   CardioSessions,
-  BodyMeasurements
+  BodyMeasurements,
+  NotificationLogs,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 13;
+  int get schemaVersion => 14;
 
   @override
   MigrationStrategy get migration {
@@ -154,6 +165,7 @@ class AppDatabase extends _$AppDatabase {
     await _ensureTable(m, appSettings);
     await _ensureTable(m, cardioSessions);
     await _ensureTable(m, bodyMeasurements);
+    await _ensureTable(m, notificationLogs);
   }
 
   Future<void> _ensureCurrentColumns(Migrator m) async {
@@ -199,6 +211,17 @@ class AppDatabase extends _$AppDatabase {
     await _ensureColumn(m, bodyMeasurements, bodyMeasurements.part, 'part');
     await _ensureColumn(m, bodyMeasurements, bodyMeasurements.value, 'value');
     await _ensureColumn(m, bodyMeasurements, bodyMeasurements.date, 'date');
+
+    await _ensureColumn(
+        m, notificationLogs, notificationLogs.title, 'title');
+    await _ensureColumn(
+        m, notificationLogs, notificationLogs.body, 'body');
+    await _ensureColumn(
+        m, notificationLogs, notificationLogs.timestamp, 'timestamp');
+    await _ensureColumn(
+        m, notificationLogs, notificationLogs.isRead, 'is_read');
+    await _ensureColumn(
+        m, notificationLogs, notificationLogs.type, 'type');
   }
 
   Future<void> _ensureTable(Migrator m, TableInfo<Table, dynamic> table) async {
@@ -382,4 +405,29 @@ class AppDatabase extends _$AppDatabase {
       into(cardioSessions).insert(session);
   Future<void> deleteCardioSession(int id) =>
       (delete(cardioSessions)..where((t) => t.id.equals(id))).go();
+
+  // Notification logs
+  Stream<List<NotificationLog>> watchAllNotificationLogs() =>
+      (select(notificationLogs)
+            ..orderBy([
+              (t) =>
+                  OrderingTerm(expression: t.timestamp, mode: OrderingMode.desc)
+            ]))
+          .watch();
+
+  Future<int> insertNotificationLog(NotificationLogsCompanion log) =>
+      into(notificationLogs).insert(log);
+
+  Future<void> markNotificationRead(int id) =>
+      (update(notificationLogs)..where((t) => t.id.equals(id)))
+          .write(const NotificationLogsCompanion(isRead: Value(true)));
+
+  Future<void> markAllNotificationsRead() =>
+      update(notificationLogs)
+          .write(const NotificationLogsCompanion(isRead: Value(true)));
+
+  Future<void> deleteNotificationLog(int id) =>
+      (delete(notificationLogs)..where((t) => t.id.equals(id))).go();
+
+  Future<void> deleteAllNotificationLogs() => delete(notificationLogs).go();
 }

@@ -22,6 +22,7 @@ class AuthFailure extends Failure {
 }
 
 const _googleServerClientId = String.fromEnvironment('GOOGLE_SERVER_CLIENT_ID');
+const _currentLegalVersion = '2026-04-26';
 
 @LazySingleton(as: AuthRepository)
 class AuthRepositoryImpl implements AuthRepository {
@@ -110,7 +111,7 @@ class AuthRepositoryImpl implements AuthRepository {
     final now = DateTime.now();
 
     final newEntry = LoginEntry(date: now, device: device);
-    
+
     // Seed history if empty using previous lastLogin data
     final List<LoginEntry> currentHistory = List.from(user.loginHistory);
     if (currentHistory.isEmpty && user.lastLoginDate != null) {
@@ -146,6 +147,26 @@ class AuthRepositoryImpl implements AuthRepository {
       );
     }
     return updatedUser;
+  }
+
+  UserEntity _applyLegalConsents(
+    UserEntity user, {
+    required bool acceptedTerms,
+    required bool acceptedPrivacy,
+    required bool marketingConsent,
+    required bool profilingConsent,
+  }) {
+    final now = DateTime.now();
+    return user.copyWith(
+      termsAcceptedAt: acceptedTerms ? now : user.termsAcceptedAt,
+      privacyAcceptedAt: acceptedPrivacy ? now : user.privacyAcceptedAt,
+      legalVersion:
+          acceptedTerms && acceptedPrivacy ? _currentLegalVersion : null,
+      marketingConsent: marketingConsent,
+      profilingConsent: profilingConsent,
+      marketingConsentUpdatedAt: now,
+      profilingConsentUpdatedAt: now,
+    );
   }
 
   @override
@@ -288,7 +309,12 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, UserEntity>> signInWithGoogle() async {
+  Future<Either<Failure, UserEntity>> signInWithGoogle({
+    bool acceptedTerms = false,
+    bool acceptedPrivacy = false,
+    bool marketingConsent = false,
+    bool profilingConsent = false,
+  }) async {
     try {
       if (_googleServerClientId.isEmpty) {
         return const Left(
@@ -321,10 +347,32 @@ class AuthRepositoryImpl implements AuthRepository {
       final userCredential =
           await _firebaseAuth.signInWithCredential(credential);
       if (userCredential.user != null) {
+        final isNewUser = userCredential.additionalUserInfo?.isNewUser ?? false;
+        if (isNewUser && (!acceptedTerms || !acceptedPrivacy)) {
+          await userCredential.user!.delete();
+          await _firebaseAuth.signOut();
+          return const Left(
+            AuthFailure(
+              'Per creare un nuovo account devi accettare Termini e Privacy Policy.',
+            ),
+          );
+        }
+
         final baseUser = _mapFirebaseUser(userCredential.user!);
-        final remoteUser = await _remoteDataSource.getUserProfile(baseUser.id);
-        final user = (remoteUser ?? baseUser)
+        final remoteUser = isNewUser
+            ? null
+            : await _remoteDataSource.getUserProfile(baseUser.id);
+        var user = (remoteUser ?? baseUser)
             .copyWith(authProviders: baseUser.authProviders);
+        if (isNewUser) {
+          user = _applyLegalConsents(
+            user,
+            acceptedTerms: acceptedTerms,
+            acceptedPrivacy: acceptedPrivacy,
+            marketingConsent: marketingConsent,
+            profilingConsent: profilingConsent,
+          );
+        }
 
         final finalUser = await _updateLoginHistory(user);
         return Right(finalUser);
@@ -342,7 +390,12 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, UserEntity>> signInWithApple() async {
+  Future<Either<Failure, UserEntity>> signInWithApple({
+    bool acceptedTerms = false,
+    bool acceptedPrivacy = false,
+    bool marketingConsent = false,
+    bool profilingConsent = false,
+  }) async {
     try {
       final appleCredential = await SignInWithApple.getAppleIDCredential(
         scopes: [
@@ -359,10 +412,32 @@ class AuthRepositoryImpl implements AuthRepository {
       final userCredential =
           await _firebaseAuth.signInWithCredential(credential);
       if (userCredential.user != null) {
+        final isNewUser = userCredential.additionalUserInfo?.isNewUser ?? false;
+        if (isNewUser && (!acceptedTerms || !acceptedPrivacy)) {
+          await userCredential.user!.delete();
+          await _firebaseAuth.signOut();
+          return const Left(
+            AuthFailure(
+              'Per creare un nuovo account devi accettare Termini e Privacy Policy.',
+            ),
+          );
+        }
+
         final baseUser = _mapFirebaseUser(userCredential.user!);
-        final remoteUser = await _remoteDataSource.getUserProfile(baseUser.id);
-        final user = (remoteUser ?? baseUser)
+        final remoteUser = isNewUser
+            ? null
+            : await _remoteDataSource.getUserProfile(baseUser.id);
+        var user = (remoteUser ?? baseUser)
             .copyWith(authProviders: baseUser.authProviders);
+        if (isNewUser) {
+          user = _applyLegalConsents(
+            user,
+            acceptedTerms: acceptedTerms,
+            acceptedPrivacy: acceptedPrivacy,
+            marketingConsent: marketingConsent,
+            profilingConsent: profilingConsent,
+          );
+        }
 
         final finalUser = await _updateLoginHistory(user);
         return Right(finalUser);
@@ -405,6 +480,13 @@ class AuthRepositoryImpl implements AuthRepository {
     double? height,
     DateTime? birthDate,
     String? trainingObjective,
+    DateTime? termsAcceptedAt,
+    DateTime? privacyAcceptedAt,
+    String? legalVersion,
+    bool? marketingConsent,
+    bool? profilingConsent,
+    DateTime? marketingConsentUpdatedAt,
+    DateTime? profilingConsentUpdatedAt,
     bool clearWeight = false,
   }) async {
     try {
@@ -438,6 +520,15 @@ class AuthRepositoryImpl implements AuthRepository {
         height: height ?? currentUser.height,
         birthDate: birthDate ?? currentUser.birthDate,
         trainingObjective: trainingObjective ?? currentUser.trainingObjective,
+        termsAcceptedAt: termsAcceptedAt ?? currentUser.termsAcceptedAt,
+        privacyAcceptedAt: privacyAcceptedAt ?? currentUser.privacyAcceptedAt,
+        legalVersion: legalVersion ?? currentUser.legalVersion,
+        marketingConsent: marketingConsent ?? currentUser.marketingConsent,
+        profilingConsent: profilingConsent ?? currentUser.profilingConsent,
+        marketingConsentUpdatedAt:
+            marketingConsentUpdatedAt ?? currentUser.marketingConsentUpdatedAt,
+        profilingConsentUpdatedAt:
+            profilingConsentUpdatedAt ?? currentUser.profilingConsentUpdatedAt,
       );
 
       // Save locally first for speed

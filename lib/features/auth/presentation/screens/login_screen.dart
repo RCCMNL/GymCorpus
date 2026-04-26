@@ -110,6 +110,230 @@ class _LoginScreenState extends State<LoginScreen>
         );
   }
 
+  Future<void> _onGooglePressed() async {
+    final consent = await _showSocialConsentSheet(providerName: 'Google');
+    if (!mounted || consent == null) return;
+
+    context.read<AuthBloc>().add(
+          AuthEvent.googleSignInRequested(
+            acceptedTerms: consent.acceptedTerms,
+            acceptedPrivacy: consent.acceptedPrivacy,
+            marketingConsent: consent.marketingConsent,
+            profilingConsent: consent.profilingConsent,
+          ),
+        );
+  }
+
+  Future<_SocialConsentResult?> _showSocialConsentSheet({
+    required String providerName,
+  }) {
+    final theme = Theme.of(context);
+    var acceptedTerms = false;
+    var acceptedPrivacy = false;
+    var marketingConsent = false;
+    var profilingConsent = false;
+    var showRequiredError = false;
+
+    return showModalBottomSheet<_SocialConsentResult>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return SafeArea(
+              child: Container(
+                margin: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surfaceContainer,
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(
+                    color: theme.colorScheme.primary.withValues(alpha: 0.15),
+                  ),
+                ),
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Center(
+                        child: Container(
+                          width: 40,
+                          height: 4,
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.outline
+                                .withValues(alpha: 0.3),
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 22),
+                      Text(
+                        'Continua con $providerName',
+                        style: theme.textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Se questo Google account e nuovo per GymCorpus, prima dobbiamo raccogliere i consensi obbligatori. Per account gia esistenti useremo solo il login.',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                          height: 1.35,
+                        ),
+                      ),
+                      const SizedBox(height: 18),
+                      _buildSocialConsentTile(
+                        theme,
+                        value: acceptedTerms,
+                        onChanged: (value) => setModalState(() {
+                          acceptedTerms = value;
+                          showRequiredError = false;
+                        }),
+                        title: "Accetto i Termini e Condizioni d'Uso",
+                        linkLabel: 'Leggi i Termini',
+                        onLinkTap: () => context.push('/legal/terms'),
+                      ),
+                      const SizedBox(height: 10),
+                      _buildSocialConsentTile(
+                        theme,
+                        value: acceptedPrivacy,
+                        onChanged: (value) => setModalState(() {
+                          acceptedPrivacy = value;
+                          showRequiredError = false;
+                        }),
+                        title: 'Ho letto la Privacy Policy',
+                        linkLabel: 'Leggi la Privacy Policy',
+                        onLinkTap: () => context.push('/legal/privacy'),
+                      ),
+                      const SizedBox(height: 10),
+                      _buildSocialConsentTile(
+                        theme,
+                        value: marketingConsent,
+                        onChanged: (value) =>
+                            setModalState(() => marketingConsent = value),
+                        title: 'Consenso marketing e newsletter',
+                        subtitle: 'Facoltativo e non preselezionato.',
+                      ),
+                      const SizedBox(height: 10),
+                      _buildSocialConsentTile(
+                        theme,
+                        value: profilingConsent,
+                        onChanged: (value) =>
+                            setModalState(() => profilingConsent = value),
+                        title: 'Consenso alla profilazione commerciale',
+                        subtitle: 'Facoltativo e non preselezionato.',
+                      ),
+                      if (showRequiredError) ...[
+                        const SizedBox(height: 12),
+                        Text(
+                          'Termini e Privacy Policy sono necessari per creare un nuovo account.',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.error,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                      const SizedBox(height: 22),
+                      SizedBox(
+                        width: double.infinity,
+                        child: FilledButton(
+                          onPressed: () {
+                            if (!acceptedTerms || !acceptedPrivacy) {
+                              setModalState(() => showRequiredError = true);
+                              return;
+                            }
+                            Navigator.of(sheetContext).pop(
+                              _SocialConsentResult(
+                                acceptedTerms: acceptedTerms,
+                                acceptedPrivacy: acceptedPrivacy,
+                                marketingConsent: marketingConsent,
+                                profilingConsent: profilingConsent,
+                              ),
+                            );
+                          },
+                          child: Text(
+                              'CONTINUA CON ${providerName.toUpperCase()}'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildSocialConsentTile(
+    ThemeData theme, {
+    required bool value,
+    required ValueChanged<bool> onChanged,
+    required String title,
+    String? subtitle,
+    String? linkLabel,
+    VoidCallback? onLinkTap,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.7),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Checkbox(
+            value: value,
+            onChanged: (checked) => onChanged(checked ?? false),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(5),
+            ),
+          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(0, 12, 12, 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  if (subtitle != null) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                  if (linkLabel != null && onLinkTap != null) ...[
+                    const SizedBox(height: 4),
+                    TextButton(
+                      onPressed: onLinkTap,
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        minimumSize: const Size(0, 32),
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      child: Text(linkLabel),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showSnack(String msg, {bool isError = false}) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text(msg),
@@ -130,8 +354,7 @@ class _LoginScreenState extends State<LoginScreen>
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) => Padding(
-        padding:
-            EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+        padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
         child: Container(
           margin: const EdgeInsets.all(16),
           padding: const EdgeInsets.all(28),
@@ -227,7 +450,6 @@ class _LoginScreenState extends State<LoginScreen>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final size = MediaQuery.of(context).size;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -250,7 +472,8 @@ class _LoginScreenState extends State<LoginScreen>
                   return SingleChildScrollView(
                     padding: const EdgeInsets.symmetric(horizontal: 28),
                     child: ConstrainedBox(
-                      constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                      constraints:
+                          BoxConstraints(minHeight: constraints.maxHeight),
                       child: IntrinsicHeight(
                         child: FadeTransition(
                           opacity: _fadeIn,
@@ -264,19 +487,24 @@ class _LoginScreenState extends State<LoginScreen>
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text('Bentornato',
-                                            style: theme.textTheme.headlineLarge?.copyWith(
-                                                fontWeight: FontWeight.w900,
-                                                letterSpacing: -0.5,
-                                                fontSize: 32)),
+                                            style: theme.textTheme.headlineLarge
+                                                ?.copyWith(
+                                                    fontWeight: FontWeight.w900,
+                                                    letterSpacing: -0.5,
+                                                    fontSize: 32)),
                                         const SizedBox(height: 4),
                                         Text('ACCEDI AL TUO ACCOUNT',
-                                            style: theme.textTheme.labelSmall?.copyWith(
-                                                letterSpacing: 2,
-                                                color: theme.colorScheme.primary
-                                                    .withValues(alpha: 0.7))),
+                                            style: theme.textTheme.labelSmall
+                                                ?.copyWith(
+                                                    letterSpacing: 2,
+                                                    color: theme
+                                                        .colorScheme.primary
+                                                        .withValues(
+                                                            alpha: 0.7))),
                                       ],
                                     ),
                                     const SizedBox(width: 16),
@@ -286,17 +514,20 @@ class _LoginScreenState extends State<LoginScreen>
                                         padding: const EdgeInsets.all(8),
                                         decoration: BoxDecoration(
                                           shape: BoxShape.circle,
-                                          color: theme.colorScheme.primary.withValues(alpha: 0.05),
+                                          color: theme.colorScheme.primary
+                                              .withValues(alpha: 0.05),
                                           boxShadow: [
                                             BoxShadow(
-                                              color: theme.colorScheme.primary.withValues(alpha: 0.15),
+                                              color: theme.colorScheme.primary
+                                                  .withValues(alpha: 0.15),
                                               blurRadius: 20,
                                               spreadRadius: 2,
                                             ),
                                           ],
                                         ),
                                         child: ShaderMask(
-                                          shaderCallback: (bounds) => LinearGradient(
+                                          shaderCallback: (bounds) =>
+                                              LinearGradient(
                                             colors: [
                                               theme.colorScheme.primary,
                                               theme.colorScheme.tertiary,
@@ -308,7 +539,8 @@ class _LoginScreenState extends State<LoginScreen>
                                               width: 56,
                                               height: 56,
                                               color: Colors.white,
-                                              colorBlendMode: BlendMode.modulate,
+                                              colorBlendMode:
+                                                  BlendMode.modulate,
                                             ),
                                           ),
                                         ),
@@ -321,7 +553,8 @@ class _LoginScreenState extends State<LoginScreen>
                                 // Glass card
                                 GlassCard(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       _buildLabel(theme, 'Email'),
                                       const SizedBox(height: 8),
@@ -329,7 +562,8 @@ class _LoginScreenState extends State<LoginScreen>
                                         controller: _emailController,
                                         hint: 'nome@esempio.com',
                                         icon: Icons.email_outlined,
-                                        keyboardType: TextInputType.emailAddress,
+                                        keyboardType:
+                                            TextInputType.emailAddress,
                                         autofill: const [AutofillHints.email],
                                         action: TextInputAction.next,
                                       ),
@@ -342,11 +576,13 @@ class _LoginScreenState extends State<LoginScreen>
                                           GestureDetector(
                                             onTap: _showForgotPasswordSheet,
                                             child: Text('Password dimenticata?',
-                                                style: theme.textTheme.labelSmall
+                                                style: theme
+                                                    .textTheme.labelSmall
                                                     ?.copyWith(
-                                                        color:
-                                                            theme.colorScheme.primary,
-                                                        fontWeight: FontWeight.w600)),
+                                                        color: theme.colorScheme
+                                                            .primary,
+                                                        fontWeight:
+                                                            FontWeight.w600)),
                                           ),
                                         ],
                                       ),
@@ -356,7 +592,9 @@ class _LoginScreenState extends State<LoginScreen>
                                         hint: 'password',
                                         icon: Icons.lock_outline_rounded,
                                         obscure: _obscurePassword,
-                                        autofill: const [AutofillHints.password],
+                                        autofill: const [
+                                          AutofillHints.password
+                                        ],
                                         action: TextInputAction.done,
                                         onSubmitted: (_) => _onLoginPressed(),
                                         suffixIcon: IconButton(
@@ -367,7 +605,8 @@ class _LoginScreenState extends State<LoginScreen>
                                               size: 20,
                                               color: theme.colorScheme.outline),
                                           onPressed: () => setState(() =>
-                                              _obscurePassword = !_obscurePassword),
+                                              _obscurePassword =
+                                                  !_obscurePassword),
                                         ),
                                       ),
                                       const SizedBox(height: 28),
@@ -376,18 +615,15 @@ class _LoginScreenState extends State<LoginScreen>
                                           isLoading: isLoading,
                                           onPressed: _onLoginPressed),
                                       const SizedBox(height: 28),
-                                      _buildDivider(theme, 'OPPURE CONTINUA CON'),
+                                      _buildDivider(
+                                          theme, 'OPPURE CONTINUA CON'),
                                       const SizedBox(height: 20),
                                       Row(children: [
                                         Expanded(
                                           child: AuthSocialButton(
                                             logo: const GoogleLogo(size: 20),
                                             label: 'Google',
-                                            onTap: () =>
-                                                context.read<AuthBloc>().add(
-                                                      const AuthEvent
-                                                          .googleSignInRequested(),
-                                                    ),
+                                            onTap: _onGooglePressed,
                                           ),
                                         ),
                                         const SizedBox(width: 14),
@@ -411,7 +647,8 @@ class _LoginScreenState extends State<LoginScreen>
                                               onPressed: isLoading
                                                   ? null
                                                   : _onBiometricLogin,
-                                              icon: const Icon(Icons.fingerprint,
+                                              icon: const Icon(
+                                                  Icons.fingerprint,
                                                   size: 30),
                                               padding: const EdgeInsets.all(14),
                                               style: IconButton.styleFrom(
@@ -424,11 +661,13 @@ class _LoginScreenState extends State<LoginScreen>
                                             ),
                                             const SizedBox(height: 6),
                                             Text('Accedi con Biometria',
-                                                style: theme.textTheme.labelSmall
+                                                style: theme
+                                                    .textTheme.labelSmall
                                                     ?.copyWith(
-                                                        color:
-                                                            theme.colorScheme.primary,
-                                                        fontWeight: FontWeight.bold)),
+                                                        color: theme.colorScheme
+                                                            .primary,
+                                                        fontWeight:
+                                                            FontWeight.bold)),
                                           ]),
                                         ),
                                       ],
@@ -441,16 +680,18 @@ class _LoginScreenState extends State<LoginScreen>
                                     onTap: () => context.push('/signup'),
                                     child: RichText(
                                       text: TextSpan(
-                                        style: theme.textTheme.bodyMedium?.copyWith(
-                                            color:
-                                                theme.colorScheme.onSurfaceVariant),
+                                        style: theme.textTheme.bodyMedium
+                                            ?.copyWith(
+                                                color: theme.colorScheme
+                                                    .onSurfaceVariant),
                                         children: [
                                           const TextSpan(
                                               text: 'Non hai un account? '),
                                           TextSpan(
                                             text: 'Registrati',
                                             style: TextStyle(
-                                                color: theme.colorScheme.tertiary,
+                                                color:
+                                                    theme.colorScheme.tertiary,
                                                 fontWeight: FontWeight.bold),
                                           ),
                                         ],
@@ -490,8 +731,7 @@ class _LoginScreenState extends State<LoginScreen>
       Expanded(
         child: Container(
             height: 1,
-            color:
-                theme.colorScheme.outlineVariant.withValues(alpha: 0.15)),
+            color: theme.colorScheme.outlineVariant.withValues(alpha: 0.15)),
       ),
       Padding(
         padding: const EdgeInsets.symmetric(horizontal: 14),
@@ -500,9 +740,22 @@ class _LoginScreenState extends State<LoginScreen>
       Expanded(
         child: Container(
             height: 1,
-            color:
-                theme.colorScheme.outlineVariant.withValues(alpha: 0.15)),
+            color: theme.colorScheme.outlineVariant.withValues(alpha: 0.15)),
       ),
     ]);
   }
+}
+
+class _SocialConsentResult {
+  const _SocialConsentResult({
+    required this.acceptedTerms,
+    required this.acceptedPrivacy,
+    required this.marketingConsent,
+    required this.profilingConsent,
+  });
+
+  final bool acceptedTerms;
+  final bool acceptedPrivacy;
+  final bool marketingConsent;
+  final bool profilingConsent;
 }

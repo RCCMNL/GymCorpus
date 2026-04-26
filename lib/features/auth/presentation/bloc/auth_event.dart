@@ -17,14 +17,28 @@ class AuthEvent with _$AuthEvent {
     required String username,
     required DateTime birthDate,
     required String gender,
+    required bool acceptedTerms,
+    required bool acceptedPrivacy,
+    required bool marketingConsent,
+    required bool profilingConsent,
   }) = _SignUpRequested;
   const factory AuthEvent.forgotPasswordRequested({
     required String email,
   }) = _ForgotPasswordRequested;
 
-  const factory AuthEvent.googleSignInRequested() = _GoogleSignInRequested;
+  const factory AuthEvent.googleSignInRequested({
+    @Default(false) bool acceptedTerms,
+    @Default(false) bool acceptedPrivacy,
+    @Default(false) bool marketingConsent,
+    @Default(false) bool profilingConsent,
+  }) = _GoogleSignInRequested;
 
-  const factory AuthEvent.appleSignInRequested() = _AppleSignInRequested;
+  const factory AuthEvent.appleSignInRequested({
+    @Default(false) bool acceptedTerms,
+    @Default(false) bool acceptedPrivacy,
+    @Default(false) bool marketingConsent,
+    @Default(false) bool profilingConsent,
+  }) = _AppleSignInRequested;
 
   const factory AuthEvent.logoutRequested() = _LogoutRequested;
   const factory AuthEvent.updateProfileImageRequested({

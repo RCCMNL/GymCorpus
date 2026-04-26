@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_bloc.dart';
+import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_state.dart';
 
 class GymHeader extends StatelessWidget implements PreferredSizeWidget {
   const GymHeader({super.key, this.title, this.actions});
@@ -46,11 +50,66 @@ class GymHeader extends StatelessWidget implements PreferredSizeWidget {
       centerTitle: false,
       actions: actions ??
           [
-            IconButton(
-              onPressed: () {
-                // Placeholder: Notifiche UI
+            BlocBuilder<NotificationsBloc, NotificationsState>(
+              builder: (context, state) {
+                final unread = state.unreadCount;
+                return Stack(
+                  children: [
+                    IconButton(
+                      onPressed: () => context.push('/notifications'),
+                      icon: Icon(
+                        unread > 0
+                            ? Icons.notifications_rounded
+                            : Icons.notifications_none_rounded,
+                        size: 24,
+                        color: unread > 0
+                            ? theme.colorScheme.primary
+                            : null,
+                      ),
+                    ),
+                    if (unread > 0)
+                      Positioned(
+                        right: 8,
+                        top: 8,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          constraints: const BoxConstraints(
+                            minWidth: 18,
+                            minHeight: 18,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFF4D6A),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: theme.colorScheme.surface,
+                              width: 1.5,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFFFF4D6A)
+                                    .withValues(alpha: 0.4),
+                                blurRadius: 6,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Center(
+                            child: Text(
+                              unread > 99 ? '99+' : unread.toString(),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 9,
+                                fontWeight: FontWeight.w900,
+                                fontFamily: 'Lexend',
+                                height: 1,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                );
               },
-              icon: const Icon(Icons.notifications_none_rounded, size: 24),
             ),
             const SizedBox(width: 4),
           ],

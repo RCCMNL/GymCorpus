@@ -5,6 +5,8 @@ import 'package:gym_corpus/features/auth/presentation/bloc/auth_event.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
 import 'package:injectable/injectable.dart';
 
+const currentLegalVersion = '2026-04-26';
+
 @injectable
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc(this._repository) : super(const AuthState.initial()) {
@@ -20,11 +22,27 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           username: e.username,
           birthDate: e.birthDate,
           gender: e.gender,
+          acceptedTerms: e.acceptedTerms,
+          acceptedPrivacy: e.acceptedPrivacy,
+          marketingConsent: e.marketingConsent,
+          profilingConsent: e.profilingConsent,
           emit: emit,
         ),
         forgotPasswordRequested: (e) async => _onForgotPassword(e.email, emit),
-        googleSignInRequested: (e) async => _onGoogleSignIn(emit),
-        appleSignInRequested: (e) async => _onAppleSignIn(emit),
+        googleSignInRequested: (e) async => _onGoogleSignIn(
+          acceptedTerms: e.acceptedTerms,
+          acceptedPrivacy: e.acceptedPrivacy,
+          marketingConsent: e.marketingConsent,
+          profilingConsent: e.profilingConsent,
+          emit: emit,
+        ),
+        appleSignInRequested: (e) async => _onAppleSignIn(
+          acceptedTerms: e.acceptedTerms,
+          acceptedPrivacy: e.acceptedPrivacy,
+          marketingConsent: e.marketingConsent,
+          profilingConsent: e.profilingConsent,
+          emit: emit,
+        ),
         logoutRequested: (e) async => _onLogout(emit),
         updateProfileImageRequested: (e) async =>
             _onUpdateProfileImage(e.filePath, emit),
@@ -78,14 +96,29 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required String username,
     required DateTime birthDate,
     required String gender,
+    required bool acceptedTerms,
+    required bool acceptedPrivacy,
+    required bool marketingConsent,
+    required bool profilingConsent,
     required Emitter<AuthState> emit,
   }) async {
+    if (!acceptedTerms || !acceptedPrivacy) {
+      emit(
+        const AuthState.error(
+          'Per creare un account devi accettare Termini e Privacy Policy.',
+        ),
+      );
+      return;
+    }
+
     emit(const AuthState.loading());
     final result = await _repository.signUp(email, password);
 
     await result.fold(
       (failure) async => emit(AuthState.error(failure.props.first.toString())),
       (user) async {
+        final consentTimestamp = DateTime.now();
+
         // Immediately update profile with additional info
         final updateResult = await _repository.updateProfileDetails(
           firstName: firstName,
@@ -93,6 +126,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           username: username,
           birthDate: birthDate,
           gender: gender,
+          termsAcceptedAt: consentTimestamp,
+          privacyAcceptedAt: consentTimestamp,
+          legalVersion: currentLegalVersion,
+          marketingConsent: marketingConsent,
+          profilingConsent: profilingConsent,
+          marketingConsentUpdatedAt: consentTimestamp,
+          profilingConsentUpdatedAt: consentTimestamp,
         );
 
         updateResult.fold(
@@ -108,6 +148,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
                   username: username,
                   birthDate: birthDate,
                   gender: gender,
+                  termsAcceptedAt: consentTimestamp,
+                  privacyAcceptedAt: consentTimestamp,
+                  legalVersion: currentLegalVersion,
+                  marketingConsent: marketingConsent,
+                  profilingConsent: profilingConsent,
+                  marketingConsentUpdatedAt: consentTimestamp,
+                  profilingConsentUpdatedAt: consentTimestamp,
                 ),
               ),
             );
@@ -127,18 +174,40 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
-  Future<void> _onGoogleSignIn(Emitter<AuthState> emit) async {
+  Future<void> _onGoogleSignIn({
+    required bool acceptedTerms,
+    required bool acceptedPrivacy,
+    required bool marketingConsent,
+    required bool profilingConsent,
+    required Emitter<AuthState> emit,
+  }) async {
     emit(const AuthState.loading());
-    final result = await _repository.signInWithGoogle();
+    final result = await _repository.signInWithGoogle(
+      acceptedTerms: acceptedTerms,
+      acceptedPrivacy: acceptedPrivacy,
+      marketingConsent: marketingConsent,
+      profilingConsent: profilingConsent,
+    );
     result.fold(
       (failure) => emit(AuthState.error(failure.props.first.toString())),
       (user) => emit(AuthState.authenticated(user)),
     );
   }
 
-  Future<void> _onAppleSignIn(Emitter<AuthState> emit) async {
+  Future<void> _onAppleSignIn({
+    required bool acceptedTerms,
+    required bool acceptedPrivacy,
+    required bool marketingConsent,
+    required bool profilingConsent,
+    required Emitter<AuthState> emit,
+  }) async {
     emit(const AuthState.loading());
-    final result = await _repository.signInWithApple();
+    final result = await _repository.signInWithApple(
+      acceptedTerms: acceptedTerms,
+      acceptedPrivacy: acceptedPrivacy,
+      marketingConsent: marketingConsent,
+      profilingConsent: profilingConsent,
+    );
     result.fold(
       (failure) => emit(AuthState.error(failure.props.first.toString())),
       (user) => emit(AuthState.authenticated(user)),

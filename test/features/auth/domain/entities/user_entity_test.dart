@@ -18,6 +18,7 @@ void main() {
     test('serializza e deserializza i campi profilo completi', () {
       final birthDate = DateTime(1994, 6, 12);
       final lastLoginDate = DateTime(2026, 4, 26, 10, 30);
+      final consentDate = DateTime(2026, 4, 26, 12);
       final user = UserEntity(
         id: 'u1',
         email: 'mario@example.com',
@@ -31,6 +32,12 @@ void main() {
         trainingObjective: 'Forza',
         lastLoginDate: lastLoginDate,
         lastLoginDevice: 'Pixel',
+        termsAcceptedAt: consentDate,
+        privacyAcceptedAt: consentDate,
+        legalVersion: '2026-04-26',
+        marketingConsent: true,
+        marketingConsentUpdatedAt: consentDate,
+        profilingConsentUpdatedAt: consentDate,
         authProviders: const ['password'],
         loginHistory: [
           LoginEntry(date: lastLoginDate, device: 'Pixel'),
@@ -41,6 +48,12 @@ void main() {
 
       expect(parsed, user);
       expect(parsed.toJson()['birthDate'], birthDate.toIso8601String());
+      expect(
+        parsed.toJson()['termsAcceptedAt'],
+        consentDate.toIso8601String(),
+      );
+      expect(parsed.marketingConsent, isTrue);
+      expect(parsed.profilingConsent, isFalse);
       expect(parsed.loginHistory.single.device, 'Pixel');
     });
 
@@ -55,12 +68,15 @@ void main() {
       final updated = user.copyWith(
         username: 'mario_rossi',
         gender: 'Uomo',
+        marketingConsent: true,
         clearWeight: true,
       );
 
       expect(updated.firstName, 'Mario');
       expect(updated.username, 'mario_rossi');
       expect(updated.gender, 'Uomo');
+      expect(updated.marketingConsent, isTrue);
+      expect(updated.profilingConsent, isFalse);
       expect(updated.weight, isNull);
     });
   });

@@ -1,10 +1,10 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
+import 'package:gym_corpus/features/auth/presentation/widgets/auth_shared_widgets.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -13,63 +13,56 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen>
+    with TickerProviderStateMixin {
   late AnimationController _mainController;
-  late AnimationController _pulseController;
-  late Animation<double> _scaleAnimation;
   late Animation<double> _fadeAnimation;
-  late Animation<double> _blurAnimation;
+  late Animation<double> _scaleAnimation;
 
   @override
   void initState() {
     super.initState();
-    FlutterNativeSplash.remove();
-    
+
     _mainController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 2000),
+      duration: const Duration(milliseconds: 1200),
     );
 
-    _pulseController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 4),
-    )..repeat(reverse: true);
-
-    _scaleAnimation = CurvedAnimation(
-      parent: _mainController,
-      curve: const Interval(0, 0.7, curve: Curves.elasticOut),
+    _fadeAnimation = Tween<double>(begin: 1, end: 1).animate(
+      _mainController,
     );
 
-    _fadeAnimation = CurvedAnimation(
-      parent: _mainController,
-      curve: const Interval(0.2, 0.6, curve: Curves.easeIn),
-    );
-
-    _blurAnimation = Tween<double>(begin: 20, end: 0).animate(
+    _scaleAnimation = Tween<double>(begin: 1, end: 1).animate(
       CurvedAnimation(
         parent: _mainController,
-        curve: const Interval(0, 0.5, curve: Curves.easeOut),
+        curve: Curves.easeOutCubic,
       ),
     );
 
     _mainController.forward();
+
+    // The native splash uses the same static composition, so remove it only
+    // after the Flutter frame is ready to avoid a visible handoff.
+    Future.delayed(
+      const Duration(milliseconds: 100),
+      FlutterNativeSplash.remove,
+    );
   }
 
   @override
   void dispose() {
     _mainController.dispose();
-    _pulseController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final size = MediaQuery.of(context).size;
 
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
-        Future.delayed(const Duration(milliseconds: 3000), () {
+        // Wait at least for the main animation to finish before navigating
+        Future.delayed(const Duration(milliseconds: 1500), () {
           if (!mounted) return;
           state.maybeWhen(
             authenticated: (_) => context.go('/training'),
@@ -80,92 +73,50 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
         });
       },
       child: Scaffold(
-        backgroundColor: const Color(0xFF08082F), // Deep Stitch Navy
+        backgroundColor: theme.scaffoldBackgroundColor,
         body: Stack(
           children: [
-            // Ambient Background Elements
-            _buildAmbientGlow(theme, size),
-            
-            Center(
-              child: AnimatedBuilder(
-                animation: Listenable.merge([_mainController, _pulseController]),
-                builder: (context, child) {
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // Logo Section with Advanced VFX
-                      ScaleTransition(
-                        scale: _scaleAnimation,
-                        child: FadeTransition(
-                          opacity: _fadeAnimation,
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              // Outer Dynamic Aura
-                              _buildLogoAura(theme),
-                              
-                              // Main Logo Container
-                              ImageFiltered(
-                                imageFilter: ImageFilter.blur(
-                                  sigmaX: _blurAnimation.value,
-                                  sigmaY: _blurAnimation.value,
-                                ),
-                                child: Container(
-                                  width: 200,
-                                  height: 200,
-                                  padding: const EdgeInsets.all(20),
-                                  child: Image.asset(
-                                    'assets/images/logo.png',
-                                    fit: BoxFit.contain,
-                                  ),
-                                ),
-                              ),
-                            ],
+            AmbientBackground(theme: theme),
+            FadeTransition(
+              opacity: _fadeAnimation,
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ScaleTransition(
+                      scale: _scaleAnimation,
+                      child: _buildPremiumLogo(theme),
+                    ),
+                    const SizedBox(height: 48),
+                    Text(
+                      'GYMCORPUS',
+                      style: theme.textTheme.headlineMedium?.copyWith(
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 10,
+                        fontSize: 26,
+                        color: Colors.white,
+                        shadows: [
+                          Shadow(
+                            color: theme.colorScheme.primary
+                                .withValues(alpha: 0.5),
+                            blurRadius: 20,
                           ),
-                        ),
+                        ],
                       ),
-                      
-                      const SizedBox(height: 60),
-
-                      // Text & Progress with Premium Typography
-                      FadeTransition(
-                        opacity: _fadeAnimation,
-                        child: Column(
-                          children: [
-                            Text(
-                              'GYMCORPUS',
-                              style: theme.textTheme.headlineMedium?.copyWith(
-                                fontWeight: FontWeight.w900,
-                                letterSpacing: 12,
-                                fontSize: 24,
-                                color: Colors.white,
-                                shadows: [
-                                  Shadow(
-                                    color: theme.colorScheme.primary.withValues(alpha: 0.5),
-                                    blurRadius: 20,
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'ELITE PERFORMANCE TRACKING',
-                              style: theme.textTheme.labelSmall?.copyWith(
-                                letterSpacing: 3,
-                                color: theme.colorScheme.primary.withValues(alpha: 0.6),
-                                fontWeight: FontWeight.w400,
-                              ),
-                            ),
-                            const SizedBox(height: 60),
-                            
-                            // Minimalist Loading Sync
-                            _buildProgressIndicator(theme),
-                          ],
-                        ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'ELITE PERFORMANCE TRACKING',
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        letterSpacing: 3,
+                        color: theme.colorScheme.primary.withValues(alpha: 0.6),
+                        fontWeight: FontWeight.w500,
                       ),
-                    ],
-                  );
-                },
+                    ),
+                    const SizedBox(height: 64),
+                    _buildLoader(theme),
+                  ],
+                ),
               ),
             ),
           ],
@@ -174,104 +125,71 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     );
   }
 
-  Widget _buildAmbientGlow(ThemeData theme, Size size) {
-    return Stack(
-      children: [
-        Positioned(
-          top: -100,
-          right: -100,
-          child: Container(
-            width: 400,
-            height: 400,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: RadialGradient(
-                colors: [
-                  theme.colorScheme.primary.withValues(alpha: 0.1),
-                  Colors.transparent,
-                ],
-              ),
-            ),
-          ),
-        ),
-        Positioned(
-          bottom: -150,
-          left: -100,
-          child: Container(
-            width: 500,
-            height: 500,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: RadialGradient(
-                colors: [
-                  theme.colorScheme.secondary.withValues(alpha: 0.05),
-                  Colors.transparent,
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildLogoAura(ThemeData theme) {
+  Widget _buildPremiumLogo(ThemeData theme) {
     return Container(
-      width: 220,
-      height: 220,
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        gradient: SweepGradient(
-          colors: [
-            theme.colorScheme.primary.withValues(alpha: 0.1),
-            theme.colorScheme.secondary.withValues(alpha: 0.2),
-            theme.colorScheme.primary.withValues(alpha: 0.1),
-          ],
-          transform: GradientRotation(_pulseController.value * 6.28),
+        color: theme.colorScheme.primary.withValues(alpha: 0.05),
+        boxShadow: [
+          BoxShadow(
+            color: theme.colorScheme.primary.withValues(alpha: 0.2),
+            blurRadius: 30,
+            spreadRadius: 5,
+          ),
+        ],
+      ),
+      child: ShaderMask(
+        shaderCallback: (bounds) => LinearGradient(
+          colors: [theme.colorScheme.primary, theme.colorScheme.tertiary],
+        ).createShader(bounds),
+        child: ClipOval(
+          child: Image.asset(
+            'assets/images/logo.png',
+            width: 100,
+            height: 100,
+            color: Colors.white,
+            colorBlendMode: BlendMode.modulate,
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildProgressIndicator(ThemeData theme) {
+  Widget _buildLoader(ThemeData theme) {
     return SizedBox(
-      width: 140,
-      height: 2,
+      width: 160,
+      height: 3,
       child: Stack(
         children: [
           Container(
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.05),
-              borderRadius: BorderRadius.circular(1),
+              borderRadius: BorderRadius.circular(2),
             ),
           ),
-          Positioned.fill(
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: AnimatedBuilder(
-                animation: _mainController,
-                builder: (context, child) {
-                  return Container(
-                    width: 140 * _mainController.value,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          theme.colorScheme.primary,
-                          theme.colorScheme.secondary,
-                        ],
-                      ),
-                      borderRadius: BorderRadius.circular(1),
-                      boxShadow: [
-                        BoxShadow(
-                          color: theme.colorScheme.primary.withValues(alpha: 0.4),
-                          blurRadius: 10,
-                        ),
-                      ],
+          AnimatedBuilder(
+            animation: _mainController,
+            builder: (context, child) {
+              return Container(
+                width: 160 * _mainController.value,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      theme.colorScheme.primary,
+                      theme.colorScheme.tertiary,
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(2),
+                  boxShadow: [
+                    BoxShadow(
+                      color: theme.colorScheme.primary.withValues(alpha: 0.3),
+                      blurRadius: 8,
                     ),
-                  );
-                },
-              ),
-            ),
+                  ],
+                ),
+              );
+            },
           ),
         ],
       ),

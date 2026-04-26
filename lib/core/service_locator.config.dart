@@ -25,6 +25,12 @@ import 'package:gym_corpus/features/auth/domain/repositories/auth_repository.dar
     as _i25;
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart'
     as _i312;
+import 'package:gym_corpus/features/notifications/data/repositories/notifications_repository_impl.dart'
+    as _i1003;
+import 'package:gym_corpus/features/notifications/domain/repositories/notifications_repository.dart'
+    as _i186;
+import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_bloc.dart'
+    as _i939;
 import 'package:gym_corpus/features/training/data/repositories/training_repository_impl.dart'
     as _i871;
 import 'package:gym_corpus/features/training/domain/repositories/training_repository.dart'
@@ -52,10 +58,14 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i974.FirebaseFirestore>(() => databaseModule.firestore);
     gh.lazySingleton<_i949.TrainingRepository>(
         () => _i871.TrainingRepositoryImpl(database: gh<_i158.AppDatabase>()));
+    gh.factory<_i186.NotificationsRepository>(
+        () => _i1003.NotificationsRepositoryImpl(gh<_i158.AppDatabase>()));
     gh.lazySingleton<_i975.AuthLocalDataSource>(
         () => _i975.AuthLocalDataSourceImpl(gh<_i558.FlutterSecureStorage>()));
     gh.lazySingleton<_i701.AuthRemoteDataSource>(
         () => _i701.AuthRemoteDataSourceImpl(gh<_i974.FirebaseFirestore>()));
+    gh.factory<_i939.NotificationsBloc>(() => _i939.NotificationsBloc(
+        repository: gh<_i186.NotificationsRepository>()));
     gh.lazySingleton<_i25.AuthRepository>(() => _i328.AuthRepositoryImpl(
           gh<_i59.FirebaseAuth>(),
           gh<_i975.AuthLocalDataSource>(),

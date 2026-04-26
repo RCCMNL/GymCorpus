@@ -9,8 +9,18 @@ abstract class AuthRepository {
   Future<Either<Failure, void>> logout();
   Future<Either<Failure, UserEntity>> checkSession();
   Future<Either<Failure, void>> resetPassword(String email);
-  Future<Either<Failure, UserEntity>> signInWithGoogle();
-  Future<Either<Failure, UserEntity>> signInWithApple();
+  Future<Either<Failure, UserEntity>> signInWithGoogle({
+    bool acceptedTerms = false,
+    bool acceptedPrivacy = false,
+    bool marketingConsent = false,
+    bool profilingConsent = false,
+  });
+  Future<Either<Failure, UserEntity>> signInWithApple({
+    bool acceptedTerms = false,
+    bool acceptedPrivacy = false,
+    bool marketingConsent = false,
+    bool profilingConsent = false,
+  });
   Future<Either<Failure, UserEntity>> updateProfileImage(String filePath);
   Future<Either<Failure, UserEntity>> updateProfileDetails({
     String? firstName,
@@ -21,6 +31,13 @@ abstract class AuthRepository {
     double? height,
     DateTime? birthDate,
     String? trainingObjective,
+    DateTime? termsAcceptedAt,
+    DateTime? privacyAcceptedAt,
+    String? legalVersion,
+    bool? marketingConsent,
+    bool? profilingConsent,
+    DateTime? marketingConsentUpdatedAt,
+    DateTime? profilingConsentUpdatedAt,
     bool clearWeight = false,
   });
   Future<Either<Failure, void>> changePassword(

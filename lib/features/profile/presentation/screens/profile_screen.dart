@@ -515,11 +515,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               trailingText: 'Prossimamente',
               isBadge: true,
             ),
-            const _ProfileItem(
+            _ProfileItem(
               icon: Icons.notifications,
               label: 'Notifiche',
-              trailingText: 'Prossimamente',
-              isBadge: true,
+              onTap: () => context.push('/profile/notifications'),
             ),
             _ProfileItem(
               icon: Icons.volume_up_rounded,
@@ -572,12 +571,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             _ProfileItem(
               icon: Icons.bug_report_rounded,
               label: 'Segnala un Problema',
-              onTap: () {
-                showDialog<void>(
-                  context: context,
-                  builder: (context) => const FeedbackDialog(),
-                );
-              },
+              onTap: () => showFeedbackSheet(context),
             ),
             _ProfileItem(
               icon: Icons.gavel_rounded,
@@ -1015,12 +1009,50 @@ class _TimerPickerSheetState extends State<_TimerPickerSheet> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'Timer di Recupero',
-                  style: theme.textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Lexend',
-                  ),
+                Row(
+                  children: [
+                    Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            theme.colorScheme.primary.withValues(alpha: 0.15),
+                            theme.colorScheme.tertiary.withValues(alpha: 0.1),
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: theme.colorScheme.primary.withValues(alpha: 0.2),
+                        ),
+                      ),
+                      child: Icon(Icons.timer_rounded, color: theme.colorScheme.primary, size: 22),
+                    ),
+                    const SizedBox(width: 14),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Timer di Recupero',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w800,
+                            fontFamily: 'Lexend',
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'PAUSA TRA LE SERIE',
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            letterSpacing: 1.5,
+                            color: theme.colorScheme.outline,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
                 IconButton(
                   onPressed: () => Navigator.pop(context),
@@ -1042,11 +1074,20 @@ class _TimerPickerSheetState extends State<_TimerPickerSheet> {
             },
           ),
           const SizedBox(height: 32),
-          // Save Button
           Padding(
             padding: EdgeInsets.fromLTRB(48, 0, 48, 24 + bottomPadding),
-            child: SizedBox(
+            child: Container(
               width: double.infinity,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: theme.colorScheme.primary.withValues(alpha: 0.3),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
               child: ElevatedButton(
                 onPressed: () {
                   context.read<TrainingBloc>().add(
@@ -1056,13 +1097,12 @@ class _TimerPickerSheetState extends State<_TimerPickerSheet> {
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: theme.colorScheme.primary,
-                  foregroundColor: theme.colorScheme.onPrimary,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  elevation: 8,
-                  shadowColor: theme.colorScheme.primary.withValues(alpha: 0.4),
+                  elevation: 0,
                 ),
                 child: const Text(
                   'APPLICA MODIFICHE',
@@ -1070,6 +1110,7 @@ class _TimerPickerSheetState extends State<_TimerPickerSheet> {
                     fontWeight: FontWeight.w900,
                     letterSpacing: 1.1,
                     fontSize: 13,
+                    fontFamily: 'Lexend',
                   ),
                 ),
               ),
@@ -1136,12 +1177,51 @@ class _UnitPickerSheetState extends State<_UnitPickerSheet> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'Unità di Misura',
-                  style: theme.textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Lexend',
-                  ),
+                Row(
+                  children: [
+                    Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            theme.colorScheme.primary.withValues(alpha: 0.15),
+                            theme.colorScheme.tertiary.withValues(alpha: 0.1),
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: theme.colorScheme.primary.withValues(alpha: 0.2),
+                        ),
+                      ),
+                      child: Icon(Icons.straighten_rounded, color: theme.colorScheme.primary, size: 22),
+                    ),
+                    const SizedBox(width: 14),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Unità di Misura',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w800,
+                            fontFamily: 'Lexend',
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'SISTEMA METRICO O IMPERIALE',
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            letterSpacing: 1.2,
+                            color: theme.colorScheme.outline,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 9,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
                 IconButton(
                   onPressed: () => Navigator.pop(context),
@@ -1154,7 +1234,7 @@ class _UnitPickerSheetState extends State<_UnitPickerSheet> {
               ],
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 28),
 
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -1164,6 +1244,7 @@ class _UnitPickerSheetState extends State<_UnitPickerSheet> {
                   child: _UnitCard(
                     title: 'Metrico',
                     subtitle: 'Kg / cm',
+                    icon: Icons.speed_rounded,
                     isSelected: _selectedUnit == 'KG',
                     onTap: () => setState(() => _selectedUnit = 'KG'),
                     theme: theme,
@@ -1174,6 +1255,7 @@ class _UnitPickerSheetState extends State<_UnitPickerSheet> {
                   child: _UnitCard(
                     title: 'Imperiale',
                     subtitle: 'Lb / inch',
+                    icon: Icons.square_foot_rounded,
                     isSelected: _selectedUnit == 'LB',
                     onTap: () => setState(() => _selectedUnit = 'LB'),
                     theme: theme,
@@ -1184,11 +1266,20 @@ class _UnitPickerSheetState extends State<_UnitPickerSheet> {
           ),
 
           const SizedBox(height: 32),
-          // Save Button
           Padding(
             padding: EdgeInsets.fromLTRB(48, 0, 48, 24 + bottomPadding),
-            child: SizedBox(
+            child: Container(
               width: double.infinity,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: theme.colorScheme.primary.withValues(alpha: 0.3),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
               child: ElevatedButton(
                 onPressed: () {
                   context
@@ -1199,7 +1290,7 @@ class _UnitPickerSheetState extends State<_UnitPickerSheet> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: theme.colorScheme.primary,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -1211,6 +1302,7 @@ class _UnitPickerSheetState extends State<_UnitPickerSheet> {
                     fontWeight: FontWeight.w900,
                     letterSpacing: 1.1,
                     fontSize: 13,
+                    fontFamily: 'Lexend',
                   ),
                 ),
               ),
@@ -1226,6 +1318,7 @@ class _UnitCard extends StatelessWidget {
   const _UnitCard({
     required this.title,
     required this.subtitle,
+    required this.icon,
     required this.isSelected,
     required this.onTap,
     required this.theme,
@@ -1233,6 +1326,7 @@ class _UnitCard extends StatelessWidget {
 
   final String title;
   final String subtitle;
+  final IconData icon;
   final bool isSelected;
   final VoidCallback onTap;
   final ThemeData theme;
@@ -1241,11 +1335,13 @@ class _UnitCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOutCubic,
         padding: const EdgeInsets.symmetric(vertical: 24),
         decoration: BoxDecoration(
           color: isSelected
-              ? theme.colorScheme.primaryContainer
+              ? theme.colorScheme.primary.withValues(alpha: 0.12)
               : theme.colorScheme.surfaceContainerHigh,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
@@ -1254,24 +1350,43 @@ class _UnitCard extends StatelessWidget {
                 : theme.colorScheme.outline.withValues(alpha: 0.1),
             width: isSelected ? 2 : 1,
           ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: theme.colorScheme.primary.withValues(alpha: 0.15),
+                    blurRadius: 16,
+                    offset: const Offset(0, 6),
+                  ),
+                ]
+              : null,
         ),
         child: Column(
           children: [
-            Icon(
-              isSelected
-                  ? Icons.radio_button_checked
-                  : Icons.radio_button_unchecked,
-              color: isSelected
-                  ? theme.colorScheme.primary
-                  : theme.colorScheme.outline,
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? theme.colorScheme.primary.withValues(alpha: 0.15)
+                    : theme.colorScheme.outline.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                icon,
+                color: isSelected
+                    ? theme.colorScheme.primary
+                    : theme.colorScheme.outline,
+                size: 22,
+              ),
             ),
             const SizedBox(height: 12),
             Text(
               title,
               style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w800,
+                fontFamily: 'Lexend',
                 color: isSelected
-                    ? theme.colorScheme.onPrimaryContainer
+                    ? theme.colorScheme.primary
                     : theme.colorScheme.onSurface,
               ),
             ),
@@ -1280,9 +1395,9 @@ class _UnitCard extends StatelessWidget {
               subtitle,
               style: theme.textTheme.labelMedium?.copyWith(
                 color: isSelected
-                    ? theme.colorScheme.onPrimaryContainer
-                        .withValues(alpha: 0.7)
+                    ? theme.colorScheme.primary.withValues(alpha: 0.7)
                     : theme.colorScheme.outline,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ],
