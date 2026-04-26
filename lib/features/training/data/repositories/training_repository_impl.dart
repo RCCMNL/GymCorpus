@@ -32,6 +32,7 @@ class TrainingRepositoryImpl implements TrainingRepository {
               preparation: e.preparation,
               execution: e.execution,
               tips: e.tips,
+              userNotes: e.userNotes,
               isVector: e.isVector,
               isFavorite: e.isFavorite,
             ),
@@ -47,6 +48,16 @@ class TrainingRepositoryImpl implements TrainingRepository {
   }) async {
     try {
       await database.toggleExerciseFavorite(id, isFavorite: isFavorite);
+      return const Right(null);
+    } catch (e) {
+      return Left(DatabaseFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> updateExerciseNotes(int id, String notes) async {
+    try {
+      await database.updateExerciseNotes(id, notes);
       return const Right(null);
     } catch (e) {
       return Left(DatabaseFailure(e.toString()));
@@ -97,6 +108,7 @@ class TrainingRepositoryImpl implements TrainingRepository {
               preparation: exData.preparation,
               execution: exData.execution,
               tips: exData.tips,
+              userNotes: exData.userNotes,
               isVector: exData.isVector,
               isFavorite: exData.isFavorite,
             ),

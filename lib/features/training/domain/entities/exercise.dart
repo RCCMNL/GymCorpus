@@ -12,6 +12,7 @@ class ExerciseEntity extends Equatable {
     this.preparation,
     this.execution,
     this.tips,
+    this.userNotes,
     this.isVector = false,
     this.isFavorite = false,
   });
@@ -26,6 +27,7 @@ class ExerciseEntity extends Equatable {
   final String? preparation;
   final String? execution;
   final String? tips;
+  final String? userNotes;
   final bool isVector;
   final bool isFavorite;
 
@@ -41,6 +43,7 @@ class ExerciseEntity extends Equatable {
         preparation,
         execution,
         tips,
+        userNotes,
         isVector,
         isFavorite,
       ];

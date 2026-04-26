@@ -1,10 +1,13 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/services/notification_service.dart';
+import 'package:gym_corpus/core/utils/unit_converter.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
+import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
@@ -248,6 +251,10 @@ class _TrainingScreenState extends State<TrainingScreen>
       final isResting = _phase == _Phase.resting;
       final accentColor = isResting ? const Color(0xFFFFA07A) : theme.colorScheme.primary;
 
+      final unitStr = state is TrainingLoaded ? (state.settings['units'] ?? 'KG') : 'KG';
+      final isImperial = unitStr == 'LB';
+      final weightUnit = isImperial ? WeightUnit.lb : WeightUnit.kg;
+
       return Scaffold(
         backgroundColor: theme.colorScheme.surface,
         appBar: const GymHeader(),
@@ -270,7 +277,7 @@ class _TrainingScreenState extends State<TrainingScreen>
                           // ── EXERCISE CARD ──
                           Expanded(
                             flex: 5,
-                            child: _buildExerciseCard(theme, accentColor, ex, isResting),
+                            child: _buildExerciseCard(theme, accentColor, ex, isResting, weightUnit),
                           ),
                           const SizedBox(height: 12),
 
@@ -294,7 +301,7 @@ class _TrainingScreenState extends State<TrainingScreen>
                           const SizedBox(height: 12),
 
                           // ── NEXT UP ──
-                          _buildNextUp(theme, accentColor),
+                          _buildNextUp(theme, accentColor, weightUnit),
                           const SizedBox(height: 8),
                         ],
                       ),
@@ -446,75 +453,201 @@ class _TrainingScreenState extends State<TrainingScreen>
     );
   }
 
-  Widget _buildExerciseCard(ThemeData theme, Color accentColor, RoutineExerciseEntity ex, bool isResting) {
+  Widget _buildExerciseCard(ThemeData theme, Color accentColor, RoutineExerciseEntity ex, bool isResting, WeightUnit unit) {
+    // Get specs for current set
+    final currentSpecs = _getSetSpecs(ex, _setIdx);
+    
     return Container(
-      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(28),
         border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.08)),
       ),
-      child: Column(children: [
-        Row(children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(20),
+      clipBehavior: Clip.antiAlias,
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: ex.exercise.imageUrl != null
+                ? Image.network(
+                    ex.exercise.imageUrl!,
+                    fit: BoxFit.cover,
+                    alignment: Alignment.topCenter,
+                    errorBuilder: (context, error, stackTrace) =>
+                        Image.asset('assets/images/placeholder-image.png', fit: BoxFit.cover),
+                  )
+                : Image.asset('assets/images/placeholder-image.png', fit: BoxFit.cover),
+          ),
+          Positioned.fill(
             child: Container(
-              width: 72,
-              height: 72,
-              color: accentColor.withValues(alpha: 0.1),
-              child: ex.exercise.imageUrl != null
-                  ? Image.network(
-                      ex.exercise.imageUrl!,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) =>
-                          Image.asset(
-                        'assets/images/placeholder-image.png',
-                        fit: BoxFit.cover,
-                      ),
-                    )
-                  : Image.asset(
-                      'assets/images/placeholder-image.png',
-                      fit: BoxFit.cover,
-                    ),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    theme.colorScheme.surface.withValues(alpha: 0.4),
+                    theme.colorScheme.surface.withValues(alpha: 0.8),
+                    theme.colorScheme.surface,
+                  ],
+                  stops: const [0.0, 0.5, 0.9],
+                ),
+              ),
             ),
           ),
-          const SizedBox(width: 16),
-          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('ESERCIZIO CORRENTE', style: theme.textTheme.labelSmall?.copyWith(letterSpacing: 1.5, color: theme.colorScheme.outline, fontSize: 8, fontWeight: FontWeight.w900)),
-            const SizedBox(height: 6),
-            Text(ex.exercise.name, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900, fontFamily: 'Lexend', height: 1.1, fontSize: 18)),
-          ])),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            decoration: BoxDecoration(color: theme.colorScheme.tertiary.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(20)),
-            child: Column(children: [
-              Text('SET', style: TextStyle(color: theme.colorScheme.tertiary, fontSize: 9, fontWeight: FontWeight.w900, fontFamily: 'Lexend')),
-              Text((_setIdx + 1).toString() + '/' + _totalSets.toString(), style: TextStyle(color: theme.colorScheme.tertiary, fontSize: 22, fontWeight: FontWeight.w900, fontFamily: 'Lexend')),
-            ]),
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.surface.withValues(alpha: 0.5),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              'ESERCIZIO CORRENTE',
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                letterSpacing: 1.5,
+                                color: theme.colorScheme.onSurface,
+                                fontSize: 8,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            ex.exercise.name,
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w900,
+                              fontFamily: 'Lexend',
+                              height: 1.1,
+                              fontSize: 22,
+                              color: Colors.white,
+                              shadows: [Shadow(color: Colors.black.withValues(alpha: 0.5), blurRadius: 4)],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          onPressed: () => _showNotesDialog(context, ex.exercise, theme),
+                          icon: const Icon(Icons.info_outline, color: Colors.white),
+                          style: IconButton.styleFrom(
+                            backgroundColor: theme.colorScheme.surface.withValues(alpha: 0.3),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.tertiary.withValues(alpha: 0.8),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Column(
+                            children: [
+                              Text('SET', style: TextStyle(color: theme.colorScheme.onTertiary, fontSize: 9, fontWeight: FontWeight.w900, fontFamily: 'Lexend')),
+                              Text((_setIdx + 1).toString() + '/' + _totalSets.toString(), style: TextStyle(color: theme.colorScheme.onTertiary, fontSize: 20, fontWeight: FontWeight.w900, fontFamily: 'Lexend')),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                const Spacer(),
+                Row(
+                  children: [
+                    Expanded(child: _GlassChip(label: 'RIPETIZIONI', value: currentSpecs.reps.toString(), color: theme.colorScheme.primary, theme: theme)),
+                    const SizedBox(width: 12),
+                    Expanded(child: _GlassChip(label: 'PESO', value: UnitConverter.formatWeight(currentSpecs.weight, unit), color: theme.colorScheme.secondary, theme: theme)),
+                  ],
+                ),
+              ],
+            ),
           ),
-        ]),
-        const Spacer(),
-        // Chips row
-        Row(children: [
-          Expanded(child: _GlassChip(label: 'RIPETIZIONI', value: ex.reps.toString(), color: theme.colorScheme.primary, theme: theme)),
-          const SizedBox(width: 12),
-          Expanded(child: _GlassChip(label: 'PESO', value: ex.weight.toStringAsFixed(1) + ' kg', color: theme.colorScheme.secondary, theme: theme)),
-        ]),
-      ]),
+        ],
+      ),
     );
   }
 
-  Widget _buildNextUp(ThemeData theme, Color accent) {
+  void _showNotesDialog(BuildContext context, ExerciseEntity exercise, ThemeData theme) {
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          backgroundColor: theme.colorScheme.surfaceContainerHigh,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          title: Row(
+            children: [
+              Icon(Icons.notes, color: theme.colorScheme.primary),
+              const SizedBox(width: 8),
+              const Text('Le tue note', style: TextStyle(fontFamily: 'Lexend', fontWeight: FontWeight.w900, fontSize: 18)),
+            ],
+          ),
+          content: Text(
+            (exercise.userNotes != null && exercise.userNotes!.trim().isNotEmpty)
+                ? exercise.userNotes!
+                : "Nessuna nota presente per questo esercizio.\n\nPuoi aggiungere appunti dalla schermata dei dettagli dell'esercizio.",
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: (exercise.userNotes != null && exercise.userNotes!.trim().isNotEmpty)
+                  ? theme.colorScheme.onSurface
+                  : theme.colorScheme.outline,
+              fontStyle: (exercise.userNotes != null && exercise.userNotes!.trim().isNotEmpty)
+                  ? FontStyle.normal
+                  : FontStyle.italic,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text('CHIUDI', style: TextStyle(color: theme.colorScheme.primary, fontWeight: FontWeight.w900)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  ({double weight, int reps}) _getSetSpecs(RoutineExerciseEntity re, int setIdx) {
+    if (re.setsData != null) {
+      try {
+        final list = jsonDecode(re.setsData!) as List<dynamic>;
+        if (setIdx < list.length) {
+          final s = list[setIdx] as Map<String, dynamic>;
+          return (
+            weight: (s['weight'] as num).toDouble(),
+            reps: s['reps'] as int,
+          );
+        }
+      } catch (_) {}
+    }
+    return (weight: re.weight, reps: re.reps);
+  }
+
+  Widget _buildNextUp(ThemeData theme, Color accent, WeightUnit unit) {
     String nextName; String nextInfo; IconData nextIcon;
     if (!_isLastSet) {
       nextName = _curEx!.exercise.name;
       final ns = _setIdx + 2;
-      nextInfo = 'Serie ' + ns.toString() + ' di ' + _totalSets.toString();
+      final nextSpecs = _getSetSpecs(_curEx!, _setIdx + 1);
+      nextInfo = 'Prossima: ${nextSpecs.reps} x ${UnitConverter.formatWeight(nextSpecs.weight, unit)} (Serie $ns di $_totalSets)';
       nextIcon = Icons.replay_rounded;
     } else if (!_isLastEx) {
       final ne = _exercises[_exIdx + 1];
       nextName = ne.exercise.name;
-      nextInfo = ne.sets.toString() + ' x ' + ne.reps.toString() + ' @ ' + ne.weight.toStringAsFixed(1) + ' kg';
+      final firstSpecs = _getSetSpecs(ne, 0);
+      nextInfo = 'Inizio: ${firstSpecs.reps} x ${UnitConverter.formatWeight(firstSpecs.weight, unit)} (${ne.sets} serie totali)';
       nextIcon = Icons.arrow_forward_rounded;
     } else {
       nextName = 'Ultimo esercizio!';

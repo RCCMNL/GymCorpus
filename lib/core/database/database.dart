@@ -22,6 +22,7 @@ class Exercises extends Table {
   TextColumn get preparation => text().nullable()();
   TextColumn get execution => text().nullable()();
   TextColumn get tips => text().nullable()();
+  TextColumn get userNotes => text().nullable()();
   BoolColumn get isVector => boolean().withDefault(const Constant(false))();
   BoolColumn get isFavorite => boolean().withDefault(const Constant(false))();
 }
@@ -91,7 +92,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 11;
+  int get schemaVersion => 12;
 
   @override
   MigrationStrategy get migration {
@@ -150,6 +151,7 @@ class AppDatabase extends _$AppDatabase {
     await _ensureColumn(m, exercises, exercises.preparation, 'preparation');
     await _ensureColumn(m, exercises, exercises.execution, 'execution');
     await _ensureColumn(m, exercises, exercises.tips, 'tips');
+    await _ensureColumn(m, exercises, exercises.userNotes, 'user_notes');
     await _ensureColumn(m, exercises, exercises.isVector, 'is_vector');
     await _ensureColumn(m, exercises, exercises.isFavorite, 'is_favorite');
 
@@ -285,10 +287,14 @@ class AppDatabase extends _$AppDatabase {
   Future<void> updateSetting(String key, String value) => 
     (update(appSettings)..where((t) => t.key.equals(key))).write(AppSettingsCompanion(value: Value(value)));
 
-  // Favorites
+  // Favorites & Notes
   Future<void> toggleExerciseFavorite(int id, {required bool isFavorite}) =>
       (update(exercises)..where((e) => e.id.equals(id)))
           .write(ExercisesCompanion(isFavorite: Value(isFavorite)));
+
+  Future<void> updateExerciseNotes(int id, String notes) =>
+      (update(exercises)..where((e) => e.id.equals(id)))
+          .write(ExercisesCompanion(userNotes: Value(notes)));
 
   // Cardio Sessions
   Stream<List<CardioSession>> watchAllCardioSessions() => 

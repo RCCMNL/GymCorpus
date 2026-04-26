@@ -351,6 +351,17 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
       );
     });
 
+    on<UpdateExerciseNotesEvent>((event, emit) async {
+      final result = await repository.updateExerciseNotes(
+        event.exerciseId,
+        event.notes,
+      );
+      result.fold(
+        (f) => emit(TrainingError(f.message)),
+        (_) => null,
+      );
+    });
+
     on<StreamErrorEvent>((event, emit) {
       emit(TrainingError(event.message));
     });

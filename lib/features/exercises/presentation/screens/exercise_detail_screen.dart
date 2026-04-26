@@ -258,6 +258,11 @@ class ExerciseDetailScreen extends StatelessWidget {
                         "Evita di tirare il collo con le mani. Concentrati sul movimento guidato dalla contrazione dell'addome.",
                   ),
 
+                  const SizedBox(height: 40),
+
+                  // User Notes
+                  _UserNotesCard(exercise: exercise),
+
                   const SizedBox(height: 140),
                 ],
               ),
@@ -556,6 +561,166 @@ class _ExpertTipsCard extends StatelessWidget {
                   ),
                 ],
               ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _UserNotesCard extends StatefulWidget {
+  const _UserNotesCard({required this.exercise});
+
+  final ExerciseEntity exercise;
+
+  @override
+  State<_UserNotesCard> createState() => _UserNotesCardState();
+}
+
+class _UserNotesCardState extends State<_UserNotesCard> {
+  late TextEditingController _controller;
+  bool _isEditing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.exercise.userNotes);
+  }
+
+  @override
+  void didUpdateWidget(covariant _UserNotesCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.exercise.userNotes != widget.exercise.userNotes && !_isEditing) {
+      _controller.text = widget.exercise.userNotes ?? '';
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _saveNotes() {
+    context.read<TrainingBloc>().add(
+      UpdateExerciseNotesEvent(
+        widget.exercise.id,
+        notes: _controller.text,
+      ),
+    );
+    setState(() {
+      _isEditing = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.tertiary.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: theme.colorScheme.tertiary.withValues(alpha: 0.2),
+        ),
+      ),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Positioned(
+            top: -40,
+            left: 0,
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 6,
+              ),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.tertiary,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: const Text(
+                'LE TUE NOTE',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1.2,
+                ),
+              ),
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Appunti Esercizio',
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      _isEditing ? Icons.check : Icons.edit,
+                      color: theme.colorScheme.tertiary,
+                      size: 20,
+                    ),
+                    onPressed: () {
+                      if (_isEditing) {
+                        _saveNotes();
+                      } else {
+                        setState(() {
+                          _isEditing = true;
+                        });
+                      }
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              if (_isEditing)
+                TextField(
+                  controller: _controller,
+                  maxLines: 4,
+                  minLines: 2,
+                  style: theme.textTheme.bodySmall,
+                  decoration: InputDecoration(
+                    hintText: 'Scrivi qui le tue note...',
+                    hintStyle: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.outline.withValues(alpha: 0.5),
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: theme.colorScheme.tertiary.withValues(alpha: 0.5),
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: theme.colorScheme.tertiary,
+                      ),
+                    ),
+                    contentPadding: const EdgeInsets.all(12),
+                  ),
+                )
+              else
+                Text(
+                  (_controller.text.isEmpty)
+                      ? 'Nessuna nota presente. Tocca la matita per aggiungerne una.'
+                      : _controller.text,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: _controller.text.isEmpty
+                        ? theme.colorScheme.outline.withValues(alpha: 0.7)
+                        : theme.colorScheme.onSurface,
+                    fontStyle: _controller.text.isEmpty ? FontStyle.italic : FontStyle.normal,
+                  ),
+                ),
             ],
           ),
         ],

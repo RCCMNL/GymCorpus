@@ -199,6 +199,16 @@ class ToggleExerciseFavoriteEvent extends TrainingEvent {
   List<Object?> get props => [exerciseId, isFavorite];
 }
 
+class UpdateExerciseNotesEvent extends TrainingEvent {
+  const UpdateExerciseNotesEvent(this.exerciseId, {required this.notes});
+
+  final int exerciseId;
+  final String notes;
+
+  @override
+  List<Object?> get props => [exerciseId, notes];
+}
+
 // Update events (Internal, but public for visibility)
 class UpdateExercisesList extends TrainingEvent {
   const UpdateExercisesList(this.exercises);

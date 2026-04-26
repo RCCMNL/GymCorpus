@@ -13,6 +13,8 @@ abstract class TrainingRepository {
     required bool isFavorite,
   });
 
+  Future<Either<Failure, void>> updateExerciseNotes(int id, String notes);
+
   // Routines CRUD
   Stream<List<RoutineEntity>> watchRoutines();
   Future<Either<Failure, int>> addRoutine(

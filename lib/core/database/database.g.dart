@@ -598,6 +598,12 @@ class $ExercisesTable extends Exercises
   late final GeneratedColumn<String> tips = GeneratedColumn<String>(
       'tips', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _userNotesMeta =
+      const VerificationMeta('userNotes');
+  @override
+  late final GeneratedColumn<String> userNotes = GeneratedColumn<String>(
+      'user_notes', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _isVectorMeta =
       const VerificationMeta('isVector');
   @override
@@ -630,6 +636,7 @@ class $ExercisesTable extends Exercises
         preparation,
         execution,
         tips,
+        userNotes,
         isVector,
         isFavorite
       ];
@@ -692,6 +699,10 @@ class $ExercisesTable extends Exercises
       context.handle(
           _tipsMeta, tips.isAcceptableOrUnknown(data['tips']!, _tipsMeta));
     }
+    if (data.containsKey('user_notes')) {
+      context.handle(_userNotesMeta,
+          userNotes.isAcceptableOrUnknown(data['user_notes']!, _userNotesMeta));
+    }
     if (data.containsKey('is_vector')) {
       context.handle(_isVectorMeta,
           isVector.isAcceptableOrUnknown(data['is_vector']!, _isVectorMeta));
@@ -731,6 +742,8 @@ class $ExercisesTable extends Exercises
           .read(DriftSqlType.string, data['${effectivePrefix}execution']),
       tips: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}tips']),
+      userNotes: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}user_notes']),
       isVector: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_vector'])!,
       isFavorite: attachedDatabase.typeMapping
@@ -755,6 +768,7 @@ class Exercise extends DataClass implements Insertable<Exercise> {
   final String? preparation;
   final String? execution;
   final String? tips;
+  final String? userNotes;
   final bool isVector;
   final bool isFavorite;
   const Exercise(
@@ -768,6 +782,7 @@ class Exercise extends DataClass implements Insertable<Exercise> {
       this.preparation,
       this.execution,
       this.tips,
+      this.userNotes,
       required this.isVector,
       required this.isFavorite});
   @override
@@ -796,6 +811,9 @@ class Exercise extends DataClass implements Insertable<Exercise> {
     }
     if (!nullToAbsent || tips != null) {
       map['tips'] = Variable<String>(tips);
+    }
+    if (!nullToAbsent || userNotes != null) {
+      map['user_notes'] = Variable<String>(userNotes);
     }
     map['is_vector'] = Variable<bool>(isVector);
     map['is_favorite'] = Variable<bool>(isFavorite);
@@ -826,6 +844,9 @@ class Exercise extends DataClass implements Insertable<Exercise> {
           ? const Value.absent()
           : Value(execution),
       tips: tips == null && nullToAbsent ? const Value.absent() : Value(tips),
+      userNotes: userNotes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(userNotes),
       isVector: Value(isVector),
       isFavorite: Value(isFavorite),
     );
@@ -846,6 +867,7 @@ class Exercise extends DataClass implements Insertable<Exercise> {
       preparation: serializer.fromJson<String?>(json['preparation']),
       execution: serializer.fromJson<String?>(json['execution']),
       tips: serializer.fromJson<String?>(json['tips']),
+      userNotes: serializer.fromJson<String?>(json['userNotes']),
       isVector: serializer.fromJson<bool>(json['isVector']),
       isFavorite: serializer.fromJson<bool>(json['isFavorite']),
     );
@@ -864,6 +886,7 @@ class Exercise extends DataClass implements Insertable<Exercise> {
       'preparation': serializer.toJson<String?>(preparation),
       'execution': serializer.toJson<String?>(execution),
       'tips': serializer.toJson<String?>(tips),
+      'userNotes': serializer.toJson<String?>(userNotes),
       'isVector': serializer.toJson<bool>(isVector),
       'isFavorite': serializer.toJson<bool>(isFavorite),
     };
@@ -880,6 +903,7 @@ class Exercise extends DataClass implements Insertable<Exercise> {
           Value<String?> preparation = const Value.absent(),
           Value<String?> execution = const Value.absent(),
           Value<String?> tips = const Value.absent(),
+          Value<String?> userNotes = const Value.absent(),
           bool? isVector,
           bool? isFavorite}) =>
       Exercise(
@@ -895,6 +919,7 @@ class Exercise extends DataClass implements Insertable<Exercise> {
         preparation: preparation.present ? preparation.value : this.preparation,
         execution: execution.present ? execution.value : this.execution,
         tips: tips.present ? tips.value : this.tips,
+        userNotes: userNotes.present ? userNotes.value : this.userNotes,
         isVector: isVector ?? this.isVector,
         isFavorite: isFavorite ?? this.isFavorite,
       );
@@ -915,6 +940,7 @@ class Exercise extends DataClass implements Insertable<Exercise> {
           data.preparation.present ? data.preparation.value : this.preparation,
       execution: data.execution.present ? data.execution.value : this.execution,
       tips: data.tips.present ? data.tips.value : this.tips,
+      userNotes: data.userNotes.present ? data.userNotes.value : this.userNotes,
       isVector: data.isVector.present ? data.isVector.value : this.isVector,
       isFavorite:
           data.isFavorite.present ? data.isFavorite.value : this.isFavorite,
@@ -934,6 +960,7 @@ class Exercise extends DataClass implements Insertable<Exercise> {
           ..write('preparation: $preparation, ')
           ..write('execution: $execution, ')
           ..write('tips: $tips, ')
+          ..write('userNotes: $userNotes, ')
           ..write('isVector: $isVector, ')
           ..write('isFavorite: $isFavorite')
           ..write(')'))
@@ -952,6 +979,7 @@ class Exercise extends DataClass implements Insertable<Exercise> {
       preparation,
       execution,
       tips,
+      userNotes,
       isVector,
       isFavorite);
   @override
@@ -968,6 +996,7 @@ class Exercise extends DataClass implements Insertable<Exercise> {
           other.preparation == this.preparation &&
           other.execution == this.execution &&
           other.tips == this.tips &&
+          other.userNotes == this.userNotes &&
           other.isVector == this.isVector &&
           other.isFavorite == this.isFavorite);
 }
@@ -983,6 +1012,7 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
   final Value<String?> preparation;
   final Value<String?> execution;
   final Value<String?> tips;
+  final Value<String?> userNotes;
   final Value<bool> isVector;
   final Value<bool> isFavorite;
   const ExercisesCompanion({
@@ -996,6 +1026,7 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
     this.preparation = const Value.absent(),
     this.execution = const Value.absent(),
     this.tips = const Value.absent(),
+    this.userNotes = const Value.absent(),
     this.isVector = const Value.absent(),
     this.isFavorite = const Value.absent(),
   });
@@ -1010,6 +1041,7 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
     this.preparation = const Value.absent(),
     this.execution = const Value.absent(),
     this.tips = const Value.absent(),
+    this.userNotes = const Value.absent(),
     this.isVector = const Value.absent(),
     this.isFavorite = const Value.absent(),
   })  : name = Value(name),
@@ -1025,6 +1057,7 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
     Expression<String>? preparation,
     Expression<String>? execution,
     Expression<String>? tips,
+    Expression<String>? userNotes,
     Expression<bool>? isVector,
     Expression<bool>? isFavorite,
   }) {
@@ -1039,6 +1072,7 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
       if (preparation != null) 'preparation': preparation,
       if (execution != null) 'execution': execution,
       if (tips != null) 'tips': tips,
+      if (userNotes != null) 'user_notes': userNotes,
       if (isVector != null) 'is_vector': isVector,
       if (isFavorite != null) 'is_favorite': isFavorite,
     });
@@ -1055,6 +1089,7 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
       Value<String?>? preparation,
       Value<String?>? execution,
       Value<String?>? tips,
+      Value<String?>? userNotes,
       Value<bool>? isVector,
       Value<bool>? isFavorite}) {
     return ExercisesCompanion(
@@ -1068,6 +1103,7 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
       preparation: preparation ?? this.preparation,
       execution: execution ?? this.execution,
       tips: tips ?? this.tips,
+      userNotes: userNotes ?? this.userNotes,
       isVector: isVector ?? this.isVector,
       isFavorite: isFavorite ?? this.isFavorite,
     );
@@ -1106,6 +1142,9 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
     if (tips.present) {
       map['tips'] = Variable<String>(tips.value);
     }
+    if (userNotes.present) {
+      map['user_notes'] = Variable<String>(userNotes.value);
+    }
     if (isVector.present) {
       map['is_vector'] = Variable<bool>(isVector.value);
     }
@@ -1128,6 +1167,7 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
           ..write('preparation: $preparation, ')
           ..write('execution: $execution, ')
           ..write('tips: $tips, ')
+          ..write('userNotes: $userNotes, ')
           ..write('isVector: $isVector, ')
           ..write('isFavorite: $isFavorite')
           ..write(')'))
@@ -3704,6 +3744,7 @@ typedef $$ExercisesTableCreateCompanionBuilder = ExercisesCompanion Function({
   Value<String?> preparation,
   Value<String?> execution,
   Value<String?> tips,
+  Value<String?> userNotes,
   Value<bool> isVector,
   Value<bool> isFavorite,
 });
@@ -3718,6 +3759,7 @@ typedef $$ExercisesTableUpdateCompanionBuilder = ExercisesCompanion Function({
   Value<String?> preparation,
   Value<String?> execution,
   Value<String?> tips,
+  Value<String?> userNotes,
   Value<bool> isVector,
   Value<bool> isFavorite,
 });
@@ -3798,6 +3840,9 @@ class $$ExercisesTableFilterComposer
 
   ColumnFilters<String> get tips => $composableBuilder(
       column: $table.tips, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get userNotes => $composableBuilder(
+      column: $table.userNotes, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<bool> get isVector => $composableBuilder(
       column: $table.isVector, builder: (column) => ColumnFilters(column));
@@ -3889,6 +3934,9 @@ class $$ExercisesTableOrderingComposer
   ColumnOrderings<String> get tips => $composableBuilder(
       column: $table.tips, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get userNotes => $composableBuilder(
+      column: $table.userNotes, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<bool> get isVector => $composableBuilder(
       column: $table.isVector, builder: (column) => ColumnOrderings(column));
 
@@ -3934,6 +3982,9 @@ class $$ExercisesTableAnnotationComposer
 
   GeneratedColumn<String> get tips =>
       $composableBuilder(column: $table.tips, builder: (column) => column);
+
+  GeneratedColumn<String> get userNotes =>
+      $composableBuilder(column: $table.userNotes, builder: (column) => column);
 
   GeneratedColumn<bool> get isVector =>
       $composableBuilder(column: $table.isVector, builder: (column) => column);
@@ -4017,6 +4068,7 @@ class $$ExercisesTableTableManager extends RootTableManager<
             Value<String?> preparation = const Value.absent(),
             Value<String?> execution = const Value.absent(),
             Value<String?> tips = const Value.absent(),
+            Value<String?> userNotes = const Value.absent(),
             Value<bool> isVector = const Value.absent(),
             Value<bool> isFavorite = const Value.absent(),
           }) =>
@@ -4031,6 +4083,7 @@ class $$ExercisesTableTableManager extends RootTableManager<
             preparation: preparation,
             execution: execution,
             tips: tips,
+            userNotes: userNotes,
             isVector: isVector,
             isFavorite: isFavorite,
           ),
@@ -4045,6 +4098,7 @@ class $$ExercisesTableTableManager extends RootTableManager<
             Value<String?> preparation = const Value.absent(),
             Value<String?> execution = const Value.absent(),
             Value<String?> tips = const Value.absent(),
+            Value<String?> userNotes = const Value.absent(),
             Value<bool> isVector = const Value.absent(),
             Value<bool> isFavorite = const Value.absent(),
           }) =>
@@ -4059,6 +4113,7 @@ class $$ExercisesTableTableManager extends RootTableManager<
             preparation: preparation,
             execution: execution,
             tips: tips,
+            userNotes: userNotes,
             isVector: isVector,
             isFavorite: isFavorite,
           ),
