@@ -430,4 +430,21 @@ class AppDatabase extends _$AppDatabase {
       (delete(notificationLogs)..where((t) => t.id.equals(id))).go();
 
   Future<void> deleteAllNotificationLogs() => delete(notificationLogs).go();
+
+  Future<void> clearLocalUserData() => transaction(() async {
+        await delete(notificationLogs).go();
+        await delete(cardioSessions).go();
+        await delete(bodyMeasurements).go();
+        await delete(weightLogs).go();
+        await delete(workoutSets).go();
+        await delete(workouts).go();
+        await delete(routineExercises).go();
+        await delete(routines).go();
+        await update(exercises).write(
+          const ExercisesCompanion(
+            userNotes: Value<String?>(null),
+            isFavorite: Value(false),
+          ),
+        );
+      });
 }

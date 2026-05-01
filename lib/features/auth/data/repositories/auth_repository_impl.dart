@@ -5,7 +5,9 @@ import 'package:dartz/dartz.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'package:get_it/get_it.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:gym_corpus/core/database/database.dart';
 import 'package:gym_corpus/core/error/failures.dart';
 import 'package:gym_corpus/features/auth/data/datasources/auth_local_data_source.dart';
 import 'package:gym_corpus/features/auth/data/datasources/auth_remote_data_source.dart';
@@ -22,6 +24,8 @@ class AuthFailure extends Failure {
 }
 
 const _googleServerClientId = String.fromEnvironment('GOOGLE_SERVER_CLIENT_ID');
+const _defaultGoogleServerClientId =
+    '996703301991-gap14vk81ourfhvkaftpnf8ntvc0g68c.apps.googleusercontent.com';
 const _currentLegalVersion = '2026-04-26';
 
 @LazySingleton(as: AuthRepository)
@@ -40,6 +44,31 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Stream<UserEntity?> get userStream => _userStreamController.stream;
+
+  String get _effectiveGoogleServerClientId =>
+      _googleServerClientId.isNotEmpty
+          ? _googleServerClientId
+          : _defaultGoogleServerClientId;
+
+  Future<void> _prepareLocalDataForUser(String userId) async {
+    final ownerId = await _localDataSource.getLocalDataOwner();
+    if (ownerId == userId) return;
+
+    try {
+      await GetIt.I<AppDatabase>().clearLocalUserData();
+      await _localDataSource.saveLocalDataOwner(userId);
+    } catch (e) {
+      debugPrint('AuthRepositoryImpl._prepareLocalDataForUser error: $e');
+    }
+  }
+
+  Future<void> _clearLocalDataOwner() async {
+    try {
+      await _localDataSource.clearLocalDataOwner();
+    } catch (e) {
+      debugPrint('AuthRepositoryImpl._clearLocalDataOwner error: $e');
+    }
+  }
 
   bool _isPortablePhotoUrl(String? photoUrl) {
     if (photoUrl == null || photoUrl.isEmpty) {
@@ -182,6 +211,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
       if (credential.user != null) {
         final baseUser = _mapFirebaseUser(credential.user!);
+        await _prepareLocalDataForUser(baseUser.id);
         final remoteUser = await _remoteDataSource.getUserProfile(baseUser.id);
         final user = (remoteUser ?? baseUser)
             .copyWith(authProviders: baseUser.authProviders);
@@ -213,7 +243,9 @@ class AuthRepositoryImpl implements AuthRepository {
 
       if (credential.user != null) {
         final user = _mapFirebaseUser(credential.user!);
+        await _prepareLocalDataForUser(user.id);
         final finalUser = await _updateLoginHistory(user);
+        _userStreamController.add(finalUser);
         return Right(finalUser);
       }
       return const Left(
@@ -230,6 +262,7 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, void>> logout() async {
     await _firebaseAuth.signOut();
     await _localDataSource.clearSession();
+    _userStreamController.add(null);
     return const Right(null);
   }
 
@@ -240,6 +273,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
     if (firebaseUser != null) {
       final baseUser = _mapFirebaseUser(firebaseUser);
+      await _prepareLocalDataForUser(baseUser.id);
 
       // Try local cache first for instant UI response
       UserEntity? mergedUser =
@@ -288,9 +322,8 @@ class AuthRepositoryImpl implements AuthRepository {
     }
 
     if (cachedUser != null) {
-      final finalSessionUser = await _updateLoginHistory(cachedUser);
-      _userStreamController.add(finalSessionUser);
-      return Right(finalSessionUser);
+      await _localDataSource.clearSession();
+      await _clearLocalDataOwner();
     }
 
     return const Left(AuthFailure('Nessuna sessione attiva'));
@@ -316,7 +349,8 @@ class AuthRepositoryImpl implements AuthRepository {
     bool profilingConsent = false,
   }) async {
     try {
-      if (_googleServerClientId.isEmpty) {
+      final serverClientId = _effectiveGoogleServerClientId;
+      if (serverClientId.isEmpty) {
         return const Left(
           AuthFailure(
             "Configurazione Google Sign-In mancante. Avvia l'app con "
@@ -327,7 +361,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
       final googleSignIn = GoogleSignIn.instance;
       await googleSignIn.initialize(
-        serverClientId: _googleServerClientId,
+        serverClientId: serverClientId,
       );
 
       final googleUser = await googleSignIn.authenticate();
@@ -353,12 +387,13 @@ class AuthRepositoryImpl implements AuthRepository {
           await _firebaseAuth.signOut();
           return const Left(
             AuthFailure(
-              'Per creare un nuovo account devi accettare Termini e Privacy Policy.',
+              'Questo account Google non e ancora registrato. Crea prima un account dalla schermata Registrati.',
             ),
           );
         }
 
         final baseUser = _mapFirebaseUser(userCredential.user!);
+        await _prepareLocalDataForUser(baseUser.id);
         final remoteUser = isNewUser
             ? null
             : await _remoteDataSource.getUserProfile(baseUser.id);
@@ -375,6 +410,7 @@ class AuthRepositoryImpl implements AuthRepository {
         }
 
         final finalUser = await _updateLoginHistory(user);
+        _userStreamController.add(finalUser);
         return Right(finalUser);
       }
       return const Left(AuthFailure('Impossibile accedere con Google'));
@@ -418,12 +454,13 @@ class AuthRepositoryImpl implements AuthRepository {
           await _firebaseAuth.signOut();
           return const Left(
             AuthFailure(
-              'Per creare un nuovo account devi accettare Termini e Privacy Policy.',
+              'Questo account Apple non e ancora registrato. Crea prima un account dalla schermata Registrati.',
             ),
           );
         }
 
         final baseUser = _mapFirebaseUser(userCredential.user!);
+        await _prepareLocalDataForUser(baseUser.id);
         final remoteUser = isNewUser
             ? null
             : await _remoteDataSource.getUserProfile(baseUser.id);
@@ -440,6 +477,7 @@ class AuthRepositoryImpl implements AuthRepository {
         }
 
         final finalUser = await _updateLoginHistory(user);
+        _userStreamController.add(finalUser);
         return Right(finalUser);
       }
       return const Left(AuthFailure('Impossibile accedere con Apple'));
@@ -455,8 +493,10 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       final user = _firebaseAuth.currentUser;
       if (user != null) {
-        final currentUser =
-            await _localDataSource.getUserSession() ?? _mapFirebaseUser(user);
+        final localUser = await _localDataSource.getUserSession();
+        final currentUser = localUser != null && localUser.id == user.uid
+            ? localUser
+            : _mapFirebaseUser(user);
         final updatedUser = currentUser.copyWith(
           photoUrl: filePath,
         );
@@ -502,7 +542,11 @@ class AuthRepositoryImpl implements AuthRepository {
             .timeout(const Duration(seconds: 5));
       }
 
-      final localUser = await _localDataSource.getUserSession();
+      final cachedLocalUser = await _localDataSource.getUserSession();
+      final localUser =
+          cachedLocalUser != null && cachedLocalUser.id == user.uid
+              ? cachedLocalUser
+              : null;
       final remoteUser = await _remoteDataSource
           .getUserProfile(user.uid)
           .timeout(const Duration(seconds: 5));
@@ -589,7 +633,14 @@ class AuthRepositoryImpl implements AuthRepository {
 
       await _remoteDataSource.deleteUser(user.uid);
       await user.delete();
+      try {
+        await GetIt.I<AppDatabase>().clearLocalUserData();
+      } catch (e) {
+        debugPrint('AuthRepositoryImpl.deleteAccount local clear error: $e');
+      }
       await _localDataSource.clearSession();
+      await _clearLocalDataOwner();
+      _userStreamController.add(null);
 
       return const Right(null);
     } on FirebaseAuthException catch (e) {
@@ -640,7 +691,8 @@ class AuthRepositoryImpl implements AuthRepository {
       }
 
       if (providerIds.contains('google.com')) {
-        if (_googleServerClientId.isEmpty) {
+        final serverClientId = _effectiveGoogleServerClientId;
+        if (serverClientId.isEmpty) {
           return const Left(
             AuthFailure(
               "Configurazione Google Sign-In mancante. Avvia l'app con "
@@ -651,7 +703,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
         final googleSignIn = GoogleSignIn.instance;
         await googleSignIn.initialize(
-          serverClientId: _googleServerClientId,
+          serverClientId: serverClientId,
         );
 
         final googleUser = await googleSignIn.authenticate();
