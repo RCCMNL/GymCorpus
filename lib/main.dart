@@ -168,6 +168,10 @@ class _GymAppState extends State<GymApp> {
           builder: (context, state) => const TermsOfServiceScreen(),
         ),
         GoRoute(
+          path: '/legal/consent',
+          builder: (context, state) => const ConsentSummaryScreen(),
+        ),
+        GoRoute(
           path: '/legal/privacy',
           builder: (context, state) => const PrivacyPolicyScreen(),
         ),
@@ -329,6 +333,11 @@ class _GymAppState extends State<GymApp> {
                   path: 'terms',
                   parentNavigatorKey: _rootNavigatorKey,
                   builder: (context, state) => const TermsOfServiceScreen(),
+                ),
+                GoRoute(
+                  path: 'consent',
+                  parentNavigatorKey: _rootNavigatorKey,
+                  builder: (context, state) => const ConsentSummaryScreen(),
                 ),
                 GoRoute(
                   path: 'privacy',

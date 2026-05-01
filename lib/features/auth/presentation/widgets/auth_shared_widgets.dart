@@ -17,7 +17,7 @@ class GlassCard extends StatelessWidget {
   final Widget child;
   @override
   Widget build(BuildContext context) { final t = Theme.of(context);
-    return ClipRRect(borderRadius: BorderRadius.circular(20), child: BackdropFilter(filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20), child: Container(padding: const EdgeInsets.all(28), decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [t.colorScheme.surfaceContainerHigh.withValues(alpha: 0.5), t.colorScheme.surface.withValues(alpha: 0.7)]), borderRadius: BorderRadius.circular(20), border: Border.all(color: t.colorScheme.primary.withValues(alpha: 0.08))), child: child))); }
+    return ClipRRect(borderRadius: BorderRadius.circular(20), child: BackdropFilter(filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20), child: Container(padding: const EdgeInsets.all(22), decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [t.colorScheme.surfaceContainerHigh.withValues(alpha: 0.5), t.colorScheme.surface.withValues(alpha: 0.7)]), borderRadius: BorderRadius.circular(20), border: Border.all(color: t.colorScheme.primary.withValues(alpha: 0.08))), child: child))); }
 }
 
 class AuthTextField extends StatelessWidget {
@@ -25,7 +25,7 @@ class AuthTextField extends StatelessWidget {
   final TextEditingController controller; final String hint; final IconData icon; final bool obscure; final Iterable<String>? autofill; final TextInputType? keyboardType; final TextInputAction? action; final void Function(String)? onSubmitted; final Widget? suffixIcon;
   @override
   Widget build(BuildContext context) { final t = Theme.of(context);
-    return TextField(controller: controller, obscureText: obscure, autofillHints: autofill, keyboardType: keyboardType, textInputAction: action, onSubmitted: onSubmitted, style: TextStyle(color: t.colorScheme.onSurface, fontFamily: 'Inter'), decoration: InputDecoration(hintText: hint, hintStyle: TextStyle(color: t.colorScheme.outline), prefixIcon: Icon(icon, size: 20, color: t.colorScheme.outline), suffixIcon: suffixIcon, filled: true, fillColor: t.colorScheme.surfaceContainerHighest, contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18), border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none), focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: t.colorScheme.primary.withValues(alpha: 0.4), width: 1.5)))); }
+    return TextField(controller: controller, obscureText: obscure, autofillHints: autofill, keyboardType: keyboardType, textInputAction: action, onSubmitted: onSubmitted, style: TextStyle(color: t.colorScheme.onSurface, fontFamily: 'Inter'), decoration: InputDecoration(hintText: hint, hintStyle: TextStyle(color: t.colorScheme.outline), prefixIcon: Icon(icon, size: 18, color: t.colorScheme.outline), suffixIcon: suffixIcon, filled: true, fillColor: t.colorScheme.surfaceContainerHighest, contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14), border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none), focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: t.colorScheme.primary.withValues(alpha: 0.4), width: 1.5)))); }
 }
 
 class AuthPrimaryButton extends StatelessWidget {

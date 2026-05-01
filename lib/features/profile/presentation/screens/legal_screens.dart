@@ -127,6 +127,50 @@ class PrivacyPolicyScreen extends StatelessWidget {
   }
 }
 
+class ConsentSummaryScreen extends StatelessWidget {
+  const ConsentSummaryScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const LegalScreen(
+      title: 'Termini e Privacy',
+      icon: Icons.verified_user_rounded,
+      sections: [
+        LegalSection(
+          title: '1. Accettazione',
+          content:
+              'Creando un account o usando GymCorpus accetti i Termini di Servizio e dichiari di aver letto la Privacy Policy.',
+        ),
+        LegalSection(
+          title: '2. Dati Trattati',
+          content:
+              'Trattiamo i dati necessari per registrazione, profilo, autenticazione e funzionalita dell app come allenamenti, cardio, routine, progressi, record e statistiche.',
+        ),
+        LegalSection(
+          title: '3. Utilizzo dei Dati',
+          content:
+              'I dati servono per autenticarti, salvare il profilo, mantenere la sessione, mostrarti i progressi e far funzionare correttamente GymCorpus.',
+        ),
+        LegalSection(
+          title: '4. Responsabilita',
+          content:
+              'GymCorpus non sostituisce pareri medici o professionali. L uso dell app e sotto la tua responsabilita e ti invitiamo a proteggere account e dispositivo.',
+        ),
+        LegalSection(
+          title: '5. Servizi Tecnici',
+          content:
+              'Usiamo Firebase Auth per il login e database locale/servizi remoti per profilo e dati applicativi quando necessario.',
+        ),
+        LegalSection(
+          title: '6. Aggiornamenti',
+          content:
+              'Se Termini o Privacy cambieranno in modo rilevante, l app potra chiederti una nuova presa visione o una nuova accettazione.',
+        ),
+      ],
+    );
+  }
+}
+
 class TermsOfServiceScreen extends StatelessWidget {
   const TermsOfServiceScreen({super.key});
   @override

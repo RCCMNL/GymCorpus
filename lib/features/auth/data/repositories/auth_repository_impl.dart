@@ -349,6 +349,10 @@ class AuthRepositoryImpl implements AuthRepository {
     bool profilingConsent = false,
   }) async {
     try {
+      final isRegistrationIntent = acceptedTerms ||
+          acceptedPrivacy ||
+          marketingConsent ||
+          profilingConsent;
       final serverClientId = _effectiveGoogleServerClientId;
       if (serverClientId.isEmpty) {
         return const Left(
@@ -382,6 +386,14 @@ class AuthRepositoryImpl implements AuthRepository {
           await _firebaseAuth.signInWithCredential(credential);
       if (userCredential.user != null) {
         final isNewUser = userCredential.additionalUserInfo?.isNewUser ?? false;
+        if (!isNewUser && isRegistrationIntent) {
+          await _firebaseAuth.signOut();
+          return const Left(
+            AuthFailure(
+              'Questo account Google e gia registrato. Usa la schermata Accedi.',
+            ),
+          );
+        }
         if (isNewUser && (!acceptedTerms || !acceptedPrivacy)) {
           await userCredential.user!.delete();
           await _firebaseAuth.signOut();
@@ -433,6 +445,10 @@ class AuthRepositoryImpl implements AuthRepository {
     bool profilingConsent = false,
   }) async {
     try {
+      final isRegistrationIntent = acceptedTerms ||
+          acceptedPrivacy ||
+          marketingConsent ||
+          profilingConsent;
       final appleCredential = await SignInWithApple.getAppleIDCredential(
         scopes: [
           AppleIDAuthorizationScopes.email,
@@ -449,6 +465,14 @@ class AuthRepositoryImpl implements AuthRepository {
           await _firebaseAuth.signInWithCredential(credential);
       if (userCredential.user != null) {
         final isNewUser = userCredential.additionalUserInfo?.isNewUser ?? false;
+        if (!isNewUser && isRegistrationIntent) {
+          await _firebaseAuth.signOut();
+          return const Left(
+            AuthFailure(
+              'Questo account Apple e gia registrato. Usa la schermata Accedi.',
+            ),
+          );
+        }
         if (isNewUser && (!acceptedTerms || !acceptedPrivacy)) {
           await userCredential.user!.delete();
           await _firebaseAuth.signOut();
