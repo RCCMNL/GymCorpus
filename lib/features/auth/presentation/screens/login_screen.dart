@@ -23,6 +23,10 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen>
     with SingleTickerProviderStateMixin {
+  static const _googleAccountNotRegisteredMessage =
+      'Questo account Google non e ancora registrato. '
+      'Crea prima un account dalla schermata Registrati.';
+
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _forgotEmailController = TextEditingController();
@@ -119,12 +123,24 @@ class _LoginScreenState extends State<LoginScreen>
   void _showSnack(String msg, {bool isError = false}) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text(msg),
+      duration: const Duration(seconds: 3),
       backgroundColor:
           isError ? Theme.of(context).colorScheme.error : Colors.orange,
       behavior: SnackBarBehavior.floating,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
     ));
+  }
+
+  void _handleAuthError(String message) {
+    _showSnack(message, isError: true);
+
+    if (message == _googleAccountNotRegisteredMessage) {
+      Future<void>.delayed(const Duration(milliseconds: 900), () {
+        if (!mounted) return;
+        context.push('/signup');
+      });
+    }
   }
 
   void _showForgotPasswordSheet() {
@@ -239,7 +255,7 @@ class _LoginScreenState extends State<LoginScreen>
         listener: (context, state) {
           state.mapOrNull(
             authenticated: (_) => context.go('/training'),
-            error: (e) => _showSnack(e.message, isError: true),
+            error: (e) => _handleAuthError(e.message),
           );
         },
         builder: (context, state) {
@@ -331,7 +347,6 @@ class _LoginScreenState extends State<LoginScreen>
                                   ],
                                 ),
                                 const SizedBox(height: 36),
-
                                 // Glass card
                                 GlassCard(
                                   child: Column(
@@ -400,27 +415,21 @@ class _LoginScreenState extends State<LoginScreen>
                                       _buildDivider(
                                           theme, 'OPPURE CONTINUA CON'),
                                       const SizedBox(height: 20),
-                                      Row(children: [
-                                        Expanded(
-                                          child: AuthSocialButton(
-                                            logo: const GoogleLogo(size: 20),
-                                            label: 'Google',
-                                            onTap: _onGooglePressed,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 14),
-                                        Expanded(
-                                          child: Opacity(
-                                            opacity: 0.5,
-                                            child: AuthSocialButton(
-                                              logo: const AppleLogo(size: 22),
-                                              label: 'Apple',
-                                              onTap: () => _showSnack(
-                                                  'Apple Sign-In in arrivo!'),
+                                      AuthSocialButton(
+                                        label: 'Accedi con Google',
+                                        logo: const GoogleLogo(size: 20),
+                                        onTap: _onGooglePressed,
+                                      ),
+                                      const SizedBox(height: 12),
+                                      Text(
+                                        'Primo accesso? Se non hai ancora un account, usa "Registrati" qui sotto.',
+                                        style: theme.textTheme.bodySmall
+                                            ?.copyWith(
+                                              color: theme
+                                                  .colorScheme.onSurfaceVariant,
+                                              height: 1.35,
                                             ),
-                                          ),
-                                        ),
-                                      ]),
+                                      ),
                                       if (_showBiometricButton) ...[
                                         const SizedBox(height: 24),
                                         Center(

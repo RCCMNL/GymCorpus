@@ -47,13 +47,8 @@ void main() {
       expect(find.text('DATA DI NASCITA'), findsOneWidget);
       expect(find.text('GENERE'), findsOneWidget);
       expect(find.text('CONSENSI E PRIVACY'), findsOneWidget);
-      expect(find.text("Accetto i Termini e Condizioni d'Uso"), findsOneWidget);
-      expect(find.text('Ho letto la Privacy Policy'), findsOneWidget);
-      expect(find.text('Consenso marketing e newsletter'), findsOneWidget);
-      expect(
-        find.text('Consenso alla profilazione commerciale'),
-        findsOneWidget,
-      );
+      expect(find.text('Accetto Termini e Privacy Policy'), findsOneWidget);
+      expect(find.text('Leggi i termini'), findsOneWidget);
     });
 
     testWidgets('non invia signup se mancano campi obbligatori',
