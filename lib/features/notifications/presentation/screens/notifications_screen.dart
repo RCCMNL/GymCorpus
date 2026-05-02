@@ -220,6 +220,8 @@ class _NotificationTile extends StatelessWidget {
         return Icons.self_improvement_rounded;
       case 'training':
         return Icons.fitness_center_rounded;
+      case 'recovery':
+        return Icons.timer_rounded;
       default:
         return Icons.notifications_rounded;
     }
@@ -233,8 +235,25 @@ class _NotificationTile extends StatelessWidget {
         return const Color(0xFF8DE8C7);
       case 'training':
         return theme.colorScheme.primary;
+      case 'recovery':
+        return const Color(0xFFFF8A3D);
       default:
         return theme.colorScheme.outline;
+    }
+  }
+
+  String _labelForType(String type) {
+    switch (type) {
+      case 'badge':
+        return 'Badge';
+      case 'stretching':
+        return 'Promemoria';
+      case 'training':
+        return 'Promemoria';
+      case 'recovery':
+        return 'Recupero';
+      default:
+        return 'Notifica';
     }
   }
 
@@ -336,6 +355,35 @@ class _NotificationTile extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: color.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(999),
+                            border: Border.all(
+                              color: color.withValues(alpha: 0.24),
+                            ),
+                          ),
+                          child: Text(
+                            _labelForType(notification.type).toUpperCase(),
+                            style: TextStyle(
+                              color: color,
+                              fontSize: 9,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 0.6,
+                              fontFamily: 'Lexend',
+                              height: 1,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
                     Text(
                       notification.body,
                       style: theme.textTheme.bodySmall?.copyWith(

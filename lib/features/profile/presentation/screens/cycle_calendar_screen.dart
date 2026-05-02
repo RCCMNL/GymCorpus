@@ -77,7 +77,52 @@ class _CycleCalendarScreenState extends State<CycleCalendarScreen> with SingleTi
         child: ListView(
           padding: const EdgeInsets.all(20),
           children: [
-            Text('Calendario Ciclo', style: theme.textTheme.headlineLarge?.copyWith(fontWeight: FontWeight.w900, fontFamily: 'Lexend', color: color)),
+            Container(
+              padding: const EdgeInsets.all(16),
+              margin: const EdgeInsets.only(bottom: 24),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: theme.colorScheme.primary.withValues(alpha: 0.2)),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.info_outline_rounded, color: theme.colorScheme.primary, size: 20),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Questa è un\'anteprima grafica. La funzione di tracciamento reale è attualmente in fase di sviluppo.',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Row(
+              children: [
+                Text('Calendario Ciclo', style: theme.textTheme.headlineLarge?.copyWith(fontWeight: FontWeight.w900, fontFamily: 'Lexend', color: color)),
+                const SizedBox(width: 12),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    'PREVIEW',
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w900,
+                      color: color,
+                      letterSpacing: 1,
+                    ),
+                  ),
+                ),
+              ],
+            ),
             Text('Ottimizza i tuoi allenamenti in base al tuo corpo.', style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.outline)),
             const SizedBox(height: 32),
             Center(
@@ -108,7 +153,17 @@ class _CycleCalendarScreenState extends State<CycleCalendarScreen> with SingleTi
             ),
             const SizedBox(height: 32),
             ElevatedButton(
-              onPressed: _togglePeriod,
+              onPressed: () {
+                _togglePeriod();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: const Text('Dati non salvati: questa è un\'anteprima interattiva.'),
+                    behavior: SnackBarBehavior.floating,
+                    backgroundColor: theme.colorScheme.secondary,
+                    duration: const Duration(seconds: 2),
+                  ),
+                );
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: _isPeriodActive ? theme.colorScheme.surfaceContainerHigh : const Color(0xFFFF4B72),
                 padding: const EdgeInsets.symmetric(vertical: 20),

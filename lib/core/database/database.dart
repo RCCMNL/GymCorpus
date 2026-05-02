@@ -296,6 +296,22 @@ class AppDatabase extends _$AppDatabase {
         key: Value('rest_timer'), value: Value('90')));
     await into(appSettings).insert(const AppSettingsCompanion(
         key: Value('units'), value: Value('metric')));
+    await into(appSettings).insert(const AppSettingsCompanion(
+        key: Value('notif_stretching_enabled'), value: Value('false')));
+    await into(appSettings).insert(const AppSettingsCompanion(
+        key: Value('notif_stretching_hour'), value: Value('8')));
+    await into(appSettings).insert(const AppSettingsCompanion(
+        key: Value('notif_stretching_minute'), value: Value('0')));
+    await into(appSettings).insert(const AppSettingsCompanion(
+        key: Value('notif_training_enabled'), value: Value('false')));
+    await into(appSettings).insert(const AppSettingsCompanion(
+        key: Value('notif_training_hour'), value: Value('17')));
+    await into(appSettings).insert(const AppSettingsCompanion(
+        key: Value('notif_training_minute'), value: Value('30')));
+    await into(appSettings).insert(const AppSettingsCompanion(
+        key: Value('notif_training_days'), value: Value('')));
+    await into(appSettings).insert(const AppSettingsCompanion(
+        key: Value('notif_badge_enabled'), value: Value('true')));
 
     // Simple weight seed for analytics
     await into(weightLogs).insert(WeightLogsCompanion(
@@ -386,8 +402,12 @@ class AppDatabase extends _$AppDatabase {
   Stream<List<AppSetting>> watchAllSettings() => select(appSettings).watch();
 
   Future<void> updateSetting(String key, String value) =>
-      (update(appSettings)..where((t) => t.key.equals(key)))
-          .write(AppSettingsCompanion(value: Value(value)));
+      into(appSettings).insertOnConflictUpdate(
+        AppSettingsCompanion(
+          key: Value(key),
+          value: Value(value),
+        ),
+      );
 
   // Favorites & Notes
   Future<void> toggleExerciseFavorite(int id, {required bool isFavorite}) =>

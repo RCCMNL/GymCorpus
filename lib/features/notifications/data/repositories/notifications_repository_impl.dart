@@ -109,12 +109,51 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
         body: body,
         hour: hour,
         minute: minute,
+        payload: const NotificationPayloadData(
+          type: 'stretching',
+          title: 'Promemoria stretching',
+          body: 'Hai aperto il promemoria stretching giornaliero.',
+          source: 'scheduled',
+        ),
       );
       return const Right(null);
     } catch (e) {
       debugPrint('NotificationsRepository: scheduleDailyReminder error: $e');
       return const Left(
         DatabaseFailure('Errore nella programmazione della notifica.'),
+      );
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> scheduleWeeklyReminder({
+    required int notificationId,
+    required String title,
+    required String body,
+    required int dayOfWeek,
+    required int hour,
+    required int minute,
+  }) async {
+    try {
+      await NotificationService.instance.scheduleWeeklyNotification(
+        id: notificationId,
+        title: title,
+        body: body,
+        dayOfWeek: dayOfWeek,
+        hour: hour,
+        minute: minute,
+        payload: const NotificationPayloadData(
+          type: 'training',
+          title: 'Promemoria allenamento',
+          body: 'Hai aperto il promemoria del tuo allenamento programmato.',
+          source: 'scheduled',
+        ),
+      );
+      return const Right(null);
+    } catch (e) {
+      debugPrint('NotificationsRepository: scheduleWeeklyReminder error: $e');
+      return const Left(
+        DatabaseFailure('Errore nella programmazione settimanale.'),
       );
     }
   }

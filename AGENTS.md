@@ -49,11 +49,22 @@
 - Firebase viene inizializzato tramite `lib/firebase_options.dart`; il progetto al momento e' configurato per Android e iOS. Non assumere supporto web/desktop.
 - Il routing di autenticazione dipende dallo stato di `AuthBloc` e dai redirect GoRouter definiti in `lib/main.dart`.
 - Il database Drift locale vive nella directory documenti dell'app come `gym_db.sqlite`.
-- `AppDatabase` usa attualmente `schemaVersion => 13` e fa seed dei dati iniziali quando la tabella esercizi e' vuota.
+- `AppDatabase` usa attualmente `schemaVersion => 15` e fa seed dei dati iniziali quando la tabella esercizi e' vuota.
 - La strategia di migrazione ricrea le tabelle quando si aggiorna da versioni precedenti alla 9. Tratta i cambiamenti database con attenzione e aggiorna le migration in modo esplicito.
 - La tabella `Workouts` rappresenta le sessioni di allenamento tracciabili: una sessione viene considerata completata solo quando `completedAt` e' valorizzato.
 - `WorkoutSet.workoutId` deve riferirsi a una riga `Workouts`; evita nuovi flussi che usano timestamp sciolti senza creare prima una sessione workout.
 - Il sistema livelli/trofei/record e' local-first e calcolato dai dati gia' presenti tramite `AthleteProgressService`, non da dati remoti.
+- Gli esercizi a corpo libero sono ora espliciti nel DB tramite `Exercises.isBodyweight`; non inferire piu' questa informazione dal testo di `equipment` nei nuovi flussi.
+
+## Notifiche
+
+- Per GymCorpus, i reminder di prodotto correnti sono `local-first`: stretching, allenamento, timer recupero, badge e record devono vivere prima di tutto come notifiche locali.
+- `Firebase/FCM` non e' richiesto per i reminder core dell'app. Valutalo solo per push remote reali, come campagne, messaggi di servizio, re-engagement lato server o eventi cross-device.
+- I promemoria stretching restano giornalieri, mentre i promemoria allenamento devono rispettare davvero i giorni selezionati dall'utente.
+- Il sistema notifiche locale passa da `NotificationService`, `NotificationsRepository`, `NotificationsBloc` e `NotificationSettingsScreen`; evita percorsi paralleli.
+- Se una notifica locale deve comparire anche nel centro notifiche interno, registra esplicitamente il log nel flusso applicativo o usa payload/tap handling coerente.
+- La timezone dei reminder deve seguire il device reale; se tocchi lo scheduling, verifica anche il bridge nativo Android/iOS usato per leggere il timezone locale.
+- Le notifiche locali gia' supportate hanno ID riservati nel range del bloc notifiche; evita collisioni con nuovi reminder.
 
 ## File Generati
 

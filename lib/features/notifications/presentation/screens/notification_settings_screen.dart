@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gym_corpus/core/services/notification_service.dart';
 import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_bloc.dart';
 import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_event.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
@@ -15,7 +16,7 @@ class NotificationSettingsScreen extends StatefulWidget {
 }
 
 class _NotificationSettingsScreenState
-    extends State<NotificationSettingsScreen> {
+    extends State<NotificationSettingsScreen> with WidgetsBindingObserver {
   // Stretching
   bool _stretchingEnabled = false;
   TimeOfDay _stretchingTime = const TimeOfDay(hour: 8, minute: 0);
@@ -27,11 +28,35 @@ class _NotificationSettingsScreenState
 
   // Badge
   bool _badgeEnabled = true;
+  bool _systemNotificationsEnabled = true;
+
+  bool get _effectiveStretchingEnabled =>
+      _systemNotificationsEnabled && _stretchingEnabled;
+  bool get _effectiveTrainingEnabled =>
+      _systemNotificationsEnabled && _trainingEnabled;
+  bool get _effectiveBadgeEnabled =>
+      _systemNotificationsEnabled && _badgeEnabled;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _loadFromSettings();
+    _refreshPermissionStatus();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      _refreshPermissionStatus();
+    }
   }
 
   void _loadFromSettings() {
@@ -72,11 +97,50 @@ class _NotificationSettingsScreenState
     context.read<TrainingBloc>().add(UpdatePreferenceEvent(key, value));
   }
 
-  void _toggleStretching(bool enabled) {
+  Future<void> _refreshPermissionStatus() async {
+    final enabled = await NotificationService.instance.areNotificationsEnabled();
+    if (!mounted) return;
+    setState(() => _systemNotificationsEnabled = enabled);
+  }
+
+  Future<void> _openSystemSettings() async {
+    await NotificationService.instance.openNotificationSettings();
+  }
+
+  Future<void> _showPermissionDeniedMessage() async {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text(
+          'Le notifiche di sistema sono disattivate. Attivale nelle impostazioni del telefono.',
+        ),
+        duration: const Duration(seconds: 3),
+        action: SnackBarAction(
+          label: 'Impostazioni',
+          onPressed: _openSystemSettings,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _toggleStretching(bool enabled) async {
     setState(() => _stretchingEnabled = enabled);
-    _savePref('notif_stretching_enabled', enabled.toString());
 
     if (enabled) {
+      await NotificationService.instance.requestPermissions();
+      final systemEnabled =
+          await NotificationService.instance.areNotificationsEnabled();
+      if (!mounted) return;
+      setState(() => _systemNotificationsEnabled = systemEnabled);
+      if (!systemEnabled) {
+        setState(() => _stretchingEnabled = false);
+        _savePref('notif_stretching_enabled', 'false');
+        await _showPermissionDeniedMessage();
+        return;
+      }
+      _savePref('notif_stretching_enabled', 'true');
+      _savePref('notif_stretching_hour', _stretchingTime.hour.toString());
+      _savePref('notif_stretching_minute', _stretchingTime.minute.toString());
       context.read<NotificationsBloc>().add(
             ScheduleStretchingReminderEvent(
               hour: _stretchingTime.hour,
@@ -84,6 +148,7 @@ class _NotificationSettingsScreenState
             ),
           );
     } else {
+      _savePref('notif_stretching_enabled', 'false');
       context.read<NotificationsBloc>().add(CancelStretchingReminderEvent());
     }
   }
@@ -109,11 +174,30 @@ class _NotificationSettingsScreenState
     }
   }
 
-  void _toggleTraining(bool enabled) {
+  Future<void> _toggleTraining(bool enabled) async {
     setState(() => _trainingEnabled = enabled);
-    _savePref('notif_training_enabled', enabled.toString());
+
+    if (enabled && _trainingDays.isEmpty) {
+      final defaultDay = DateTime.now().weekday;
+      setState(() => _trainingDays = [defaultDay]);
+      _savePref('notif_training_days', _trainingDays.join(','));
+    }
 
     if (enabled && _trainingDays.isNotEmpty) {
+      await NotificationService.instance.requestPermissions();
+      final systemEnabled =
+          await NotificationService.instance.areNotificationsEnabled();
+      if (!mounted) return;
+      setState(() => _systemNotificationsEnabled = systemEnabled);
+      if (!systemEnabled) {
+        setState(() => _trainingEnabled = false);
+        _savePref('notif_training_enabled', 'false');
+        await _showPermissionDeniedMessage();
+        return;
+      }
+      _savePref('notif_training_enabled', 'true');
+      _savePref('notif_training_hour', _trainingTime.hour.toString());
+      _savePref('notif_training_minute', _trainingTime.minute.toString());
       context.read<NotificationsBloc>().add(
             ScheduleTrainingReminderEvent(
               hour: _trainingTime.hour,
@@ -122,6 +206,7 @@ class _NotificationSettingsScreenState
             ),
           );
     } else {
+      _savePref('notif_training_enabled', 'false');
       context.read<NotificationsBloc>().add(CancelTrainingReminderEvent());
     }
   }
@@ -173,6 +258,10 @@ class _NotificationSettingsScreenState
   }
 
   void _toggleBadge(bool enabled) {
+    if (enabled && !_systemNotificationsEnabled) {
+      _showPermissionDeniedMessage();
+      return;
+    }
     setState(() => _badgeEnabled = enabled);
     _savePref('notif_badge_enabled', enabled.toString());
   }
@@ -181,41 +270,121 @@ class _NotificationSettingsScreenState
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Scaffold(
-      backgroundColor: theme.colorScheme.surface,
-      appBar: AppBar(
+    return BlocListener<TrainingBloc, TrainingState>(
+      listenWhen: (previous, current) =>
+          previous is TrainingLoaded &&
+              current is TrainingLoaded &&
+              previous.settings != current.settings ||
+          previous is! TrainingLoaded && current is TrainingLoaded,
+      listener: (context, state) {
+        if (state is TrainingLoaded) {
+          _loadFromSettings();
+        }
+        _refreshPermissionStatus();
+      },
+      child: Scaffold(
         backgroundColor: theme.colorScheme.surface,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_new,
-            color: theme.colorScheme.primary,
-            size: 22,
+        appBar: AppBar(
+          backgroundColor: theme.colorScheme.surface,
+          elevation: 0,
+          leading: IconButton(
+            icon: Icon(
+              Icons.arrow_back_ios_new,
+              color: theme.colorScheme.primary,
+              size: 22,
+            ),
+            onPressed: () => Navigator.maybePop(context),
           ),
-          onPressed: () => Navigator.maybePop(context),
-        ),
-        title: ShaderMask(
-          shaderCallback: (bounds) => LinearGradient(
-            colors: [theme.colorScheme.primary, theme.colorScheme.tertiary],
-          ).createShader(bounds),
-          child: Text(
-            'Notifiche',
-            style: theme.textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.w900,
-              fontFamily: 'Lexend',
-              fontSize: 22,
-              color: Colors.white,
+          title: ShaderMask(
+            shaderCallback: (bounds) => LinearGradient(
+              colors: [theme.colorScheme.primary, theme.colorScheme.tertiary],
+            ).createShader(bounds),
+            child: Text(
+              'Notifiche',
+              style: theme.textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.w900,
+                fontFamily: 'Lexend',
+                fontSize: 22,
+                color: Colors.white,
+              ),
             ),
           ),
+          centerTitle: false,
         ),
-        centerTitle: false,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-        physics: const BouncingScrollPhysics(),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+          physics: const BouncingScrollPhysics(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+            Container(
+              width: double.infinity,
+              margin: const EdgeInsets.only(bottom: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              decoration: BoxDecoration(
+                color: _systemNotificationsEnabled
+                    ? const Color(0xFF8DE8C7).withValues(alpha: 0.10)
+                    : theme.colorScheme.error.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(
+                  color: _systemNotificationsEnabled
+                      ? const Color(0xFF8DE8C7).withValues(alpha: 0.30)
+                      : theme.colorScheme.error.withValues(alpha: 0.18),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    _systemNotificationsEnabled
+                        ? Icons.notifications_active_rounded
+                        : Icons.notifications_off_rounded,
+                    color: _systemNotificationsEnabled
+                        ? const Color(0xFF4EBE98)
+                        : theme.colorScheme.error,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _systemNotificationsEnabled
+                              ? 'Notifiche di sistema attive'
+                              : 'Notifiche di sistema disattivate',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w800,
+                            fontFamily: 'Lexend',
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          _systemNotificationsEnabled
+                              ? 'I reminder possono essere inviati dal telefono.'
+                              : 'Attivale nelle impostazioni del telefono per ricevere i reminder.',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.outline,
+                            height: 1.35,
+                          ),
+                        ),
+                        if (!_systemNotificationsEnabled) ...[
+                          const SizedBox(height: 10),
+                          TextButton(
+                            onPressed: _openSystemSettings,
+                            style: TextButton.styleFrom(
+                              padding: EdgeInsets.zero,
+                              minimumSize: Size.zero,
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
+                            child: const Text('APRI IMPOSTAZIONI'),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
             // Stretching section
             _buildSectionHeader(
               theme,
@@ -231,10 +400,10 @@ class _NotificationSettingsScreenState
                   theme,
                   label: 'Promemoria Stretching',
                   subtitle: 'Ricevi un promemoria giornaliero',
-                  value: _stretchingEnabled,
+                  value: _effectiveStretchingEnabled,
                   onChanged: _toggleStretching,
                 ),
-                if (_stretchingEnabled) ...[
+                if (_effectiveStretchingEnabled) ...[
                   Divider(
                     color: theme.colorScheme.outline.withValues(alpha: 0.1),
                     height: 1,
@@ -266,10 +435,10 @@ class _NotificationSettingsScreenState
                   theme,
                   label: 'Promemoria Allenamento',
                   subtitle: 'Ricevi un promemoria nei giorni previsti',
-                  value: _trainingEnabled,
+                  value: _effectiveTrainingEnabled,
                   onChanged: _toggleTraining,
                 ),
-                if (_trainingEnabled) ...[
+                if (_effectiveTrainingEnabled) ...[
                   Divider(
                     color: theme.colorScheme.outline.withValues(alpha: 0.1),
                     height: 1,
@@ -324,7 +493,7 @@ class _NotificationSettingsScreenState
                   label: 'Notifiche Badge',
                   subtitle:
                       'Ricevi una notifica quando sblocchi un nuovo badge',
-                  value: _badgeEnabled,
+                  value: _effectiveBadgeEnabled,
                   onChanged: _toggleBadge,
                 ),
               ],
@@ -359,8 +528,8 @@ class _NotificationSettingsScreenState
                   const SizedBox(width: 16),
                   Expanded(
                     child: Text(
-                      'Le notifiche di sistema e aggiornamenti saranno '
-                      'disponibili nelle prossime versioni.',
+                      'I promemoria compaiono nell\'hub del telefono all\'orario previsto. '
+                      'Il centro notifiche interno mostra gli eventi reali dell\'app, non le sole conferme di impostazione.',
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.outline,
                         height: 1.5,
@@ -372,7 +541,8 @@ class _NotificationSettingsScreenState
             ),
 
             const SizedBox(height: 60),
-          ],
+            ],
+          ),
         ),
       ),
     );

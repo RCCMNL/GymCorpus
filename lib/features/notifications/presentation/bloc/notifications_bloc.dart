@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gym_corpus/core/services/notification_service.dart';
 import 'package:gym_corpus/features/notifications/domain/entities/notification_log_entity.dart';
 import 'package:gym_corpus/features/notifications/domain/repositories/notifications_repository.dart';
 import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_event.dart';
@@ -13,8 +14,7 @@ const int _stretchingNotificationId = 9001;
 const int _trainingBaseNotificationId = 9010; // 9010-9016 per lun-dom
 
 @injectable
-class NotificationsBloc
-    extends Bloc<NotificationsEvent, NotificationsState> {
+class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
   NotificationsBloc({required this.repository})
       : super(const NotificationsState(isLoading: true)) {
     on<LoadNotificationsEvent>(_onLoad);
@@ -28,10 +28,38 @@ class NotificationsBloc
     on<CancelStretchingReminderEvent>(_onCancelStretching);
     on<ScheduleTrainingReminderEvent>(_onScheduleTraining);
     on<CancelTrainingReminderEvent>(_onCancelTraining);
+
+    _tapSubscription =
+        NotificationService.instance.notificationTapStream.listen(
+      _onNotificationTapped,
+    );
   }
 
   final NotificationsRepository repository;
   StreamSubscription<List<NotificationLogEntity>>? _subscription;
+  StreamSubscription<NotificationPayloadData>? _tapSubscription;
+
+  Future<void> _addLog({
+    required String title,
+    required String body,
+    required String type,
+  }) async {
+    await repository.addNotificationLog(
+      title: title,
+      body: body,
+      type: type,
+    );
+  }
+
+  void _onNotificationTapped(NotificationPayloadData payload) {
+    unawaited(
+      _addLog(
+        title: payload.title,
+        body: payload.body,
+        type: payload.type,
+      ),
+    );
+  }
 
   Future<void> _onLoad(
     LoadNotificationsEvent event,
@@ -85,7 +113,7 @@ class NotificationsBloc
     AddNotificationLogEvent event,
     Emitter<NotificationsState> emit,
   ) async {
-    await repository.addNotificationLog(
+    await _addLog(
       title: event.title,
       body: event.body,
       type: event.type,
@@ -98,9 +126,8 @@ class NotificationsBloc
   ) async {
     await repository.scheduleDailyReminder(
       notificationId: _stretchingNotificationId,
-      title: '🧘 Stretching Time',
-      body: 'È il momento di fare stretching! '
-          'Anche 10 minuti fanno la differenza.',
+      title: 'Stretching time',
+      body: 'E il momento di fare stretching. Anche 10 minuti aiutano.',
       hour: event.hour,
       minute: event.minute,
     );
@@ -117,22 +144,21 @@ class NotificationsBloc
     ScheduleTrainingReminderEvent event,
     Emitter<NotificationsState> emit,
   ) async {
-    // Cancel any existing training reminders first
     for (var i = 0; i < 7; i++) {
       await repository.cancelScheduledReminder(_trainingBaseNotificationId + i);
     }
 
-    // Schedule for each selected day
     for (final day in event.days) {
-      await repository.scheduleDailyReminder(
+      await repository.scheduleWeeklyReminder(
         notificationId: _trainingBaseNotificationId + (day - 1),
-        title: '💪 Allenamento Previsto',
-        body: 'Oggi è giorno di allenamento! '
-            'Preparati per la tua sessione.',
+        title: 'Allenamento previsto',
+        body: 'Oggi e giorno di allenamento. Preparati per la sessione.',
+        dayOfWeek: day,
         hour: event.hour,
         minute: event.minute,
       );
     }
+
   }
 
   Future<void> _onCancelTraining(
@@ -147,6 +173,7 @@ class NotificationsBloc
   @override
   Future<void> close() {
     _subscription?.cancel();
+    _tapSubscription?.cancel();
     return super.close();
   }
 }

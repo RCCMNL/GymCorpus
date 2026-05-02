@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gym_corpus/core/services/notification_service.dart';
 import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_bloc.dart';
 import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_event.dart';
 import 'package:gym_corpus/features/profile/domain/services/athlete_progress_service.dart';
@@ -52,9 +53,15 @@ class _RootScreenState extends State<RootScreen> {
       if (badgeEnabled) {
         for (int i = 0; i < newBadgesCount; i++) {
           final badge = unlockedBadges[unlockedCount - 1 - i];
+          NotificationService.instance.showNotification(
+            id: DateTime.now().millisecondsSinceEpoch.remainder(100000) + i,
+            title: 'Nuovo badge sbloccato!',
+            body:
+                'Hai ottenuto: ${badge.definition.title}. ${badge.definition.description}',
+          );
           context.read<NotificationsBloc>().add(
                 AddNotificationLogEvent(
-                  title: '🏆 Nuovo Badge Sbloccato!',
+                  title: 'Nuovo badge sbloccato!',
                   body: 'Hai ottenuto: ${badge.definition.title}. ${badge.definition.description}',
                   type: 'badge',
                 ),

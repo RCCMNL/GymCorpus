@@ -28,6 +28,15 @@ abstract class NotificationsRepository {
     required int minute,
   });
 
+  Future<Either<Failure, void>> scheduleWeeklyReminder({
+    required int notificationId,
+    required String title,
+    required String body,
+    required int dayOfWeek,
+    required int hour,
+    required int minute,
+  });
+
   /// Cancel a scheduled notification by its ID.
   Future<Either<Failure, void>> cancelScheduledReminder(int notificationId);
 }
