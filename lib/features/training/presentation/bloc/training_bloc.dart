@@ -342,6 +342,18 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
       );
     });
 
+    on<AddMultipleBodyMeasurementsEvent>((event, emit) async {
+      for (final entry in event.measurements.entries) {
+        final result =
+            await repository.addBodyMeasurement(entry.key, entry.value);
+        final failure = result.fold((f) => f, (_) => null);
+        if (failure != null) {
+          emit(TrainingError(failure.message));
+          return;
+        }
+      }
+    });
+
     on<DeleteBodyMeasurementEvent>((event, emit) async {
       final result = await repository.deleteBodyMeasurement(event.id);
       result.fold(

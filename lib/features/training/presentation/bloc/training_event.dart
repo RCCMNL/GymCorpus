@@ -157,6 +157,15 @@ class AddBodyMeasurementEvent extends TrainingEvent {
   List<Object?> get props => [part, value];
 }
 
+class AddMultipleBodyMeasurementsEvent extends TrainingEvent {
+  const AddMultipleBodyMeasurementsEvent(this.measurements);
+
+  final Map<String, double> measurements;
+
+  @override
+  List<Object?> get props => [measurements];
+}
+
 class DeleteBodyMeasurementEvent extends TrainingEvent {
   const DeleteBodyMeasurementEvent(this.id);
 
