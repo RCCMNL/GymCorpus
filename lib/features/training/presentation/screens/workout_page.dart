@@ -28,7 +28,8 @@ class _WorkoutPageState extends State<WorkoutPage> {
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.routineToEdit?.title ?? '');
+    _nameController =
+        TextEditingController(text: widget.routineToEdit?.title ?? '');
     if (widget.routineToEdit != null) {
       _selectedExercises.addAll(widget.routineToEdit!.exercises);
     }
@@ -57,20 +58,29 @@ class _WorkoutPageState extends State<WorkoutPage> {
           content: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              gradient: const LinearGradient(colors: [Colors.orangeAccent, Colors.deepOrange]),
+              gradient: const LinearGradient(
+                  colors: [Colors.orangeAccent, Colors.deepOrange]),
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
-                BoxShadow(color: Colors.orangeAccent.withValues(alpha: 0.3), blurRadius: 15, offset: const Offset(0, 5)),
+                BoxShadow(
+                    color: Colors.orangeAccent.withValues(alpha: 0.3),
+                    blurRadius: 15,
+                    offset: const Offset(0, 5)),
               ],
             ),
             child: const Row(
               children: [
-                Icon(Icons.warning_amber_rounded, color: Colors.white, size: 24),
+                Icon(Icons.warning_amber_rounded,
+                    color: Colors.white, size: 24),
                 SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     'Inserisci il nome del tuo workout',
-                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontFamily: 'Lexend', fontSize: 13),
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w900,
+                        fontFamily: 'Lexend',
+                        fontSize: 13),
                   ),
                 ),
               ],
@@ -94,20 +104,29 @@ class _WorkoutPageState extends State<WorkoutPage> {
           content: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              gradient: const LinearGradient(colors: [Colors.orangeAccent, Colors.deepOrange]),
+              gradient: const LinearGradient(
+                  colors: [Colors.orangeAccent, Colors.deepOrange]),
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
-                BoxShadow(color: Colors.orangeAccent.withValues(alpha: 0.3), blurRadius: 15, offset: const Offset(0, 5)),
+                BoxShadow(
+                    color: Colors.orangeAccent.withValues(alpha: 0.3),
+                    blurRadius: 15,
+                    offset: const Offset(0, 5)),
               ],
             ),
             child: const Row(
               children: [
-                Icon(Icons.fitness_center_rounded, color: Colors.white, size: 24),
+                Icon(Icons.fitness_center_rounded,
+                    color: Colors.white, size: 24),
                 SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     'Aggiungi almeno un esercizio',
-                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontFamily: 'Lexend', fontSize: 13),
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w900,
+                        fontFamily: 'Lexend',
+                        fontSize: 13),
                   ),
                 ),
               ],
@@ -119,13 +138,41 @@ class _WorkoutPageState extends State<WorkoutPage> {
     }
 
     final trainingState = context.read<TrainingBloc>().state;
-    final settings = trainingState is TrainingLoaded ? trainingState.settings : <String, String>{};
+    final settings = trainingState is TrainingLoaded
+        ? trainingState.settings
+        : <String, String>{};
     final isImperial = (settings['units'] ?? 'KG') == 'LB';
 
     // Se siamo in imperiale, riconvertiamo tutto in KG per il database
     final exercisesToSave = _selectedExercises.map((re) {
+      if (re.exercise.isBodyweight) {
+        var setsList = <dynamic>[];
+        try {
+          setsList = jsonDecode(re.setsData!) as List<dynamic>;
+        } catch (_) {
+          setsList = const [];
+        }
+
+        final sanitizedSets = setsList.isEmpty
+            ? const [
+                {'weight': 0, 'reps': 0},
+              ]
+            : setsList.map((dynamic s) {
+                final map = s as Map<String, dynamic>;
+                return {
+                  'weight': 0,
+                  'reps': map['reps'] as int? ?? 0,
+                };
+              }).toList();
+
+        return re.copyWith(
+          weight: 0,
+          setsData: jsonEncode(sanitizedSets),
+        );
+      }
+
       if (!isImperial) return re;
-      
+
       var setsList = <dynamic>[];
       try {
         setsList = jsonDecode(re.setsData!) as List<dynamic>;
@@ -137,7 +184,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
             'reps': map['reps'] as int,
           };
         }).toList();
-        
+
         return re.copyWith(
           weight: UnitConverter.lbToKg(re.weight),
           setsData: jsonEncode(convertedSets),
@@ -191,7 +238,9 @@ class _WorkoutPageState extends State<WorkoutPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              widget.routineToEdit != null ? 'Modifica workout' : 'Nuovo workout',
+                              widget.routineToEdit != null
+                                  ? 'Modifica workout'
+                                  : 'Nuovo workout',
                               style: theme.textTheme.headlineMedium?.copyWith(
                                 fontWeight: FontWeight.bold,
                                 fontFamily: 'Lexend',
@@ -218,11 +267,15 @@ class _WorkoutPageState extends State<WorkoutPage> {
 
                     // Routine Title Input Section
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 8),
                       decoration: BoxDecoration(
-                        color: theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.5),
+                        color: theme.colorScheme.surfaceContainerHigh
+                            .withValues(alpha: 0.5),
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.1)),
+                        border: Border.all(
+                            color: theme.colorScheme.outline
+                                .withValues(alpha: 0.1)),
                       ),
                       child: TextField(
                         controller: _nameController,
@@ -235,11 +288,13 @@ class _WorkoutPageState extends State<WorkoutPage> {
                         decoration: InputDecoration(
                           hintText: 'Nome del tuo workout',
                           hintStyle: TextStyle(
-                            color: theme.colorScheme.outline.withValues(alpha: 0.4),
+                            color: theme.colorScheme.outline
+                                .withValues(alpha: 0.4),
                           ),
                           border: InputBorder.none,
                           contentPadding: EdgeInsets.zero,
-                          icon: Icon(Icons.edit_note_rounded, color: theme.colorScheme.primary, size: 28),
+                          icon: Icon(Icons.edit_note_rounded,
+                              color: theme.colorScheme.primary, size: 28),
                         ),
                       ),
                     ),
@@ -263,9 +318,11 @@ class _WorkoutPageState extends State<WorkoutPage> {
                             ),
                             const SizedBox(height: 4),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 2),
                               decoration: BoxDecoration(
-                                color: theme.colorScheme.tertiary.withValues(alpha: 0.15),
+                                color: theme.colorScheme.tertiary
+                                    .withValues(alpha: 0.15),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
@@ -281,15 +338,20 @@ class _WorkoutPageState extends State<WorkoutPage> {
                         GestureDetector(
                           onTap: () => _showExercisePicker(context),
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 14, vertical: 10),
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
-                                colors: [theme.colorScheme.primary, theme.colorScheme.tertiary],
+                                colors: [
+                                  theme.colorScheme.primary,
+                                  theme.colorScheme.tertiary
+                                ],
                               ),
                               borderRadius: BorderRadius.circular(20),
                               boxShadow: [
                                 BoxShadow(
-                                  color: theme.colorScheme.primary.withValues(alpha: 0.3),
+                                  color: theme.colorScheme.primary
+                                      .withValues(alpha: 0.3),
                                   blurRadius: 8,
                                   offset: const Offset(0, 3),
                                 ),
@@ -297,7 +359,8 @@ class _WorkoutPageState extends State<WorkoutPage> {
                             ),
                             child: Row(
                               children: [
-                                const Icon(Icons.add_rounded, color: Colors.white, size: 16),
+                                const Icon(Icons.add_rounded,
+                                    color: Colors.white, size: 16),
                                 const SizedBox(width: 4),
                                 Text(
                                   'AGGIUNGI',
@@ -330,7 +393,8 @@ class _WorkoutPageState extends State<WorkoutPage> {
                                 child: Icon(
                                   Icons.fitness_center_rounded,
                                   size: 48,
-                                  color: theme.colorScheme.outline.withValues(alpha: 0.4),
+                                  color: theme.colorScheme.outline
+                                      .withValues(alpha: 0.4),
                                 ),
                               ),
                               const SizedBox(height: 20),
@@ -370,8 +434,9 @@ class _WorkoutPageState extends State<WorkoutPage> {
                           final re = _selectedExercises[index];
                           // Usiamo una chiave stabile basata sulla posizione iniziale o ID univoco
                           // per evitare che la scheda venga distrutta quando cambiano i dati interni
-                          final stableKey = ValueKey('exercise_${re.exercise.id}_$index');
-                          
+                          final stableKey =
+                              ValueKey('exercise_${re.exercise.id}_$index');
+
                           return _SelectedExerciseTile(
                             key: stableKey,
                             exercise: re,
@@ -380,7 +445,8 @@ class _WorkoutPageState extends State<WorkoutPage> {
                             onSetsUpdated: (newSets) {
                               setState(() {
                                 if (newSets.isNotEmpty) {
-                                  _selectedExercises[index] = RoutineExerciseEntity(
+                                  _selectedExercises[index] =
+                                      RoutineExerciseEntity(
                                     id: re.id,
                                     routineId: re.routineId,
                                     exercise: re.exercise,
@@ -390,11 +456,12 @@ class _WorkoutPageState extends State<WorkoutPage> {
                                     orderIndex: re.orderIndex,
                                     setsData: jsonEncode(
                                       newSets
-                                          .map((s) => {
-                                                'weight': s.weight,
-                                                'reps': s.reps,
-                                                },
-                                              )
+                                          .map(
+                                            (s) => {
+                                              'weight': s.weight,
+                                              'reps': s.reps,
+                                            },
+                                          )
                                           .toList(),
                                     ),
                                   );
@@ -429,7 +496,10 @@ class _WorkoutPageState extends State<WorkoutPage> {
                   padding: const EdgeInsets.symmetric(vertical: 18),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [theme.colorScheme.primary, theme.colorScheme.tertiary],
+                      colors: [
+                        theme.colorScheme.primary,
+                        theme.colorScheme.tertiary
+                      ],
                     ),
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
@@ -444,7 +514,8 @@ class _WorkoutPageState extends State<WorkoutPage> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.check_circle_rounded, color: Colors.white, size: 22),
+                      const Icon(Icons.check_circle_rounded,
+                          color: Colors.white, size: 22),
                       const SizedBox(width: 10),
                       Text(
                         'SALVA WORKOUT',
@@ -480,9 +551,11 @@ class _WorkoutPageState extends State<WorkoutPage> {
             reps: 0,
             weight: 0,
             orderIndex: _selectedExercises.length,
-            setsData: jsonEncode([
-              {'weight': 0, 'reps': 0},
-            ],),
+            setsData: jsonEncode(
+              [
+                {'weight': 0, 'reps': 0},
+              ],
+            ),
           ),
         );
       }
@@ -526,35 +599,36 @@ class _SelectedExerciseTileState extends State<_SelectedExerciseTile> {
   late List<TextEditingController> repsControllers;
   bool isCollapsed = true;
 
+  bool get _isBodyweight => widget.exercise.exercise.isBodyweight;
+
   @override
   void initState() {
     super.initState();
     sets = [];
     if (widget.exercise.setsData != null) {
       try {
-        final decoded =
-            jsonDecode(widget.exercise.setsData!) as List<dynamic>;
-        sets = decoded
-            .map((dynamic s) {
-              final map = s as Map<String, dynamic>;
-              return ExerciseSet(
-                weight: (map['weight'] as num).toDouble(),
-                reps: map['reps'] as int,
-              );
-            })
-            .toList();
+        final decoded = jsonDecode(widget.exercise.setsData!) as List<dynamic>;
+        sets = decoded.map((dynamic s) {
+          final map = s as Map<String, dynamic>;
+          return ExerciseSet(
+            weight: (map['weight'] as num).toDouble(),
+            reps: map['reps'] as int,
+          );
+        }).toList();
       } catch (e) {
         debugPrint('WorkoutPage _SelectedExerciseTile init error: $e');
         sets = [ExerciseSet(weight: 0, reps: 0)];
       }
     }
-    
+
     if (sets.isEmpty) {
       sets = [ExerciseSet(weight: 0, reps: 0)];
     }
 
     final trainingState = context.read<TrainingBloc>().state;
-    final settings = trainingState is TrainingLoaded ? trainingState.settings : <String, String>{};
+    final settings = trainingState is TrainingLoaded
+        ? trainingState.settings
+        : <String, String>{};
     final isImperial = (settings['units'] ?? 'KG') == 'LB';
 
     if (isImperial) {
@@ -563,15 +637,23 @@ class _SelectedExerciseTileState extends State<_SelectedExerciseTile> {
       }
     }
 
+    if (_isBodyweight) {
+      for (final s in sets) {
+        s.weight = 0;
+      }
+    }
+
     _initControllers();
   }
 
   void _initControllers() {
     weightControllers = sets
-        .map((s) => TextEditingController(text: s.weight == 0 ? '' : s.weight.toStringAsFixed(1)))
+        .map((s) => TextEditingController(
+            text: s.weight == 0 ? '' : s.weight.toStringAsFixed(1)))
         .toList();
     repsControllers = sets
-        .map((s) => TextEditingController(text: s.reps == 0 ? '' : s.reps.toString()))
+        .map((s) =>
+            TextEditingController(text: s.reps == 0 ? '' : s.reps.toString()))
         .toList();
   }
 
@@ -655,7 +737,8 @@ class _SelectedExerciseTileState extends State<_SelectedExerciseTile> {
                         color: theme.colorScheme.surfaceContainerHighest,
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.grey, size: 24),
+                      child: const Icon(Icons.keyboard_arrow_down_rounded,
+                          color: Colors.grey, size: 24),
                     ),
                   ),
                 ),
@@ -686,7 +769,8 @@ class _SelectedExerciseTileState extends State<_SelectedExerciseTile> {
                           height: 1.1,
                         ),
                         maxLines: 2,
-                        overflow: TextOverflow.visible, // Permettiamo al nome di respirare
+                        overflow: TextOverflow
+                            .visible, // Permettiamo al nome di respirare
                       ),
                       Text(
                         '${sets.length} serie',
@@ -710,7 +794,10 @@ class _SelectedExerciseTileState extends State<_SelectedExerciseTile> {
                       ),
                       child: GestureDetector(
                         onTap: widget.onRemove,
-                        child: Icon(Icons.delete_outline, color: theme.colorScheme.error.withValues(alpha: 0.8), size: 18),
+                        child: Icon(Icons.delete_outline,
+                            color:
+                                theme.colorScheme.error.withValues(alpha: 0.8),
+                            size: 18),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -719,10 +806,14 @@ class _SelectedExerciseTileState extends State<_SelectedExerciseTile> {
                       child: Container(
                         padding: const EdgeInsets.all(6),
                         decoration: BoxDecoration(
-                          color: theme.colorScheme.outline.withValues(alpha: 0.1),
+                          color:
+                              theme.colorScheme.outline.withValues(alpha: 0.1),
                           shape: BoxShape.circle,
                         ),
-                        child: Icon(Icons.reorder_rounded, color: theme.colorScheme.outline.withValues(alpha: 0.8), size: 18),
+                        child: Icon(Icons.reorder_rounded,
+                            color: theme.colorScheme.outline
+                                .withValues(alpha: 0.8),
+                            size: 18),
                       ),
                     ),
                   ],
@@ -730,21 +821,25 @@ class _SelectedExerciseTileState extends State<_SelectedExerciseTile> {
               ],
             ),
           ),
-          
+
           // Corpo Espandibile (Serie)
           if (!isCollapsed) ...[
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
               child: Column(
                 children: [
-                  const Divider(height: 1, thickness: 0.5, color: Colors.white10),
+                  const Divider(
+                      height: 1, thickness: 0.5, color: Colors.white10),
                   const SizedBox(height: 16),
                   ...List.generate(sets.length, (index) {
                     return Container(
                       margin: const EdgeInsets.only(bottom: 8),
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: index.isEven ? theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3) : Colors.transparent,
+                        color: index.isEven
+                            ? theme.colorScheme.surfaceContainerHighest
+                                .withValues(alpha: 0.3)
+                            : Colors.transparent,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
@@ -754,7 +849,12 @@ class _SelectedExerciseTileState extends State<_SelectedExerciseTile> {
                             height: 28,
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
-                                colors: [theme.colorScheme.primary.withValues(alpha: 0.2), theme.colorScheme.primary.withValues(alpha: 0.05)],
+                                colors: [
+                                  theme.colorScheme.primary
+                                      .withValues(alpha: 0.2),
+                                  theme.colorScheme.primary
+                                      .withValues(alpha: 0.05)
+                                ],
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,
                               ),
@@ -772,35 +872,56 @@ class _SelectedExerciseTileState extends State<_SelectedExerciseTile> {
                           ),
                           const SizedBox(width: 12),
                           Expanded(
-                            child: _SetInputCell(
-                              controller: weightControllers[index],
-                              label: (context.read<TrainingBloc>().state is TrainingLoaded && 
-                                      (context.read<TrainingBloc>().state as TrainingLoaded).settings['units'] == 'LB') 
-                                      ? 'LB' : 'KG',
-                              onChanged: (v) {
-                                sets[index].weight = double.tryParse(v) ?? 0;
-                                widget.onSetsUpdated(sets);
-                              },
-                            ),
+                            child: _isBodyweight
+                                ? _SetInputCell(
+                                    controller: repsControllers[index],
+                                    label: 'REPS',
+                                    onChanged: (v) {
+                                      sets[index].reps = int.tryParse(v) ?? 0;
+                                      widget.onSetsUpdated(sets);
+                                    },
+                                  )
+                                : _SetInputCell(
+                                    controller: weightControllers[index],
+                                    label: (context.read<TrainingBloc>().state
+                                                is TrainingLoaded &&
+                                            (context.read<TrainingBloc>().state
+                                                        as TrainingLoaded)
+                                                    .settings['units'] ==
+                                                'LB')
+                                        ? 'LB'
+                                        : 'KG',
+                                    onChanged: (v) {
+                                      sets[index].weight =
+                                          double.tryParse(v) ?? 0;
+                                      widget.onSetsUpdated(sets);
+                                    },
+                                  ),
                           ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: _SetInputCell(
-                              controller: repsControllers[index],
-                              label: 'REPS',
-                              onChanged: (v) {
-                                sets[index].reps = int.tryParse(v) ?? 0;
-                                widget.onSetsUpdated(sets);
-                              },
+                          if (!_isBodyweight) ...[
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: _SetInputCell(
+                                controller: repsControllers[index],
+                                label: 'REPS',
+                                onChanged: (v) {
+                                  sets[index].reps = int.tryParse(v) ?? 0;
+                                  widget.onSetsUpdated(sets);
+                                },
+                              ),
                             ),
-                          ),
+                          ],
                           const SizedBox(width: 4),
                           GestureDetector(
                             onTap: () => _removeSet(index),
                             child: Container(
                               padding: const EdgeInsets.all(6),
-                              decoration: const BoxDecoration(shape: BoxShape.circle),
-                              child: Icon(Icons.close_rounded, size: 18, color: theme.colorScheme.error.withValues(alpha: 0.5)),
+                              decoration:
+                                  const BoxDecoration(shape: BoxShape.circle),
+                              child: Icon(Icons.close_rounded,
+                                  size: 18,
+                                  color: theme.colorScheme.error
+                                      .withValues(alpha: 0.5)),
                             ),
                           ),
                         ],
@@ -816,13 +937,16 @@ class _SelectedExerciseTileState extends State<_SelectedExerciseTile> {
                       decoration: BoxDecoration(
                         color: theme.colorScheme.primary.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: theme.colorScheme.primary.withValues(alpha: 0.2)),
+                        border: Border.all(
+                            color: theme.colorScheme.primary
+                                .withValues(alpha: 0.2)),
                       ),
                       alignment: Alignment.center,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.add_rounded, size: 18, color: theme.colorScheme.primary),
+                          Icon(Icons.add_rounded,
+                              size: 18, color: theme.colorScheme.primary),
                           const SizedBox(width: 6),
                           Text(
                             'AGGIUNGI UNA SERIE',
@@ -867,7 +991,8 @@ class _SetInputCell extends StatelessWidget {
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.05)),
+        border: Border.all(
+            color: theme.colorScheme.outline.withValues(alpha: 0.05)),
       ),
       child: Row(
         children: [
@@ -883,7 +1008,8 @@ class _SetInputCell extends StatelessWidget {
                 border: InputBorder.none,
                 isDense: true,
                 hintText: '-',
-                hintStyle: TextStyle(color: theme.colorScheme.outline.withValues(alpha: 0.2)),
+                hintStyle: TextStyle(
+                    color: theme.colorScheme.outline.withValues(alpha: 0.2)),
                 contentPadding: EdgeInsets.zero,
               ),
               onChanged: onChanged,
@@ -999,14 +1125,24 @@ class _ExercisePickerModalState extends State<_ExercisePickerModal> {
                     }
                     if (state is TrainingLoaded) {
                       final filtered = state.exercises
-                          .where((e) =>
-                              e.name
-                                  .toLowerCase()
-                                  .contains(_searchQuery.toLowerCase()) ||
-                              e.targetMuscle.toLowerCase().contains(
-                                    _searchQuery.toLowerCase(),
-                                  ),
-                              )
+                          .where(
+                            (e) =>
+                                e.name
+                                    .toLowerCase()
+                                    .contains(_searchQuery.toLowerCase()) ||
+                                e.targetMuscle.toLowerCase().contains(
+                                      _searchQuery.toLowerCase(),
+                                    ) ||
+                                (e.equipment?.toLowerCase().contains(
+                                          _searchQuery.toLowerCase(),
+                                        ) ??
+                                    false) ||
+                                e.categories.any(
+                                  (category) => category
+                                      .toLowerCase()
+                                      .contains(_searchQuery.toLowerCase()),
+                                ),
+                          )
                           .toList();
 
                       return ListView.separated(
@@ -1053,12 +1189,13 @@ class _ExercisePickerModalState extends State<_ExercisePickerModal> {
                                           .colorScheme.surfaceContainerHighest,
                                       borderRadius: BorderRadius.circular(12),
                                     ),
-                                    child: Icon(Icons.fitness_center,
-                                        size: 24,
-                                        color: isSelected
-                                            ? theme.colorScheme.primary
-                                            : const Color(0xFF94AAFF),
-                                      ),
+                                    child: Icon(
+                                      Icons.fitness_center,
+                                      size: 24,
+                                      color: isSelected
+                                          ? theme.colorScheme.primary
+                                          : const Color(0xFF94AAFF),
+                                    ),
                                   ),
                                   const SizedBox(width: 16),
                                   Expanded(
@@ -1070,27 +1207,29 @@ class _ExercisePickerModalState extends State<_ExercisePickerModal> {
                                           ex.name,
                                           style: theme.textTheme.titleMedium
                                               ?.copyWith(
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 16,
-                                                  color: isAlreadyAdded
-                                                      ? theme.colorScheme.outline
-                                                      : null,
-                                                ),
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                            color: isAlreadyAdded
+                                                ? theme.colorScheme.outline
+                                                : null,
+                                          ),
                                         ),
                                         const SizedBox(height: 4),
                                         Row(
                                           children: [
-                                            Icon(Icons.hub_outlined,
-                                                size: 12,
-                                                color: isSelected
-                                                    ? theme.colorScheme.primary
-                                                    : theme.colorScheme.outline,
-                                              ),
+                                            Icon(
+                                              Icons.hub_outlined,
+                                              size: 12,
+                                              color: isSelected
+                                                  ? theme.colorScheme.primary
+                                                  : theme.colorScheme.outline,
+                                            ),
                                             const SizedBox(width: 4),
                                             Text(
                                               isAlreadyAdded
                                                   ? 'GIÀ AGGIUNTO'
-                                                  : ex.targetMuscle
+                                                  : ex.categories
+                                                      .join(' • ')
                                                       .toUpperCase(),
                                               style: theme.textTheme.labelSmall
                                                   ?.copyWith(

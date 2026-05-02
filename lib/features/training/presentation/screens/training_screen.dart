@@ -151,6 +151,7 @@ class _TrainingScreenState extends State<TrainingScreen>
     if (_phase != _Phase.working) return;
     final ex = _curEx;
     if (ex != null) {
+      final currentSpecs = _getSetSpecs(ex, _setIdx);
       final isFirstSet = _exIdx == 0 && _setIdx == 0;
       final isLastSet = _isLastSet && _isLastEx;
       // Al primo set: salva la durata reale come rpe (secondi dall'inizio)
@@ -166,8 +167,8 @@ class _TrainingScreenState extends State<TrainingScreen>
       context.read<TrainingBloc>().add(AddSetToExercise(
             workoutId: _workoutId,
             exerciseId: ex.exercise.id,
-            reps: ex.reps,
-            weight: ex.weight,
+            reps: currentSpecs.reps,
+            weight: ex.exercise.isBodyweight ? 0 : currentSpecs.weight,
             rpe: rpePayload,
           ));
     }
@@ -684,6 +685,7 @@ class _TrainingScreenState extends State<TrainingScreen>
       RoutineExerciseEntity ex, bool isResting, WeightUnit unit) {
     // Get specs for current set
     final currentSpecs = _getSetSpecs(ex, _setIdx);
+    final isBodyweight = ex.exercise.isBodyweight;
 
     return Container(
       decoration: BoxDecoration(
@@ -829,14 +831,16 @@ class _TrainingScreenState extends State<TrainingScreen>
                             value: currentSpecs.reps.toString(),
                             color: theme.colorScheme.primary,
                             theme: theme)),
-                    const SizedBox(width: 12),
-                    Expanded(
-                        child: _GlassChip(
-                            label: 'PESO',
-                            value: UnitConverter.formatWeight(
-                                currentSpecs.weight, unit),
-                            color: theme.colorScheme.secondary,
-                            theme: theme)),
+                    if (!isBodyweight) ...[
+                      const SizedBox(width: 12),
+                      Expanded(
+                          child: _GlassChip(
+                              label: 'PESO',
+                              value: UnitConverter.formatWeight(
+                                  currentSpecs.weight, unit),
+                              color: theme.colorScheme.secondary,
+                              theme: theme)),
+                    ],
                   ],
                 ),
               ],
@@ -914,6 +918,17 @@ class _TrainingScreenState extends State<TrainingScreen>
     return (weight: re.weight, reps: re.reps);
   }
 
+  String _formatSetSummary(
+    RoutineExerciseEntity exercise,
+    ({double weight, int reps}) specs,
+    WeightUnit unit,
+  ) {
+    if (exercise.exercise.isBodyweight) {
+      return '${specs.reps} reps';
+    }
+    return '${specs.reps} x ${UnitConverter.formatWeight(specs.weight, unit)}';
+  }
+
   Widget _buildNextUp(ThemeData theme, Color accent, WeightUnit unit) {
     String nextName;
     String nextInfo;
@@ -923,14 +938,14 @@ class _TrainingScreenState extends State<TrainingScreen>
       final ns = _setIdx + 2;
       final nextSpecs = _getSetSpecs(_curEx!, _setIdx + 1);
       nextInfo =
-          'Prossima: ${nextSpecs.reps} x ${UnitConverter.formatWeight(nextSpecs.weight, unit)} (Serie $ns di $_totalSets)';
+          'Prossima: ${_formatSetSummary(_curEx!, nextSpecs, unit)} (Serie $ns di $_totalSets)';
       nextIcon = Icons.replay_rounded;
     } else if (!_isLastEx) {
       final ne = _exercises[_exIdx + 1];
       nextName = ne.exercise.name;
       final firstSpecs = _getSetSpecs(ne, 0);
       nextInfo =
-          'Inizio: ${firstSpecs.reps} x ${UnitConverter.formatWeight(firstSpecs.weight, unit)} (${ne.sets} serie totali)';
+          'Inizio: ${_formatSetSummary(ne, firstSpecs, unit)} (${ne.sets} serie totali)';
       nextIcon = Icons.arrow_forward_rounded;
     } else {
       nextName = 'Ultimo esercizio!';

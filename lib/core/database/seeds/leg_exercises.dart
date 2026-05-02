@@ -253,6 +253,7 @@ const legExercises = [
     name: Value('Sissy Squat'),
     targetMuscle: Value('Gambe'),
     equipment: Value('Corpo libero (with supporto) o Macchina specifica'),
+    isBodyweight: Value(true),
     focusArea: Value('Quadricipiti (isolamento, focus retto femorale)'),
     preparation: Value(
       "In piedi, afferra un supporto per l'equilibrio (se a corpo libero). Piedi vicini.",

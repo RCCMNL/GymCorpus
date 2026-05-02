@@ -164,6 +164,7 @@ const chestExercises = [
     name: Value('Piegamenti sulle braccia (Push-ups)'),
     targetMuscle: Value('Petto'),
     equipment: Value('Corpo libero'),
+    isBodyweight: Value(true),
     focusArea: Value(
       'Pettorali (sterno-costale), Tricipiti, Deltoidi anteriori, Core',
     ),
@@ -181,8 +182,9 @@ const chestExercises = [
     name: Value('Piegamenti sulle braccia declinati'),
     targetMuscle: Value('Petto'),
     equipment: Value('Corpo libero, Rialzo (panca, sedia)'),
-    focusArea:
-        Value('Pettorali (focus clavicolare/alto), Deltoidi anteriori, Tricipiti'),
+    isBodyweight: Value(true),
+    focusArea: Value(
+        'Pettorali (focus clavicolare/alto), Deltoidi anteriori, Tricipiti'),
     preparation: Value(
       'Posizione di plank come i push-up, ma con i piedi appoggiati su un rialzo (panca, step o sedia stabile). Mani a terra.',
     ),
@@ -197,7 +199,8 @@ const chestExercises = [
     name: Value('Dip alle parallele'),
     targetMuscle: Value('Petto'),
     equipment: Value('Parallele (o Dip station)'),
-    focusArea: Value('Pettorali (focus basso/esterno), Tricipiti, Deltoidi anteriori'),
+    focusArea:
+        Value('Pettorali (focus basso/esterno), Tricipiti, Deltoidi anteriori'),
     preparation: Value(
       "Afferra le parallele con una presa neutra (larghezza spalle o leggermente più larga). Sostieniti a braccia tese, gambe incrociate o tese all'indietro.",
     ),
@@ -227,7 +230,8 @@ const chestExercises = [
     name: Value('Chest Press'),
     targetMuscle: Value('Petto'),
     equipment: Value('Macchinario (Chest Press)'),
-    focusArea: Value('Pettorali (sterno-costale), Tricipiti, Deltoidi anteriori'),
+    focusArea:
+        Value('Pettorali (sterno-costale), Tricipiti, Deltoidi anteriori'),
     preparation: Value(
       "Regola il sedile in modo che le impugnature siano all'altezza della parte centrale del petto. Siediti con la schiena ben appoggiata e afferra le impugnature (presa prona o neutra).",
     ),
@@ -242,7 +246,8 @@ const chestExercises = [
     name: Value('Pullover(Manubrio)'),
     targetMuscle: Value('Petto'),
     equipment: Value('Panca piana, Manubrio'),
-    focusArea: Value('Pettorali (allungamento), Gran Dorsale, Serrato anteriore'),
+    focusArea:
+        Value('Pettorali (allungamento), Gran Dorsale, Serrato anteriore'),
     preparation: Value(
       "Sdraiati trasversalmente sulla panca, appoggiando solo la parte alta della schiena (scapole). Tieni un manubrio con entrambe le mani (presa a 'diamante') sopra il petto. Bacino basso.",
     ),
@@ -257,7 +262,8 @@ const chestExercises = [
     name: Value('Svendsen Press'),
     targetMuscle: Value('Petto'),
     equipment: Value('Dischi (o due manubri piccoli)'),
-    focusArea: Value('Pettorali (contrazione isometrica, focus interno/sterno)'),
+    focusArea:
+        Value('Pettorali (contrazione isometrica, focus interno/sterno)'),
     preparation: Value(
       "In piedi o seduto. Tieni due dischi da 2.5kg o 5kg (o due manubri leggeri) premuti l'uno contro l'altro davanti al petto. I palmi delle mani si fronteggiano, spingendo attivamente.",
     ),

@@ -1,6 +1,8 @@
 import 'package:equatable/equatable.dart';
 
 class ExerciseEntity extends Equatable {
+  static const String bodyweightCategory = 'Corpo libero';
+
   const ExerciseEntity({
     required this.id,
     required this.name,
@@ -13,6 +15,7 @@ class ExerciseEntity extends Equatable {
     this.execution,
     this.tips,
     this.userNotes,
+    this.isBodyweight = false,
     this.isVector = false,
     this.isFavorite = false,
   });
@@ -28,8 +31,21 @@ class ExerciseEntity extends Equatable {
   final String? execution;
   final String? tips;
   final String? userNotes;
+  final bool isBodyweight;
   final bool isVector;
   final bool isFavorite;
+
+  List<String> get categories {
+    final values = <String>[];
+    final muscle = targetMuscle.trim();
+    if (muscle.isNotEmpty) {
+      values.add(muscle);
+    }
+    if (isBodyweight && !values.contains(bodyweightCategory)) {
+      values.add(bodyweightCategory);
+    }
+    return List.unmodifiable(values);
+  }
 
   @override
   List<Object?> get props => [
@@ -44,6 +60,7 @@ class ExerciseEntity extends Equatable {
         execution,
         tips,
         userNotes,
+        isBodyweight,
         isVector,
         isFavorite,
       ];
@@ -69,5 +86,6 @@ class WorkoutSetEntity extends Equatable {
   final DateTime timestamp;
 
   @override
-  List<Object?> get props => [id, workoutId, exerciseId, reps, weight, rpe, timestamp];
+  List<Object?> get props =>
+      [id, workoutId, exerciseId, reps, weight, rpe, timestamp];
 }

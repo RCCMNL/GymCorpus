@@ -25,6 +25,7 @@ class Exercises extends Table {
   TextColumn get execution => text().nullable()();
   TextColumn get tips => text().nullable()();
   TextColumn get userNotes => text().nullable()();
+  BoolColumn get isBodyweight => boolean().withDefault(const Constant(false))();
   BoolColumn get isVector => boolean().withDefault(const Constant(false))();
   BoolColumn get isFavorite => boolean().withDefault(const Constant(false))();
 }
@@ -96,8 +97,7 @@ class NotificationLogs extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get title => text()();
   TextColumn get body => text()();
-  DateTimeColumn get timestamp =>
-      dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get timestamp => dateTime().withDefault(currentDateAndTime)();
   BoolColumn get isRead => boolean().withDefault(const Constant(false))();
   TextColumn get type => text().withDefault(const Constant('general'))();
 }
@@ -118,7 +118,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 14;
+  int get schemaVersion => 15;
 
   @override
   MigrationStrategy get migration {
@@ -183,8 +183,15 @@ class AppDatabase extends _$AppDatabase {
     await _ensureColumn(m, exercises, exercises.execution, 'execution');
     await _ensureColumn(m, exercises, exercises.tips, 'tips');
     await _ensureColumn(m, exercises, exercises.userNotes, 'user_notes');
+    await _ensureColumn(m, exercises, exercises.isBodyweight, 'is_bodyweight');
     await _ensureColumn(m, exercises, exercises.isVector, 'is_vector');
     await _ensureColumn(m, exercises, exercises.isFavorite, 'is_favorite');
+
+    await customStatement("""
+      UPDATE ${exercises.actualTableName}
+      SET is_bodyweight = 1
+      WHERE LOWER(COALESCE(equipment, '')) LIKE '%corpo libero%'
+    """);
 
     await _ensureColumn(
         m, routines, routines.estimatedDuration, 'estimated_duration');
@@ -212,16 +219,13 @@ class AppDatabase extends _$AppDatabase {
     await _ensureColumn(m, bodyMeasurements, bodyMeasurements.value, 'value');
     await _ensureColumn(m, bodyMeasurements, bodyMeasurements.date, 'date');
 
-    await _ensureColumn(
-        m, notificationLogs, notificationLogs.title, 'title');
-    await _ensureColumn(
-        m, notificationLogs, notificationLogs.body, 'body');
+    await _ensureColumn(m, notificationLogs, notificationLogs.title, 'title');
+    await _ensureColumn(m, notificationLogs, notificationLogs.body, 'body');
     await _ensureColumn(
         m, notificationLogs, notificationLogs.timestamp, 'timestamp');
     await _ensureColumn(
         m, notificationLogs, notificationLogs.isRead, 'is_read');
-    await _ensureColumn(
-        m, notificationLogs, notificationLogs.type, 'type');
+    await _ensureColumn(m, notificationLogs, notificationLogs.type, 'type');
   }
 
   Future<void> _ensureTable(Migrator m, TableInfo<Table, dynamic> table) async {
@@ -422,9 +426,8 @@ class AppDatabase extends _$AppDatabase {
       (update(notificationLogs)..where((t) => t.id.equals(id)))
           .write(const NotificationLogsCompanion(isRead: Value(true)));
 
-  Future<void> markAllNotificationsRead() =>
-      update(notificationLogs)
-          .write(const NotificationLogsCompanion(isRead: Value(true)));
+  Future<void> markAllNotificationsRead() => update(notificationLogs)
+      .write(const NotificationLogsCompanion(isRead: Value(true)));
 
   Future<void> deleteNotificationLog(int id) =>
       (delete(notificationLogs)..where((t) => t.id.equals(id))).go();

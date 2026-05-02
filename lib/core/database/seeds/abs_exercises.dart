@@ -7,6 +7,7 @@ const absExercises = [
     name: Value('Crunch'),
     targetMuscle: Value('Addominali'),
     equipment: Value('Corpo libero, Tappetino'),
+    isBodyweight: Value(true),
     focusArea: Value("Retto dell'addome (focus parte alta)"),
     preparation: Value(
       'Sdraiato supino, ginocchia piegate, piedi a terra. Mani al petto o ai lati della testa (non tirare il collo!).',
@@ -22,6 +23,7 @@ const absExercises = [
     name: Value('Crunch inverso'),
     targetMuscle: Value('Addominali'),
     equipment: Value('Corpo libero, Tappetino'),
+    isBodyweight: Value(true),
     focusArea: Value("Retto dell'addome (focus parte bassa)"),
     preparation: Value(
       'Sdraiato supino, braccia lungo i fianchi (palmi a terra per stabilità). Solleva le gambe with ginocchia piegate a 90°.',
@@ -37,6 +39,7 @@ const absExercises = [
     name: Value('Plank'),
     targetMuscle: Value('Addominali'),
     equipment: Value('Corpo libero, Tappetino'),
+    isBodyweight: Value(true),
     focusArea: Value('Core (Trasverso, Retto), Stabilità totale'),
     preparation: Value(
       'Posizionati sugli avambracci (paralleli o mani giunte) e sulle punte dei piedi. Corpo dritto come una tavola (testa, spalle, bacino, talloni allineati).',
@@ -52,6 +55,7 @@ const absExercises = [
     name: Value('Side Plank'),
     targetMuscle: Value('Addominali'),
     equipment: Value('Corpo libero, Tappetino'),
+    isBodyweight: Value(true),
     focusArea: Value('Obliqui, Quadrato dei lombi, Gluteo medio'),
     preparation: Value(
       'Appoggiati su un avambraccio (gomito sotto la spalla) e sul lato del piede. Corpo dritto lateralmente.',
@@ -91,6 +95,7 @@ const absExercises = [
     name: Value('Sollevamento gambe a terra'),
     targetMuscle: Value('Addominali'),
     equipment: Value('Corpo libero, Tappetino'),
+    isBodyweight: Value(true),
     focusArea: Value("Retto dell'addome (parte bassa), Flessori dell'anca"),
     preparation: Value(
       'Sdraiato supino, gambe tese. Mani sotto i glutei (per supporto lombare) o lungo i fianchi.',
@@ -121,6 +126,7 @@ const absExercises = [
     name: Value('Bicycle Crunch'),
     targetMuscle: Value('Addominali'),
     equipment: Value('Corpo libero, Tappetino'),
+    isBodyweight: Value(true),
     focusArea: Value("Retto dell'addome, Obliqui (molto completo)"),
     preparation: Value(
       'Supino, mani ai lati della testa. Solleva spalle e gambe da terra.',
@@ -177,6 +183,7 @@ const absExercises = [
     name: Value('V-Ups'),
     targetMuscle: Value('Addominali'),
     equipment: Value('Corpo libero, Tappetino'),
+    isBodyweight: Value(true),
     focusArea: Value("Retto dell'addome (parte alta e bassa)"),
     preparation: Value('Supino, braccia tese oltre la testa, gambe tese.'),
     execution: Value(
@@ -190,6 +197,7 @@ const absExercises = [
     name: Value('Hollow Body Hold'),
     targetMuscle: Value('Addominali'),
     equipment: Value('Corpo libero, Tappetino'),
+    isBodyweight: Value(true),
     focusArea: Value('Core (Trasverso, Retto), Stabilità (base ginnastica)'),
     preparation: Value(
       "Supino. Contrai l'addome spingendo la zona lombare a terra (fondamentale!). Solleva testa, spalle e gambe tese di pochi cm da terra. Braccia tese oltre la testa o lungo i fianchi.",
@@ -235,8 +243,10 @@ const absExercises = [
     name: Value('Sit-up'),
     targetMuscle: Value('Addominali'),
     equipment: Value('Corpo libero, Tappetino (o panca GHD)'),
+    isBodyweight: Value(true),
     focusArea: Value("Retto dell'addome, Flessori dell'anca"),
-    preparation: Value('Supino, ginocchia piegate. (Spesso with piedi bloccati).'),
+    preparation:
+        Value('Supino, ginocchia piegate. (Spesso with piedi bloccati).'),
     execution: Value(
       "Solleva l'intero busto da terra fino a portarlo in posizione seduta. Scendi controllato.",
     ),
@@ -278,6 +288,7 @@ const absExercises = [
     name: Value('Mountain Climbers'),
     targetMuscle: Value('Addominali'),
     equipment: Value('Corpo libero, Tappetino'),
+    isBodyweight: Value(true),
     focusArea: Value('Core (stabilità), Retto addome, Flessori anca, Cardio'),
     preparation: Value(
       'Posizione di plank a braccia tese (mani sotto le spalle).',

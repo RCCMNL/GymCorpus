@@ -251,6 +251,7 @@ const shoulderExercises = [
     name: Value('Pike Push-up'),
     targetMuscle: Value('Spalle'),
     equipment: Value('Corpo libero'),
+    isBodyweight: Value(true),
     focusArea: Value('Deltoidi (anteriori, mediali), Tricipiti'),
     preparation: Value(
       "Posizione di 'V' rovesciata (Down-Dog nello yoga). Mani larghezza spalle, sedere alto.",
@@ -266,6 +267,7 @@ const shoulderExercises = [
     name: Value('Handstand Push-up'),
     targetMuscle: Value('Spalle'),
     equipment: Value('Corpo libero, Muro (per supporto)'),
+    isBodyweight: Value(true),
     focusArea: Value('Deltoidi, Tricipiti, Trapezio (avanzato)'),
     preparation: Value(
       'Posizionati in verticale (handstand) with i talloni appoggiati al muro per equilibrio.',

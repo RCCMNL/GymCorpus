@@ -42,18 +42,30 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
             if (state is TrainingLoaded) {
               // Filtering
               final filteredExercises = state.exercises.where((e) {
-                final matchesSearch = e.name.toLowerCase().contains(_searchQuery.toLowerCase());
-                final matchesMuscle = _selectedMuscle == 'Tutti' || 
-                                    (_selectedMuscle == 'Preferiti' && e.isFavorite) || 
-                                    e.targetMuscle == _selectedMuscle;
+                final search = _searchQuery.toLowerCase();
+                final matchesSearch = e.name.toLowerCase().contains(search) ||
+                    (e.equipment?.toLowerCase().contains(search) ?? false) ||
+                    e.categories.any(
+                      (category) => category.toLowerCase().contains(search),
+                    );
+                final matchesMuscle = _selectedMuscle == 'Tutti' ||
+                    (_selectedMuscle == 'Preferiti' && e.isFavorite) ||
+                    e.categories.contains(_selectedMuscle);
                 return matchesSearch && matchesMuscle;
               }).toList();
 
               // Grouping
               final grouped = <String, List<ExerciseEntity>>{};
               for (final ex in filteredExercises) {
-                final muscle = ex.targetMuscle.isEmpty ? 'Altro' : ex.targetMuscle;
-                grouped.putIfAbsent(muscle, () => []).add(ex);
+                final categories =
+                    _selectedMuscle == 'Tutti' || _selectedMuscle == 'Preferiti'
+                        ? ex.categories
+                        : ex.categories.where((c) => c == _selectedMuscle);
+
+                for (final category in categories) {
+                  final section = category.isEmpty ? 'Altro' : category;
+                  grouped.putIfAbsent(section, () => []).add(ex);
+                }
               }
               final sections = grouped.keys.toList()..sort();
 
@@ -62,11 +74,11 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
                 'Tutti',
                 'Preferiti',
                 ...state.exercises
-                    .map((e) => e.targetMuscle)
+                    .expand((e) => e.categories)
                     .where((m) => m.isNotEmpty)
                     .toSet()
                     .toList()
-                    ..sort(),
+                  ..sort(),
               ];
 
               return CustomScrollView(
@@ -78,18 +90,24 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
                       padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
                       child: Container(
                         decoration: BoxDecoration(
-                          color: theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.8),
+                          color: theme.colorScheme.surfaceContainerHigh
+                              .withValues(alpha: 0.8),
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: TextField(
-                          onChanged: (val) => setState(() => _searchQuery = val),
+                          onChanged: (val) =>
+                              setState(() => _searchQuery = val),
                           style: const TextStyle(fontWeight: FontWeight.bold),
                           decoration: InputDecoration(
                             hintText: 'Cerca esercizio...',
-                            hintStyle: TextStyle(color: theme.colorScheme.outline.withValues(alpha: 0.6)),
-                            prefixIcon: Icon(Icons.search, color: theme.colorScheme.primary),
+                            hintStyle: TextStyle(
+                                color: theme.colorScheme.outline
+                                    .withValues(alpha: 0.6)),
+                            prefixIcon: Icon(Icons.search,
+                                color: theme.colorScheme.primary),
                             border: InputBorder.none,
-                            contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                            contentPadding:
+                                const EdgeInsets.symmetric(vertical: 14),
                           ),
                         ),
                       ),
@@ -112,15 +130,20 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
                             child: ChoiceChip(
                               label: Text(muscle),
                               selected: isSelected,
-                              onSelected: (val) => setState(() => _selectedMuscle = muscle),
-                              backgroundColor: theme.colorScheme.surfaceContainerHigh,
+                              onSelected: (val) =>
+                                  setState(() => _selectedMuscle = muscle),
+                              backgroundColor:
+                                  theme.colorScheme.surfaceContainerHigh,
                               selectedColor: theme.colorScheme.primary,
                               labelStyle: TextStyle(
-                                color: isSelected ? theme.colorScheme.onPrimary : theme.colorScheme.onSurface,
+                                color: isSelected
+                                    ? theme.colorScheme.onPrimary
+                                    : theme.colorScheme.onSurface,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 12,
                               ),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(24)),
                               showCheckmark: false,
                               side: BorderSide.none,
                             ),
@@ -136,7 +159,8 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
                   ...sections.expand((section) {
                     final exercises = grouped[section] ?? [];
                     final isExpanded = _expandedCategories.contains(section);
-                    final displayedExercises = isExpanded ? exercises : exercises.take(3).toList();
+                    final displayedExercises =
+                        isExpanded ? exercises : exercises.take(3).toList();
                     final hasMore = exercises.length > 3;
 
                     return [
@@ -156,7 +180,10 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
                                     gradient: const LinearGradient(
                                       begin: Alignment.topCenter,
                                       end: Alignment.bottomCenter,
-                                      colors: [Colors.orangeAccent, Colors.deepOrange],
+                                      colors: [
+                                        Colors.orangeAccent,
+                                        Colors.deepOrange
+                                      ],
                                     ),
                                     borderRadius: BorderRadius.circular(2),
                                   ),
@@ -165,7 +192,8 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
                                 Expanded(
                                   child: Text(
                                     section.toUpperCase(),
-                                    style: theme.textTheme.titleMedium?.copyWith(
+                                    style:
+                                        theme.textTheme.titleMedium?.copyWith(
                                       fontWeight: FontWeight.w900,
                                       letterSpacing: 0.5,
                                       fontFamily: 'Lexend',
@@ -177,17 +205,23 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
                                   Row(
                                     children: [
                                       Text(
-                                        isExpanded ? 'MENO' : 'TUTTI (${exercises.length})',
+                                        isExpanded
+                                            ? 'MENO'
+                                            : 'TUTTI (${exercises.length})',
                                         style: TextStyle(
-                                          color: theme.colorScheme.primary.withValues(alpha: 0.6),
+                                          color: theme.colorScheme.primary
+                                              .withValues(alpha: 0.6),
                                           fontSize: 10,
                                           fontWeight: FontWeight.w900,
                                         ),
                                       ),
                                       const SizedBox(width: 4),
                                       Icon(
-                                        isExpanded ? Icons.expand_less : Icons.expand_more,
-                                        color: theme.colorScheme.primary.withValues(alpha: 0.6),
+                                        isExpanded
+                                            ? Icons.expand_less
+                                            : Icons.expand_more,
+                                        color: theme.colorScheme.primary
+                                            .withValues(alpha: 0.6),
                                         size: 16,
                                       ),
                                     ],
@@ -206,7 +240,8 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
                             (context, index) {
                               return Padding(
                                 padding: const EdgeInsets.only(bottom: 12),
-                                child: _ExerciseTile(exercise: displayedExercises[index]),
+                                child: _ExerciseTile(
+                                    exercise: displayedExercises[index]),
                               );
                             },
                             childCount: displayedExercises.length,
@@ -280,8 +315,10 @@ class _ExerciseTile extends StatelessWidget {
                                   height: 20,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
-                                    value: loadingProgress.expectedTotalBytes != null
-                                        ? loadingProgress.cumulativeBytesLoaded /
+                                    value: loadingProgress.expectedTotalBytes !=
+                                            null
+                                        ? loadingProgress
+                                                .cumulativeBytesLoaded /
                                             loadingProgress.expectedTotalBytes!
                                         : null,
                                   ),
@@ -319,13 +356,17 @@ class _ExerciseTile extends StatelessWidget {
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        Icon(Icons.bolt, size: 12, color: theme.colorScheme.outline.withValues(alpha: 0.5)),
+                        Icon(Icons.bolt,
+                            size: 12,
+                            color: theme.colorScheme.outline
+                                .withValues(alpha: 0.5)),
                         const SizedBox(width: 4),
                         Expanded(
                           child: Text(
                             exercise.equipment?.toUpperCase() ?? 'CORPO LIBERO',
                             style: theme.textTheme.labelSmall?.copyWith(
-                              color: theme.colorScheme.outline.withValues(alpha: 0.7),
+                              color: theme.colorScheme.outline
+                                  .withValues(alpha: 0.7),
                               fontSize: 9,
                               fontWeight: FontWeight.w900,
                             ),
@@ -351,7 +392,9 @@ class _ExerciseTile extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Icon(
-                    exercise.isFavorite ? Icons.favorite : Icons.favorite_border,
+                    exercise.isFavorite
+                        ? Icons.favorite
+                        : Icons.favorite_border,
                     color: Colors.redAccent.withValues(alpha: 0.8),
                     size: 22,
                   ),

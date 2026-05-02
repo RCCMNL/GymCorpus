@@ -189,6 +189,7 @@ const tricepsExercises = [
     name: Value('Diamond Push-ups'),
     targetMuscle: Value('Tricipiti'),
     equipment: Value('Corpo libero, Tappetino'),
+    isBodyweight: Value(true),
     focusArea: Value('Tricipiti, Petto (interno), Deltoidi anteriori'),
     preparation: Value(
       "Posizione di plank. Avvicina le mani sotto lo sterno, unendo pollici e indici a formare un 'diamante'.",
@@ -275,6 +276,7 @@ const tricepsExercises = [
     name: Value('Estensioni su panca '),
     targetMuscle: Value('Tricipiti'),
     equipment: Value('Panca, Corpo libero'),
+    isBodyweight: Value(true),
     focusArea: Value('Tricipiti'),
     preparation: Value(
       'Posiziona le mani sul bordo di una panca (presa larghezza spalle). Corpo in posizione plank (piedi a terra indietro).',
@@ -290,6 +292,7 @@ const tricepsExercises = [
     name: Value('Piegamenti esplosivi'),
     targetMuscle: Value('Tricipiti'),
     equipment: Value('Corpo libero'),
+    isBodyweight: Value(true),
     focusArea: Value('Tricipiti (potenza, fibre veloci), Petto'),
     preparation: Value('Posizione di push-up (presa media o stretta).'),
     execution: Value(
