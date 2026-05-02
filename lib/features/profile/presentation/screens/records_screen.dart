@@ -88,6 +88,8 @@ class _RecordTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = _categoryColor(record.category, theme);
 
+    final isNumeric = RegExp(r'^\d').hasMatch(record.value) || record.value == '-';
+
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
@@ -98,6 +100,7 @@ class _RecordTile extends StatelessWidget {
         ),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
             width: 46,
@@ -112,35 +115,66 @@ class _RecordTile extends StatelessWidget {
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   record.title,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  record.subtitle,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.bodySmall?.copyWith(
+                  style: theme.textTheme.titleSmall?.copyWith(
                     color: theme.colorScheme.outline,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
+                const SizedBox(height: 2),
+                if (!isNumeric)
+                  Text(
+                    record.value,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w900,
+                      fontFamily: 'Lexend',
+                    ),
+                  )
+                else
+                  Text(
+                    record.subtitle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.outline,
+                    ),
+                  ),
+                if (!isNumeric)
+                  const SizedBox(height: 2),
+                if (!isNumeric)
+                  Text(
+                    record.subtitle,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.outline,
+                    ),
+                  ),
               ],
             ),
           ),
-          const SizedBox(width: 12),
-          Text(
-            record.value,
-            textAlign: TextAlign.right,
-            style: theme.textTheme.titleLarge?.copyWith(
-              color: color,
-              fontFamily: 'Lexend',
-              fontWeight: FontWeight.w900,
+          if (isNumeric) ...[
+            const SizedBox(width: 12),
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: MediaQuery.of(context).size.width * 0.4,
+              ),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerRight,
+                child: Text(
+                  record.value,
+                  textAlign: TextAlign.right,
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    color: color,
+                    fontFamily: 'Lexend',
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
             ),
-          ),
+          ],
         ],
       ),
     );
@@ -153,6 +187,8 @@ IconData _categoryIcon(AchievementCategory category) {
     AchievementCategory.performance => Icons.fitness_center_rounded,
     AchievementCategory.cardio => Icons.directions_run_rounded,
     AchievementCategory.variety => Icons.auto_awesome_mosaic_rounded,
+    AchievementCategory.specialization => Icons.ads_click_rounded,
+    AchievementCategory.streak => Icons.bolt_rounded,
   };
 }
 
@@ -162,5 +198,7 @@ Color _categoryColor(AchievementCategory category, ThemeData theme) {
     AchievementCategory.performance => theme.colorScheme.primary,
     AchievementCategory.cardio => theme.colorScheme.tertiary,
     AchievementCategory.variety => Colors.tealAccent,
+    AchievementCategory.specialization => Colors.purpleAccent,
+    AchievementCategory.streak => Colors.yellowAccent,
   };
 }

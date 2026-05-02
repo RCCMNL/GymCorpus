@@ -42,6 +42,14 @@ class _TrophyBoardScreenState extends State<TrophyBoardScreen> {
                   )
                 : AthleteProgress.empty();
 
+            // Raggruppamento per GroupId
+            final groupedAchievements = <String, List<AchievementProgress>>{};
+            for (final achievement in progress.achievements) {
+              groupedAchievements
+                  .putIfAbsent(achievement.definition.groupId, () => [])
+                  .add(achievement);
+            }
+
             return ListView(
               padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
               children: [
@@ -56,17 +64,17 @@ class _TrophyBoardScreenState extends State<TrophyBoardScreen> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  '${progress.unlockedAchievements}/${progress.achievements.length} trofei sbloccati',
+                  '${progress.unlockedAchievements}/${progress.achievements.length} obiettivi completati',
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: theme.colorScheme.outline,
                   ),
                 ),
                 const SizedBox(height: 20),
-                ...progress.achievements.map(
-                  (achievement) => Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: _AchievementTile(
-                      achievement: achievement,
+                ...groupedAchievements.values.map(
+                  (group) => Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: _GroupedAchievementCard(
+                      group: group,
                       theme: theme,
                     ),
                   ),
@@ -78,6 +86,194 @@ class _TrophyBoardScreenState extends State<TrophyBoardScreen> {
       ),
     );
   }
+}
+
+class _GroupedAchievementCard extends StatelessWidget {
+  const _GroupedAchievementCard({
+    required this.group,
+    required this.theme,
+  });
+
+  final List<AchievementProgress> group;
+  final ThemeData theme;
+
+  @override
+  Widget build(BuildContext context) {
+    // Ordina per tier
+    final sortedGroup = [...group]..sort((a, b) => a.definition.tier.compareTo(b.definition.tier));
+    
+    final highestUnlocked = sortedGroup.where((a) => a.isUnlocked).lastOrNull;
+    final nextToUnlock = sortedGroup.where((a) => !a.isUnlocked).firstOrNull;
+    
+    // Se tutti sono sbloccati, mostra l'ultimo. Se nessuno è sbloccato, mostra il primo.
+    final displayAchievement = nextToUnlock ?? highestUnlocked ?? sortedGroup.first;
+    final isMastered = nextToUnlock == null;
+    
+    final color = _categoryColor(displayAchievement.definition.category, theme);
+    final rarityColor = highestUnlocked != null 
+        ? _rarityColor(highestUnlocked.definition.rarity)
+        : theme.colorScheme.outline.withValues(alpha: 0.5);
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.45),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: isMastered 
+              ? Colors.amber.withValues(alpha: 0.5) 
+              : rarityColor.withValues(alpha: 0.2),
+          width: isMastered ? 2 : 1,
+        ),
+        boxShadow: isMastered ? [
+          BoxShadow(
+            color: Colors.amber.withValues(alpha: 0.1),
+            blurRadius: 15,
+            spreadRadius: 1,
+          )
+        ] : null,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 54,
+                height: 54,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    colors: [
+                      color.withValues(alpha: 0.2),
+                      color.withValues(alpha: 0.05),
+                    ],
+                  ),
+                ),
+                child: Icon(
+                  _categoryIcon(displayAchievement.definition.category),
+                  color: color,
+                  size: 28,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      displayAchievement.definition.title.split(' ').first, // Nome del gruppo
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: sortedGroup.map((a) => Padding(
+                        padding: const EdgeInsets.only(right: 6),
+                        child: _TierIndicator(
+                          rarity: a.definition.rarity,
+                          isUnlocked: a.isUnlocked,
+                          theme: theme,
+                        ),
+                      )).toList(),
+                    ),
+                  ],
+                ),
+              ),
+              if (isMastered)
+                const Icon(Icons.stars_rounded, color: Colors.amber, size: 28),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Text(
+            isMastered 
+              ? 'Sfida Completata! Hai raggiunto il grado massimo.'
+              : displayAchievement.definition.description,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+              height: 1.4,
+            ),
+          ),
+          if (!isMastered) ...[
+            const SizedBox(height: 16),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(999),
+              child: LinearProgressIndicator(
+                value: displayAchievement.ratio,
+                minHeight: 8,
+                backgroundColor: theme.colorScheme.surface.withValues(alpha: 0.3),
+                valueColor: AlwaysStoppedAnimation(color),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Progresso ${displayAchievement.definition.title}',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: theme.colorScheme.outline,
+                  ),
+                ),
+                Text(
+                  '${_formatValue(displayAchievement.current)} / ${_formatValue(displayAchievement.definition.target)}',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    fontWeight: FontWeight.w900,
+                    color: color,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  String _formatValue(double v) {
+    if (v >= 1000000) return '${(v/1000000).toStringAsFixed(1)}M';
+    if (v >= 1000) return '${(v/1000).toStringAsFixed(1)}k';
+    return v.round().toString();
+  }
+}
+
+class _TierIndicator extends StatelessWidget {
+  const _TierIndicator({
+    required this.rarity,
+    required this.isUnlocked,
+    required this.theme,
+  });
+
+  final AchievementRarity rarity;
+  final bool isUnlocked;
+  final ThemeData theme;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = _rarityColor(rarity);
+    return Container(
+      width: 12,
+      height: 12,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: isUnlocked ? color : theme.colorScheme.outline.withValues(alpha: 0.2),
+        boxShadow: isUnlocked ? [
+          BoxShadow(color: color.withValues(alpha: 0.4), blurRadius: 4)
+        ] : null,
+      ),
+    );
+  }
+}
+
+Color _rarityColor(AchievementRarity rarity) {
+  return switch (rarity) {
+    AchievementRarity.bronze => const Color(0xFFCD7F32),
+    AchievementRarity.silver => const Color(0xFFC0C0C0),
+    AchievementRarity.gold => const Color(0xFFFFD700),
+    AchievementRarity.platinum => const Color(0xFFE5E4E2),
+  };
 }
 
 class _LevelHero extends StatelessWidget {
@@ -179,145 +375,14 @@ class _LevelHero extends StatelessWidget {
   }
 }
 
-class _AchievementTile extends StatelessWidget {
-  const _AchievementTile({
-    required this.achievement,
-    required this.theme,
-  });
-
-  final AchievementProgress achievement;
-  final ThemeData theme;
-
-  @override
-  Widget build(BuildContext context) {
-    final color = _categoryColor(achievement.definition.category, theme);
-    final isUnlocked = achievement.isUnlocked;
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.45),
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(
-          color: isUnlocked
-              ? color.withValues(alpha: 0.35)
-              : theme.colorScheme.outline.withValues(alpha: 0.08),
-        ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 50,
-            height: 50,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: color.withValues(alpha: isUnlocked ? 0.16 : 0.08),
-            ),
-            child: Icon(
-              isUnlocked
-                  ? _categoryIcon(achievement.definition.category)
-                  : Icons.lock_rounded,
-              color: isUnlocked ? color : theme.colorScheme.outline,
-            ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        achievement.definition.title,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w900,
-                          color: isUnlocked ? null : theme.colorScheme.outline,
-                        ),
-                      ),
-                    ),
-                    _RarityPill(
-                      rarity: achievement.definition.rarity,
-                      theme: theme,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  achievement.definition.description,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.outline,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(999),
-                  child: LinearProgressIndicator(
-                    value: achievement.ratio,
-                    minHeight: 6,
-                    backgroundColor:
-                        theme.colorScheme.outline.withValues(alpha: 0.10),
-                    valueColor: AlwaysStoppedAnimation(color),
-                  ),
-                ),
-                const SizedBox(height: 5),
-                Text(
-                  '${achievement.current.toStringAsFixed(achievement.current % 1 == 0 ? 0 : 1)} / ${achievement.definition.target.toStringAsFixed(achievement.definition.target % 1 == 0 ? 0 : 1)}',
-                  style: theme.textTheme.labelSmall?.copyWith(
-                    color: theme.colorScheme.outline,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _RarityPill extends StatelessWidget {
-  const _RarityPill({
-    required this.rarity,
-    required this.theme,
-  });
-
-  final AchievementRarity rarity;
-  final ThemeData theme;
-
-  @override
-  Widget build(BuildContext context) {
-    final label = switch (rarity) {
-      AchievementRarity.bronze => 'Bronzo',
-      AchievementRarity.silver => 'Argento',
-      AchievementRarity.gold => 'Oro',
-      AchievementRarity.platinum => 'Platino',
-    };
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface.withValues(alpha: 0.55),
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Text(
-        label,
-        style: theme.textTheme.labelSmall?.copyWith(
-          fontWeight: FontWeight.w900,
-          fontSize: 10,
-        ),
-      ),
-    );
-  }
-}
-
 IconData _categoryIcon(AchievementCategory category) {
   return switch (category) {
     AchievementCategory.consistency => Icons.local_fire_department_rounded,
     AchievementCategory.performance => Icons.fitness_center_rounded,
     AchievementCategory.cardio => Icons.directions_run_rounded,
     AchievementCategory.variety => Icons.auto_awesome_mosaic_rounded,
+    AchievementCategory.specialization => Icons.ads_click_rounded,
+    AchievementCategory.streak => Icons.bolt_rounded,
   };
 }
 
@@ -327,5 +392,7 @@ Color _categoryColor(AchievementCategory category, ThemeData theme) {
     AchievementCategory.performance => theme.colorScheme.primary,
     AchievementCategory.cardio => theme.colorScheme.tertiary,
     AchievementCategory.variety => Colors.tealAccent,
+    AchievementCategory.specialization => Colors.purpleAccent,
+    AchievementCategory.streak => Colors.yellowAccent,
   };
 }
