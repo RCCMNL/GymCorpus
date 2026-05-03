@@ -760,8 +760,10 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
                           ),
                         ],
                       ),
-                  ],
+                    ],
+                  ),
                 ),
+              ),
               ),
             ),
 
