@@ -64,6 +64,10 @@
 		</array>
 		<key>UIStatusBarHidden</key>
 		<false/>
+		<key>UIBackgroundModes</key>
+		<array>
+			<string>location</string>
+		</array>
 		<key>NSLocationWhenInUseUsageDescription</key>
 		<string>GymCorpus richiede l'accesso alla tua posizione per tracciare con precisione la distanza e il percorso durante gli allenamenti di corsa o camminata.</string>
 		<key>NSLocationAlwaysUsageDescription</key>

@@ -14,7 +14,9 @@
     <!-- Location Permissions for Cardio Tracking -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
     <!-- Biometrics -->
     <uses-permission android:name="android.permission.USE_BIOMETRIC" />
     <!-- Notifications (Android 13+) -->
