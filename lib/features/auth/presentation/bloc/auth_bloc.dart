@@ -264,6 +264,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       height: height,
       birthDate: birthDate,
       trainingObjective: trainingObjective,
+      syncWeightHistory: weight != null,
     );
     result.fold(
       (failure) {

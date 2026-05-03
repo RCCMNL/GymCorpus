@@ -39,6 +39,7 @@ abstract class AuthRepository {
     DateTime? marketingConsentUpdatedAt,
     DateTime? profilingConsentUpdatedAt,
     bool clearWeight = false,
+    bool syncWeightHistory = false,
   });
   Future<Either<Failure, void>> changePassword(
     String currentPassword,

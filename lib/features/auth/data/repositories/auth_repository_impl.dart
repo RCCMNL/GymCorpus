@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:dartz/dartz.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:drift/drift.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
@@ -95,6 +96,26 @@ class AuthRepositoryImpl implements AuthRepository {
       return user;
     }
     return user.copyWith();
+  }
+
+  bool _hasMeaningfulWeightChange(double previousWeight, double nextWeight) {
+    return (previousWeight - nextWeight).abs() >= 0.05;
+  }
+
+  Future<void> _syncWeightHistoryFromProfile(double weight) async {
+    final database = GetIt.I<AppDatabase>();
+    final latestLog = await database.getLatestWeightEntry();
+    final shouldInsert = latestLog == null ||
+        _hasMeaningfulWeightChange(latestLog.weight, weight);
+
+    if (!shouldInsert) return;
+
+    await database.insertWeightLog(
+      WeightLogsCompanion(
+        weight: Value(weight),
+        date: Value(DateTime.now()),
+      ),
+    );
   }
 
   UserEntity _mapFirebaseUser(User user) {
@@ -552,6 +573,7 @@ class AuthRepositoryImpl implements AuthRepository {
     DateTime? marketingConsentUpdatedAt,
     DateTime? profilingConsentUpdatedAt,
     bool clearWeight = false,
+    bool syncWeightHistory = false,
   }) async {
     try {
       final user = _firebaseAuth.currentUser;
@@ -605,6 +627,10 @@ class AuthRepositoryImpl implements AuthRepository {
       await _remoteDataSource
           .saveUserProfile(_sanitizeRemoteUser(updatedUser))
           .timeout(const Duration(seconds: 5));
+
+      if (syncWeightHistory && !clearWeight && updatedUser.weight != null) {
+        await _syncWeightHistoryFromProfile(updatedUser.weight!);
+      }
 
       _userStreamController.add(updatedUser);
       return Right(updatedUser);

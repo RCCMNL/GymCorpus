@@ -369,6 +369,12 @@ class AppDatabase extends _$AppDatabase {
         ..orderBy(
             [(t) => OrderingTerm(expression: t.date, mode: OrderingMode.desc)]))
       .watch();
+  Future<WeightLog?> getLatestWeightEntry() => (select(weightLogs)
+        ..orderBy(
+          [(t) => OrderingTerm(expression: t.date, mode: OrderingMode.desc)],
+        )
+        ..limit(1))
+      .getSingleOrNull();
   Future<int> insertWeightLog(WeightLogsCompanion entry) =>
       into(weightLogs).insert(entry);
   Future<void> deleteWeightLog(int id) =>

@@ -1,7 +1,9 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:gym_corpus/core/utils/unit_converter.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
@@ -645,8 +647,6 @@ class _WeightTrackingCard extends StatefulWidget {
 }
 
 class _WeightTrackingCardState extends State<_WeightTrackingCard> {
-  int? _selectedIndex;
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -657,6 +657,10 @@ class _WeightTrackingCardState extends State<_WeightTrackingCard> {
         var max = '--';
         var min = '--';
         var trendPoints = <double>[];
+        final profileWeight = context.read<AuthBloc>().state.maybeWhen(
+              authenticated: (user) => user.weight,
+              orElse: () => null,
+            );
 
         final trainingState = context.read<TrainingBloc>().state;
         final settings = trainingState is TrainingLoaded
@@ -719,6 +723,19 @@ class _WeightTrackingCardState extends State<_WeightTrackingCard> {
             min = allProcessedWeights
                 .reduce((a, b) => a < b ? a : b)
                 .toStringAsFixed(1);
+          } else if (profileWeight != null) {
+            final displayWeight = isImperial
+                ? UnitConverter.kgToLb(profileWeight)
+                : profileWeight;
+
+            for (var i = 0; i < 30; i++) {
+              dates.add(startDate.add(Duration(days: i)));
+              points.add(displayWeight);
+            }
+            trendPoints = points;
+            current = displayWeight.toStringAsFixed(1);
+            max = displayWeight.toStringAsFixed(1);
+            min = displayWeight.toStringAsFixed(1);
           } else {
             // Empty state defaults
             for (var i = 0; i < 30; i++) {
@@ -834,62 +851,98 @@ class _WeightTrackingCardState extends State<_WeightTrackingCard> {
                   ],
                 ),
                 const SizedBox(height: 32),
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    final graphWidth = constraints.maxWidth;
-                    return GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onPanUpdate: (details) => _handleTouch(
-                        details.localPosition,
-                        trendPoints.length,
-                        graphWidth,
-                        isDrag: true,
-                        actualIndices: actualDataDays,
+                SizedBox(
+                  height: 160,
+                  width: double.infinity,
+                  child: LineChart(
+                    LineChartData(
+                      gridData: FlGridData(
+                        show: true,
+                        drawVerticalLine: false,
+                        horizontalInterval: 1,
+                        getDrawingHorizontalLine: (value) {
+                          return FlLine(
+                            color: theme.colorScheme.outline.withValues(alpha: 0.05),
+                            strokeWidth: 1,
+                          );
+                        },
                       ),
-                      onTapDown: (details) => _handleTouch(
-                        details.localPosition,
-                        trendPoints.length,
-                        graphWidth,
-                        isTap: true,
-                        actualIndices: actualDataDays,
-                      ),
-                      child: Stack(
-                        children: [
-                          // Grid lines
-                          Column(
-                            children: List.generate(
-                              4,
-                              (index) => Padding(
-                                padding: const EdgeInsets.only(bottom: 22),
-                                child: Divider(
-                                  color: theme.colorScheme.outline
-                                      .withValues(alpha: 0.05),
-                                  height: 1,
+                      titlesData: const FlTitlesData(show: false),
+                      borderData: FlBorderData(show: false),
+                      minX: 0,
+                      maxX: 29,
+                      minY: (trendPoints.reduce((a, b) => a < b ? a : b) - 2).clamp(0, double.infinity),
+                      maxY: trendPoints.reduce((a, b) => a > b ? a : b) + 2,
+                      lineTouchData: LineTouchData(
+                        touchTooltipData: LineTouchTooltipData(
+                          getTooltipColor: (spot) => theme.colorScheme.surfaceContainerHighest,
+                          tooltipBorderRadius: BorderRadius.circular(12),
+                          getTooltipItems: (List<LineBarSpot> touchedBarSpots) {
+                            return touchedBarSpots.map((barSpot) {
+                              final flSpot = barSpot;
+                              return LineTooltipItem(
+                                '${flSpot.y.toStringAsFixed(1)} $unitText\n',
+                                theme.textTheme.labelMedium!.copyWith(
+                                  color: theme.colorScheme.onSurface,
+                                  fontWeight: FontWeight.bold,
                                 ),
-                              ),
-                            ),
-                          ),
-                          SizedBox(
-                            height: 100,
-                            width: double.infinity,
-                            child: CustomPaint(
-                              painter: _TrendLinePainter(
-                                color: theme.colorScheme.primary,
-                                dataPoints: trendPoints,
-                                actualDataIndices: actualDataDays,
-                                accentColor: theme.colorScheme.tertiary,
-                                selectedIndex: _selectedIndex,
-                                selectedDate: _selectedIndex != null
-                                    ? dates[_selectedIndex!]
-                                    : null,
-                                unitText: unitText,
-                              ),
-                            ),
-                          ),
-                        ],
+                                children: [
+                                  TextSpan(
+                                    text: DateFormat('dd MMM', 'it_IT').format(dates[flSpot.x.toInt()]),
+                                    style: theme.textTheme.labelSmall!.copyWith(
+                                      color: theme.colorScheme.primary,
+                                      fontWeight: FontWeight.w900,
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }).toList();
+                          },
+                        ),
+                        handleBuiltInTouches: true,
                       ),
-                    );
-                  },
+                      lineBarsData: [
+                        LineChartBarData(
+                          spots: trendPoints.asMap().entries.map((e) {
+                            return FlSpot(e.key.toDouble(), e.value);
+                          }).toList(),
+                          isCurved: true,
+                          curveSmoothness: 0.35,
+                          gradient: LinearGradient(
+                            colors: [
+                              theme.colorScheme.primary,
+                              theme.colorScheme.tertiary,
+                            ],
+                          ),
+                          barWidth: 4,
+                          isStrokeCapRound: true,
+                          dotData: FlDotData(
+                            show: true,
+                            getDotPainter: (spot, percent, barData, index) {
+                              final isActual = actualDataDays.contains(index);
+                              return FlDotCirclePainter(
+                                radius: isActual ? 4 : 0,
+                                color: theme.colorScheme.primary,
+                                strokeWidth: 2,
+                                strokeColor: theme.colorScheme.surface,
+                              );
+                            },
+                          ),
+                          belowBarData: BarAreaData(
+                            show: true,
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                theme.colorScheme.primary.withValues(alpha: 0.2),
+                                theme.colorScheme.primary.withValues(alpha: 0),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 12),
                 Row(
@@ -932,58 +985,6 @@ class _WeightTrackingCardState extends State<_WeightTrackingCard> {
         return const SizedBox.shrink();
       },
     );
-  }
-
-  void _handleTouch(
-    Offset localPosition,
-    int pointsCount,
-    double graphWidth, {
-    required Set<int> actualIndices,
-    bool isTap = false,
-    bool isDrag = false,
-  }) {
-    if (pointsCount == 0 || graphWidth <= 0 || actualIndices.isEmpty) return;
-    final stepX = graphWidth / (pointsCount - 1);
-    final touchX = localPosition.dx;
-
-    // Magnetic logic: find the NEAREST point that actually has data
-    var closestActualIndex = -1;
-    var minDistance = double.infinity;
-
-    for (final i in actualIndices) {
-      final pointX = i * stepX;
-      final distance = (touchX - pointX).abs();
-      if (distance < minDistance) {
-        minDistance = distance;
-        closestActualIndex = i;
-      }
-    }
-
-    // Always include the last point (Today) in the magnetic search if it's not already in actualIndices
-    // (In case the last point is always shown but doesn't have a "log" for today yet,
-    // though usually today is part of the plot)
-    final lastPointX = (pointsCount - 1) * stepX;
-    final distToLast = (touchX - lastPointX).abs();
-    if (distToLast < minDistance) {
-      minDistance = distToLast;
-      closestActualIndex = pointsCount - 1;
-    }
-
-    // Threshold for activation (increased to 45 for better UX)
-    if (closestActualIndex != -1 && minDistance < 45) {
-      if (isTap && _selectedIndex == closestActualIndex) {
-        // Toggle off if tapping the same point
-        setState(() => _selectedIndex = null);
-      } else if (_selectedIndex != closestActualIndex) {
-        HapticFeedback.selectionClick();
-        setState(() => _selectedIndex = closestActualIndex);
-      }
-    } else {
-      // Clear selection if tapping/dragging far away
-      if (_selectedIndex != null) {
-        setState(() => _selectedIndex = null);
-      }
-    }
   }
 
   void _showAddWeightDialog(BuildContext context) {
@@ -1124,209 +1125,6 @@ class _WeightItem extends StatelessWidget {
       ),
     );
   }
-}
-
-// ─── TREND PAINTER ─────────────────────────────────────────────────────────
-
-class _TrendLinePainter extends CustomPainter {
-  const _TrendLinePainter({
-    required this.color,
-    required this.dataPoints,
-    required this.actualDataIndices,
-    required this.accentColor,
-    this.selectedIndex,
-    this.selectedDate,
-    this.unitText = 'kg',
-  });
-
-  final Color color;
-  final Color accentColor;
-  final List<double> dataPoints;
-  final Set<int> actualDataIndices;
-  final int? selectedIndex;
-  final DateTime? selectedDate;
-  final String unitText;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (dataPoints.isEmpty) return;
-
-    final paint = Paint()
-      ..color = color
-      ..strokeWidth = 3
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round;
-
-    final fillPaint = Paint()
-      ..style = PaintingStyle.fill
-      ..shader = LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: [color.withValues(alpha: 0.2), color.withValues(alpha: 0)],
-      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
-
-    final path = Path();
-    final fillPath = Path();
-
-    final stepX =
-        size.width / (dataPoints.length > 1 ? dataPoints.length - 1 : 1);
-
-    final maxVal = dataPoints.reduce((a, b) => a > b ? a : b);
-    final minVal = dataPoints.reduce((a, b) => a < b ? a : b);
-    final range = (maxVal - minVal).abs() < 0.1 ? 2.0 : (maxVal - minVal) * 1.2;
-    final center = (maxVal + minVal) / 2;
-
-    Offset getOffset(int i) {
-      final x = i * stepX;
-      final normalizedY = (dataPoints[i] - (center - range / 2)) / range;
-      final y = size.height - (normalizedY * size.height).clamp(0, size.height);
-      return Offset(x, y);
-    }
-
-    for (var i = 0; i < dataPoints.length; i++) {
-      final pos = getOffset(i);
-      if (i == 0) {
-        path.moveTo(pos.dx, pos.dy);
-        fillPath
-          ..moveTo(pos.dx, size.height)
-          ..lineTo(pos.dx, pos.dy);
-      } else {
-        path.lineTo(pos.dx, pos.dy);
-        fillPath.lineTo(pos.dx, pos.dy);
-      }
-
-      if (i == dataPoints.length - 1) {
-        fillPath
-          ..lineTo(pos.dx, size.height)
-          ..close();
-      }
-    }
-
-    canvas.drawPath(fillPath, fillPaint);
-
-    // Draw vertical day ticks
-    final tickPaint = Paint()
-      ..color = color.withValues(alpha: 0.1)
-      ..strokeWidth = 1;
-
-    for (var i = 0; i < dataPoints.length; i++) {
-      final x = i * stepX;
-      final isWeek = (dataPoints.length - 1 - i) % 7 == 0;
-      if (isWeek) {
-        canvas.drawLine(
-          Offset(x, 0),
-          Offset(x, size.height),
-          tickPaint..color = color.withValues(alpha: 0.2),
-        );
-      } else {
-        canvas.drawLine(
-          Offset(x, size.height - 5),
-          Offset(x, size.height),
-          tickPaint..color = color.withValues(alpha: 0.1),
-        );
-      }
-    }
-
-    canvas.drawPath(path, paint);
-
-    // Draw dots for actual data points
-    for (final i in actualDataIndices) {
-      final pos = getOffset(i);
-      canvas
-        ..drawCircle(pos, 4, Paint()..color = Colors.white)
-        ..drawCircle(pos, 2.5, Paint()..color = color);
-    }
-
-    // Endpoint dot (Today)
-    final lastPos = getOffset(dataPoints.length - 1);
-    canvas
-      ..drawCircle(lastPos, 5, Paint()..color = color)
-      ..drawCircle(lastPos, 3, Paint()..color = Colors.white);
-
-    // DRAW TOOLTIP IF SELECTED
-    if (selectedIndex != null && selectedDate != null) {
-      final pos = getOffset(selectedIndex!);
-
-      // Vertical line
-      canvas
-        ..drawLine(
-          Offset(pos.dx, 0),
-          Offset(pos.dx, size.height),
-          Paint()
-            ..color = color.withValues(alpha: 0.5)
-            ..strokeWidth = 1
-            ..style = PaintingStyle.stroke,
-        )
-        ..drawCircle(pos, 6, Paint()..color = color)
-        ..drawCircle(pos, 4, Paint()..color = Colors.white);
-
-      // Tooltip Box
-      final textWeight =
-          '${dataPoints[selectedIndex!].toStringAsFixed(1)} $unitText';
-      final textDate =
-          '${selectedDate!.day} ${UnitConverter.monthName(selectedDate!.month)}';
-
-      final textPainter = TextPainter(
-        text: TextSpan(
-          children: [
-            TextSpan(
-              text: '$textWeight\n',
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w900,
-                fontSize: 12,
-                fontFamily: 'Lexend',
-              ),
-            ),
-            TextSpan(
-              text: textDate,
-              style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.7),
-                fontSize: 9,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-        textAlign: TextAlign.center,
-        textDirection: TextDirection.ltr,
-      )..layout();
-
-      final tooltipWidth = textPainter.width + 16;
-      final tooltipHeight = textPainter.height + 12;
-
-      var tooltipX = pos.dx - tooltipWidth / 2;
-      if (tooltipX < 0) tooltipX = 4;
-      if (tooltipX + tooltipWidth > size.width) {
-        tooltipX = size.width - tooltipWidth - 4;
-      }
-
-      // Draw tooltip above or below point
-      var tooltipY = pos.dy - tooltipHeight - 12;
-      if (tooltipY < 0) tooltipY = pos.dy + 12;
-
-      final tooltipRRect = RRect.fromRectAndRadius(
-        Rect.fromLTWH(tooltipX, tooltipY, tooltipWidth, tooltipHeight),
-        const Radius.circular(10),
-      );
-
-      canvas
-        ..drawRRect(
-          tooltipRRect,
-          Paint()
-            ..color = color
-            ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4),
-        )
-        ..drawRRect(tooltipRRect, Paint()..color = color);
-
-      textPainter.paint(canvas, Offset(tooltipX + 8, tooltipY + 6));
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _TrendLinePainter oldDelegate) =>
-      oldDelegate.dataPoints != dataPoints;
 }
 
 // ─── BMI ────────────────────────────────────────────────────────────────────

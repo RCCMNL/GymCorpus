@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gym_corpus/core/utils/unit_converter.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
+import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
 import 'package:gym_corpus/features/training/domain/entities/body_measurement.dart';
 import 'package:gym_corpus/features/training/domain/entities/body_weight.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
@@ -60,6 +62,11 @@ class _ProgressScreenState extends State<ProgressScreen>
               return const Center(child: CircularProgressIndicator());
             }
 
+            final profileWeight = context.read<AuthBloc>().state.maybeWhen(
+                  authenticated: (user) => user.weight,
+                  orElse: () => null,
+                );
+
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -88,9 +95,11 @@ class _ProgressScreenState extends State<ProgressScreen>
                         children: [
                           _WeightHistoryTab(
                             logs: state.bodyWeightLogs,
+                            profileWeight: profileWeight,
                             settings: state.settings,
                             hero: _ProgressHero(
                               logs: state.bodyWeightLogs,
+                              profileWeight: profileWeight,
                               measurements: state.bodyMeasurements,
                               settings: state.settings,
                               activeTab: 0,
@@ -102,6 +111,7 @@ class _ProgressScreenState extends State<ProgressScreen>
                             settings: state.settings,
                             hero: _ProgressHero(
                               logs: state.bodyWeightLogs,
+                              profileWeight: profileWeight,
                               measurements: state.bodyMeasurements,
                               settings: state.settings,
                               activeTab: 1,
@@ -124,12 +134,14 @@ class _ProgressScreenState extends State<ProgressScreen>
 class _ProgressHero extends StatefulWidget {
   const _ProgressHero({
     required this.logs,
+    required this.profileWeight,
     required this.measurements,
     required this.settings,
     required this.activeTab,
   });
 
   final List<BodyWeightLogEntity> logs;
+  final double? profileWeight;
   final List<BodyMeasurementEntity> measurements;
   final Map<String, String> settings;
   final int activeTab;
@@ -228,6 +240,11 @@ class _ProgressHeroState extends State<_ProgressHero> {
                           Text(
                             latestWeight != null
                                 ? _formatWeight(latestWeight.weight, isImperial)
+                                : widget.profileWeight != null
+                                    ? _formatWeight(
+                                        widget.profileWeight!,
+                                        isImperial,
+                                      )
                                 : '--',
                             style: theme.textTheme.headlineSmall?.copyWith(
                               fontFamily: 'Lexend',
@@ -237,6 +254,8 @@ class _ProgressHeroState extends State<_ProgressHero> {
                           Text(
                             latestWeight != null
                                 ? 'Ultimo peso registrato'
+                                : widget.profileWeight != null
+                                    ? 'Peso attuale dal profilo'
                                 : 'Nessun peso registrato',
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: theme.colorScheme.outline,
@@ -261,6 +280,8 @@ class _ProgressHeroState extends State<_ProgressHero> {
                         label: 'Ultimo log peso',
                         value: latestWeight != null
                             ? DateFormat('dd MMM yyyy', 'it_IT').format(latestWeight.date)
+                            : widget.profileWeight != null
+                                ? 'Profilo'
                             : 'Nessun dato',
                       ),
                     ),
@@ -432,11 +453,13 @@ class _ProgressTabBar extends StatelessWidget {
 class _WeightHistoryTab extends StatelessWidget {
   const _WeightHistoryTab({
     required this.logs,
+    required this.profileWeight,
     required this.settings,
     required this.hero,
   });
 
   final List<BodyWeightLogEntity> logs;
+  final double? profileWeight;
   final Map<String, String> settings;
   final Widget hero;
 
@@ -478,12 +501,20 @@ class _WeightHistoryTab extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               if (sortedLogs.isEmpty)
-                const _EmptyStateCard(
-                  icon: Icons.monitor_weight_outlined,
-                  title: 'Ancora nessun peso registrato',
-                  message:
-                      'Aggiungi il primo check-in per iniziare a seguire l andamento nel tempo.',
-                )
+                profileWeight != null
+                    ? _EmptyStateCard(
+                        icon: Icons.monitor_weight_outlined,
+                        title:
+                            'Peso profilo disponibile: ${_formatWeight(profileWeight!, isImperial)}',
+                        message:
+                            'Il peso attuale del profilo e disponibile. Aggiungi un check-in per iniziare la cronologia dei progressi.',
+                      )
+                    : const _EmptyStateCard(
+                        icon: Icons.monitor_weight_outlined,
+                        title: 'Ancora nessun peso registrato',
+                        message:
+                            'Aggiungi il primo check-in per iniziare a seguire l andamento nel tempo.',
+                      )
               else
                 ...sortedMonths.asMap().entries.map((entry) {
                   final idx = entry.key;

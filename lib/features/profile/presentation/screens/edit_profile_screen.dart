@@ -7,7 +7,6 @@ import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_event.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
-import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
 import 'package:intl/intl.dart';
 
@@ -118,17 +117,9 @@ class _EditProfileScreenState extends State<EditProfileScreen>
             weight: finalWeight, height: finalHeight, birthDate: _birthDate, trainingObjective: _selectedObjective,
           ));
 
-      if (finalWeight != null && _hasWeightChanged(finalWeight)) {
-        context.read<TrainingBloc>().add(AddBodyWeightLogEvent(finalWeight));
-      }
       await Future<void>.delayed(const Duration(milliseconds: 1000));
       if (mounted) context.pop();
     }
-  }
-
-  bool _hasWeightChanged(double weight) {
-    final initial = _initialWeightKg;
-    return initial == null || (weight - initial).abs() >= 0.05;
   }
 
   @override
