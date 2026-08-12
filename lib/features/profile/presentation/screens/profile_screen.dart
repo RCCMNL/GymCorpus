@@ -42,8 +42,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (photoUrl == null || photoUrl.isEmpty) {
       return null;
     }
-    if (photoUrl.startsWith('http://') || photoUrl.startsWith('https://')) {
+    // Solo https, coerentemente con _isPortablePhotoUrl nel repository: un
+    // URL in chiaro esporrebbe l'immagine a sostituzione lungo il percorso.
+    if (photoUrl.startsWith('https://')) {
       return NetworkImage(photoUrl);
+    }
+    if (photoUrl.startsWith('http://')) {
+      debugPrint('ProfileScreen: URL foto non cifrato ignorato: $photoUrl');
+      return null;
     }
 
     final file = File(photoUrl);

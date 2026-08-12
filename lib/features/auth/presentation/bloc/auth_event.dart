@@ -61,5 +61,8 @@ class AuthEvent with _$AuthEvent {
     required String newPassword,
   }) = _ChangePasswordRequested;
 
-  const factory AuthEvent.deleteAccountRequested() = _DeleteAccountRequested;
+  // Non esiste un evento per l'eliminazione account: richiede la password
+  // corrente per la ri-autenticazione e passa direttamente dal repository in
+  // SecurityScreen. Un evento senza password fallirebbe sempre la re-auth per
+  // gli account con provider password.
 }

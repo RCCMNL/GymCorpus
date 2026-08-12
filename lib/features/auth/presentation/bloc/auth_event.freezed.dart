@@ -56,7 +56,6 @@ extension AuthEventPatterns on AuthEvent {
         updateProfileImageRequested,
     TResult Function(_UpdateProfileRequested value)? updateProfileRequested,
     TResult Function(_ChangePasswordRequested value)? changePasswordRequested,
-    TResult Function(_DeleteAccountRequested value)? deleteAccountRequested,
     required TResult orElse(),
   }) {
     final _that = this;
@@ -82,8 +81,6 @@ extension AuthEventPatterns on AuthEvent {
         return updateProfileRequested(_that);
       case _ChangePasswordRequested() when changePasswordRequested != null:
         return changePasswordRequested(_that);
-      case _DeleteAccountRequested() when deleteAccountRequested != null:
-        return deleteAccountRequested(_that);
       case _:
         return orElse();
     }
@@ -120,8 +117,6 @@ extension AuthEventPatterns on AuthEvent {
         updateProfileRequested,
     required TResult Function(_ChangePasswordRequested value)
         changePasswordRequested,
-    required TResult Function(_DeleteAccountRequested value)
-        deleteAccountRequested,
   }) {
     final _that = this;
     switch (_that) {
@@ -145,8 +140,6 @@ extension AuthEventPatterns on AuthEvent {
         return updateProfileRequested(_that);
       case _ChangePasswordRequested():
         return changePasswordRequested(_that);
-      case _DeleteAccountRequested():
-        return deleteAccountRequested(_that);
       case _:
         throw StateError('Unexpected subclass');
     }
@@ -177,7 +170,6 @@ extension AuthEventPatterns on AuthEvent {
         updateProfileImageRequested,
     TResult? Function(_UpdateProfileRequested value)? updateProfileRequested,
     TResult? Function(_ChangePasswordRequested value)? changePasswordRequested,
-    TResult? Function(_DeleteAccountRequested value)? deleteAccountRequested,
   }) {
     final _that = this;
     switch (_that) {
@@ -202,8 +194,6 @@ extension AuthEventPatterns on AuthEvent {
         return updateProfileRequested(_that);
       case _ChangePasswordRequested() when changePasswordRequested != null:
         return changePasswordRequested(_that);
-      case _DeleteAccountRequested() when deleteAccountRequested != null:
-        return deleteAccountRequested(_that);
       case _:
         return null;
     }
@@ -259,7 +249,6 @@ extension AuthEventPatterns on AuthEvent {
         updateProfileRequested,
     TResult Function(String currentPassword, String newPassword)?
         changePasswordRequested,
-    TResult Function()? deleteAccountRequested,
     required TResult orElse(),
   }) {
     final _that = this;
@@ -307,8 +296,6 @@ extension AuthEventPatterns on AuthEvent {
       case _ChangePasswordRequested() when changePasswordRequested != null:
         return changePasswordRequested(
             _that.currentPassword, _that.newPassword);
-      case _DeleteAccountRequested() when deleteAccountRequested != null:
-        return deleteAccountRequested();
       case _:
         return orElse();
     }
@@ -365,7 +352,6 @@ extension AuthEventPatterns on AuthEvent {
         updateProfileRequested,
     required TResult Function(String currentPassword, String newPassword)
         changePasswordRequested,
-    required TResult Function() deleteAccountRequested,
   }) {
     final _that = this;
     switch (_that) {
@@ -411,8 +397,6 @@ extension AuthEventPatterns on AuthEvent {
       case _ChangePasswordRequested():
         return changePasswordRequested(
             _that.currentPassword, _that.newPassword);
-      case _DeleteAccountRequested():
-        return deleteAccountRequested();
       case _:
         throw StateError('Unexpected subclass');
     }
@@ -468,7 +452,6 @@ extension AuthEventPatterns on AuthEvent {
         updateProfileRequested,
     TResult? Function(String currentPassword, String newPassword)?
         changePasswordRequested,
-    TResult? Function()? deleteAccountRequested,
   }) {
     final _that = this;
     switch (_that) {
@@ -515,8 +498,6 @@ extension AuthEventPatterns on AuthEvent {
       case _ChangePasswordRequested() when changePasswordRequested != null:
         return changePasswordRequested(
             _that.currentPassword, _that.newPassword);
-      case _DeleteAccountRequested() when deleteAccountRequested != null:
-        return deleteAccountRequested();
       case _:
         return null;
     }
@@ -1309,21 +1290,6 @@ class __$ChangePasswordRequestedCopyWithImpl<$Res>
               as String,
     ));
   }
-}
-
-/// @nodoc
-
-class _DeleteAccountRequested implements AuthEvent {
-  const _DeleteAccountRequested();
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is _DeleteAccountRequested);
-  }
-
-  @override
-  int get hashCode => runtimeType.hashCode;
 }
 
 // dart format on

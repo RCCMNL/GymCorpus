@@ -100,11 +100,16 @@ class AuthRepositoryImpl implements AuthRepository {
     }
   }
 
+  /// Vero se la foto puo' essere caricata anche da un altro dispositivo.
+  ///
+  /// Solo https: un URL in chiaro esporrebbe l'immagine profilo a
+  /// intercettazione e sostituzione lungo il percorso, e nessun provider
+  /// usato dall'app (Firebase, Google, Apple) restituisce URL non cifrati.
   bool _isPortablePhotoUrl(String? photoUrl) {
     if (photoUrl == null || photoUrl.isEmpty) {
       return false;
     }
-    return photoUrl.startsWith('http://') || photoUrl.startsWith('https://');
+    return photoUrl.startsWith('https://');
   }
 
   String? _mergePhotoUrl({

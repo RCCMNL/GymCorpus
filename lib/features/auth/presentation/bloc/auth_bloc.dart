@@ -59,7 +59,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         ),
         changePasswordRequested: (e) async =>
             _onChangePassword(e.currentPassword, e.newPassword, emit),
-        deleteAccountRequested: (e) async => _onDeleteAccount(emit),
       );
     });
   }
@@ -301,22 +300,4 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
-  Future<void> _onDeleteAccount(Emitter<AuthState> emit) async {
-    final result = await _repository.deleteAccount();
-    result.fold(
-      (failure) {
-        final currentUser = state.maybeWhen(
-          authenticated: (user) => user,
-          orElse: () => null,
-        );
-        emit(
-          AuthState.error(
-            failure.props.first.toString(),
-            previousUser: currentUser,
-          ),
-        );
-      },
-      (_) => emit(const AuthState.unauthenticated()),
-    );
-  }
 }
