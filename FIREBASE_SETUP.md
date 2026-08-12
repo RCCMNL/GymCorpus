@@ -2,12 +2,39 @@
 
 ## File nativi
 
-Per avviare il progetto servono i file Firebase generati per le piattaforme native:
+I file di configurazione Firebase sono **versionati di proposito**:
 
 - `android/app/google-services.json`
-- `ios/Runner/GoogleService-Info.plist`
+- `ios/Runner/GoogleService-Info.plist` (da generare al primo setup iOS)
+- `lib/firebase_options.dart`
 
 `firebase.json` contiene gia' il riferimento al progetto Firebase e al file di output Android.
+
+Per rigenerarli dopo un cambio di progetto o di package name:
+
+```bash
+flutterfire configure
+```
+
+### Perche' sono nel repository
+
+Le API key contenute in questi file sono **identificatori pubblici lato client**, non
+segreti: Google le progetta per essere incorporate nell'app e chiunque puo' estrarle da
+un APK. Tenerle nel repo rende la build riproducibile senza passaggi manuali.
+
+La protezione reale non sta nel nasconderle, ma in tre controlli lato server che vanno
+configurati e verificati nella console Firebase/Google Cloud:
+
+1. **Regole Firestore** — vedi `firestore.rules` nel repo. Sono la difesa principale:
+   senza regole corrette, chiunque abbia l'API key puo' leggere e scrivere i dati.
+2. **Restrizioni delle chiavi API** — su Google Cloud Console limita ogni chiave per
+   applicazione (SHA-1 del certificato Android, bundle id iOS) e per API abilitate.
+3. **App Check** — verifica che le richieste arrivino davvero dalla tua app e non da
+   uno script esterno. E' la mitigazione contro abuso di quota e signup di massa.
+
+> Non aggiungere questi file a `.gitignore`. In passato le regole c'erano ma i file
+> erano gia' tracciati: le regole non avevano alcun effetto e davano una falsa
+> impressione di protezione.
 
 ## Segreti compile-time (`dart_defines.json`)
 

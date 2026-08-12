@@ -54,14 +54,18 @@ ios/Flash/Generated.xcconfig
 .xcworkspace/
 
 # Secrets and local config
+#
+# Nota sulla configurazione Firebase: google-services.json,
+# GoogleService-Info.plist e lib/firebase_options.dart sono volutamente
+# versionati. Le API key che contengono sono identificatori pubblici lato
+# client, non segreti: la protezione reale sta nelle regole Firestore, nelle
+# restrizioni delle chiavi su Google Cloud e in App Check. Vedi
+# FIREBASE_SETUP.md. Non aggiungere qui regole per ignorarli: in passato le
+# regole c'erano ma i file erano gia' tracciati, quindi non avevano effetto e
+# davano una falsa impressione di protezione.
 .env
 .env.*
 dart_defines.json
-android/app/google-services.json
-android/app/src/main/google-services.json
-ios/Runner/GoogleService-Info.plist
-google-services.json
-GoogleService-Info.plist
 *.keystore
 *.jks
 *.p12

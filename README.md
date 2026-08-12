@@ -61,10 +61,14 @@ flutter run
 
 ## Firebase
 
-La configurazione Firebase non e inclusa nel repository.
+La configurazione Firebase e versionata nel repository, perche le API key lato client
+non sono segreti: la protezione sta nelle regole Firestore, nelle restrizioni delle
+chiavi e in App Check.
 
 - Android: `android/app/google-services.json`
 - iOS: `ios/Runner/GoogleService-Info.plist`
+- Opzioni Dart: `lib/firebase_options.dart`
+- Regole Firestore: `firestore.rules`
 - Google Sign-In server client id: passa `GOOGLE_SERVER_CLIENT_ID` via `--dart-define`
 
 Dettagli completi in [FIREBASE_SETUP.md](FIREBASE_SETUP.md).
