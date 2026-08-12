@@ -3,6 +3,33 @@ import 'package:gym_corpus/features/auth/domain/entities/user_entity.dart';
 
 void main() {
   group('UserEntity', () {
+    test('copyWith senza argomenti non modifica la foto profilo', () {
+      const user = UserEntity(
+        id: 'u1',
+        email: 'mario@example.com',
+        photoUrl: '/data/user/0/files/avatar.jpg',
+      );
+
+      // Comportamento atteso di copyWith, ma anche la ragione per cui serve
+      // un flag esplicito: _sanitizeRemoteUser si affidava a copyWith() per
+      // rimuovere la foto locale e in realta' non rimuoveva nulla.
+      expect(user.copyWith().photoUrl, user.photoUrl);
+    });
+
+    test('clearPhotoUrl rimuove il percorso locale della foto', () {
+      const user = UserEntity(
+        id: 'u1',
+        email: 'mario@example.com',
+        photoUrl: '/data/user/0/files/avatar.jpg',
+      );
+
+      final sanitized = user.copyWith(clearPhotoUrl: true);
+
+      expect(sanitized.photoUrl, isNull);
+      expect(sanitized.id, user.id, reason: 'gli altri campi restano intatti');
+      expect(sanitized.email, user.email);
+    });
+
     test('migra il vecchio campo name in firstName e lastName', () {
       final user = UserEntity.fromJson(const {
         'id': 'u1',

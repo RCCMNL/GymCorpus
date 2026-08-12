@@ -183,13 +183,14 @@ class UserEntity extends Equatable {
     List<String>? authProviders,
     List<LoginEntry>? loginHistory,
     bool clearWeight = false,
+    bool clearPhotoUrl = false,
   }) {
     return UserEntity(
       id: id ?? this.id,
       firstName: firstName ?? this.firstName,
       lastName: lastName ?? this.lastName,
       email: email ?? this.email,
-      photoUrl: photoUrl ?? this.photoUrl,
+      photoUrl: clearPhotoUrl ? null : photoUrl ?? this.photoUrl,
       username: username ?? this.username,
       weight: clearWeight ? null : weight ?? this.weight,
       height: height ?? this.height,

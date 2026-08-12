@@ -91,11 +91,21 @@ class AuthRepositoryImpl implements AuthRepository {
     return null;
   }
 
+  /// Rimuove dal profilo destinato a Firestore una foto non portabile.
+  ///
+  /// `updateProfileImage` salva il percorso del file scelto dalla galleria,
+  /// che ha senso solo sul dispositivo corrente. Se finisse su Firestore come
+  /// `photoUrl` globale, gli altri dispositivi proverebbero a caricare un file
+  /// inesistente.
+  ///
+  /// Il `clearPhotoUrl` e' indispensabile: `copyWith()` senza argomenti
+  /// restituisce un oggetto identico, quindi la versione precedente di questo
+  /// metodo non rimuoveva proprio nulla.
   UserEntity _sanitizeRemoteUser(UserEntity user) {
     if (_isPortablePhotoUrl(user.photoUrl)) {
       return user;
     }
-    return user.copyWith();
+    return user.copyWith(clearPhotoUrl: true);
   }
 
   bool _hasMeaningfulWeightChange(double previousWeight, double nextWeight) {
