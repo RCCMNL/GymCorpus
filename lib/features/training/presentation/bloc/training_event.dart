@@ -27,6 +27,13 @@ class LoadSettingsEvent extends TrainingEvent {}
 
 class LoadCardioSessionsEvent extends TrainingEvent {}
 
+/// Azzera l'errore transitorio in `TrainingLoaded.actionError` dopo che la UI
+/// lo ha mostrato, cosi' un secondo fallimento identico torna a essere un
+/// cambio di stato osservabile.
+class ClearActionErrorEvent extends TrainingEvent {
+  const ClearActionErrorEvent();
+}
+
 class AddRoutineEvent extends TrainingEvent {
   const AddRoutineEvent({
     required this.title,

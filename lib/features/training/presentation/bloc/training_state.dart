@@ -22,6 +22,13 @@ class TrainingState with _$TrainingState {
     @Default([]) List<CardioSessionEntity> cardioSessions,
     @Default({}) Map<String, String> settings,
     double? lastEstimated1RM,
+
+    /// Errore transitorio di una singola operazione di scrittura.
+    ///
+    /// Serve a segnalare il fallimento senza perdere i dati gia' caricati: la
+    /// UI lo mostra e poi lo azzera con `ClearActionErrorEvent`. Per gli errori
+    /// che impediscono del tutto il caricamento esiste invece [TrainingError].
+    String? actionError,
   }) = TrainingLoaded;
 
   const factory TrainingState.error(String message) = TrainingError;

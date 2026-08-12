@@ -81,6 +81,72 @@ void main() {
       expect(bloc.state, isA<TrainingLoading>());
     });
 
+    group('errori di scrittura', () {
+      blocTest<TrainingBloc, TrainingState>(
+        'una scrittura fallita non cancella i dati gia caricati',
+        build: () {
+          when(() => mockRepository.toggleExerciseFavorite(1, isFavorite: true))
+              .thenAnswer(
+            (_) async => const Left(DatabaseFailure('database bloccato')),
+          );
+          return bloc;
+        },
+        seed: () => TrainingLoaded(exercises: tExercises),
+        act: (bloc) => bloc.add(
+          const ToggleExerciseFavoriteEvent(1, isFavorite: true),
+        ),
+        expect: () => [
+          TrainingLoaded(
+            exercises: tExercises,
+            actionError: 'database bloccato',
+          ),
+        ],
+        verify: (bloc) {
+          final state = bloc.state as TrainingLoaded;
+          expect(
+            state.exercises,
+            tExercises,
+            reason: 'la lista esercizi deve sopravvivere al fallimento',
+          );
+        },
+      );
+
+      blocTest<TrainingBloc, TrainingState>(
+        'senza dati caricati il fallimento emette ancora TrainingError',
+        build: () {
+          when(() => mockRepository.deleteRoutine(7)).thenAnswer(
+            (_) async => const Left(DatabaseFailure('routine inesistente')),
+          );
+          return bloc;
+        },
+        act: (bloc) => bloc.add(const DeleteRoutineEvent(7)),
+        expect: () => [
+          const TrainingError('routine inesistente'),
+        ],
+      );
+
+      blocTest<TrainingBloc, TrainingState>(
+        'ClearActionErrorEvent azzera solo l errore, non i dati',
+        build: () => bloc,
+        seed: () => TrainingLoaded(
+          exercises: tExercises,
+          actionError: 'database bloccato',
+        ),
+        act: (bloc) => bloc.add(const ClearActionErrorEvent()),
+        expect: () => [
+          TrainingLoaded(exercises: tExercises),
+        ],
+      );
+
+      blocTest<TrainingBloc, TrainingState>(
+        'ClearActionErrorEvent non emette nulla se non ci sono errori',
+        build: () => bloc,
+        seed: () => TrainingLoaded(exercises: tExercises),
+        act: (bloc) => bloc.add(const ClearActionErrorEvent()),
+        expect: () => <TrainingState>[],
+      );
+    });
+
     blocTest<TrainingBloc, TrainingState>(
       'emette [TrainingLoaded] quando load event ha successo',
       build: () {
@@ -238,8 +304,10 @@ void main() {
       },
       seed: () => const TrainingLoaded(exercises: []),
       act: (bloc) => bloc.add(const AddBodyWeightLogEvent(-1)),
+      // Il fallimento di una singola scrittura non deve distruggere lo stato
+      // gia' caricato: viaggia come errore transitorio dentro TrainingLoaded.
       expect: () => [
-        const TrainingError('Peso non valido'),
+        const TrainingLoaded(exercises: [], actionError: 'Peso non valido'),
       ],
       verify: (_) {
         verifyNever(

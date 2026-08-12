@@ -193,7 +193,7 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
         event.estDuration,
       );
       result.fold(
-        (f) => emit(TrainingError(f.message)),
+        (f) => _emitFailure(f.message, emit),
         (id) => null, // Stream will update UI
       );
     });
@@ -206,7 +206,7 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
         event.estDuration,
       );
       result.fold(
-        (f) => emit(TrainingError(f.message)),
+        (f) => _emitFailure(f.message, emit),
         (_) => null, // Stream will update UI
       );
     });
@@ -214,7 +214,7 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
     on<DeleteRoutineEvent>((event, emit) async {
       final result = await repository.deleteRoutine(event.id);
       result.fold(
-        (f) => emit(TrainingError(f.message)),
+        (f) => _emitFailure(f.message, emit),
         (_) => null,
       );
     });
@@ -226,7 +226,7 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
         routineId: event.routineId,
       );
       result.fold(
-        (failure) => emit(TrainingError(failure.message)),
+        (failure) => _emitFailure(failure.message, emit),
         (_) => null,
       );
     });
@@ -237,7 +237,7 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
         durationSeconds: event.durationSeconds,
       );
       result.fold(
-        (failure) => emit(TrainingError(failure.message)),
+        (failure) => _emitFailure(failure.message, emit),
         (_) => null,
       );
     });
@@ -263,7 +263,7 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
         );
 
         result.fold(
-          (failure) => emit(TrainingError(failure.message)),
+          (failure) => _emitFailure(failure.message, emit),
           (_) {
             emit(current.copyWith(lastEstimated1RM: new1RM));
           },
@@ -274,7 +274,7 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
     on<AddBodyWeightLogEvent>((event, emit) async {
       final result = await repository.addBodyWeightLogEntry(event.weight);
       await result.fold<Future<void>>(
-        (f) async => emit(TrainingError(f.message)),
+        (f) async => _emitFailure(f.message, emit),
         (_) => _syncProfileWeight(weight: event.weight),
       );
     });
@@ -290,7 +290,7 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
 
       final result = await repository.deleteBodyWeightLogEntry(event.id);
       await result.fold<Future<void>>(
-        (f) async => emit(TrainingError(f.message)),
+        (f) async => _emitFailure(f.message, emit),
         (_) async {
           if (!deletedLatest) return;
           if (remainingLogs.isEmpty) {
@@ -312,7 +312,7 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
       final result =
           await repository.updateBodyWeightLogEntry(event.id, event.weight);
       await result.fold<Future<void>>(
-        (f) async => emit(TrainingError(f.message)),
+        (f) async => _emitFailure(f.message, emit),
         (_) async {
           if (updatedLatest) {
             await _syncProfileWeight(weight: event.weight);
@@ -337,7 +337,7 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
       final result =
           await repository.addBodyMeasurement(event.part, event.value);
       result.fold(
-        (f) => emit(TrainingError(f.message)),
+        (f) => _emitFailure(f.message, emit),
         (id) => null,
       );
     });
@@ -348,7 +348,7 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
             await repository.addBodyMeasurement(entry.key, entry.value);
         final failure = result.fold((f) => f, (_) => null);
         if (failure != null) {
-          emit(TrainingError(failure.message));
+          _emitFailure(failure.message, emit);
           return;
         }
       }
@@ -357,7 +357,7 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
     on<DeleteBodyMeasurementEvent>((event, emit) async {
       final result = await repository.deleteBodyMeasurement(event.id);
       result.fold(
-        (f) => emit(TrainingError(f.message)),
+        (f) => _emitFailure(f.message, emit),
         (_) => null,
       );
     });
@@ -366,7 +366,7 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
       final result =
           await repository.updateBodyMeasurement(event.id, event.value);
       result.fold(
-        (f) => emit(TrainingError(f.message)),
+        (f) => _emitFailure(f.message, emit),
         (_) => null,
       );
     });
@@ -383,7 +383,7 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
         routeJson: event.routeJson,
       );
       result.fold(
-        (f) => emit(TrainingError(f.message)),
+        (f) => _emitFailure(f.message, emit),
         (id) => null, // Stream will update UI
       );
     });
@@ -391,7 +391,7 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
     on<DeleteCardioSessionEvent>((event, emit) async {
       final result = await repository.deleteCardioSession(event.id);
       result.fold(
-        (f) => emit(TrainingError(f.message)),
+        (f) => _emitFailure(f.message, emit),
         (_) => null,
       );
     });
@@ -399,7 +399,7 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
     on<UpdatePreferenceEvent>((event, emit) async {
       final result = await repository.updatePreference(event.key, event.value);
       result.fold(
-        (f) => emit(TrainingError(f.message)),
+        (f) => _emitFailure(f.message, emit),
         (_) => null,
       );
     });
@@ -410,7 +410,7 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
         isFavorite: event.isFavorite,
       );
       result.fold(
-        (f) => emit(TrainingError(f.message)),
+        (f) => _emitFailure(f.message, emit),
         (_) => null, // The stream will update the UI
       );
     });
@@ -421,19 +421,26 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
         event.notes,
       );
       result.fold(
-        (f) => emit(TrainingError(f.message)),
+        (f) => _emitFailure(f.message, emit),
         (_) => null,
       );
     });
 
     on<StreamErrorEvent>((event, emit) {
-      emit(TrainingError(event.message));
+      _emitFailure(event.message, emit);
+    });
+
+    on<ClearActionErrorEvent>((event, emit) {
+      final current = state;
+      if (current is TrainingLoaded && current.actionError != null) {
+        emit(current.copyWith(actionError: null));
+      }
     });
 
     on<ReseedWeightHistoryEvent>((event, emit) async {
       final result = await repository.reseedWeightHistory();
       await result.fold<Future<void>>(
-        (f) async => emit(TrainingError(f.message)),
+        (f) async => _emitFailure(f.message, emit),
         (latestWeight) async {
           if (latestWeight == null) {
             await _syncProfileWeight(clearWeight: true);
@@ -443,6 +450,24 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
         },
       );
     });
+  }
+
+  /// Segnala il fallimento di una singola operazione senza distruggere lo
+  /// stato gia' caricato.
+  ///
+  /// `TrainingBloc` e' un singleton condiviso da tutte le schermate training:
+  /// emettere `TrainingError` per una scrittura fallita azzerava routine,
+  /// esercizi e sessioni, lasciando la UI vuota fino al successivo evento di
+  /// stream. Quando i dati ci sono l'errore viaggia quindi dentro
+  /// `TrainingLoaded.actionError`; `TrainingError` resta riservato al caso in
+  /// cui non c'e' nulla da mostrare.
+  void _emitFailure(String message, Emitter<TrainingState> emit) {
+    final current = state;
+    if (current is TrainingLoaded) {
+      emit(current.copyWith(actionError: message));
+    } else {
+      emit(TrainingState.error(message));
+    }
   }
 
   final TrainingRepository repository;

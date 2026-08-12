@@ -191,8 +191,58 @@ class _CustomWorkoutsScreenState extends State<CustomWorkoutsScreen> {
                 ),
               );
             }
-            return const SizedBox.shrink();
+            return _WorkoutsLoadError(
+              message: state is TrainingError
+                  ? state.message
+                  : 'Non e stato possibile caricare i tuoi workout.',
+              onRetry: () =>
+                  context.read<TrainingBloc>().add(LoadRoutinesEvent()),
+            );
           },
+        ),
+      ),
+    );
+  }
+}
+
+/// Mostrato quando le routine non sono disponibili: senza questo la schermata
+/// restava completamente bianca, senza spiegazione ne modo di riprovare.
+class _WorkoutsLoadError extends StatelessWidget {
+  const _WorkoutsLoadError({required this.message, required this.onRetry});
+
+  final String message;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.cloud_off_rounded,
+              size: 48,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 20),
+            FilledButton.tonalIcon(
+              onPressed: onRetry,
+              icon: const Icon(Icons.refresh_rounded),
+              label: const Text('Riprova'),
+            ),
+          ],
         ),
       ),
     );

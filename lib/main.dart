@@ -34,6 +34,7 @@ import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
+import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
 import 'package:gym_corpus/features/training/presentation/screens/cardio_tracker_screen.dart';
 import 'package:gym_corpus/features/training/presentation/screens/custom_workouts_screen.dart';
 import 'package:gym_corpus/features/training/presentation/screens/root_screen.dart';
@@ -68,6 +69,11 @@ void main() async {
 }
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
+
+/// Permette di mostrare messaggi di errore da qualunque schermata, anche da
+/// quelle spinte sul navigator root che non stanno sotto lo shell delle tab.
+final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey =
+    GlobalKey<ScaffoldMessengerState>();
 
 /// A [Listenable] that notifies listeners when the [AuthBloc] state changes.
 /// This allows the router to re-run its redirection logic immediately.
@@ -402,22 +408,45 @@ class _GymAppState extends State<GymApp> {
             ..add(LoadNotificationsEvent()),
         ),
       ],
-      child: MaterialApp.router(
-        title: 'GYM 2.0',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.lightTheme,
-        darkTheme: AppTheme.darkTheme,
-        routerConfig: _router,
-        localizationsDelegates: const [
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: const [
-          Locale('it', 'IT'),
-          Locale('en', 'US'),
-        ],
-        locale: const Locale('it', 'IT'),
+      child: BlocListener<TrainingBloc, TrainingState>(
+        listenWhen: (previous, current) =>
+            current is TrainingLoaded && current.actionError != null,
+        listener: (context, state) {
+          if (state is! TrainingLoaded) return;
+          final message = state.actionError;
+          if (message == null) return;
+
+          // Il messaggio viene consumato subito: cosi' un secondo fallimento
+          // identico torna a essere un cambio di stato osservabile.
+          context.read<TrainingBloc>().add(const ClearActionErrorEvent());
+          _scaffoldMessengerKey.currentState
+            ?..hideCurrentSnackBar()
+            ..showSnackBar(
+              SnackBar(
+                content: Text(message),
+                behavior: SnackBarBehavior.floating,
+                backgroundColor: AppTheme.darkTheme.colorScheme.error,
+              ),
+            );
+        },
+        child: MaterialApp.router(
+          title: 'GYM 2.0',
+          debugShowCheckedModeBanner: false,
+          scaffoldMessengerKey: _scaffoldMessengerKey,
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          routerConfig: _router,
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: const [
+            Locale('it', 'IT'),
+            Locale('en', 'US'),
+          ],
+          locale: const Locale('it', 'IT'),
+        ),
       ),
     );
   }
