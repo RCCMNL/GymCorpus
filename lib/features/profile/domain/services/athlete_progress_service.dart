@@ -452,10 +452,6 @@ class AthleteProgressService {
     final workoutIdsFromSets = workoutSets.map((set) => set.workoutId).toSet();
     final completedWorkoutCount =
         math.max(workoutSessions.length, workoutIdsFromSets.length);
-    final weekendWorkoutCount = _countWeekendWorkouts(
-      workoutSessions: workoutSessions,
-      workoutSets: workoutSets,
-    );
     final volumeByWorkout = <int, double>{};
     final triedExerciseIds = <int>{};
     final trainedMuscles = <String>{};
@@ -693,28 +689,9 @@ class AthleteProgressService {
     );
   }
 
-  static int _countWeekendWorkouts({
-    required List<WorkoutSessionEntity> workoutSessions,
-    required List<WorkoutSetEntity> workoutSets,
-  }) {
-    if (workoutSessions.isNotEmpty) {
-      return workoutSessions.where((session) {
-        final date = session.completedAt ?? session.date;
-        return date.weekday == DateTime.saturday ||
-            date.weekday == DateTime.sunday;
-      }).length;
-    }
-
-    final datesByWorkout = <int, DateTime>{};
-    for (final set in workoutSets) {
-      datesByWorkout.putIfAbsent(set.workoutId, () => set.timestamp);
-    }
-
-    return datesByWorkout.values.where((date) {
-      return date.weekday == DateTime.saturday ||
-          date.weekday == DateTime.sunday;
-    }).length;
-  }
+  // Rimosso _countWeekendWorkouts: il risultato non veniva usato da alcun
+  // badge, ma l'intero elenco di sessioni e set veniva comunque scorso a ogni
+  // chiamata di calculate, che gira su tre schermate diverse.
 
   static List<PersonalRecord> _buildRecords({
     required int completedWorkoutCount,

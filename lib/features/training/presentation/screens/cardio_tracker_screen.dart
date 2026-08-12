@@ -1054,13 +1054,11 @@ class _StatColumn extends StatelessWidget {
     required this.label,
     required this.value,
     required this.theme,
-    this.valueColor,
   });
 
   final String label;
   final String value;
   final ThemeData theme;
-  final Color? valueColor;
 
   @override
   Widget build(BuildContext context) {
@@ -1081,7 +1079,7 @@ class _StatColumn extends StatelessWidget {
           style: theme.textTheme.headlineSmall?.copyWith(
             fontWeight: FontWeight.w900,
             fontFamily: 'Lexend',
-            color: valueColor ?? theme.colorScheme.onSurface,
+            color: theme.colorScheme.onSurface,
           ),
         ),
       ],

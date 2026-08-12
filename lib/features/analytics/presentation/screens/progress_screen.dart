@@ -89,7 +89,6 @@ class _ProgressScreenState extends State<ProgressScreen>
                   child: ListenableBuilder(
                     listenable: _tabController,
                     builder: (context, _) {
-                      final isWeightTab = _tabController.index == 0;
                       return TabBarView(
                         controller: _tabController,
                         children: [
@@ -164,8 +163,6 @@ class _ProgressHeroState extends State<_ProgressHero> {
     final isImperial = widget.settings['units'] == 'LB';
     final latestWeight = sortedLogs.isNotEmpty ? sortedLogs.first : null;
     final previousWeight = sortedLogs.length > 1 ? sortedLogs[1] : null;
-    final latestMeasurement =
-        sortedMeasurements.isNotEmpty ? sortedMeasurements.first : null;
 
     final isWeightTab = widget.activeTab == 0;
     
@@ -831,38 +828,60 @@ class _MiniMeasurementChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
+    final canEdit = measurement.id != null;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.1)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            measurement.part,
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: theme.colorScheme.outline,
-              fontWeight: FontWeight.bold,
-              fontSize: 10,
-            ),
+        // Unico punto d'accesso alla modifica di una misurazione: il foglio
+        // esisteva gia' completo ma non era raggiungibile da nessuna parte.
+        onTap: canEdit
+            ? () => _showEditMeasurementSheet(context, measurement)
+            : null,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surface,
+            borderRadius: BorderRadius.circular(10),
+            border:
+                Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.1)),
           ),
-          const SizedBox(width: 4),
-          Text(
-            '${measurement.value.toStringAsFixed(1)}',
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: theme.colorScheme.onSurface,
-              fontWeight: FontWeight.w900,
-              fontSize: 10,
-            ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                measurement.part,
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: theme.colorScheme.outline,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 10,
+                ),
+              ),
+              const SizedBox(width: 4),
+              Text(
+                measurement.value.toStringAsFixed(1),
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: theme.colorScheme.onSurface,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 10,
+                ),
+              ),
+              const Text(
+                ' cm',
+                style: TextStyle(fontSize: 8, color: Colors.grey),
+              ),
+              if (canEdit) ...[
+                const SizedBox(width: 4),
+                Icon(
+                  Icons.edit_outlined,
+                  size: 10,
+                  color: theme.colorScheme.outline,
+                ),
+              ],
+            ],
           ),
-          const Text(
-            ' cm',
-            style: TextStyle(fontSize: 8, color: Colors.grey),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -1220,6 +1239,23 @@ Future<void> _showEditMeasurementSheet(
                     ),
                   ],
                 ),
+                const SizedBox(height: 4),
+                // DeleteBodyMeasurementEvent esisteva in bloc e repository ma
+                // non veniva inviato da nessuna schermata: le misurazioni si
+                // potevano solo aggiungere.
+                TextButton.icon(
+                  onPressed: () {
+                    context
+                        .read<TrainingBloc>()
+                        .add(DeleteBodyMeasurementEvent(measurement.id!));
+                    Navigator.pop(sheetContext);
+                  },
+                  icon: const Icon(Icons.delete_outline, size: 18),
+                  style: TextButton.styleFrom(
+                    foregroundColor: theme.colorScheme.error,
+                  ),
+                  label: const Text('Elimina misurazione'),
+                ),
               ],
             ),
           ),
@@ -1227,126 +1263,6 @@ Future<void> _showEditMeasurementSheet(
       },
     );
   }
-
-class _WeightInsightCard extends StatelessWidget {
-  const _WeightInsightCard({
-    required this.logs,
-    required this.isImperial,
-  });
-
-  final List<BodyWeightLogEntity> logs;
-  final bool isImperial;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    if (logs.isEmpty) {
-      return Container(
-        padding: const EdgeInsets.all(18),
-        decoration: BoxDecoration(
-          color: theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.35),
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(
-            color: theme.colorScheme.outline.withValues(alpha: 0.06),
-          ),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 42,
-              height: 42,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: theme.colorScheme.primary.withValues(alpha: 0.10),
-              ),
-              child: Icon(
-                Icons.timeline_rounded,
-                color: theme.colorScheme.primary,
-              ),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Text(
-                'Quando registrerai almeno due pesi vedrai subito l andamento recente.',
-                style: theme.textTheme.bodyMedium,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    final latest = logs.first;
-    final oldest = logs.last;
-    final change = latest.weight - oldest.weight;
-    final totalEntries = logs.length;
-
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.35),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: theme.colorScheme.outline.withValues(alpha: 0.06),
-        ),
-      ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: _MiniMetric(
-                  label: 'Attuale',
-                  value: _formatWeight(latest.weight, isImperial),
-                  icon: Icons.monitor_weight_outlined,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _MiniMetric(
-                  label: 'Trend',
-                  value: _formatSignedWeight(change, isImperial),
-                  icon: change <= 0
-                      ? Icons.south_east_rounded
-                      : Icons.north_east_rounded,
-                  accent: change <= 0 ? Colors.tealAccent : Colors.orangeAccent,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _MiniMetric(
-                  label: 'Log',
-                  value: '$totalEntries',
-                  icon: Icons.history_rounded,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
-          Row(
-            children: [
-              Icon(
-                Icons.schedule_rounded,
-                size: 16,
-                color: theme.colorScheme.outline,
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  'Dal ${DateFormat('dd MMM', 'it_IT').format(oldest.date)} al ${DateFormat('dd MMM yyyy', 'it_IT').format(latest.date)}',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.outline,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 class _MeasurementTipsCard extends StatelessWidget {
   const _MeasurementTipsCard();
@@ -1453,14 +1369,12 @@ class _LogTile extends StatelessWidget {
     required this.subtitle,
     required this.icon,
     required this.onDelete,
-    this.onEdit,
   });
 
   final String title;
   final String subtitle;
   final IconData icon;
   final VoidCallback onDelete;
-  final VoidCallback? onEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -1508,12 +1422,6 @@ class _LogTile extends StatelessWidget {
               ],
             ),
           ),
-          if (onEdit != null)
-            IconButton(
-              visualDensity: VisualDensity.compact,
-              onPressed: onEdit,
-              icon: const Icon(Icons.edit_outlined, size: 20),
-            ),
           IconButton(
             visualDensity: VisualDensity.compact,
             onPressed: onDelete,
@@ -1650,55 +1558,6 @@ class _EmptyStateCard extends StatelessWidget {
   }
 }
 
-class _MiniMetric extends StatelessWidget {
-  const _MiniMetric({
-    required this.label,
-    required this.value,
-    required this.icon,
-    this.accent,
-  });
-
-  final String label;
-  final String value;
-  final IconData icon;
-  final Color? accent;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final color = accent ?? theme.colorScheme.primary;
-
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface.withValues(alpha: 0.30),
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, color: color, size: 18),
-          const SizedBox(height: 10),
-          Text(
-            value,
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w900,
-              fontFamily: 'Lexend',
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            label,
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: theme.colorScheme.outline,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _HeroMetricChip extends StatelessWidget {
   const _HeroMetricChip({
     required this.icon,
@@ -1756,49 +1615,6 @@ class _HeroMetricChip extends StatelessWidget {
                   ),
                 ),
               ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _MeasurementChip extends StatelessWidget {
-  const _MeasurementChip({
-    required this.measurement,
-  });
-
-  final BodyMeasurementEntity measurement;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.36),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: theme.colorScheme.outline.withValues(alpha: 0.05),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            measurement.part,
-            style: theme.textTheme.labelLarge?.copyWith(
-              fontWeight: FontWeight.w900,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            '${measurement.value.toStringAsFixed(1)} cm',
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.outline,
             ),
           ),
         ],
@@ -1892,13 +1708,6 @@ class _TipLine extends StatelessWidget {
       ),
     );
   }
-}
-
-DateTime? _latestDate(List<DateTime?> dates) {
-  final filtered = dates.whereType<DateTime>().toList();
-  if (filtered.isEmpty) return null;
-  filtered.sort((a, b) => b.compareTo(a));
-  return filtered.first;
 }
 
 String _formatWeight(double weightKg, bool isImperial) {
