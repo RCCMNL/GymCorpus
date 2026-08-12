@@ -795,7 +795,10 @@ class _SignUpScreenState extends State<SignUpScreen>
                 child: Padding(
                   padding: const EdgeInsets.only(top: 10, bottom: 10),
                   child: Text(
-                    'Accetto Termini',
+                    // Il consenso copre entrambi i documenti, come dice il
+                    // messaggio di errore mostrato se non viene spuntato:
+                    // l'etichetta deve nominarli tutti e due.
+                    'Accetto Termini e Privacy Policy',
                     style: theme.textTheme.bodyMedium?.copyWith(
                       fontWeight: FontWeight.w800,
                     ),
