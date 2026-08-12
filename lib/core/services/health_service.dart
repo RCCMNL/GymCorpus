@@ -56,14 +56,26 @@ class HealthService {
   final Health _health;
   bool _isAuthorized = false;
 
+  /// Tipo usato per la distanza percorsa.
+  ///
+  /// Health Connect e HealthKit espongono la distanza con nomi diversi. Va
+  /// letto da qui sia per l'autorizzazione sia per le query: chiedere il
+  /// permesso per un tipo e poi interrogarne un altro restituisce sempre
+  /// zero, senza alcun errore visibile.
+  static HealthDataType get _distanceType => Platform.isAndroid
+      ? HealthDataType.DISTANCE_DELTA
+      : HealthDataType.DISTANCE_WALKING_RUNNING;
+
+  /// Tipo usato per le calorie, anch'esso diverso tra le due piattaforme.
+  static HealthDataType get _caloriesType => Platform.isAndroid
+      ? HealthDataType.TOTAL_CALORIES_BURNED
+      : HealthDataType.ACTIVE_ENERGY_BURNED;
+
   /// Tipi di dati che leggiamo.
   static final _readTypes = <HealthDataType>[
     HealthDataType.STEPS,
-    Platform.isAndroid 
-        ? HealthDataType.DISTANCE_DELTA 
-        : HealthDataType.DISTANCE_WALKING_RUNNING,
-    HealthDataType.ACTIVE_ENERGY_BURNED,
-    if (Platform.isAndroid) HealthDataType.TOTAL_CALORIES_BURNED,
+    _distanceType,
+    _caloriesType,
     HealthDataType.WORKOUT, // Aggiunto per migliorare il riconoscimento attività
   ];
 
@@ -119,6 +131,9 @@ class HealthService {
       return _isAuthorized;
     } catch (e) {
       debugPrint('[HealthService] Check permissions error: $e');
+      // Anche lo stato in memoria va invalidato: lasciarlo a true dopo un
+      // controllo fallito farebbe partire query destinate a restituire zero.
+      _isAuthorized = false;
       return false;
     }
   }
@@ -134,12 +149,8 @@ class HealthService {
         start,
         end,
       );
-      final distance = await _getAggregatedValue(
-        HealthDataType.DISTANCE_WALKING_RUNNING,
-        start,
-        end,
-      );
-      final calories = await _getActiveCalories(start, end);
+      final distance = await _getAggregatedValue(_distanceType, start, end);
+      final calories = await _getAggregatedValue(_caloriesType, start, end);
 
       // Stima minuti attivi: ~100 passi/minuto di camminata media
       final activeMinutes =
@@ -209,7 +220,7 @@ class HealthService {
       );
 
       // Rimuovi duplicati (es. da più sorgenti)
-      final cleanData = Health().removeDuplicates(dataPoints);
+      final cleanData = _health.removeDuplicates(dataPoints);
 
       var total = 0.0;
       for (final point in cleanData) {
@@ -224,15 +235,5 @@ class HealthService {
       debugPrint('[HealthService] _getAggregatedValue($type) error: $e');
       return 0;
     }
-  }
-
-  /// Legge le calorie attive nel range specificato.
-  Future<double> _getActiveCalories(DateTime start, DateTime end) async {
-    // Su Android prova TOTAL_CALORIES_BURNED, su iOS usa ACTIVE_ENERGY_BURNED
-    final type = Platform.isAndroid
-        ? HealthDataType.TOTAL_CALORIES_BURNED
-        : HealthDataType.ACTIVE_ENERGY_BURNED;
-
-    return _getAggregatedValue(type, start, end);
   }
 }
