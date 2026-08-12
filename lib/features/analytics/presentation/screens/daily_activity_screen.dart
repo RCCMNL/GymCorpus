@@ -87,7 +87,7 @@ class _DailyActivityScreenState extends State<DailyActivityScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.directions_walk_rounded, size: 48, color: theme.colorScheme.outline.withOpacity(0.5)),
+          Icon(Icons.directions_walk_rounded, size: 48, color: theme.colorScheme.outline.withValues(alpha: 0.5)),
           const SizedBox(height: 16),
           Text(
             'Nessun dato disponibile',
@@ -120,8 +120,8 @@ class _ActivityDayCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
           color: isToday 
-              ? Colors.greenAccent.shade400.withOpacity(0.3)
-              : theme.colorScheme.outline.withOpacity(0.08),
+              ? Colors.greenAccent.shade400.withValues(alpha: 0.3)
+              : theme.colorScheme.outline.withValues(alpha: 0.08),
           width: isToday ? 1.5 : 1.0,
         ),
       ),
@@ -177,14 +177,14 @@ class _ActivityDayCard extends StatelessWidget {
                 label: 'Distanza',
                 color: Colors.blueAccent,
               ),
-              Container(width: 1, height: 30, color: theme.colorScheme.outline.withOpacity(0.2)),
+              Container(width: 1, height: 30, color: theme.colorScheme.outline.withValues(alpha: 0.2)),
               _StatItem(
                 icon: Icons.timer_outlined,
                 value: activity.formattedActiveTime,
                 label: 'Attività',
                 color: Colors.orangeAccent,
               ),
-              Container(width: 1, height: 30, color: theme.colorScheme.outline.withOpacity(0.2)),
+              Container(width: 1, height: 30, color: theme.colorScheme.outline.withValues(alpha: 0.2)),
               _StatItem(
                 icon: Icons.local_fire_department_rounded,
                 value: '${activity.caloriesBurned.round()}',

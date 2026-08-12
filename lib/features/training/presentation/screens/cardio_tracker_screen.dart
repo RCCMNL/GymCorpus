@@ -27,6 +27,71 @@ class CardioTrackerScreen extends StatefulWidget {
   State<CardioTrackerScreen> createState() => _CardioTrackerScreenState();
 }
 
+/// Sessione cardio interrotta, salvata periodicamente per poterla riprendere
+/// dopo una chiusura imprevista dell'app.
+///
+/// La bozza arriva da JSON scritto da una versione potenzialmente diversa
+/// dell'app, o troncato da un crash a meta' scrittura. Interpretarla campo per
+/// campo con cast diretti significava far fallire l'intero ripristino per una
+/// singola coordinata malformata, quindi ogni valore viene controllato e i
+/// punti non validi vengono scartati singolarmente.
+class _CardioDraft {
+  const _CardioDraft({
+    required this.type,
+    required this.elapsedSeconds,
+    required this.distanceMeters,
+    required this.steps,
+    required this.startTime,
+    required this.route,
+  });
+
+  final String type;
+  final int elapsedSeconds;
+  final double distanceMeters;
+  final int steps;
+  final DateTime? startTime;
+  final List<LatLng> route;
+
+  /// Restituisce `null` se la bozza non e' interpretabile.
+  static _CardioDraft? tryParse(String raw) {
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is! Map<String, dynamic>) return null;
+
+      final route = <LatLng>[];
+      final rawRoute = decoded['route'];
+      if (rawRoute is List) {
+        for (final point in rawRoute) {
+          if (point is! Map) continue;
+          final lat = point['lat'];
+          final lng = point['lng'];
+          if (lat is num && lng is num) {
+            route.add(LatLng(lat.toDouble(), lng.toDouble()));
+          }
+        }
+      }
+
+      final type = decoded['type'];
+      final elapsed = decoded['elapsedSeconds'];
+      final distance = decoded['distanceMeters'];
+      final steps = decoded['steps'];
+      final startTime = decoded['startTime'];
+
+      return _CardioDraft(
+        type: type is String ? type : 'run',
+        elapsedSeconds: elapsed is num ? elapsed.toInt() : 0,
+        distanceMeters: distance is num ? distance.toDouble() : 0,
+        steps: steps is num ? steps.toInt() : 0,
+        startTime: startTime is String ? DateTime.tryParse(startTime) : null,
+        route: route,
+      );
+    } catch (e) {
+      debugPrint('CardioTracker: bozza non interpretabile: $e');
+      return null;
+    }
+  }
+}
+
 class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
   final MapController _mapController = MapController();
   final HealthService _healthService = GetIt.I<HealthService>();
@@ -92,62 +157,84 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
     try {
       final db = GetIt.I<AppDatabase>();
       final draftStr = await db.watchSetting('cardio_draft').first;
-      if (draftStr != null && draftStr.isNotEmpty) {
-        final draft = jsonDecode(draftStr);
-        final draftType = draft['type'];
-        
-        if (mounted) {
-          final shouldResume = await showDialog<bool>(
-            context: context,
-            barrierDismissible: false,
-            builder: (ctx) => AlertDialog(
-              backgroundColor: Theme.of(context).colorScheme.surface,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-              title: const Text('Sessione interrotta', style: TextStyle(fontWeight: FontWeight.w900, fontFamily: 'Lexend')),
-              content: Text('Abbiamo trovato una sessione di ${draftType == 'run' ? 'Corsa' : 'Camminata'} non terminata. Vuoi riprenderla?'),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    db.updateSetting('cardio_draft', '');
-                    Navigator.pop(ctx, false);
-                  },
-                  child: Text('SCARTA', style: TextStyle(color: Theme.of(context).colorScheme.error, fontWeight: FontWeight.bold)),
-                ),
-                FilledButton(
-                  onPressed: () => Navigator.pop(ctx, true),
-                  child: const Text('RIPRENDI', style: TextStyle(fontWeight: FontWeight.bold)),
-                ),
-              ],
-            ),
-          );
+      if (draftStr == null || draftStr.isEmpty) return;
 
-              if (shouldResume == true) {
-              setState(() {
-                _isLocating = false; // Se riprendiamo una bozza, abbiamo già la posizione
-                _elapsedSeconds = draft['elapsedSeconds'] as int;
-              _distanceMeters = (draft['distanceMeters'] as num).toDouble();
-              _currentSteps = draft['steps'] as int? ?? 0;
-              if (draft['startTime'] != null) {
-                _sessionStartTime = DateTime.parse(draft['startTime'] as String);
-              }
-              
-              final routePoints = draft['route'] as List<dynamic>;
-              for (final point in routePoints) {
-                _route.add(LatLng((point['lat'] as num).toDouble(), (point['lng'] as num).toDouble()));
-              }
-              if (_route.isNotEmpty) {
-                _currentPosition = _route.last;
-              }
-              _isTracking = true;
-            });
-            _startTracking(resume: true);
-          }
-        }
+      // La bozza viene interpretata prima di proporre il ripristino. Prima i
+      // campi venivano letti dopo il tap su RIPRENDI: una bozza malformata,
+      // per esempio scritta a meta' durante un crash, faceva fallire il
+      // parsing a quel punto e la sessione ripartiva da zero senza spiegazioni.
+      final draft = _CardioDraft.tryParse(draftStr);
+      if (draft == null) {
+        await _clearDraft();
+        return;
       }
+
+      if (!mounted) return;
+
+      final shouldResume = await showDialog<bool>(
+        context: context,
+        barrierDismissible: false,
+        builder: (ctx) => AlertDialog(
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          title: const Text(
+            'Sessione interrotta',
+            style: TextStyle(
+              fontWeight: FontWeight.w900,
+              fontFamily: 'Lexend',
+            ),
+          ),
+          content: Text(
+            'Abbiamo trovato una sessione di '
+            '${draft.type == 'run' ? 'Corsa' : 'Camminata'} non terminata. '
+            'Vuoi riprenderla?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                unawaited(_clearDraft());
+                Navigator.pop(ctx, false);
+              },
+              child: Text(
+                'SCARTA',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.error,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text(
+                'RIPRENDI',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+      );
+
+      if (shouldResume != true || !mounted) return;
+
+      setState(() {
+        // Riprendendo una bozza la posizione e' gia' nota.
+        _isLocating = false;
+        _elapsedSeconds = draft.elapsedSeconds;
+        _distanceMeters = draft.distanceMeters;
+        _currentSteps = draft.steps;
+        _sessionStartTime = draft.startTime;
+        _route
+          ..clear()
+          ..addAll(draft.route);
+        if (_route.isNotEmpty) {
+          _currentPosition = _route.last;
+        }
+        _isTracking = true;
+      });
+      _startTracking(resume: true);
     } catch (e) {
-      // Una bozza illeggibile, per esempio scritta a meta' durante un crash,
-      // non deve impedire l'avvio di una nuova sessione: si riparte da zero,
-      // ma l'errore resta tracciato.
       debugPrint('CardioTracker._checkDraft: $e');
     }
   }
