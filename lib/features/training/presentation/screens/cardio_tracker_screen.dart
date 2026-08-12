@@ -144,7 +144,10 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
         }
       }
     } catch (e) {
-      // Ignora errori di parsing della bozza
+      // Una bozza illeggibile, per esempio scritta a meta' durante un crash,
+      // non deve impedire l'avvio di una nuova sessione: si riparte da zero,
+      // ma l'errore resta tracciato.
+      debugPrint('CardioTracker._checkDraft: $e');
     }
   }
 
@@ -161,7 +164,26 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
         'route': _route.map((p) => {'lat': p.latitude, 'lng': p.longitude}).toList(),
       };
       await db.updateSetting('cardio_draft', jsonEncode(draft));
-    } catch (_) {}
+    } catch (e) {
+      // Il salvataggio automatico gira ogni 10 secondi: senza log, fallimenti
+      // ripetuti di scrittura resterebbero invisibili per tutta la sessione.
+      debugPrint('CardioTracker._saveDraft: $e');
+    }
+  }
+
+  /// Cancella la bozza della sessione in corso.
+  ///
+  /// Deve restare un metodo async con il proprio try/catch: chiamare
+  /// `db.updateSetting` senza await dentro un handler sincrono fa sfuggire
+  /// l'errore al blocco catch che lo circonda, perche' viene sollevato dopo
+  /// il primo await interno.
+  Future<void> _clearDraft() async {
+    try {
+      final db = GetIt.I<AppDatabase>();
+      await db.updateSetting('cardio_draft', '');
+    } catch (e) {
+      debugPrint('CardioTracker._clearDraft: $e');
+    }
   }
 
   void _runCountdown() {
@@ -330,10 +352,7 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
     _timer?.cancel();
     await _positionStream?.cancel();
 
-    try {
-      final db = GetIt.I<AppDatabase>();
-      await db.updateSetting('cardio_draft', '');
-    } catch (_) {}
+    await _clearDraft();
 
     final distKm = _distanceMeters / 1000;
     final avgSpeed =
@@ -1008,11 +1027,8 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
               _positionStream?.cancel();
               
               // Elimina la bozza se l'utente interrompe intenzionalmente
-              try {
-                final db = GetIt.I<AppDatabase>();
-                db.updateSetting('cardio_draft', '');
-              } catch (_) {}
-              
+              unawaited(_clearDraft());
+
               context.pop();
             },
             style: TextButton.styleFrom(foregroundColor: Colors.redAccent),

@@ -149,7 +149,13 @@ class _WorkoutPageState extends State<WorkoutPage> {
         var setsList = <dynamic>[];
         try {
           setsList = jsonDecode(re.setsData!) as List<dynamic>;
-        } catch (_) {
+        } catch (e) {
+          // setsData corrotto: si ricade sui valori di default della routine
+          // invece di bloccare il salvataggio, ma l'anomalia va tracciata.
+          debugPrint(
+            'WorkoutPage: setsData non valido per '
+            '${re.exercise.name} (id ${re.exercise.id}): $e',
+          );
           setsList = const [];
         }
 

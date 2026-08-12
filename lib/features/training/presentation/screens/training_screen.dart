@@ -915,7 +915,14 @@ class _TrainingScreenState extends State<TrainingScreen>
             reps: s['reps'] as int,
           );
         }
-      } catch (_) {}
+      } catch (e) {
+        // setsData corrotto o con struttura inattesa: si ricade sui valori
+        // di default dell'esercizio nella routine.
+        debugPrint(
+          'TrainingScreen: setsData non valido per esercizio '
+          '${re.exercise.id}, set $setIdx: $e',
+        );
+      }
     }
     return (weight: re.weight, reps: re.reps);
   }
