@@ -24,6 +24,21 @@ class AuthFailure extends Failure {
   List<Object> get props => [message];
 }
 
+/// Sollevata quando i dati locali dell'account precedente non possono essere
+/// rimossi prima di completare l'accesso di un altro utente.
+///
+/// L'accesso non deve proseguire in questo caso: su un dispositivo condiviso
+/// il nuovo utente vedrebbe routine, allenamenti e pesi di chi lo ha
+/// preceduto, servito dagli stream ancora attivi sul database locale.
+class LocalDataCleanupException implements Exception {
+  const LocalDataCleanupException();
+
+  @override
+  String toString() =>
+      'Non e stato possibile preparare i dati locali per questo account. '
+      'Riprova; se il problema persiste riavvia l app.';
+}
+
 const _googleServerClientId = String.fromEnvironment('GOOGLE_SERVER_CLIENT_ID');
 const _defaultGoogleServerClientId =
     '996703301991-gap14vk81ourfhvkaftpnf8ntvc0g68c.apps.googleusercontent.com';
@@ -60,6 +75,20 @@ class AuthRepositoryImpl implements AuthRepository {
       await _localDataSource.saveLocalDataOwner(userId);
     } catch (e) {
       debugPrint('AuthRepositoryImpl._prepareLocalDataForUser error: $e');
+
+      // Prima l'errore veniva solo loggato e l'accesso proseguiva comunque,
+      // lasciando visibili i dati dell'account precedente. La sessione
+      // Firebase viene chiusa perche' altrimenti resterebbe attiva e il
+      // riavvio successivo entrerebbe di nuovo senza aver ripulito nulla.
+      try {
+        await _firebaseAuth.signOut();
+      } catch (signOutError) {
+        debugPrint(
+          'AuthRepositoryImpl._prepareLocalDataForUser signOut error: '
+          '$signOutError',
+        );
+      }
+      throw const LocalDataCleanupException();
     }
   }
 
@@ -304,7 +333,13 @@ class AuthRepositoryImpl implements AuthRepository {
 
     if (firebaseUser != null) {
       final baseUser = _mapFirebaseUser(firebaseUser);
-      await _prepareLocalDataForUser(baseUser.id);
+      try {
+        await _prepareLocalDataForUser(baseUser.id);
+      } on LocalDataCleanupException catch (e) {
+        // checkSession non ha un catch generale: senza questa gestione
+        // l'eccezione uscirebbe dal metodo come errore non gestito.
+        return Left(AuthFailure(e.toString()));
+      }
 
       // Try local cache first for instant UI response
       UserEntity? mergedUser =
