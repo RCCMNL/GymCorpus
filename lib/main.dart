@@ -8,14 +8,17 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/service_locator.dart' as di;
+import 'package:gym_corpus/core/services/app_lock_controller.dart';
 import 'package:gym_corpus/core/theme/app_theme.dart';
 import 'package:gym_corpus/features/analytics/presentation/screens/analytics_screen.dart';
 import 'package:gym_corpus/features/analytics/presentation/screens/cardio_history_screen.dart';
 import 'package:gym_corpus/features/analytics/presentation/screens/daily_activity_screen.dart';
 import 'package:gym_corpus/features/analytics/presentation/screens/progress_screen.dart';
+import 'package:gym_corpus/features/auth/domain/repositories/auth_repository.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_event.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
+import 'package:gym_corpus/features/auth/presentation/screens/lock_screen.dart';
 import 'package:gym_corpus/features/auth/presentation/screens/login_screen.dart';
 import 'package:gym_corpus/features/auth/presentation/screens/sign_up_screen.dart';
 import 'package:gym_corpus/features/auth/presentation/screens/splash_screen.dart';
@@ -101,29 +104,44 @@ class GymApp extends StatefulWidget {
   State<GymApp> createState() => _GymAppState();
 }
 
-class _GymAppState extends State<GymApp> {
+class _GymAppState extends State<GymApp> with WidgetsBindingObserver {
   late final AuthBloc _authBloc;
   late final BlocRefreshStream _routerRefresh;
+  late final AppLockController _appLock;
+  late final Listenable _routerListenable;
   late final GoRouter _router;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+
     _authBloc = di.sl<AuthBloc>()..add(const AuthEvent.checkSessionRequested());
     _routerRefresh = BlocRefreshStream(_authBloc.stream);
+    _appLock = AppLockController(di.sl<AuthRepository>());
+    _routerListenable = Listenable.merge([_routerRefresh, _appLock]);
+
+    // All'avvio l'app parte bloccata se l'utente ha attivato la biometria:
+    // senza questo una sessione Firebase gia' presente porta dritti in
+    // /training senza alcuna richiesta di riconoscimento.
+    unawaited(_appLock.lockIfEnabled());
 
     _router = GoRouter(
       navigatorKey: _rootNavigatorKey,
       initialLocation: '/splash',
-      refreshListenable: _routerRefresh,
+      refreshListenable: _routerListenable,
       redirect: (context, state) {
         final authState = _authBloc.state;
 
         return authState.maybeWhen(
           authenticated: (_) {
+            if (_appLock.isLocked) {
+              return state.matchedLocation == '/lock' ? null : '/lock';
+            }
             if (state.matchedLocation == '/login' ||
                 state.matchedLocation == '/signup' ||
-                state.matchedLocation == '/splash') {
+                state.matchedLocation == '/splash' ||
+                state.matchedLocation == '/lock') {
               return '/training';
             }
             return null;
@@ -161,6 +179,10 @@ class _GymAppState extends State<GymApp> {
         GoRoute(
           path: '/splash',
           builder: (context, state) => const SplashScreen(),
+        ),
+        GoRoute(
+          path: '/lock',
+          builder: (context, state) => LockScreen(controller: _appLock),
         ),
         GoRoute(
           path: '/login',
@@ -384,9 +406,25 @@ class _GymAppState extends State<GymApp> {
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+    // Richiude il lucchetto quando l'app lascia il primo piano, cosi' chi
+    // riprende in mano il telefono deve autenticarsi di nuovo. Il controller
+    // ignora la richiesta mentre il prompt di sistema e' aperto, perche'
+    // quello stesso prompt porta l'app in `inactive`.
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.hidden) {
+      unawaited(_appLock.lockIfEnabled());
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _router.dispose();
     _routerRefresh.dispose();
+    _appLock.dispose();
     _authBloc.close();
     super.dispose();
   }
