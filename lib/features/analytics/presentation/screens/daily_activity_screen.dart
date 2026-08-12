@@ -26,7 +26,12 @@ class _DailyActivityScreenState extends State<DailyActivityScreen> {
     setState(() => _isLoading = true);
 
     if (!_healthService.isAuthorized) {
-      await _healthService.checkPermissions();
+      final alreadyGranted = await _healthService.checkPermissions();
+      if (!alreadyGranted) {
+        // Senza questa richiesta, chi arriva qui senza essere passato dalla
+        // scheda Analytics vedeva "nessun dato" invece del prompt di sistema.
+        await _healthService.requestPermissions();
+      }
     }
 
     final data = await _healthService.getWeeklyActivity(days: 30); // Ultimi 30 giorni per lo storico

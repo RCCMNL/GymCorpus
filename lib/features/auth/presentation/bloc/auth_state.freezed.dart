@@ -22,11 +22,6 @@ mixin _$AuthState {
 
   @override
   int get hashCode => runtimeType.hashCode;
-
-  @override
-  String toString() {
-    return 'AuthState()';
-  }
 }
 
 /// @nodoc
@@ -276,11 +271,6 @@ class _Initial implements AuthState {
 
   @override
   int get hashCode => runtimeType.hashCode;
-
-  @override
-  String toString() {
-    return 'AuthState.initial()';
-  }
 }
 
 /// @nodoc
@@ -308,11 +298,6 @@ class _Loading implements AuthState {
 
   @override
   int get hashCode => Object.hash(runtimeType, previousUser);
-
-  @override
-  String toString() {
-    return 'AuthState.loading(previousUser: $previousUser)';
-  }
 }
 
 /// @nodoc
@@ -370,11 +355,6 @@ class _Authenticated implements AuthState {
 
   @override
   int get hashCode => Object.hash(runtimeType, user);
-
-  @override
-  String toString() {
-    return 'AuthState.authenticated(user: $user)';
-  }
 }
 
 /// @nodoc
@@ -423,11 +403,6 @@ class _Unauthenticated implements AuthState {
 
   @override
   int get hashCode => runtimeType.hashCode;
-
-  @override
-  String toString() {
-    return 'AuthState.unauthenticated()';
-  }
 }
 
 /// @nodoc
@@ -457,11 +432,6 @@ class _Error implements AuthState {
 
   @override
   int get hashCode => Object.hash(runtimeType, message, previousUser);
-
-  @override
-  String toString() {
-    return 'AuthState.error(message: $message, previousUser: $previousUser)';
-  }
 }
 
 /// @nodoc

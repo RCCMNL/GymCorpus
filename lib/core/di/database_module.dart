@@ -14,8 +14,24 @@ abstract class DatabaseModule {
   AppDatabase appDatabase(FlutterSecureStorage storage) =>
       AppDatabase(openConnection(storage: storage));
 
+  /// Storage sicuro con opzioni esplicite invece dei default.
+  ///
+  /// Custodisce la sessione utente, la preferenza di sblocco biometrico e la
+  /// chiave di cifratura del database, quindi vale la pena essere espliciti:
+  ///
+  /// - `encryptedSharedPreferences` su Android forza il backend basato su
+  ///   Keystore anziche' le SharedPreferences in chiaro delle versioni
+  ///   precedenti del plugin.
+  /// - `first_unlock_this_device` su iOS impedisce che il portachiavi venga
+  ///   migrato su un altro dispositivo tramite backup o ripristino: la chiave
+  ///   del database non deve seguire i dati altrove.
   @lazySingleton
-  FlutterSecureStorage get secureStorage => const FlutterSecureStorage();
+  FlutterSecureStorage get secureStorage => const FlutterSecureStorage(
+        aOptions: AndroidOptions(encryptedSharedPreferences: true),
+        iOptions: IOSOptions(
+          accessibility: KeychainAccessibility.first_unlock_this_device,
+        ),
+      );
 
   @lazySingleton
   FirebaseAuth get firebaseAuth => FirebaseAuth.instance;

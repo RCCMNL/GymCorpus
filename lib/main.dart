@@ -9,6 +9,7 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/service_locator.dart' as di;
 import 'package:gym_corpus/core/services/app_lock_controller.dart';
+import 'package:gym_corpus/core/services/notification_service.dart';
 import 'package:gym_corpus/core/theme/app_theme.dart';
 import 'package:gym_corpus/features/analytics/presentation/screens/analytics_screen.dart';
 import 'package:gym_corpus/features/analytics/presentation/screens/cardio_history_screen.dart';
@@ -24,36 +25,36 @@ import 'package:gym_corpus/features/auth/presentation/screens/sign_up_screen.dar
 import 'package:gym_corpus/features/auth/presentation/screens/splash_screen.dart';
 import 'package:gym_corpus/features/exercises/presentation/screens/exercise_detail_screen.dart';
 import 'package:gym_corpus/features/exercises/presentation/screens/exercises_screen.dart';
+import 'package:gym_corpus/features/exercises/presentation/screens/favorite_exercises_screen.dart';
+import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_bloc.dart';
+import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_event.dart';
+import 'package:gym_corpus/features/notifications/presentation/screens/notification_settings_screen.dart';
+import 'package:gym_corpus/features/notifications/presentation/screens/notifications_screen.dart';
+import 'package:gym_corpus/features/profile/presentation/screens/cycle_calendar_screen.dart';
 import 'package:gym_corpus/features/profile/presentation/screens/edit_profile_screen.dart';
 import 'package:gym_corpus/features/profile/presentation/screens/integrations_screen.dart';
+import 'package:gym_corpus/features/profile/presentation/screens/legal_screens.dart';
 import 'package:gym_corpus/features/profile/presentation/screens/profile_screen.dart';
-import 'package:gym_corpus/features/profile/presentation/screens/cycle_calendar_screen.dart';
 import 'package:gym_corpus/features/profile/presentation/screens/records_screen.dart';
 import 'package:gym_corpus/features/profile/presentation/screens/security_screen.dart';
 import 'package:gym_corpus/features/profile/presentation/screens/trophy_board_screen.dart';
-import 'package:gym_corpus/features/profile/presentation/screens/legal_screens.dart';
-import 'package:gym_corpus/features/exercises/presentation/screens/favorite_exercises_screen.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
+import 'package:gym_corpus/features/training/presentation/screens/article_detail_screen.dart';
 import 'package:gym_corpus/features/training/presentation/screens/cardio_tracker_screen.dart';
 import 'package:gym_corpus/features/training/presentation/screens/custom_workouts_screen.dart';
+import 'package:gym_corpus/features/training/presentation/screens/nutrition_screen.dart';
 import 'package:gym_corpus/features/training/presentation/screens/root_screen.dart';
 import 'package:gym_corpus/features/training/presentation/screens/training_dashboard_screen.dart';
 import 'package:gym_corpus/features/training/presentation/screens/training_screen.dart';
 import 'package:gym_corpus/features/training/presentation/screens/workout_detail_screen.dart';
 import 'package:gym_corpus/features/training/presentation/screens/workout_page.dart';
 import 'package:gym_corpus/features/training/presentation/screens/yoga_screen.dart';
-import 'package:gym_corpus/features/training/presentation/screens/nutrition_screen.dart';
-import 'package:gym_corpus/features/training/presentation/screens/article_detail_screen.dart';
-import 'package:gym_corpus/core/services/notification_service.dart';
 import 'package:gym_corpus/firebase_options.dart';
-import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_bloc.dart';
-import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_event.dart';
-import 'package:gym_corpus/features/notifications/presentation/screens/notifications_screen.dart';
-import 'package:gym_corpus/features/notifications/presentation/screens/notification_settings_screen.dart';
+
 void main() async {
   final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
@@ -77,6 +78,17 @@ final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
 /// quelle spinte sul navigator root che non stanno sotto lo shell delle tab.
 final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
+
+/// Legge `state.extra` solo se e' davvero del tipo atteso.
+///
+/// Il cast diretto `state.extra as T?` non protegge da un extra presente ma
+/// di tipo diverso: in quel caso lancia un TypeError e la rotta crasha. Puo'
+/// succedere con uno stato GoRouter ripristinato dopo la terminazione del
+/// processo, o dopo un refactor che cambia il tipo passato a una rotta.
+T? _extraOf<T extends Object>(GoRouterState state) {
+  final extra = state.extra;
+  return extra is T ? extra : null;
+}
 
 /// A [Listenable] that notifies listeners when the [AuthBloc] state changes.
 /// This allows the router to re-run its redirection logic immediately.
@@ -224,14 +236,14 @@ class _GymAppState extends State<GymApp> with WidgetsBindingObserver {
                 GoRoute(
                   path: 'session',
                   builder: (context, state) => TrainingScreen(
-                    routine: state.extra as RoutineEntity?,
+                    routine: _extraOf<RoutineEntity>(state),
                   ),
                 ),
                 GoRoute(
                   path: 'cardio',
                   parentNavigatorKey: _rootNavigatorKey,
                   builder: (context, state) => CardioTrackerScreen(
-                    type: (state.extra as String?) ?? 'run',
+                    type: _extraOf<String>(state) ?? 'run',
                   ),
                 ),
                 GoRoute(
@@ -246,7 +258,7 @@ class _GymAppState extends State<GymApp> with WidgetsBindingObserver {
                       path: 'article',
                       parentNavigatorKey: _rootNavigatorKey,
                       builder: (context, state) => ArticleDetailScreen(
-                        data: state.extra as Map<String, dynamic>? ?? {},
+                        data: _extraOf<Map<String, dynamic>>(state) ?? const {},
                       ),
                     ),
                   ],
@@ -260,7 +272,7 @@ class _GymAppState extends State<GymApp> with WidgetsBindingObserver {
                 GoRoute(
                   path: 'detail',
                   builder: (context, state) {
-                    final routine = _readRoutineExtra(state);
+                    final routine = _extraOf<RoutineEntity>(state);
                     if (routine == null) {
                       return const _MissingRouteDataScreen(
                         title: 'Workout non disponibile',
@@ -275,7 +287,7 @@ class _GymAppState extends State<GymApp> with WidgetsBindingObserver {
                 GoRoute(
                   path: 'edit',
                   builder: (context, state) => WorkoutPage(
-                    routineToEdit: state.extra as RoutineEntity?,
+                    routineToEdit: _extraOf<RoutineEntity>(state),
                   ),
                 ),
                 GoRoute(
@@ -291,7 +303,7 @@ class _GymAppState extends State<GymApp> with WidgetsBindingObserver {
             GoRoute(
               path: '/exercises/detail',
               builder: (context, state) {
-                final exercise = _readExerciseExtra(state);
+                final exercise = _extraOf<ExerciseEntity>(state);
                 if (exercise == null) {
                   return const _MissingRouteDataScreen(
                     title: 'Esercizio non disponibile',
@@ -395,15 +407,6 @@ class _GymAppState extends State<GymApp> with WidgetsBindingObserver {
     );
   }
 
-  RoutineEntity? _readRoutineExtra(GoRouterState state) {
-    final extra = state.extra;
-    return extra is RoutineEntity ? extra : null;
-  }
-
-  ExerciseEntity? _readExerciseExtra(GoRouterState state) {
-    final extra = state.extra;
-    return extra is ExerciseEntity ? extra : null;
-  }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {

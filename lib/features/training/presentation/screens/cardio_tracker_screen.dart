@@ -33,6 +33,7 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
   final List<LatLng> _route = [];
   StreamSubscription<Position>? _positionStream;
   Timer? _timer;
+  Timer? _countdownTimer;
 
   int _elapsedSeconds = 0;
   double _distanceMeters = 0;
@@ -192,7 +193,11 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
       _countdown = 3;
     });
 
-    Timer.periodic(const Duration(seconds: 1), (timer) {
+    // Conservato in un campo per poterlo annullare in dispose: altrimenti,
+    // uscendo dalla schermata durante il conto alla rovescia, il timer
+    // sopravvive fino al tick successivo.
+    _countdownTimer?.cancel();
+    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (!mounted) {
         timer.cancel();
         return;
@@ -424,6 +429,7 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
   @override
   void dispose() {
     _timer?.cancel();
+    _countdownTimer?.cancel();
     _positionStream?.cancel();
     super.dispose();
   }
