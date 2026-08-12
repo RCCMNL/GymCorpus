@@ -212,6 +212,7 @@ class AppDatabase extends _$AppDatabase {
         m, cardioSessions, cardioSessions.avgSpeed, 'avg_speed');
     await _ensureColumn(m, cardioSessions, cardioSessions.pace, 'pace');
     await _ensureColumn(m, cardioSessions, cardioSessions.calories, 'calories');
+    await _ensureColumn(m, cardioSessions, cardioSessions.steps, 'steps');
     await _ensureColumn(
         m, cardioSessions, cardioSessions.routeJson, 'route_json');
     await _ensureColumn(m, cardioSessions, cardioSessions.date, 'date');
