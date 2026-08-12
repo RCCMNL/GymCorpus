@@ -26,8 +26,16 @@ build/
 coverage/
 
 # Generated code
-lib/**/*.g.dart
-lib/**/*.freezed.dart
+#
+# I file generati (*.g.dart, *.freezed.dart, service_locator.config.dart) sono
+# volutamente versionati: il progetto compila subito dopo il clone, senza
+# dover eseguire build_runner, e l'IDE non mostra migliaia di errori nel
+# frattempo. Vanno rigenerati e committati insieme alle sorgenti che li
+# producono, come descritto in AGENTS.md.
+#
+# Non aggiungere qui regole per ignorarli: le regole c'erano ma i file erano
+# gia' tracciati, quindi non avevano alcun effetto e lasciavano credere che
+# fossero esclusi dal versionamento.
 
 # Android
 android/.gradle/
