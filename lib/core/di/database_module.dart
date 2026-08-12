@@ -7,8 +7,12 @@ import 'package:injectable/injectable.dart';
 
 @module
 abstract class DatabaseModule {
+  /// Il database prende la chiave di cifratura dal secure storage, quindi
+  /// quest'ultimo va iniettato invece di essere istanziato qui: cosi' l'app e
+  /// i test usano la stessa istanza.
   @lazySingleton
-  AppDatabase get appDatabase => AppDatabase(openConnection());
+  AppDatabase appDatabase(FlutterSecureStorage storage) =>
+      AppDatabase(openConnection(storage: storage));
 
   @lazySingleton
   FlutterSecureStorage get secureStorage => const FlutterSecureStorage();

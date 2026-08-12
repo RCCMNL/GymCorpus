@@ -51,21 +51,20 @@ extension GetItInjectableX on _i174.GetIt {
       environmentFilter,
     );
     final databaseModule = _$DatabaseModule();
-    gh.lazySingleton<_i158.AppDatabase>(() => databaseModule.appDatabase);
     gh.lazySingleton<_i558.FlutterSecureStorage>(
         () => databaseModule.secureStorage);
     gh.lazySingleton<_i59.FirebaseAuth>(() => databaseModule.firebaseAuth);
     gh.lazySingleton<_i974.FirebaseFirestore>(() => databaseModule.firestore);
-    gh.lazySingleton<_i949.TrainingRepository>(
-        () => _i871.TrainingRepositoryImpl(database: gh<_i158.AppDatabase>()));
-    gh.factory<_i186.NotificationsRepository>(
-        () => _i1003.NotificationsRepositoryImpl(gh<_i158.AppDatabase>()));
+    gh.lazySingleton<_i158.AppDatabase>(
+        () => databaseModule.appDatabase(gh<_i558.FlutterSecureStorage>()));
     gh.lazySingleton<_i975.AuthLocalDataSource>(
         () => _i975.AuthLocalDataSourceImpl(gh<_i558.FlutterSecureStorage>()));
     gh.lazySingleton<_i701.AuthRemoteDataSource>(
         () => _i701.AuthRemoteDataSourceImpl(gh<_i974.FirebaseFirestore>()));
-    gh.factory<_i939.NotificationsBloc>(() => _i939.NotificationsBloc(
-        repository: gh<_i186.NotificationsRepository>()));
+    gh.lazySingleton<_i949.TrainingRepository>(
+        () => _i871.TrainingRepositoryImpl(database: gh<_i158.AppDatabase>()));
+    gh.factory<_i186.NotificationsRepository>(
+        () => _i1003.NotificationsRepositoryImpl(gh<_i158.AppDatabase>()));
     gh.lazySingleton<_i25.AuthRepository>(() => _i328.AuthRepositoryImpl(
           gh<_i59.FirebaseAuth>(),
           gh<_i975.AuthLocalDataSource>(),
@@ -76,6 +75,8 @@ extension GetItInjectableX on _i174.GetIt {
           repository: gh<_i949.TrainingRepository>(),
           authRepository: gh<_i25.AuthRepository>(),
         ));
+    gh.factory<_i939.NotificationsBloc>(() => _i939.NotificationsBloc(
+        repository: gh<_i186.NotificationsRepository>()));
     return this;
   }
 }

@@ -48,7 +48,7 @@
 - `main()` chiama `dotenv.load()` prima dell'avvio, quindi `.env` deve esistere per i run locali.
 - Firebase viene inizializzato tramite `lib/firebase_options.dart`; il progetto al momento e' configurato per Android e iOS. Non assumere supporto web/desktop.
 - Il routing di autenticazione dipende dallo stato di `AuthBloc` e dai redirect GoRouter definiti in `lib/main.dart`.
-- Il database Drift locale vive nella directory documenti dell'app come `gym_db.sqlite`.
+- Il database Drift locale vive nella directory documenti dell'app come `gym_db.sqlite` ed e' cifrato con SQLCipher. La chiave sta nel secure storage; `lib/core/database/connection.dart` gestisce apertura, generazione chiave e conversione dei database in chiaro creati da versioni precedenti. Non aggiungere `sqlite3_flutter_libs`: va in conflitto con SQLCipher.
 - `AppDatabase` usa attualmente `schemaVersion => 15` e fa seed dei dati iniziali quando la tabella esercizi e' vuota.
 - La strategia di migrazione ricrea le tabelle quando si aggiorna da versioni precedenti alla 9. Tratta i cambiamenti database con attenzione e aggiorna le migration in modo esplicito.
 - La tabella `Workouts` rappresenta le sessioni di allenamento tracciabili: una sessione viene considerata completata solo quando `completedAt` e' valorizzato.

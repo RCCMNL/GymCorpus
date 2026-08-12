@@ -402,7 +402,7 @@ class TrainingLoaded implements TrainingState {
   /// Errore transitorio di una singola operazione di scrittura.
   ///
   /// Serve a segnalare il fallimento senza perdere i dati gia' caricati: la
-  /// UI lo mostra e poi lo azzera con [ClearActionErrorEvent]. Per gli errori
+  /// UI lo mostra e poi lo azzera con `ClearActionErrorEvent`. Per gli errori
   /// che impediscono del tutto il caricamento esiste invece [TrainingError].
   final String? actionError;
 
