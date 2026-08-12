@@ -146,24 +146,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         final photoUrl = user?.photoUrl;
                         final photoProvider =
                             _resolveProfileImageProvider(photoUrl);
-                        final athleteProgress = trainingState.maybeWhen(
-                          loaded: (exercises,
-                              routines,
-                                  weightLogs,
-                                  workoutSessions,
-                                  bodyWeightLogs,
-                                  bodyMeasurements,
-                                  cardioSessions,
-                                  settings,
-                                  lastEstimated1RM) =>
-                              AthleteProgressService.calculate(
-                            workoutSessions: workoutSessions,
-                            workoutSets: weightLogs,
-                            cardioSessions: cardioSessions,
-                            exercises: exercises,
-                          ),
-                          orElse: () => AthleteProgress.empty(),
-                        );
+                        // Letto per campo invece che con maybeWhen posizionale:
+                        // quest'ultimo va aggiornato a ogni nuovo campo di
+                        // TrainingLoaded, ed e' l'idioma gia' usato nel resto
+                        // del file e nelle altre schermate.
+                        final athleteProgress = trainingState is TrainingLoaded
+                            ? AthleteProgressService.calculate(
+                                workoutSessions: trainingState.workoutSessions,
+                                workoutSets: trainingState.weightLogs,
+                                cardioSessions: trainingState.cardioSessions,
+                                exercises: trainingState.exercises,
+                              )
+                            : AthleteProgress.empty();
 
                         return Column(
                           children: [
