@@ -67,6 +67,7 @@ GoogleService-Info.plist
 *.p12
 *.pem
 secrets.yaml
+android/key.properties
 
 # JS / web
 node_modules/

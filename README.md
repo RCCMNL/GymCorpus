@@ -69,6 +69,29 @@ La configurazione Firebase non e inclusa nel repository.
 
 Dettagli completi in [FIREBASE_SETUP.md](FIREBASE_SETUP.md).
 
+## Build di release
+
+Le build di release Android sono firmate con una keystore dedicata, mai versionata.
+
+1. Genera la keystore una sola volta e conservala con backup: se la perdi non puoi
+   piu' pubblicare aggiornamenti dell'app sullo stesso listing.
+
+```bash
+keytool -genkey -v -keystore gymcorpus-release.jks -storetype JKS -keyalg RSA -keysize 2048 -validity 10000 -alias gymcorpus
+```
+
+2. Copia `android/key.properties.example` in `android/key.properties` e compila
+   percorso della keystore, alias e password.
+3. Compila:
+
+```bash
+flutter build appbundle --release
+```
+
+Se `android/key.properties` non esiste, la build di release viene prodotta **non
+firmata** e Gradle stampa un avviso: e' voluto, per evitare di distribuire per
+sbaglio un artefatto firmato con la chiave di debug.
+
 ## Qualita
 
 Comandi utili prima di aprire una PR o creare una release:
