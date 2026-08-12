@@ -532,6 +532,7 @@ class TrainingRepositoryImpl implements TrainingRepository {
               pace: s.pace,
               calories: s.calories,
               routeJson: s.routeJson,
+              steps: s.steps,
               date: s.date,
             ),
           )
@@ -547,6 +548,7 @@ class TrainingRepositoryImpl implements TrainingRepository {
     required double avgSpeed,
     required String pace,
     required int calories,
+    int? steps,
     String? routeJson,
   }) async {
     try {
@@ -558,6 +560,7 @@ class TrainingRepositoryImpl implements TrainingRepository {
           avgSpeed: Value(avgSpeed),
           pace: Value(pace),
           calories: Value(calories),
+          steps: Value(steps),
           routeJson: Value(routeJson),
           date: Value(DateTime.now()),
         ),

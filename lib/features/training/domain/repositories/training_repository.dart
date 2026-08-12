@@ -75,6 +75,7 @@ abstract class TrainingRepository {
     required double avgSpeed,
     required String pace,
     required int calories,
+    int? steps,
     String? routeJson,
   });
   Future<Either<Failure, void>> deleteCardioSession(int id);

@@ -2556,6 +2556,11 @@ class $CardioSessionsTable extends CardioSessions
   late final GeneratedColumn<int> calories = GeneratedColumn<int>(
       'calories', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _stepsMeta = const VerificationMeta('steps');
+  @override
+  late final GeneratedColumn<int> steps = GeneratedColumn<int>(
+      'steps', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
   static const VerificationMeta _routeJsonMeta =
       const VerificationMeta('routeJson');
   @override
@@ -2568,8 +2573,18 @@ class $CardioSessionsTable extends CardioSessions
       'date', aliasedName, false,
       type: DriftSqlType.dateTime, requiredDuringInsert: true);
   @override
-  List<GeneratedColumn> get $columns =>
-      [id, type, distance, duration, avgSpeed, pace, calories, routeJson, date];
+  List<GeneratedColumn> get $columns => [
+        id,
+        type,
+        distance,
+        duration,
+        avgSpeed,
+        pace,
+        calories,
+        steps,
+        routeJson,
+        date
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -2617,6 +2632,10 @@ class $CardioSessionsTable extends CardioSessions
     } else if (isInserting) {
       context.missing(_caloriesMeta);
     }
+    if (data.containsKey('steps')) {
+      context.handle(
+          _stepsMeta, steps.isAcceptableOrUnknown(data['steps']!, _stepsMeta));
+    }
     if (data.containsKey('route_json')) {
       context.handle(_routeJsonMeta,
           routeJson.isAcceptableOrUnknown(data['route_json']!, _routeJsonMeta));
@@ -2650,6 +2669,8 @@ class $CardioSessionsTable extends CardioSessions
           .read(DriftSqlType.string, data['${effectivePrefix}pace'])!,
       calories: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}calories'])!,
+      steps: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}steps']),
       routeJson: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}route_json']),
       date: attachedDatabase.typeMapping
@@ -2671,6 +2692,7 @@ class CardioSession extends DataClass implements Insertable<CardioSession> {
   final double avgSpeed;
   final String pace;
   final int calories;
+  final int? steps;
   final String? routeJson;
   final DateTime date;
   const CardioSession(
@@ -2681,6 +2703,7 @@ class CardioSession extends DataClass implements Insertable<CardioSession> {
       required this.avgSpeed,
       required this.pace,
       required this.calories,
+      this.steps,
       this.routeJson,
       required this.date});
   @override
@@ -2693,6 +2716,9 @@ class CardioSession extends DataClass implements Insertable<CardioSession> {
     map['avg_speed'] = Variable<double>(avgSpeed);
     map['pace'] = Variable<String>(pace);
     map['calories'] = Variable<int>(calories);
+    if (!nullToAbsent || steps != null) {
+      map['steps'] = Variable<int>(steps);
+    }
     if (!nullToAbsent || routeJson != null) {
       map['route_json'] = Variable<String>(routeJson);
     }
@@ -2709,6 +2735,8 @@ class CardioSession extends DataClass implements Insertable<CardioSession> {
       avgSpeed: Value(avgSpeed),
       pace: Value(pace),
       calories: Value(calories),
+      steps:
+          steps == null && nullToAbsent ? const Value.absent() : Value(steps),
       routeJson: routeJson == null && nullToAbsent
           ? const Value.absent()
           : Value(routeJson),
@@ -2727,6 +2755,7 @@ class CardioSession extends DataClass implements Insertable<CardioSession> {
       avgSpeed: serializer.fromJson<double>(json['avgSpeed']),
       pace: serializer.fromJson<String>(json['pace']),
       calories: serializer.fromJson<int>(json['calories']),
+      steps: serializer.fromJson<int?>(json['steps']),
       routeJson: serializer.fromJson<String?>(json['routeJson']),
       date: serializer.fromJson<DateTime>(json['date']),
     );
@@ -2742,6 +2771,7 @@ class CardioSession extends DataClass implements Insertable<CardioSession> {
       'avgSpeed': serializer.toJson<double>(avgSpeed),
       'pace': serializer.toJson<String>(pace),
       'calories': serializer.toJson<int>(calories),
+      'steps': serializer.toJson<int?>(steps),
       'routeJson': serializer.toJson<String?>(routeJson),
       'date': serializer.toJson<DateTime>(date),
     };
@@ -2755,6 +2785,7 @@ class CardioSession extends DataClass implements Insertable<CardioSession> {
           double? avgSpeed,
           String? pace,
           int? calories,
+          Value<int?> steps = const Value.absent(),
           Value<String?> routeJson = const Value.absent(),
           DateTime? date}) =>
       CardioSession(
@@ -2765,6 +2796,7 @@ class CardioSession extends DataClass implements Insertable<CardioSession> {
         avgSpeed: avgSpeed ?? this.avgSpeed,
         pace: pace ?? this.pace,
         calories: calories ?? this.calories,
+        steps: steps.present ? steps.value : this.steps,
         routeJson: routeJson.present ? routeJson.value : this.routeJson,
         date: date ?? this.date,
       );
@@ -2777,6 +2809,7 @@ class CardioSession extends DataClass implements Insertable<CardioSession> {
       avgSpeed: data.avgSpeed.present ? data.avgSpeed.value : this.avgSpeed,
       pace: data.pace.present ? data.pace.value : this.pace,
       calories: data.calories.present ? data.calories.value : this.calories,
+      steps: data.steps.present ? data.steps.value : this.steps,
       routeJson: data.routeJson.present ? data.routeJson.value : this.routeJson,
       date: data.date.present ? data.date.value : this.date,
     );
@@ -2792,6 +2825,7 @@ class CardioSession extends DataClass implements Insertable<CardioSession> {
           ..write('avgSpeed: $avgSpeed, ')
           ..write('pace: $pace, ')
           ..write('calories: $calories, ')
+          ..write('steps: $steps, ')
           ..write('routeJson: $routeJson, ')
           ..write('date: $date')
           ..write(')'))
@@ -2799,8 +2833,8 @@ class CardioSession extends DataClass implements Insertable<CardioSession> {
   }
 
   @override
-  int get hashCode => Object.hash(
-      id, type, distance, duration, avgSpeed, pace, calories, routeJson, date);
+  int get hashCode => Object.hash(id, type, distance, duration, avgSpeed, pace,
+      calories, steps, routeJson, date);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -2812,6 +2846,7 @@ class CardioSession extends DataClass implements Insertable<CardioSession> {
           other.avgSpeed == this.avgSpeed &&
           other.pace == this.pace &&
           other.calories == this.calories &&
+          other.steps == this.steps &&
           other.routeJson == this.routeJson &&
           other.date == this.date);
 }
@@ -2824,6 +2859,7 @@ class CardioSessionsCompanion extends UpdateCompanion<CardioSession> {
   final Value<double> avgSpeed;
   final Value<String> pace;
   final Value<int> calories;
+  final Value<int?> steps;
   final Value<String?> routeJson;
   final Value<DateTime> date;
   const CardioSessionsCompanion({
@@ -2834,6 +2870,7 @@ class CardioSessionsCompanion extends UpdateCompanion<CardioSession> {
     this.avgSpeed = const Value.absent(),
     this.pace = const Value.absent(),
     this.calories = const Value.absent(),
+    this.steps = const Value.absent(),
     this.routeJson = const Value.absent(),
     this.date = const Value.absent(),
   });
@@ -2845,6 +2882,7 @@ class CardioSessionsCompanion extends UpdateCompanion<CardioSession> {
     required double avgSpeed,
     required String pace,
     required int calories,
+    this.steps = const Value.absent(),
     this.routeJson = const Value.absent(),
     required DateTime date,
   })  : distance = Value(distance),
@@ -2861,6 +2899,7 @@ class CardioSessionsCompanion extends UpdateCompanion<CardioSession> {
     Expression<double>? avgSpeed,
     Expression<String>? pace,
     Expression<int>? calories,
+    Expression<int>? steps,
     Expression<String>? routeJson,
     Expression<DateTime>? date,
   }) {
@@ -2872,6 +2911,7 @@ class CardioSessionsCompanion extends UpdateCompanion<CardioSession> {
       if (avgSpeed != null) 'avg_speed': avgSpeed,
       if (pace != null) 'pace': pace,
       if (calories != null) 'calories': calories,
+      if (steps != null) 'steps': steps,
       if (routeJson != null) 'route_json': routeJson,
       if (date != null) 'date': date,
     });
@@ -2885,6 +2925,7 @@ class CardioSessionsCompanion extends UpdateCompanion<CardioSession> {
       Value<double>? avgSpeed,
       Value<String>? pace,
       Value<int>? calories,
+      Value<int?>? steps,
       Value<String?>? routeJson,
       Value<DateTime>? date}) {
     return CardioSessionsCompanion(
@@ -2895,6 +2936,7 @@ class CardioSessionsCompanion extends UpdateCompanion<CardioSession> {
       avgSpeed: avgSpeed ?? this.avgSpeed,
       pace: pace ?? this.pace,
       calories: calories ?? this.calories,
+      steps: steps ?? this.steps,
       routeJson: routeJson ?? this.routeJson,
       date: date ?? this.date,
     );
@@ -2924,6 +2966,9 @@ class CardioSessionsCompanion extends UpdateCompanion<CardioSession> {
     if (calories.present) {
       map['calories'] = Variable<int>(calories.value);
     }
+    if (steps.present) {
+      map['steps'] = Variable<int>(steps.value);
+    }
     if (routeJson.present) {
       map['route_json'] = Variable<String>(routeJson.value);
     }
@@ -2943,6 +2988,7 @@ class CardioSessionsCompanion extends UpdateCompanion<CardioSession> {
           ..write('avgSpeed: $avgSpeed, ')
           ..write('pace: $pace, ')
           ..write('calories: $calories, ')
+          ..write('steps: $steps, ')
           ..write('routeJson: $routeJson, ')
           ..write('date: $date')
           ..write(')'))
@@ -5721,6 +5767,7 @@ typedef $$CardioSessionsTableCreateCompanionBuilder = CardioSessionsCompanion
   required double avgSpeed,
   required String pace,
   required int calories,
+  Value<int?> steps,
   Value<String?> routeJson,
   required DateTime date,
 });
@@ -5733,6 +5780,7 @@ typedef $$CardioSessionsTableUpdateCompanionBuilder = CardioSessionsCompanion
   Value<double> avgSpeed,
   Value<String> pace,
   Value<int> calories,
+  Value<int?> steps,
   Value<String?> routeJson,
   Value<DateTime> date,
 });
@@ -5766,6 +5814,9 @@ class $$CardioSessionsTableFilterComposer
 
   ColumnFilters<int> get calories => $composableBuilder(
       column: $table.calories, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get steps => $composableBuilder(
+      column: $table.steps, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get routeJson => $composableBuilder(
       column: $table.routeJson, builder: (column) => ColumnFilters(column));
@@ -5804,6 +5855,9 @@ class $$CardioSessionsTableOrderingComposer
   ColumnOrderings<int> get calories => $composableBuilder(
       column: $table.calories, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<int> get steps => $composableBuilder(
+      column: $table.steps, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get routeJson => $composableBuilder(
       column: $table.routeJson, builder: (column) => ColumnOrderings(column));
 
@@ -5840,6 +5894,9 @@ class $$CardioSessionsTableAnnotationComposer
 
   GeneratedColumn<int> get calories =>
       $composableBuilder(column: $table.calories, builder: (column) => column);
+
+  GeneratedColumn<int> get steps =>
+      $composableBuilder(column: $table.steps, builder: (column) => column);
 
   GeneratedColumn<String> get routeJson =>
       $composableBuilder(column: $table.routeJson, builder: (column) => column);
@@ -5882,6 +5939,7 @@ class $$CardioSessionsTableTableManager extends RootTableManager<
             Value<double> avgSpeed = const Value.absent(),
             Value<String> pace = const Value.absent(),
             Value<int> calories = const Value.absent(),
+            Value<int?> steps = const Value.absent(),
             Value<String?> routeJson = const Value.absent(),
             Value<DateTime> date = const Value.absent(),
           }) =>
@@ -5893,6 +5951,7 @@ class $$CardioSessionsTableTableManager extends RootTableManager<
             avgSpeed: avgSpeed,
             pace: pace,
             calories: calories,
+            steps: steps,
             routeJson: routeJson,
             date: date,
           ),
@@ -5904,6 +5963,7 @@ class $$CardioSessionsTableTableManager extends RootTableManager<
             required double avgSpeed,
             required String pace,
             required int calories,
+            Value<int?> steps = const Value.absent(),
             Value<String?> routeJson = const Value.absent(),
             required DateTime date,
           }) =>
@@ -5915,6 +5975,7 @@ class $$CardioSessionsTableTableManager extends RootTableManager<
             avgSpeed: avgSpeed,
             pace: pace,
             calories: calories,
+            steps: steps,
             routeJson: routeJson,
             date: date,
           ),

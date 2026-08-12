@@ -379,6 +379,7 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
         avgSpeed: event.avgSpeed,
         pace: event.pace,
         calories: event.calories,
+        steps: event.steps,
         routeJson: event.routeJson,
       );
       result.fold(

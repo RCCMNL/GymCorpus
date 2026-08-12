@@ -88,6 +88,7 @@ class CardioSessions extends Table {
   RealColumn get avgSpeed => real()(); // km/h
   TextColumn get pace => text()(); // mm:ss per km
   IntColumn get calories => integer()();
+  IntColumn get steps => integer().nullable()(); // Passi tracciati
   TextColumn get routeJson =>
       text().nullable()(); // JSON string of latlng coordinates
   DateTimeColumn get date => dateTime()();
@@ -118,7 +119,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 15;
+  int get schemaVersion => 16;
 
   @override
   MigrationStrategy get migration {

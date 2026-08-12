@@ -76,5 +76,9 @@
 		<string>GymCorpus usa la libreria foto per permetterti di scegliere un'immagine profilo.</string>
 		<key>NSFaceIDUsageDescription</key>
 		<string>GymCorpus usa Face ID per proteggere l'accesso biometrico e le operazioni sensibili.</string>
+		<key>NSHealthShareUsageDescription</key>
+		<string>GymCorpus legge i dati di Salute (passi, distanza, calorie) per mostrarti le statistiche di attività giornaliera e arricchire il tracciamento cardio.</string>
+		<key>NSHealthUpdateUsageDescription</key>
+		<string>GymCorpus può salvare i dati dei tuoi allenamenti nell'app Salute per tenerli sincronizzati.</string>
 	</dict>
 </plist>

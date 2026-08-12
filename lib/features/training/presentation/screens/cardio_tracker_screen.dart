@@ -10,6 +10,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/database/database.dart';
+import 'package:gym_corpus/core/services/health_service.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
@@ -28,6 +29,7 @@ class CardioTrackerScreen extends StatefulWidget {
 
 class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
   final MapController _mapController = MapController();
+  final HealthService _healthService = GetIt.I<HealthService>();
   final List<LatLng> _route = [];
   StreamSubscription<Position>? _positionStream;
   Timer? _timer;
@@ -35,6 +37,8 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
   int _elapsedSeconds = 0;
   double _distanceMeters = 0;
   double _currentSpeedKmh = 0;
+  int _currentSteps = 0;
+  DateTime? _sessionStartTime;
   bool _isTracking = false;
   bool _isPaused = false;
   bool _isSaving = false;
@@ -116,11 +120,15 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
             ),
           );
 
-            if (shouldResume == true) {
+              if (shouldResume == true) {
               setState(() {
                 _isLocating = false; // Se riprendiamo una bozza, abbiamo già la posizione
                 _elapsedSeconds = draft['elapsedSeconds'] as int;
               _distanceMeters = (draft['distanceMeters'] as num).toDouble();
+              _currentSteps = draft['steps'] as int? ?? 0;
+              if (draft['startTime'] != null) {
+                _sessionStartTime = DateTime.parse(draft['startTime'] as String);
+              }
               
               final routePoints = draft['route'] as List<dynamic>;
               for (final point in routePoints) {
@@ -148,6 +156,8 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
         'type': widget.type,
         'distanceMeters': _distanceMeters,
         'elapsedSeconds': _elapsedSeconds,
+        'steps': _currentSteps,
+        'startTime': _sessionStartTime?.toIso8601String(),
         'route': _route.map((p) => {'lat': p.latitude, 'lng': p.longitude}).toList(),
       };
       await db.updateSetting('cardio_draft', jsonEncode(draft));
@@ -187,12 +197,13 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
       _isPaused = false;
       _autoPaused = false;
       _secondsWithoutMovement = 0;
+      _sessionStartTime ??= DateTime.now();
       if (!resume && _currentPosition != null) {
         _route.add(_currentPosition!);
       }
     });
 
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) async {
       if (_isPaused) return;
 
       if (_currentSpeedKmh < 1.8) { // Meno di 0.5 m/s
@@ -211,6 +222,14 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
 
       if (!_autoPaused) {
         setState(() => _elapsedSeconds++);
+      }
+
+      // Aggiorna i passi ogni 5 secondi
+      if (_elapsedSeconds > 0 && _elapsedSeconds % 5 == 0 && _sessionStartTime != null) {
+        if (_healthService.isAuthorized) {
+          final steps = await _healthService.getStepsSince(_sessionStartTime!);
+          if (mounted) setState(() => _currentSteps = steps);
+        }
       }
 
       // Salva la bozza ogni 10 secondi
@@ -349,6 +368,7 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
               avgSpeed: double.parse(avgSpeed.toStringAsFixed(1)),
               pace: pace,
               calories: calories,
+              steps: _currentSteps,
               routeJson: routeJson,
             ),
           );
@@ -651,6 +671,11 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
                         _StatColumn(
                           label: 'VELOCITÀ',
                           value: '${_currentSpeedKmh.toStringAsFixed(1)} km/h',
+                          theme: theme,
+                        ),
+                        _StatColumn(
+                          label: 'PASSI',
+                          value: '$_currentSteps',
                           theme: theme,
                         ),
                         _StatColumn(

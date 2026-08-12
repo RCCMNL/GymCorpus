@@ -1,4 +1,4 @@
-package com.example.gym_corpus
+package it.rccmnl.gymcorpus
 
 import android.content.Intent
 import android.os.Build

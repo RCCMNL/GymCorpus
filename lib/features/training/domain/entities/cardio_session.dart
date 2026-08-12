@@ -10,6 +10,7 @@ class CardioSessionEntity extends Equatable {
     required this.pace,
     required this.calories,
     required this.date,
+    this.steps,
     this.routeJson,
   });
 
@@ -20,9 +21,10 @@ class CardioSessionEntity extends Equatable {
   final double avgSpeed; // km/h
   final String pace; // mm:ss per km
   final int calories;
+  final int? steps;
   final String? routeJson;
   final DateTime date;
 
   @override
-  List<Object?> get props => [id, type, distance, duration, avgSpeed, pace, calories, routeJson, date];
+  List<Object?> get props => [id, type, distance, duration, avgSpeed, pace, calories, steps, routeJson, date];
 }

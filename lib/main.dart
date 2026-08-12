@@ -11,6 +11,7 @@ import 'package:gym_corpus/core/service_locator.dart' as di;
 import 'package:gym_corpus/core/theme/app_theme.dart';
 import 'package:gym_corpus/features/analytics/presentation/screens/analytics_screen.dart';
 import 'package:gym_corpus/features/analytics/presentation/screens/cardio_history_screen.dart';
+import 'package:gym_corpus/features/analytics/presentation/screens/daily_activity_screen.dart';
 import 'package:gym_corpus/features/analytics/presentation/screens/progress_screen.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_event.dart';
@@ -282,6 +283,11 @@ class _GymAppState extends State<GymApp> {
                   path: 'cardio-history',
                   parentNavigatorKey: _rootNavigatorKey,
                   builder: (context, state) => const CardioHistoryScreen(),
+                ),
+                GoRoute(
+                  path: 'daily-activity',
+                  parentNavigatorKey: _rootNavigatorKey,
+                  builder: (context, state) => const DailyActivityScreen(),
                 ),
               ],
             ),
