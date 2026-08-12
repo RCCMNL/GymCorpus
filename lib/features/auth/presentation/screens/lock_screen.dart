@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gym_corpus/core/services/app_lock_controller.dart';
+import 'package:gym_corpus/core/utils/biometric_messages.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_event.dart';
 import 'package:local_auth/local_auth.dart';
@@ -57,36 +58,23 @@ class _LockScreenState extends State<LockScreen> {
         setState(() => _error = 'Riconoscimento non riuscito.');
       }
     } on PlatformException catch (e) {
+      debugPrint('LockScreen._authenticate: ${e.code} ${e.message}');
       if (mounted) {
-        setState(() => _error = _messageFor(e));
+        setState(() => _error = biometricErrorMessage(e));
+      }
+    } catch (e) {
+      // local_auth puo' sollevare anche errori non tipizzati: senza questo
+      // ramo diventerebbero errori non gestiti e il pulsante resterebbe
+      // bloccato su "Attendi...".
+      debugPrint('LockScreen._authenticate: $e');
+      if (mounted) {
+        setState(() => _error = 'Non e stato possibile completare lo sblocco.');
       }
     } finally {
       widget.controller.isAuthenticating = false;
       if (mounted) {
         setState(() => _inProgress = false);
       }
-    }
-  }
-
-  /// Traduce i codici di `local_auth` in messaggi utili all'utente: senza
-  /// questo un lockout del sensore risulterebbe indistinguibile da un
-  /// semplice tentativo fallito.
-  String _messageFor(PlatformException e) {
-    switch (e.code) {
-      case 'NotAvailable':
-      case 'NotEnrolled':
-        return 'Biometria non disponibile su questo dispositivo. '
-            'Esci e accedi con la password.';
-      case 'LockedOut':
-        return 'Troppi tentativi falliti. Riprova tra qualche istante.';
-      case 'PermanentlyLockedOut':
-        return 'Riconoscimento bloccato. Sblocca il dispositivo con il '
-            'codice, poi riprova.';
-      case 'PasscodeNotSet':
-        return 'Imposta un codice di blocco sul dispositivo per usare lo '
-            'sblocco biometrico.';
-      default:
-        return 'Non e stato possibile completare lo sblocco.';
     }
   }
 

@@ -11,7 +11,7 @@ import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_event.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
 import 'package:gym_corpus/features/auth/presentation/widgets/auth_shared_widgets.dart';
-import 'package:local_auth/error_codes.dart' as auth_error;
+import 'package:gym_corpus/core/utils/biometric_messages.dart';
 import 'package:local_auth/local_auth.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -87,10 +87,29 @@ class _LoginScreenState extends State<LoginScreen>
         context.read<AuthBloc>().add(const AuthEvent.checkSessionRequested());
       }
     } on PlatformException catch (e) {
-      if (e.code == auth_error.notAvailable) {
-        // Handle not available
-      }
+      // Prima ogni PlatformException veniva scartata senza log ne' messaggio:
+      // con il sensore bloccato da troppi tentativi il pulsante sembrava
+      // semplicemente non funzionare.
+      debugPrint('LoginScreen._onBiometricLogin: ${e.code} ${e.message}');
+      _showBiometricError(biometricErrorMessage(e));
+    } catch (e) {
+      // Il metodo viene lanciato con unawaited da initState: un errore non
+      // tipizzato diventerebbe un errore non gestito.
+      debugPrint('LoginScreen._onBiometricLogin: $e');
+      _showBiometricError('Non e stato possibile completare il riconoscimento.');
     }
+  }
+
+  void _showBiometricError(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(message),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
   }
 
   @override
