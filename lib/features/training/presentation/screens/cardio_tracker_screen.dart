@@ -13,6 +13,7 @@ import 'package:gym_corpus/core/database/database.dart';
 import 'package:gym_corpus/core/services/health_service.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
+import 'package:gym_corpus/features/training/domain/entities/cardio_draft.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
@@ -25,71 +26,6 @@ class CardioTrackerScreen extends StatefulWidget {
 
   @override
   State<CardioTrackerScreen> createState() => _CardioTrackerScreenState();
-}
-
-/// Sessione cardio interrotta, salvata periodicamente per poterla riprendere
-/// dopo una chiusura imprevista dell'app.
-///
-/// La bozza arriva da JSON scritto da una versione potenzialmente diversa
-/// dell'app, o troncato da un crash a meta' scrittura. Interpretarla campo per
-/// campo con cast diretti significava far fallire l'intero ripristino per una
-/// singola coordinata malformata, quindi ogni valore viene controllato e i
-/// punti non validi vengono scartati singolarmente.
-class _CardioDraft {
-  const _CardioDraft({
-    required this.type,
-    required this.elapsedSeconds,
-    required this.distanceMeters,
-    required this.steps,
-    required this.startTime,
-    required this.route,
-  });
-
-  final String type;
-  final int elapsedSeconds;
-  final double distanceMeters;
-  final int steps;
-  final DateTime? startTime;
-  final List<LatLng> route;
-
-  /// Restituisce `null` se la bozza non e' interpretabile.
-  static _CardioDraft? tryParse(String raw) {
-    try {
-      final decoded = jsonDecode(raw);
-      if (decoded is! Map<String, dynamic>) return null;
-
-      final route = <LatLng>[];
-      final rawRoute = decoded['route'];
-      if (rawRoute is List) {
-        for (final point in rawRoute) {
-          if (point is! Map) continue;
-          final lat = point['lat'];
-          final lng = point['lng'];
-          if (lat is num && lng is num) {
-            route.add(LatLng(lat.toDouble(), lng.toDouble()));
-          }
-        }
-      }
-
-      final type = decoded['type'];
-      final elapsed = decoded['elapsedSeconds'];
-      final distance = decoded['distanceMeters'];
-      final steps = decoded['steps'];
-      final startTime = decoded['startTime'];
-
-      return _CardioDraft(
-        type: type is String ? type : 'run',
-        elapsedSeconds: elapsed is num ? elapsed.toInt() : 0,
-        distanceMeters: distance is num ? distance.toDouble() : 0,
-        steps: steps is num ? steps.toInt() : 0,
-        startTime: startTime is String ? DateTime.tryParse(startTime) : null,
-        route: route,
-      );
-    } catch (e) {
-      debugPrint('CardioTracker: bozza non interpretabile: $e');
-      return null;
-    }
-  }
 }
 
 class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
@@ -161,7 +97,7 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
       // campi venivano letti dopo il tap su RIPRENDI: una bozza malformata,
       // per esempio scritta a meta' durante un crash, faceva fallire il
       // parsing a quel punto e la sessione ripartiva da zero senza spiegazioni.
-      final draft = _CardioDraft.tryParse(draftStr);
+      final draft = CardioDraft.tryParse(draftStr);
       if (draft == null) {
         await _clearDraft();
         return;
@@ -238,17 +174,15 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
     if (_route.isEmpty) return;
     try {
       final db = GetIt.I<AppDatabase>();
-      final draft = {
-        'type': widget.type,
-        'distanceMeters': _distanceMeters,
-        'elapsedSeconds': _elapsedSeconds,
-        'steps': _currentSteps,
-        'startTime': _sessionStartTime?.toIso8601String(),
-        'route': _route
-            .map((p) => {'lat': p.latitude, 'lng': p.longitude})
-            .toList(),
-      };
-      await db.updateSetting('cardio_draft', jsonEncode(draft));
+      final draft = CardioDraft(
+        type: widget.type,
+        elapsedSeconds: _elapsedSeconds,
+        distanceMeters: _distanceMeters,
+        steps: _currentSteps,
+        startTime: _sessionStartTime,
+        route: List<LatLng>.of(_route),
+      );
+      await db.updateSetting('cardio_draft', draft.encode());
     } catch (e) {
       // Il salvataggio automatico gira ogni 10 secondi: senza log, fallimenti
       // ripetuti di scrittura resterebbero invisibili per tutta la sessione.
