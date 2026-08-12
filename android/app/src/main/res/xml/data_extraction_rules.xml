@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Regole di estrazione dati per Android 12 (API 31) e successivi.
+
+    L'app non partecipa ne' al backup su cloud ne' al trasferimento diretto
+    verso un nuovo dispositivo: il database locale contiene dati sanitari ed e'
+    cifrato con una chiave che vive nel Keystore e non viene esportata, quindi
+    un backup produrrebbe comunque un file illeggibile.
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="root" />
+        <exclude domain="database" />
+        <exclude domain="sharedpref" />
+        <exclude domain="file" />
+        <exclude domain="external" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="root" />
+        <exclude domain="database" />
+        <exclude domain="sharedpref" />
+        <exclude domain="file" />
+        <exclude domain="external" />
+    </device-transfer>
+</data-extraction-rules>

@@ -22,10 +22,21 @@
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
+    <!--
+        allowBackup e' disabilitato di proposito: il database locale contiene
+        dati sanitari ed e' cifrato con una chiave custodita nel Keystore, che
+        non finisce nel backup. Lasciando il backup attivo si esporterebbe un
+        file inutilizzabile, e con esso i dati delle versioni precedenti
+        ancora in chiaro. dataExtractionRules copre lo stesso caso su
+        Android 12 e successivi, dove fullBackupContent non viene piu' letto.
+    -->
     <application
         android:label="GymCorpus"
         android:name="${applicationName}"
-        android:icon="@mipmap/launcher_icon">
+        android:icon="@mipmap/launcher_icon"
+        android:allowBackup="false"
+        android:fullBackupContent="false"
+        android:dataExtractionRules="@xml/data_extraction_rules">
         
         <receiver
             android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver"
