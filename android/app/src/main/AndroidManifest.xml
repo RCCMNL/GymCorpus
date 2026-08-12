@@ -9,12 +9,27 @@
     <uses-permission android:name="android.permission.health.READ_EXERCISE" />
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
     
-    <!-- Location Permissions -->
+    <!--
+        Location Permissions
+
+        Solo posizione in primo piano: il tracciamento cardio avviene mentre
+        l'utente e' sulla schermata, e Geolocator.requestPermission() chiede
+        esclusivamente il permesso "while in use".
+
+        ACCESS_BACKGROUND_LOCATION, FOREGROUND_SERVICE e
+        FOREGROUND_SERVICE_LOCATION erano dichiarati ma inutilizzati: nessun
+        <service> esiste nel progetto e il permesso di background non veniva
+        mai richiesto a runtime, quindi non funzionava comunque. Sono permessi
+        sensibili che Google Play esamina con un modulo di giustificazione
+        dedicato, e dichiararli senza usarli porta al rifiuto della
+        pubblicazione.
+
+        Per tracciare davvero a schermo spento servirebbe un foreground
+        service con tipo "location", piu' la richiesta esplicita del permesso
+        di background come passaggio separato.
+    -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
     
     <!-- App Permissions -->
     <uses-permission android:name="android.permission.USE_BIOMETRIC" />
