@@ -28,8 +28,9 @@ class _WorkoutPageState extends State<WorkoutPage> {
   @override
   void initState() {
     super.initState();
-    _nameController =
-        TextEditingController(text: widget.routineToEdit?.title ?? '');
+    _nameController = TextEditingController(
+      text: widget.routineToEdit?.title ?? '',
+    );
     if (widget.routineToEdit != null) {
       _selectedExercises.addAll(widget.routineToEdit!.exercises);
     }
@@ -59,28 +60,34 @@ class _WorkoutPageState extends State<WorkoutPage> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
-                  colors: [Colors.orangeAccent, Colors.deepOrange]),
+                colors: [Colors.orangeAccent, Colors.deepOrange],
+              ),
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                    color: Colors.orangeAccent.withValues(alpha: 0.3),
-                    blurRadius: 15,
-                    offset: const Offset(0, 5)),
+                  color: Colors.orangeAccent.withValues(alpha: 0.3),
+                  blurRadius: 15,
+                  offset: const Offset(0, 5),
+                ),
               ],
             ),
             child: const Row(
               children: [
-                Icon(Icons.warning_amber_rounded,
-                    color: Colors.white, size: 24),
+                Icon(
+                  Icons.warning_amber_rounded,
+                  color: Colors.white,
+                  size: 24,
+                ),
                 SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     'Inserisci il nome del tuo workout',
                     style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w900,
-                        fontFamily: 'Lexend',
-                        fontSize: 13),
+                      color: Colors.white,
+                      fontWeight: FontWeight.w900,
+                      fontFamily: 'Lexend',
+                      fontSize: 13,
+                    ),
                   ),
                 ),
               ],
@@ -105,28 +112,34 @@ class _WorkoutPageState extends State<WorkoutPage> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
-                  colors: [Colors.orangeAccent, Colors.deepOrange]),
+                colors: [Colors.orangeAccent, Colors.deepOrange],
+              ),
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                    color: Colors.orangeAccent.withValues(alpha: 0.3),
-                    blurRadius: 15,
-                    offset: const Offset(0, 5)),
+                  color: Colors.orangeAccent.withValues(alpha: 0.3),
+                  blurRadius: 15,
+                  offset: const Offset(0, 5),
+                ),
               ],
             ),
             child: const Row(
               children: [
-                Icon(Icons.fitness_center_rounded,
-                    color: Colors.white, size: 24),
+                Icon(
+                  Icons.fitness_center_rounded,
+                  color: Colors.white,
+                  size: 24,
+                ),
                 SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     'Aggiungi almeno un esercizio',
                     style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w900,
-                        fontFamily: 'Lexend',
-                        fontSize: 13),
+                      color: Colors.white,
+                      fontWeight: FontWeight.w900,
+                      fontFamily: 'Lexend',
+                      fontSize: 13,
+                    ),
                   ),
                 ),
               ],
@@ -165,16 +178,10 @@ class _WorkoutPageState extends State<WorkoutPage> {
               ]
             : setsList.map((dynamic s) {
                 final map = s as Map<String, dynamic>;
-                return {
-                  'weight': 0,
-                  'reps': map['reps'] as int? ?? 0,
-                };
+                return {'weight': 0, 'reps': map['reps'] as int? ?? 0};
               }).toList();
 
-        return re.copyWith(
-          weight: 0,
-          setsData: jsonEncode(sanitizedSets),
-        );
+        return re.copyWith(weight: 0, setsData: jsonEncode(sanitizedSets));
       }
 
       if (!isImperial) return re;
@@ -203,20 +210,17 @@ class _WorkoutPageState extends State<WorkoutPage> {
 
     if (widget.routineToEdit != null) {
       context.read<TrainingBloc>().add(
-            UpdateRoutineEvent(
-              id: widget.routineToEdit!.id,
-              title: routineName,
-              exercises: exercisesToSave,
-              estDuration: widget.routineToEdit!.estimatedDuration,
-            ),
-          );
+        UpdateRoutineEvent(
+          id: widget.routineToEdit!.id,
+          title: routineName,
+          exercises: exercisesToSave,
+          estDuration: widget.routineToEdit!.estimatedDuration,
+        ),
+      );
     } else {
       context.read<TrainingBloc>().add(
-            AddRoutineEvent(
-              title: routineName,
-              exercises: exercisesToSave,
-            ),
-          );
+        AddRoutineEvent(title: routineName, exercises: exercisesToSave),
+      );
     }
 
     context.pop();
@@ -257,8 +261,9 @@ class _WorkoutPageState extends State<WorkoutPage> {
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: theme.colorScheme.primary
-                                .withValues(alpha: 0.1),
+                            color: theme.colorScheme.primary.withValues(
+                              alpha: 0.1,
+                            ),
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: Icon(
@@ -274,14 +279,18 @@ class _WorkoutPageState extends State<WorkoutPage> {
                     // Routine Title Input Section
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 8),
+                        horizontal: 20,
+                        vertical: 8,
+                      ),
                       decoration: BoxDecoration(
                         color: theme.colorScheme.surfaceContainerHigh
                             .withValues(alpha: 0.5),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                            color: theme.colorScheme.outline
-                                .withValues(alpha: 0.1)),
+                          color: theme.colorScheme.outline.withValues(
+                            alpha: 0.1,
+                          ),
+                        ),
                       ),
                       child: TextField(
                         controller: _nameController,
@@ -294,13 +303,17 @@ class _WorkoutPageState extends State<WorkoutPage> {
                         decoration: InputDecoration(
                           hintText: 'Nome del tuo workout',
                           hintStyle: TextStyle(
-                            color: theme.colorScheme.outline
-                                .withValues(alpha: 0.4),
+                            color: theme.colorScheme.outline.withValues(
+                              alpha: 0.4,
+                            ),
                           ),
                           border: InputBorder.none,
                           contentPadding: EdgeInsets.zero,
-                          icon: Icon(Icons.edit_note_rounded,
-                              color: theme.colorScheme.primary, size: 28),
+                          icon: Icon(
+                            Icons.edit_note_rounded,
+                            color: theme.colorScheme.primary,
+                            size: 28,
+                          ),
                         ),
                       ),
                     ),
@@ -325,10 +338,13 @@ class _WorkoutPageState extends State<WorkoutPage> {
                             const SizedBox(height: 4),
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 2),
+                                horizontal: 8,
+                                vertical: 2,
+                              ),
                               decoration: BoxDecoration(
-                                color: theme.colorScheme.tertiary
-                                    .withValues(alpha: 0.15),
+                                color: theme.colorScheme.tertiary.withValues(
+                                  alpha: 0.15,
+                                ),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
@@ -345,19 +361,22 @@ class _WorkoutPageState extends State<WorkoutPage> {
                           onTap: () => _showExercisePicker(context),
                           child: Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 14, vertical: 10),
+                              horizontal: 14,
+                              vertical: 10,
+                            ),
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 colors: [
                                   theme.colorScheme.primary,
-                                  theme.colorScheme.tertiary
+                                  theme.colorScheme.tertiary,
                                 ],
                               ),
                               borderRadius: BorderRadius.circular(20),
                               boxShadow: [
                                 BoxShadow(
-                                  color: theme.colorScheme.primary
-                                      .withValues(alpha: 0.3),
+                                  color: theme.colorScheme.primary.withValues(
+                                    alpha: 0.3,
+                                  ),
                                   blurRadius: 8,
                                   offset: const Offset(0, 3),
                                 ),
@@ -365,8 +384,11 @@ class _WorkoutPageState extends State<WorkoutPage> {
                             ),
                             child: Row(
                               children: [
-                                const Icon(Icons.add_rounded,
-                                    color: Colors.white, size: 16),
+                                const Icon(
+                                  Icons.add_rounded,
+                                  color: Colors.white,
+                                  size: 16,
+                                ),
                                 const SizedBox(width: 4),
                                 Text(
                                   'AGGIUNGI',
@@ -399,8 +421,9 @@ class _WorkoutPageState extends State<WorkoutPage> {
                                 child: Icon(
                                   Icons.fitness_center_rounded,
                                   size: 48,
-                                  color: theme.colorScheme.outline
-                                      .withValues(alpha: 0.4),
+                                  color: theme.colorScheme.outline.withValues(
+                                    alpha: 0.4,
+                                  ),
                                 ),
                               ),
                               const SizedBox(height: 20),
@@ -440,8 +463,9 @@ class _WorkoutPageState extends State<WorkoutPage> {
                           final re = _selectedExercises[index];
                           // Usiamo una chiave stabile basata sulla posizione iniziale o ID univoco
                           // per evitare che la scheda venga distrutta quando cambiano i dati interni
-                          final stableKey =
-                              ValueKey('exercise_${re.exercise.id}_$index');
+                          final stableKey = ValueKey(
+                            'exercise_${re.exercise.id}_$index',
+                          );
 
                           return _SelectedExerciseTile(
                             key: stableKey,
@@ -453,24 +477,24 @@ class _WorkoutPageState extends State<WorkoutPage> {
                                 if (newSets.isNotEmpty) {
                                   _selectedExercises[index] =
                                       RoutineExerciseEntity(
-                                    id: re.id,
-                                    routineId: re.routineId,
-                                    exercise: re.exercise,
-                                    sets: newSets.length,
-                                    reps: newSets.first.reps,
-                                    weight: newSets.first.weight,
-                                    orderIndex: re.orderIndex,
-                                    setsData: jsonEncode(
-                                      newSets
-                                          .map(
-                                            (s) => {
-                                              'weight': s.weight,
-                                              'reps': s.reps,
-                                            },
-                                          )
-                                          .toList(),
-                                    ),
-                                  );
+                                        id: re.id,
+                                        routineId: re.routineId,
+                                        exercise: re.exercise,
+                                        sets: newSets.length,
+                                        reps: newSets.first.reps,
+                                        weight: newSets.first.weight,
+                                        orderIndex: re.orderIndex,
+                                        setsData: jsonEncode(
+                                          newSets
+                                              .map(
+                                                (s) => {
+                                                  'weight': s.weight,
+                                                  'reps': s.reps,
+                                                },
+                                              )
+                                              .toList(),
+                                        ),
+                                      );
                                 }
                               });
                             },
@@ -504,7 +528,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
                     gradient: LinearGradient(
                       colors: [
                         theme.colorScheme.primary,
-                        theme.colorScheme.tertiary
+                        theme.colorScheme.tertiary,
                       ],
                     ),
                     borderRadius: BorderRadius.circular(20),
@@ -520,8 +544,11 @@ class _WorkoutPageState extends State<WorkoutPage> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.check_circle_rounded,
-                          color: Colors.white, size: 22),
+                      const Icon(
+                        Icons.check_circle_rounded,
+                        color: Colors.white,
+                        size: 22,
+                      ),
                       const SizedBox(width: 10),
                       Text(
                         'SALVA WORKOUT',
@@ -557,11 +584,9 @@ class _WorkoutPageState extends State<WorkoutPage> {
             reps: 0,
             weight: 0,
             orderIndex: _selectedExercises.length,
-            setsData: jsonEncode(
-              [
-                {'weight': 0, 'reps': 0},
-              ],
-            ),
+            setsData: jsonEncode([
+              {'weight': 0, 'reps': 0},
+            ]),
           ),
         );
       }
@@ -654,12 +679,17 @@ class _SelectedExerciseTileState extends State<_SelectedExerciseTile> {
 
   void _initControllers() {
     weightControllers = sets
-        .map((s) => TextEditingController(
-            text: s.weight == 0 ? '' : s.weight.toStringAsFixed(1)))
+        .map(
+          (s) => TextEditingController(
+            text: s.weight == 0 ? '' : s.weight.toStringAsFixed(1),
+          ),
+        )
         .toList();
     repsControllers = sets
-        .map((s) =>
-            TextEditingController(text: s.reps == 0 ? '' : s.reps.toString()))
+        .map(
+          (s) =>
+              TextEditingController(text: s.reps == 0 ? '' : s.reps.toString()),
+        )
         .toList();
   }
 
@@ -685,9 +715,7 @@ class _SelectedExerciseTileState extends State<_SelectedExerciseTile> {
         ),
       );
       repsControllers.add(
-        TextEditingController(
-          text: lastReps == 0 ? '' : lastReps.toString(),
-        ),
+        TextEditingController(text: lastReps == 0 ? '' : lastReps.toString()),
       );
       widget.onSetsUpdated(sets);
     });
@@ -743,8 +771,11 @@ class _SelectedExerciseTileState extends State<_SelectedExerciseTile> {
                         color: theme.colorScheme.surfaceContainerHighest,
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.keyboard_arrow_down_rounded,
-                          color: Colors.grey, size: 24),
+                      child: const Icon(
+                        Icons.keyboard_arrow_down_rounded,
+                        color: Colors.grey,
+                        size: 24,
+                      ),
                     ),
                   ),
                 ),
@@ -800,10 +831,11 @@ class _SelectedExerciseTileState extends State<_SelectedExerciseTile> {
                       ),
                       child: GestureDetector(
                         onTap: widget.onRemove,
-                        child: Icon(Icons.delete_outline,
-                            color:
-                                theme.colorScheme.error.withValues(alpha: 0.8),
-                            size: 18),
+                        child: Icon(
+                          Icons.delete_outline,
+                          color: theme.colorScheme.error.withValues(alpha: 0.8),
+                          size: 18,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -812,14 +844,18 @@ class _SelectedExerciseTileState extends State<_SelectedExerciseTile> {
                       child: Container(
                         padding: const EdgeInsets.all(6),
                         decoration: BoxDecoration(
-                          color:
-                              theme.colorScheme.outline.withValues(alpha: 0.1),
+                          color: theme.colorScheme.outline.withValues(
+                            alpha: 0.1,
+                          ),
                           shape: BoxShape.circle,
                         ),
-                        child: Icon(Icons.reorder_rounded,
-                            color: theme.colorScheme.outline
-                                .withValues(alpha: 0.8),
-                            size: 18),
+                        child: Icon(
+                          Icons.reorder_rounded,
+                          color: theme.colorScheme.outline.withValues(
+                            alpha: 0.8,
+                          ),
+                          size: 18,
+                        ),
                       ),
                     ),
                   ],
@@ -835,7 +871,10 @@ class _SelectedExerciseTileState extends State<_SelectedExerciseTile> {
               child: Column(
                 children: [
                   const Divider(
-                      height: 1, thickness: 0.5, color: Colors.white10),
+                    height: 1,
+                    thickness: 0.5,
+                    color: Colors.white10,
+                  ),
                   const SizedBox(height: 16),
                   ...List.generate(sets.length, (index) {
                     return Container(
@@ -844,7 +883,7 @@ class _SelectedExerciseTileState extends State<_SelectedExerciseTile> {
                       decoration: BoxDecoration(
                         color: index.isEven
                             ? theme.colorScheme.surfaceContainerHighest
-                                .withValues(alpha: 0.3)
+                                  .withValues(alpha: 0.3)
                             : Colors.transparent,
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -856,10 +895,12 @@ class _SelectedExerciseTileState extends State<_SelectedExerciseTile> {
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 colors: [
-                                  theme.colorScheme.primary
-                                      .withValues(alpha: 0.2),
-                                  theme.colorScheme.primary
-                                      .withValues(alpha: 0.05)
+                                  theme.colorScheme.primary.withValues(
+                                    alpha: 0.2,
+                                  ),
+                                  theme.colorScheme.primary.withValues(
+                                    alpha: 0.05,
+                                  ),
                                 ],
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,
@@ -889,7 +930,8 @@ class _SelectedExerciseTileState extends State<_SelectedExerciseTile> {
                                   )
                                 : _SetInputCell(
                                     controller: weightControllers[index],
-                                    label: (context.read<TrainingBloc>().state
+                                    label:
+                                        (context.read<TrainingBloc>().state
                                                 is TrainingLoaded &&
                                             (context.read<TrainingBloc>().state
                                                         as TrainingLoaded)
@@ -922,12 +964,16 @@ class _SelectedExerciseTileState extends State<_SelectedExerciseTile> {
                             onTap: () => _removeSet(index),
                             child: Container(
                               padding: const EdgeInsets.all(6),
-                              decoration:
-                                  const BoxDecoration(shape: BoxShape.circle),
-                              child: Icon(Icons.close_rounded,
-                                  size: 18,
-                                  color: theme.colorScheme.error
-                                      .withValues(alpha: 0.5)),
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.close_rounded,
+                                size: 18,
+                                color: theme.colorScheme.error.withValues(
+                                  alpha: 0.5,
+                                ),
+                              ),
                             ),
                           ),
                         ],
@@ -944,15 +990,20 @@ class _SelectedExerciseTileState extends State<_SelectedExerciseTile> {
                         color: theme.colorScheme.primary.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(14),
                         border: Border.all(
-                            color: theme.colorScheme.primary
-                                .withValues(alpha: 0.2)),
+                          color: theme.colorScheme.primary.withValues(
+                            alpha: 0.2,
+                          ),
+                        ),
                       ),
                       alignment: Alignment.center,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.add_rounded,
-                              size: 18, color: theme.colorScheme.primary),
+                          Icon(
+                            Icons.add_rounded,
+                            size: 18,
+                            color: theme.colorScheme.primary,
+                          ),
                           const SizedBox(width: 6),
                           Text(
                             'AGGIUNGI UNA SERIE',
@@ -998,7 +1049,8 @@ class _SetInputCell extends StatelessWidget {
         color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
-            color: theme.colorScheme.outline.withValues(alpha: 0.05)),
+          color: theme.colorScheme.outline.withValues(alpha: 0.05),
+        ),
       ),
       child: Row(
         children: [
@@ -1015,7 +1067,8 @@ class _SetInputCell extends StatelessWidget {
                 isDense: true,
                 hintText: '-',
                 hintStyle: TextStyle(
-                    color: theme.colorScheme.outline.withValues(alpha: 0.2)),
+                  color: theme.colorScheme.outline.withValues(alpha: 0.2),
+                ),
                 contentPadding: EdgeInsets.zero,
               ),
               onChanged: onChanged,
@@ -1133,20 +1186,20 @@ class _ExercisePickerModalState extends State<_ExercisePickerModal> {
                       final filtered = state.exercises
                           .where(
                             (e) =>
-                                e.name
-                                    .toLowerCase()
-                                    .contains(_searchQuery.toLowerCase()) ||
+                                e.name.toLowerCase().contains(
+                                  _searchQuery.toLowerCase(),
+                                ) ||
                                 e.targetMuscle.toLowerCase().contains(
-                                      _searchQuery.toLowerCase(),
-                                    ) ||
+                                  _searchQuery.toLowerCase(),
+                                ) ||
                                 (e.equipment?.toLowerCase().contains(
-                                          _searchQuery.toLowerCase(),
-                                        ) ??
+                                      _searchQuery.toLowerCase(),
+                                    ) ??
                                     false) ||
                                 e.categories.any(
-                                  (category) => category
-                                      .toLowerCase()
-                                      .contains(_searchQuery.toLowerCase()),
+                                  (category) => category.toLowerCase().contains(
+                                    _searchQuery.toLowerCase(),
+                                  ),
                                 ),
                           )
                           .toList();
@@ -1159,8 +1212,8 @@ class _ExercisePickerModalState extends State<_ExercisePickerModal> {
                             const SizedBox(height: 12),
                         itemBuilder: (context, index) {
                           final ex = filtered[index];
-                          final isAlreadyAdded =
-                              widget.alreadySelected.contains(ex);
+                          final isAlreadyAdded = widget.alreadySelected
+                              .contains(ex);
                           final isSelected =
                               _tempSelected.contains(ex) || isAlreadyAdded;
 
@@ -1174,15 +1227,17 @@ class _ExercisePickerModalState extends State<_ExercisePickerModal> {
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
                                 color: isSelected && !isAlreadyAdded
-                                    ? theme.colorScheme.primary
-                                        .withValues(alpha: 0.1)
+                                    ? theme.colorScheme.primary.withValues(
+                                        alpha: 0.1,
+                                      )
                                     : theme.colorScheme.surfaceContainerHigh,
                                 borderRadius: BorderRadius.circular(16),
                                 border: Border.all(
                                   color: isSelected && !isAlreadyAdded
                                       ? theme.colorScheme.primary
-                                      : theme.colorScheme.outline
-                                          .withValues(alpha: 0.05),
+                                      : theme.colorScheme.outline.withValues(
+                                          alpha: 0.05,
+                                        ),
                                 ),
                               ),
                               child: Row(
@@ -1192,7 +1247,8 @@ class _ExercisePickerModalState extends State<_ExercisePickerModal> {
                                     height: 60,
                                     decoration: BoxDecoration(
                                       color: theme
-                                          .colorScheme.surfaceContainerHighest,
+                                          .colorScheme
+                                          .surfaceContainerHighest,
                                       borderRadius: BorderRadius.circular(12),
                                     ),
                                     child: Icon(
@@ -1213,12 +1269,12 @@ class _ExercisePickerModalState extends State<_ExercisePickerModal> {
                                           ex.name,
                                           style: theme.textTheme.titleMedium
                                               ?.copyWith(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 16,
-                                            color: isAlreadyAdded
-                                                ? theme.colorScheme.outline
-                                                : null,
-                                          ),
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16,
+                                                color: isAlreadyAdded
+                                                    ? theme.colorScheme.outline
+                                                    : null,
+                                              ),
                                         ),
                                         const SizedBox(height: 4),
                                         Row(
@@ -1235,17 +1291,21 @@ class _ExercisePickerModalState extends State<_ExercisePickerModal> {
                                               isAlreadyAdded
                                                   ? 'GIÀ AGGIUNTO'
                                                   : ex.categories
-                                                      .join(' • ')
-                                                      .toUpperCase(),
+                                                        .join(' • ')
+                                                        .toUpperCase(),
                                               style: theme.textTheme.labelSmall
                                                   ?.copyWith(
-                                                color: isSelected
-                                                    ? theme.colorScheme.primary
-                                                    : theme.colorScheme.outline,
-                                                fontWeight: FontWeight.w900,
-                                                fontSize: 10,
-                                                letterSpacing: 0.5,
-                                              ),
+                                                    color: isSelected
+                                                        ? theme
+                                                              .colorScheme
+                                                              .primary
+                                                        : theme
+                                                              .colorScheme
+                                                              .outline,
+                                                    fontWeight: FontWeight.w900,
+                                                    fontSize: 10,
+                                                    letterSpacing: 0.5,
+                                                  ),
                                             ),
                                           ],
                                         ),
@@ -1256,12 +1316,13 @@ class _ExercisePickerModalState extends State<_ExercisePickerModal> {
                                     isAlreadyAdded
                                         ? Icons.check_circle
                                         : (isSelected
-                                            ? Icons.check_circle
-                                            : Icons.add_circle),
+                                              ? Icons.check_circle
+                                              : Icons.add_circle),
                                     color: isSelected
                                         ? theme.colorScheme.primary
-                                        : theme.colorScheme.primary
-                                            .withValues(alpha: 0.4),
+                                        : theme.colorScheme.primary.withValues(
+                                            alpha: 0.4,
+                                          ),
                                   ),
                                 ],
                               ),
@@ -1298,8 +1359,9 @@ class _ExercisePickerModalState extends State<_ExercisePickerModal> {
                       foregroundColor: theme.colorScheme.onPrimary,
                       padding: const EdgeInsets.symmetric(vertical: 20),
                       elevation: 8,
-                      shadowColor:
-                          theme.colorScheme.primary.withValues(alpha: 0.4),
+                      shadowColor: theme.colorScheme.primary.withValues(
+                        alpha: 0.4,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
                       ),

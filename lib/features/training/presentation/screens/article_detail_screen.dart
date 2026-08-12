@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 
 class ArticleDetailScreen extends StatelessWidget {
+  const ArticleDetailScreen({required this.data, super.key});
   final Map<String, dynamic> data;
-
-  const ArticleDetailScreen({super.key, required this.data});
 
   @override
   Widget build(BuildContext context) {
@@ -24,12 +23,14 @@ class ArticleDetailScreen extends StatelessWidget {
                   ? Image.network(
                       imageUrl,
                       fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Container(
+                      errorBuilder: (context, error, stackTrace) => ColoredBox(
                         color: theme.colorScheme.surfaceContainerHighest,
                         child: Center(
                           child: Icon(
                             Icons.broken_image_rounded,
-                            color: theme.colorScheme.outline.withValues(alpha: 0.3),
+                            color: theme.colorScheme.outline.withValues(
+                              alpha: 0.3,
+                            ),
                             size: 48,
                           ),
                         ),
@@ -52,7 +53,10 @@ class ArticleDetailScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: theme.colorScheme.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
@@ -97,8 +101,16 @@ class ArticleDetailScreen extends StatelessWidget {
                   const SizedBox(height: 32),
                   _buildSectionTitle('TI POTREBBE INTERESSARE', theme),
                   const SizedBox(height: 16),
-                  _buildRelatedArticle(theme, 'Allenamento HIIT', '10 min di lettura'),
-                  _buildRelatedArticle(theme, 'Recupero Muscolare', '5 min di lettura'),
+                  _buildRelatedArticle(
+                    theme,
+                    'Allenamento HIIT',
+                    '10 min di lettura',
+                  ),
+                  _buildRelatedArticle(
+                    theme,
+                    'Recupero Muscolare',
+                    '5 min di lettura',
+                  ),
                 ],
               ),
             ),
@@ -136,19 +148,35 @@ class ArticleDetailScreen extends StatelessWidget {
               color: theme.colorScheme.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(Icons.article_outlined, color: theme.colorScheme.primary, size: 20),
+            child: Icon(
+              Icons.article_outlined,
+              color: theme.colorScheme.primary,
+              size: 20,
+            ),
           ),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-                Text(time, style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.outline)),
+                Text(
+                  title,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  time,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.outline,
+                  ),
+                ),
               ],
             ),
           ),
-          Icon(Icons.arrow_forward_ios, color: theme.colorScheme.outline.withValues(alpha: 0.3), size: 14),
+          Icon(
+            Icons.arrow_forward_ios,
+            color: theme.colorScheme.outline.withValues(alpha: 0.3),
+            size: 14,
+          ),
         ],
       ),
     );

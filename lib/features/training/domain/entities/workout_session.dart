@@ -21,11 +21,11 @@ class WorkoutSessionEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        date,
-        name,
-        routineId,
-        completedAt,
-        durationSeconds,
-      ];
+    id,
+    date,
+    name,
+    routineId,
+    completedAt,
+    durationSeconds,
+  ];
 }

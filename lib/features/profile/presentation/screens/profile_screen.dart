@@ -12,11 +12,11 @@ import 'package:gym_corpus/features/auth/presentation/bloc/auth_event.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
 import 'package:gym_corpus/features/profile/domain/services/athlete_progress_service.dart';
 import 'package:gym_corpus/features/profile/presentation/widgets/custom_segmented_control.dart';
+import 'package:gym_corpus/features/profile/presentation/widgets/feedback_dialog.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:gym_corpus/features/profile/presentation/widgets/feedback_dialog.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -31,8 +31,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
-    final trainingBloc = context.read<TrainingBloc>();
-    trainingBloc
+    context.read<TrainingBloc>()
       ..add(LoadWeightLogsEvent())
       ..add(LoadWorkoutSessionsEvent())
       ..add(LoadCardioSessionsEvent());
@@ -101,8 +100,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         'APP PREFERENCES & ACCOUNT',
                         style: theme.textTheme.labelSmall?.copyWith(
                           letterSpacing: 2.5,
-                          color:
-                              theme.colorScheme.primary.withValues(alpha: 0.5),
+                          color: theme.colorScheme.primary.withValues(
+                            alpha: 0.5,
+                          ),
                           fontWeight: FontWeight.w900,
                         ),
                       ),
@@ -127,14 +127,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       borderRadius: BorderRadius.circular(32),
                       border: Border.all(
-                        color:
-                            theme.colorScheme.primary.withValues(alpha: 0.15),
+                        color: theme.colorScheme.primary.withValues(
+                          alpha: 0.15,
+                        ),
                         width: 1.5,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color:
-                              theme.colorScheme.primary.withValues(alpha: 0.05),
+                          color: theme.colorScheme.primary.withValues(
+                            alpha: 0.05,
+                          ),
                           blurRadius: 30,
                           offset: const Offset(0, 10),
                         ),
@@ -150,8 +152,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         );
                         final userName = user?.fullName ?? 'Atleta';
                         final photoUrl = user?.photoUrl;
-                        final photoProvider =
-                            _resolveProfileImageProvider(photoUrl);
+                        final photoProvider = _resolveProfileImageProvider(
+                          photoUrl,
+                        );
                         // Letto per campo invece che con maybeWhen posizionale:
                         // quest'ultimo va aggiornato a ogni nuovo campo di
                         // TrainingLoaded, ed e' l'idioma gia' usato nel resto
@@ -181,11 +184,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                                     if (image != null && context.mounted) {
                                       context.read<AuthBloc>().add(
-                                            AuthEvent
-                                                .updateProfileImageRequested(
-                                              filePath: image.path,
-                                            ),
-                                          );
+                                        AuthEvent.updateProfileImageRequested(
+                                          filePath: image.path,
+                                        ),
+                                      );
                                     }
                                   },
                                   child: Stack(
@@ -195,7 +197,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         height: 72,
                                         decoration: BoxDecoration(
                                           shape: BoxShape.circle,
-                                          color: theme.colorScheme
+                                          color: theme
+                                              .colorScheme
                                               .surfaceContainerHighest,
                                           border: Border.all(
                                             color: theme.colorScheme.tertiary,
@@ -253,11 +256,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         userName,
                                         style: theme.textTheme.headlineSmall
                                             ?.copyWith(
-                                          fontWeight: FontWeight.w900,
-                                          fontFamily: 'Lexend',
-                                          fontSize: 22,
-                                          letterSpacing: -0.5,
-                                        ),
+                                              fontWeight: FontWeight.w900,
+                                              fontFamily: 'Lexend',
+                                              fontSize: 22,
+                                              letterSpacing: -0.5,
+                                            ),
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                       if (user?.username != null)
@@ -265,10 +268,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           '@${user!.username}',
                                           style: theme.textTheme.bodySmall
                                               ?.copyWith(
-                                            fontWeight: FontWeight.w500,
-                                            fontSize: 13,
-                                            color: theme.colorScheme.outline,
-                                          ),
+                                                fontWeight: FontWeight.w500,
+                                                fontSize: 13,
+                                                color:
+                                                    theme.colorScheme.outline,
+                                              ),
                                         ),
                                       const SizedBox(height: 8),
                                       Container(
@@ -279,8 +283,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         decoration: BoxDecoration(
                                           color: theme.colorScheme.tertiary
                                               .withValues(alpha: 0.1),
-                                          borderRadius:
-                                              BorderRadius.circular(8),
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
                                           border: Border.all(
                                             color: theme.colorScheme.tertiary
                                                 .withValues(alpha: 0.2),
@@ -290,11 +295,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           'LIVELLO ${athleteProgress.level}',
                                           style: theme.textTheme.labelSmall
                                               ?.copyWith(
-                                            color: theme.colorScheme.tertiary,
-                                            fontWeight: FontWeight.w900,
-                                            fontSize: 10,
-                                            letterSpacing: 1.1,
-                                          ),
+                                                color:
+                                                    theme.colorScheme.tertiary,
+                                                fontWeight: FontWeight.w900,
+                                                fontSize: 10,
+                                                letterSpacing: 1.1,
+                                              ),
                                         ),
                                       ),
                                       const SizedBox(height: 5),
@@ -302,9 +308,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         '${athleteProgress.levelTitle} - ${athleteProgress.xp} XP',
                                         style: theme.textTheme.labelSmall
                                             ?.copyWith(
-                                          color: theme.colorScheme.outline,
-                                          fontWeight: FontWeight.w700,
-                                        ),
+                                              color: theme.colorScheme.outline,
+                                              fontWeight: FontWeight.w700,
+                                            ),
                                       ),
                                     ],
                                   ),
@@ -314,8 +320,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             Padding(
                               padding: const EdgeInsets.symmetric(vertical: 20),
                               child: Divider(
-                                color: theme.colorScheme.outline
-                                    .withValues(alpha: 0.1),
+                                color: theme.colorScheme.outline.withValues(
+                                  alpha: 0.1,
+                                ),
                                 height: 1,
                               ),
                             ),
@@ -346,8 +353,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   // Ultra-fast Snappy Transition
                   AnimatedCrossFade(
                     firstChild: _buildProfileMenu(context, theme),
-                    secondChild:
-                        _buildSettingsMenu(context, theme, trainingState),
+                    secondChild: _buildSettingsMenu(
+                      context,
+                      theme,
+                      trainingState,
+                    ),
                     crossFadeState: _selectedTab == 0
                         ? CrossFadeState.showFirst
                         : CrossFadeState.showSecond,
@@ -423,7 +433,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               label: 'Esercizi Preferiti',
               onTap: () => context.push('/profile/favorites'),
             ),
-            _ProfileItem(
+            const _ProfileItem(
               icon: Icons.calendar_today,
               label: 'Programma attuale',
               trailingText: 'Prossimamente',
@@ -529,11 +539,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   value: isAudioEnabled,
                   onChanged: (val) {
                     context.read<TrainingBloc>().add(
-                          UpdatePreferenceEvent(
-                            'audio_effects',
-                            val.toString(),
-                          ),
-                        );
+                      UpdatePreferenceEvent('audio_effects', val.toString()),
+                    );
                   },
                   activeThumbColor: theme.colorScheme.primary,
                 ),
@@ -548,8 +555,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   value: isVibrationEnabled,
                   onChanged: (val) {
                     context.read<TrainingBloc>().add(
-                          UpdatePreferenceEvent('vibration', val.toString()),
-                        );
+                      UpdatePreferenceEvent('vibration', val.toString()),
+                    );
                   },
                   activeThumbColor: theme.colorScheme.primary,
                 ),
@@ -562,7 +569,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _ProfileSection(
           title: 'Community & Feedback',
           items: [
-            _ProfileItem(
+            const _ProfileItem(
               icon: Icons.star_rounded,
               label: 'Valuta GymCorpus',
               trailingText: 'Prossimamente',
@@ -610,14 +617,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
               label: const Text('DISCONNETTI ACCOUNT'),
               style: TextButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 22),
-                backgroundColor:
-                    theme.colorScheme.errorContainer.withValues(alpha: 0.1),
+                backgroundColor: theme.colorScheme.errorContainer.withValues(
+                  alpha: 0.1,
+                ),
                 foregroundColor: theme.colorScheme.error,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(24),
                   side: BorderSide(
-                    color:
-                        theme.colorScheme.errorContainer.withValues(alpha: 0.3),
+                    color: theme.colorScheme.errorContainer.withValues(
+                      alpha: 0.3,
+                    ),
                   ),
                 ),
                 textStyle: const TextStyle(
@@ -664,23 +673,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ? trainingState.settings
         : <String, String>{};
     final isImperial = (settings['units'] ?? 'KG') == 'LB';
-    final latestWeight = trainingState is TrainingLoaded &&
+    final latestWeight =
+        trainingState is TrainingLoaded &&
             trainingState.bodyWeightLogs.isNotEmpty
         ? trainingState.bodyWeightLogs.first.weight
         : user.weight;
 
     var weightLabel = '? kg';
     if (latestWeight != null) {
-      final value =
-          isImperial ? UnitConverter.kgToLb(latestWeight) : latestWeight;
+      final value = isImperial
+          ? UnitConverter.kgToLb(latestWeight)
+          : latestWeight;
       weightLabel = '${value.toStringAsFixed(1)}${isImperial ? 'lb' : 'kg'}';
     }
 
     var heightLabel = '? cm';
     final heightValue = user.height;
     if (heightValue != null) {
-      final value =
-          isImperial ? UnitConverter.cmToInch(heightValue) : heightValue;
+      final value = isImperial
+          ? UnitConverter.cmToInch(heightValue)
+          : heightValue;
       heightLabel = '${value.toInt()}${isImperial ? 'in' : 'cm'}';
     }
 
@@ -715,8 +727,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildTrainingSettings(BuildContext context, TrainingState state) {
-    final settings =
-        state is TrainingLoaded ? state.settings : <String, String>{};
+    final settings = state is TrainingLoaded
+        ? state.settings
+        : <String, String>{};
     final restTimer = settings['rest_timer'] ?? '90';
     final unit = settings['units'] ?? 'KG';
 
@@ -750,8 +763,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       decoration: BoxDecoration(
         color: theme.colorScheme.surface.withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(12),
-        border:
-            Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.1)),
+        border: Border.all(
+          color: theme.colorScheme.outline.withValues(alpha: 0.1),
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -762,8 +776,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             color: icon == Icons.monitor_weight_outlined
                 ? theme.colorScheme.primary
                 : (icon == Icons.height
-                    ? theme.colorScheme.tertiary
-                    : Colors.orangeAccent),
+                      ? theme.colorScheme.tertiary
+                      : Colors.orangeAccent),
           ),
           const SizedBox(width: 6),
           Text(
@@ -829,8 +843,9 @@ class _ProfileSection extends StatelessWidget {
           ),
           Container(
             decoration: BoxDecoration(
-              color:
-                  theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.4),
+              color: theme.colorScheme.surfaceContainerHigh.withValues(
+                alpha: 0.4,
+              ),
               borderRadius: BorderRadius.circular(24),
               border: Border.all(
                 color: theme.colorScheme.outline.withValues(alpha: 0.05),
@@ -874,10 +889,10 @@ class _ProfileItem extends StatelessWidget {
     final iconColor = isComingSoon
         ? theme.colorScheme.outline
         : label == 'Calendario ciclo'
-            ? const Color(0xFFFF4B72)
-            : (label == 'Sicurezza' || label == 'Esercizi Preferiti'
-                ? theme.colorScheme.tertiary
-                : (label == 'Valuta GymCorpus'
+        ? const Color(0xFFFF4B72)
+        : (label == 'Sicurezza' || label == 'Esercizi Preferiti'
+              ? theme.colorScheme.tertiary
+              : (label == 'Valuta GymCorpus'
                     ? Colors.orangeAccent
                     : theme.colorScheme.primary));
 
@@ -897,11 +912,7 @@ class _ProfileItem extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Icon(
-                icon,
-                color: iconColor,
-                size: 24,
-              ),
+              Icon(icon, color: iconColor, size: 24),
               const SizedBox(width: 16),
               Expanded(
                 child: Text(
@@ -915,8 +926,10 @@ class _ProfileItem extends StatelessWidget {
               if (trailingText != null) ...[
                 if (isBadge)
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: isComingSoon
                           ? theme.colorScheme.outline.withValues(alpha: 0.12)
@@ -1025,10 +1038,16 @@ class _TimerPickerSheetState extends State<_TimerPickerSheet> {
                         ),
                         borderRadius: BorderRadius.circular(14),
                         border: Border.all(
-                          color: theme.colorScheme.primary.withValues(alpha: 0.2),
+                          color: theme.colorScheme.primary.withValues(
+                            alpha: 0.2,
+                          ),
                         ),
                       ),
-                      child: Icon(Icons.timer_rounded, color: theme.colorScheme.primary, size: 22),
+                      child: Icon(
+                        Icons.timer_rounded,
+                        color: theme.colorScheme.primary,
+                        size: 22,
+                      ),
                     ),
                     const SizedBox(width: 14),
                     Column(
@@ -1091,8 +1110,8 @@ class _TimerPickerSheetState extends State<_TimerPickerSheet> {
               child: ElevatedButton(
                 onPressed: () {
                   context.read<TrainingBloc>().add(
-                        UpdatePreferenceEvent('rest_timer', _value.toString()),
-                      );
+                    UpdatePreferenceEvent('rest_timer', _value.toString()),
+                  );
                   Navigator.pop(context);
                 },
                 style: ElevatedButton.styleFrom(
@@ -1193,10 +1212,16 @@ class _UnitPickerSheetState extends State<_UnitPickerSheet> {
                         ),
                         borderRadius: BorderRadius.circular(14),
                         border: Border.all(
-                          color: theme.colorScheme.primary.withValues(alpha: 0.2),
+                          color: theme.colorScheme.primary.withValues(
+                            alpha: 0.2,
+                          ),
                         ),
                       ),
-                      child: Icon(Icons.straighten_rounded, color: theme.colorScheme.primary, size: 22),
+                      child: Icon(
+                        Icons.straighten_rounded,
+                        color: theme.colorScheme.primary,
+                        size: 22,
+                      ),
                     ),
                     const SizedBox(width: 14),
                     Column(
@@ -1235,7 +1260,6 @@ class _UnitPickerSheetState extends State<_UnitPickerSheet> {
             ),
           ),
           const SizedBox(height: 28),
-
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Row(
@@ -1264,7 +1288,6 @@ class _UnitPickerSheetState extends State<_UnitPickerSheet> {
               ],
             ),
           ),
-
           const SizedBox(height: 32),
           Padding(
             padding: EdgeInsets.fromLTRB(48, 0, 48, 24 + bottomPadding),
@@ -1282,9 +1305,9 @@ class _UnitPickerSheetState extends State<_UnitPickerSheet> {
               ),
               child: ElevatedButton(
                 onPressed: () {
-                  context
-                      .read<TrainingBloc>()
-                      .add(UpdatePreferenceEvent('units', _selectedUnit));
+                  context.read<TrainingBloc>().add(
+                    UpdatePreferenceEvent('units', _selectedUnit),
+                  );
                   Navigator.pop(context);
                 },
                 style: ElevatedButton.styleFrom(

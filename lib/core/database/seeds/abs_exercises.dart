@@ -245,8 +245,9 @@ const absExercises = [
     equipment: Value('Corpo libero, Tappetino (o panca GHD)'),
     isBodyweight: Value(true),
     focusArea: Value("Retto dell'addome, Flessori dell'anca"),
-    preparation:
-        Value('Supino, ginocchia piegate. (Spesso with piedi bloccati).'),
+    preparation: Value(
+      'Supino, ginocchia piegate. (Spesso with piedi bloccati).',
+    ),
     execution: Value(
       "Solleva l'intero busto da terra fino a portarlo in posizione seduta. Scendi controllato.",
     ),

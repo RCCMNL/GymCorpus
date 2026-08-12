@@ -19,7 +19,9 @@ class CustomSegmentedControl extends StatelessWidget {
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.8),
         borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.05)),
+        border: Border.all(
+          color: theme.colorScheme.outline.withValues(alpha: 0.05),
+        ),
       ),
       child: Row(
         children: [
@@ -88,7 +90,9 @@ class _Segment extends StatelessWidget {
               Icon(
                 isSelected ? selectedIcon : icon,
                 size: 20,
-                color: isSelected ? theme.colorScheme.primary : theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+                color: isSelected
+                    ? theme.colorScheme.primary
+                    : theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
               ),
               const SizedBox(width: 8),
               Text(
@@ -98,7 +102,9 @@ class _Segment extends StatelessWidget {
                   fontSize: 13,
                   color: isSelected
                       ? theme.colorScheme.onSurface
-                      : theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+                      : theme.colorScheme.onSurfaceVariant.withValues(
+                          alpha: 0.7,
+                        ),
                   fontFamily: 'Lexend',
                 ),
               ),

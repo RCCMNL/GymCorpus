@@ -103,18 +103,20 @@ class NotificationLogs extends Table {
   TextColumn get type => text().withDefault(const Constant('general'))();
 }
 
-@DriftDatabase(tables: [
-  Workouts,
-  Exercises,
-  WorkoutSets,
-  Routines,
-  RoutineExercises,
-  WeightLogs,
-  AppSettings,
-  CardioSessions,
-  BodyMeasurements,
-  NotificationLogs,
-])
+@DriftDatabase(
+  tables: [
+    Workouts,
+    Exercises,
+    WorkoutSets,
+    Routines,
+    RoutineExercises,
+    WeightLogs,
+    AppSettings,
+    CardioSessions,
+    BodyMeasurements,
+    NotificationLogs,
+  ],
+)
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
@@ -173,10 +175,18 @@ class AppDatabase extends _$AppDatabase {
     await _ensureColumn(m, workouts, workouts.routineId, 'routine_id');
     await _ensureColumn(m, workouts, workouts.completedAt, 'completed_at');
     await _ensureColumn(
-        m, workouts, workouts.durationSeconds, 'duration_seconds');
+      m,
+      workouts,
+      workouts.durationSeconds,
+      'duration_seconds',
+    );
 
     await _ensureColumn(
-        m, exercises, exercises.referenceVideoUrl, 'reference_video_url');
+      m,
+      exercises,
+      exercises.referenceVideoUrl,
+      'reference_video_url',
+    );
     await _ensureColumn(m, exercises, exercises.imageUrl, 'image_url');
     await _ensureColumn(m, exercises, exercises.equipment, 'equipment');
     await _ensureColumn(m, exercises, exercises.focusArea, 'focus_area');
@@ -195,13 +205,25 @@ class AppDatabase extends _$AppDatabase {
     """);
 
     await _ensureColumn(
-        m, routines, routines.estimatedDuration, 'estimated_duration');
+      m,
+      routines,
+      routines.estimatedDuration,
+      'estimated_duration',
+    );
     await _ensureColumn(m, routines, routines.createdAt, 'created_at');
 
     await _ensureColumn(
-        m, routineExercises, routineExercises.orderIndex, 'order_index');
+      m,
+      routineExercises,
+      routineExercises.orderIndex,
+      'order_index',
+    );
     await _ensureColumn(
-        m, routineExercises, routineExercises.setsData, 'sets_data');
+      m,
+      routineExercises,
+      routineExercises.setsData,
+      'sets_data',
+    );
 
     await _ensureColumn(m, workoutSets, workoutSets.rpe, 'rpe');
 
@@ -209,12 +231,20 @@ class AppDatabase extends _$AppDatabase {
     await _ensureColumn(m, cardioSessions, cardioSessions.distance, 'distance');
     await _ensureColumn(m, cardioSessions, cardioSessions.duration, 'duration');
     await _ensureColumn(
-        m, cardioSessions, cardioSessions.avgSpeed, 'avg_speed');
+      m,
+      cardioSessions,
+      cardioSessions.avgSpeed,
+      'avg_speed',
+    );
     await _ensureColumn(m, cardioSessions, cardioSessions.pace, 'pace');
     await _ensureColumn(m, cardioSessions, cardioSessions.calories, 'calories');
     await _ensureColumn(m, cardioSessions, cardioSessions.steps, 'steps');
     await _ensureColumn(
-        m, cardioSessions, cardioSessions.routeJson, 'route_json');
+      m,
+      cardioSessions,
+      cardioSessions.routeJson,
+      'route_json',
+    );
     await _ensureColumn(m, cardioSessions, cardioSessions.date, 'date');
 
     await _ensureColumn(m, bodyMeasurements, bodyMeasurements.part, 'part');
@@ -224,9 +254,17 @@ class AppDatabase extends _$AppDatabase {
     await _ensureColumn(m, notificationLogs, notificationLogs.title, 'title');
     await _ensureColumn(m, notificationLogs, notificationLogs.body, 'body');
     await _ensureColumn(
-        m, notificationLogs, notificationLogs.timestamp, 'timestamp');
+      m,
+      notificationLogs,
+      notificationLogs.timestamp,
+      'timestamp',
+    );
     await _ensureColumn(
-        m, notificationLogs, notificationLogs.isRead, 'is_read');
+      m,
+      notificationLogs,
+      notificationLogs.isRead,
+      'is_read',
+    );
     await _ensureColumn(m, notificationLogs, notificationLogs.type, 'type');
   }
 
@@ -294,34 +332,74 @@ class AppDatabase extends _$AppDatabase {
     }
 
     // Seed default settings
-    await into(appSettings).insert(const AppSettingsCompanion(
-        key: Value('rest_timer'), value: Value('90')));
-    await into(appSettings).insert(const AppSettingsCompanion(
-        key: Value('units'), value: Value('metric')));
-    await into(appSettings).insert(const AppSettingsCompanion(
-        key: Value('notif_stretching_enabled'), value: Value('false')));
-    await into(appSettings).insert(const AppSettingsCompanion(
-        key: Value('notif_stretching_hour'), value: Value('8')));
-    await into(appSettings).insert(const AppSettingsCompanion(
-        key: Value('notif_stretching_minute'), value: Value('0')));
-    await into(appSettings).insert(const AppSettingsCompanion(
-        key: Value('notif_training_enabled'), value: Value('false')));
-    await into(appSettings).insert(const AppSettingsCompanion(
-        key: Value('notif_training_hour'), value: Value('17')));
-    await into(appSettings).insert(const AppSettingsCompanion(
-        key: Value('notif_training_minute'), value: Value('30')));
-    await into(appSettings).insert(const AppSettingsCompanion(
-        key: Value('notif_training_days'), value: Value('')));
-    await into(appSettings).insert(const AppSettingsCompanion(
-        key: Value('notif_badge_enabled'), value: Value('true')));
+    await into(appSettings).insert(
+      const AppSettingsCompanion(key: Value('rest_timer'), value: Value('90')),
+    );
+    await into(appSettings).insert(
+      const AppSettingsCompanion(key: Value('units'), value: Value('metric')),
+    );
+    await into(appSettings).insert(
+      const AppSettingsCompanion(
+        key: Value('notif_stretching_enabled'),
+        value: Value('false'),
+      ),
+    );
+    await into(appSettings).insert(
+      const AppSettingsCompanion(
+        key: Value('notif_stretching_hour'),
+        value: Value('8'),
+      ),
+    );
+    await into(appSettings).insert(
+      const AppSettingsCompanion(
+        key: Value('notif_stretching_minute'),
+        value: Value('0'),
+      ),
+    );
+    await into(appSettings).insert(
+      const AppSettingsCompanion(
+        key: Value('notif_training_enabled'),
+        value: Value('false'),
+      ),
+    );
+    await into(appSettings).insert(
+      const AppSettingsCompanion(
+        key: Value('notif_training_hour'),
+        value: Value('17'),
+      ),
+    );
+    await into(appSettings).insert(
+      const AppSettingsCompanion(
+        key: Value('notif_training_minute'),
+        value: Value('30'),
+      ),
+    );
+    await into(appSettings).insert(
+      const AppSettingsCompanion(
+        key: Value('notif_training_days'),
+        value: Value(''),
+      ),
+    );
+    await into(appSettings).insert(
+      const AppSettingsCompanion(
+        key: Value('notif_badge_enabled'),
+        value: Value('true'),
+      ),
+    );
 
     // Simple weight seed for analytics
-    await into(weightLogs).insert(WeightLogsCompanion(
+    await into(weightLogs).insert(
+      WeightLogsCompanion(
         weight: const Value(78.5),
-        date: Value(DateTime.now().subtract(const Duration(days: 7)))));
-    await into(weightLogs).insert(WeightLogsCompanion(
+        date: Value(DateTime.now().subtract(const Duration(days: 7))),
+      ),
+    );
+    await into(weightLogs).insert(
+      WeightLogsCompanion(
         weight: const Value(78.2),
-        date: Value(DateTime.now().subtract(const Duration(days: 6)))));
+        date: Value(DateTime.now().subtract(const Duration(days: 6))),
+      ),
+    );
   }
 
   // Metodi access point base
@@ -344,62 +422,66 @@ class AppDatabase extends _$AppDatabase {
   Future<int> insertRoutine(RoutinesCompanion routine) =>
       into(routines).insert(routine);
   Future<void> deleteRoutine(int id) => transaction(() async {
-        await (delete(routineExercises)..where((t) => t.routineId.equals(id)))
-            .go();
-        await (delete(routines)..where((t) => t.id.equals(id))).go();
-      });
+    await (delete(routineExercises)..where((t) => t.routineId.equals(id))).go();
+    await (delete(routines)..where((t) => t.id.equals(id))).go();
+  });
 
   // Performed sets stats
-  Stream<List<Workout>> watchCompletedWorkouts() => (select(workouts)
-        ..where((t) => t.completedAt.isNotNull())
-        ..orderBy([
-          (t) => OrderingTerm(
+  Stream<List<Workout>> watchCompletedWorkouts() =>
+      (select(workouts)
+            ..where((t) => t.completedAt.isNotNull())
+            ..orderBy([
+              (t) => OrderingTerm(
                 expression: t.completedAt,
                 mode: OrderingMode.desc,
               ),
-        ]))
-      .watch();
+            ]))
+          .watch();
 
-  Stream<List<WorkoutSet>> watchLatestWeightLogs() => (select(workoutSets)
-        ..orderBy([
-          (t) => OrderingTerm(expression: t.timestamp, mode: OrderingMode.desc)
-        ]))
-      .watch();
+  Stream<List<WorkoutSet>> watchLatestWeightLogs() =>
+      (select(workoutSets)..orderBy([
+            (t) =>
+                OrderingTerm(expression: t.timestamp, mode: OrderingMode.desc),
+          ]))
+          .watch();
 
   // Body weight tracking
-  Stream<List<WeightLog>> watchLatestWeightEntries() => (select(weightLogs)
-        ..orderBy(
-            [(t) => OrderingTerm(expression: t.date, mode: OrderingMode.desc)]))
-      .watch();
-  Future<WeightLog?> getLatestWeightEntry() => (select(weightLogs)
-        ..orderBy(
-          [(t) => OrderingTerm(expression: t.date, mode: OrderingMode.desc)],
-        )
-        ..limit(1))
-      .getSingleOrNull();
+  Stream<List<WeightLog>> watchLatestWeightEntries() =>
+      (select(weightLogs)..orderBy([
+            (t) => OrderingTerm(expression: t.date, mode: OrderingMode.desc),
+          ]))
+          .watch();
+  Future<WeightLog?> getLatestWeightEntry() =>
+      (select(weightLogs)
+            ..orderBy([
+              (t) => OrderingTerm(expression: t.date, mode: OrderingMode.desc),
+            ])
+            ..limit(1))
+          .getSingleOrNull();
   Future<int> insertWeightLog(WeightLogsCompanion entry) =>
       into(weightLogs).insert(entry);
   Future<void> deleteWeightLog(int id) =>
       (delete(weightLogs)..where((t) => t.id.equals(id))).go();
   Future<void> updateWeightLog(int id, double weight) =>
-      (update(weightLogs)..where((t) => t.id.equals(id)))
-          .write(WeightLogsCompanion(weight: Value(weight)));
+      (update(weightLogs)..where((t) => t.id.equals(id))).write(
+        WeightLogsCompanion(weight: Value(weight)),
+      );
   Future<void> deleteAllWeightLogs() => delete(weightLogs).go();
 
   // Body measurements
   Stream<List<BodyMeasurement>> watchAllMeasurements() =>
-      (select(bodyMeasurements)
-            ..orderBy([
-              (t) => OrderingTerm(expression: t.date, mode: OrderingMode.desc)
-            ]))
+      (select(bodyMeasurements)..orderBy([
+            (t) => OrderingTerm(expression: t.date, mode: OrderingMode.desc),
+          ]))
           .watch();
   Future<int> insertMeasurement(BodyMeasurementsCompanion entry) =>
       into(bodyMeasurements).insert(entry);
   Future<void> deleteMeasurement(int id) =>
       (delete(bodyMeasurements)..where((t) => t.id.equals(id))).go();
   Future<void> updateMeasurement(int id, double value) =>
-      (update(bodyMeasurements)..where((t) => t.id.equals(id)))
-          .write(BodyMeasurementsCompanion(value: Value(value)));
+      (update(bodyMeasurements)..where((t) => t.id.equals(id))).write(
+        BodyMeasurementsCompanion(value: Value(value)),
+      );
 
   // Settings management
   Stream<String?> watchSetting(String key) =>
@@ -411,27 +493,25 @@ class AppDatabase extends _$AppDatabase {
 
   Future<void> updateSetting(String key, String value) =>
       into(appSettings).insertOnConflictUpdate(
-        AppSettingsCompanion(
-          key: Value(key),
-          value: Value(value),
-        ),
+        AppSettingsCompanion(key: Value(key), value: Value(value)),
       );
 
   // Favorites & Notes
   Future<void> toggleExerciseFavorite(int id, {required bool isFavorite}) =>
-      (update(exercises)..where((e) => e.id.equals(id)))
-          .write(ExercisesCompanion(isFavorite: Value(isFavorite)));
+      (update(exercises)..where((e) => e.id.equals(id))).write(
+        ExercisesCompanion(isFavorite: Value(isFavorite)),
+      );
 
   Future<void> updateExerciseNotes(int id, String notes) =>
-      (update(exercises)..where((e) => e.id.equals(id)))
-          .write(ExercisesCompanion(userNotes: Value(notes)));
+      (update(exercises)..where((e) => e.id.equals(id))).write(
+        ExercisesCompanion(userNotes: Value(notes)),
+      );
 
   // Cardio Sessions
   Stream<List<CardioSession>> watchAllCardioSessions() =>
-      (select(cardioSessions)
-            ..orderBy([
-              (t) => OrderingTerm(expression: t.date, mode: OrderingMode.desc)
-            ]))
+      (select(cardioSessions)..orderBy([
+            (t) => OrderingTerm(expression: t.date, mode: OrderingMode.desc),
+          ]))
           .watch();
   Future<int> insertCardioSession(CardioSessionsCompanion session) =>
       into(cardioSessions).insert(session);
@@ -440,22 +520,23 @@ class AppDatabase extends _$AppDatabase {
 
   // Notification logs
   Stream<List<NotificationLog>> watchAllNotificationLogs() =>
-      (select(notificationLogs)
-            ..orderBy([
-              (t) =>
-                  OrderingTerm(expression: t.timestamp, mode: OrderingMode.desc)
-            ]))
+      (select(notificationLogs)..orderBy([
+            (t) =>
+                OrderingTerm(expression: t.timestamp, mode: OrderingMode.desc),
+          ]))
           .watch();
 
   Future<int> insertNotificationLog(NotificationLogsCompanion log) =>
       into(notificationLogs).insert(log);
 
   Future<void> markNotificationRead(int id) =>
-      (update(notificationLogs)..where((t) => t.id.equals(id)))
-          .write(const NotificationLogsCompanion(isRead: Value(true)));
+      (update(notificationLogs)..where((t) => t.id.equals(id))).write(
+        const NotificationLogsCompanion(isRead: Value(true)),
+      );
 
-  Future<void> markAllNotificationsRead() => update(notificationLogs)
-      .write(const NotificationLogsCompanion(isRead: Value(true)));
+  Future<void> markAllNotificationsRead() => update(
+    notificationLogs,
+  ).write(const NotificationLogsCompanion(isRead: Value(true)));
 
   Future<void> deleteNotificationLog(int id) =>
       (delete(notificationLogs)..where((t) => t.id.equals(id))).go();
@@ -463,19 +544,19 @@ class AppDatabase extends _$AppDatabase {
   Future<void> deleteAllNotificationLogs() => delete(notificationLogs).go();
 
   Future<void> clearLocalUserData() => transaction(() async {
-        await delete(notificationLogs).go();
-        await delete(cardioSessions).go();
-        await delete(bodyMeasurements).go();
-        await delete(weightLogs).go();
-        await delete(workoutSets).go();
-        await delete(workouts).go();
-        await delete(routineExercises).go();
-        await delete(routines).go();
-        await update(exercises).write(
-          const ExercisesCompanion(
-            userNotes: Value<String?>(null),
-            isFavorite: Value(false),
-          ),
-        );
-      });
+    await delete(notificationLogs).go();
+    await delete(cardioSessions).go();
+    await delete(bodyMeasurements).go();
+    await delete(weightLogs).go();
+    await delete(workoutSets).go();
+    await delete(workouts).go();
+    await delete(routineExercises).go();
+    await delete(routines).go();
+    await update(exercises).write(
+      const ExercisesCompanion(
+        userNotes: Value<String?>(null),
+        isFavorite: Value(false),
+      ),
+    );
+  });
 }

@@ -16,16 +16,14 @@ void main() {
     return MaterialApp(
       theme: theme,
       home: const Scaffold(
-        body: Center(
-          child: ExerciseCard(exercise: tExercise),
-        ),
+        body: Center(child: ExerciseCard(exercise: tExercise)),
       ),
     );
   }
 
   testWidgets('Golden Test per ExerciseCard in Light Mode', (tester) async {
     await tester.pumpWidget(createWidgetUnderTest(AppTheme.lightTheme));
-    
+
     // Attendi l'apertura e render dei font completi
     await tester.pumpAndSettle();
 

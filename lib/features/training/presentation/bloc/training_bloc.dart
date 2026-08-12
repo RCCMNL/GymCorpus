@@ -17,75 +17,60 @@ import 'package:injectable/injectable.dart';
 @injectable
 class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
   TrainingBloc({required this.repository, required this.authRepository})
-      : super(const TrainingState.loading()) {
+    : super(const TrainingState.loading()) {
     on<LoadExercisesEvent>((event, emit) async {
       await _exercisesSubscription?.cancel();
-      _exercisesSubscription = repository.watchExercises().listen(
-        (exercises) {
-          add(UpdateExercisesList(exercises));
-        },
-        onError: (Object e) => add(StreamErrorEvent(e.toString())),
-      );
+      _exercisesSubscription = repository.watchExercises().listen((exercises) {
+        add(UpdateExercisesList(exercises));
+      }, onError: (Object e) => add(StreamErrorEvent(e.toString())));
     });
 
     on<LoadRoutinesEvent>((event, emit) async {
       await _routinesSubscription?.cancel();
-      _routinesSubscription = repository.watchRoutines().listen(
-        (routines) {
-          add(UpdateRoutinesList(routines));
-        },
-        onError: (Object e) => add(StreamErrorEvent(e.toString())),
-      );
+      _routinesSubscription = repository.watchRoutines().listen((routines) {
+        add(UpdateRoutinesList(routines));
+      }, onError: (Object e) => add(StreamErrorEvent(e.toString())));
     });
 
     on<LoadWeightLogsEvent>((event, emit) async {
       await _weightLogsSubscription?.cancel();
-      _weightLogsSubscription = repository.watchWeightLogs().listen(
-        (logs) {
-          add(UpdateWeightLogsList(logs));
-        },
-        onError: (Object e) => add(StreamErrorEvent(e.toString())),
-      );
+      _weightLogsSubscription = repository.watchWeightLogs().listen((logs) {
+        add(UpdateWeightLogsList(logs));
+      }, onError: (Object e) => add(StreamErrorEvent(e.toString())));
     });
 
     on<LoadWorkoutSessionsEvent>((event, emit) async {
       await _workoutSessionsSubscription?.cancel();
-      _workoutSessionsSubscription = repository.watchWorkoutSessions().listen(
-        (sessions) {
-          add(UpdateWorkoutSessionsList(sessions));
-        },
-        onError: (Object e) => add(StreamErrorEvent(e.toString())),
-      );
+      _workoutSessionsSubscription = repository.watchWorkoutSessions().listen((
+        sessions,
+      ) {
+        add(UpdateWorkoutSessionsList(sessions));
+      }, onError: (Object e) => add(StreamErrorEvent(e.toString())));
     });
 
     on<LoadBodyWeightLogsEvent>((event, emit) async {
       await _bodyWeightLogsSubscription?.cancel();
-      _bodyWeightLogsSubscription = repository.watchBodyWeightLogs().listen(
-        (logs) {
-          add(UpdateBodyWeightLogsList(logs));
-        },
-        onError: (Object e) => add(StreamErrorEvent(e.toString())),
-      );
+      _bodyWeightLogsSubscription = repository.watchBodyWeightLogs().listen((
+        logs,
+      ) {
+        add(UpdateBodyWeightLogsList(logs));
+      }, onError: (Object e) => add(StreamErrorEvent(e.toString())));
     });
 
     on<LoadSettingsEvent>((event, emit) async {
       await _settingsSubscription?.cancel();
-      _settingsSubscription = repository.watchAllSettings().listen(
-        (settings) {
-          add(UpdateSettingsList(settings));
-        },
-        onError: (Object e) => add(StreamErrorEvent(e.toString())),
-      );
+      _settingsSubscription = repository.watchAllSettings().listen((settings) {
+        add(UpdateSettingsList(settings));
+      }, onError: (Object e) => add(StreamErrorEvent(e.toString())));
     });
 
     on<LoadCardioSessionsEvent>((event, emit) async {
       await _cardioSessionsSubscription?.cancel();
-      _cardioSessionsSubscription = repository.watchCardioSessions().listen(
-        (sessions) {
-          add(UpdateCardioSessionsList(sessions));
-        },
-        onError: (Object e) => add(StreamErrorEvent(e.toString())),
-      );
+      _cardioSessionsSubscription = repository.watchCardioSessions().listen((
+        sessions,
+      ) {
+        add(UpdateCardioSessionsList(sessions));
+      }, onError: (Object e) => add(StreamErrorEvent(e.toString())));
     });
 
     on<UpdateExercisesList>((event, emit) {
@@ -149,8 +134,9 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
     on<UpdateCardioSessionsList>((event, emit) {
       if (state is TrainingLoaded) {
         emit(
-          (state as TrainingLoaded)
-              .copyWith(cardioSessions: event.cardioSessions),
+          (state as TrainingLoaded).copyWith(
+            cardioSessions: event.cardioSessions,
+          ),
         );
       } else {
         emit(
@@ -173,8 +159,9 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
     on<UpdateBodyMeasurementsList>((event, emit) {
       if (state is TrainingLoaded) {
         emit(
-          (state as TrainingLoaded)
-              .copyWith(bodyMeasurements: event.bodyMeasurements),
+          (state as TrainingLoaded).copyWith(
+            bodyMeasurements: event.bodyMeasurements,
+          ),
         );
       } else {
         emit(
@@ -213,10 +200,7 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
 
     on<DeleteRoutineEvent>((event, emit) async {
       final result = await repository.deleteRoutine(event.id);
-      result.fold(
-        (f) => _emitFailure(f.message, emit),
-        (_) => null,
-      );
+      result.fold((f) => _emitFailure(f.message, emit), (_) => null);
     });
 
     on<StartWorkoutSessionEvent>((event, emit) async {
@@ -262,12 +246,9 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
           rpe: event.rpe,
         );
 
-        result.fold(
-          (failure) => _emitFailure(failure.message, emit),
-          (_) {
-            emit(current.copyWith(lastEstimated1RM: new1RM));
-          },
-        );
+        result.fold((failure) => _emitFailure(failure.message, emit), (_) {
+          emit(current.copyWith(lastEstimated1RM: new1RM));
+        });
       }
     });
 
@@ -285,8 +266,9 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
           : const <BodyWeightLogEntity>[];
       final deletedLatest =
           currentLogs.isNotEmpty && currentLogs.first.id == event.id;
-      final remainingLogs =
-          currentLogs.where((log) => log.id != event.id).toList();
+      final remainingLogs = currentLogs
+          .where((log) => log.id != event.id)
+          .toList();
 
       final result = await repository.deleteBodyWeightLogEntry(event.id);
       await result.fold<Future<void>>(
@@ -309,8 +291,10 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
       final updatedLatest =
           currentLogs.isNotEmpty && currentLogs.first.id == event.id;
 
-      final result =
-          await repository.updateBodyWeightLogEntry(event.id, event.weight);
+      final result = await repository.updateBodyWeightLogEntry(
+        event.id,
+        event.weight,
+      );
       await result.fold<Future<void>>(
         (f) async => _emitFailure(f.message, emit),
         (_) async {
@@ -334,18 +318,19 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
     });
 
     on<AddBodyMeasurementEvent>((event, emit) async {
-      final result =
-          await repository.addBodyMeasurement(event.part, event.value);
-      result.fold(
-        (f) => _emitFailure(f.message, emit),
-        (id) => null,
+      final result = await repository.addBodyMeasurement(
+        event.part,
+        event.value,
       );
+      result.fold((f) => _emitFailure(f.message, emit), (id) => null);
     });
 
     on<AddMultipleBodyMeasurementsEvent>((event, emit) async {
       for (final entry in event.measurements.entries) {
-        final result =
-            await repository.addBodyMeasurement(entry.key, entry.value);
+        final result = await repository.addBodyMeasurement(
+          entry.key,
+          entry.value,
+        );
         final failure = result.fold((f) => f, (_) => null);
         if (failure != null) {
           _emitFailure(failure.message, emit);
@@ -356,19 +341,15 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
 
     on<DeleteBodyMeasurementEvent>((event, emit) async {
       final result = await repository.deleteBodyMeasurement(event.id);
-      result.fold(
-        (f) => _emitFailure(f.message, emit),
-        (_) => null,
-      );
+      result.fold((f) => _emitFailure(f.message, emit), (_) => null);
     });
 
     on<UpdateBodyMeasurementEvent>((event, emit) async {
-      final result =
-          await repository.updateBodyMeasurement(event.id, event.value);
-      result.fold(
-        (f) => _emitFailure(f.message, emit),
-        (_) => null,
+      final result = await repository.updateBodyMeasurement(
+        event.id,
+        event.value,
       );
+      result.fold((f) => _emitFailure(f.message, emit), (_) => null);
     });
 
     on<SaveCardioSessionEvent>((event, emit) async {
@@ -390,18 +371,12 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
 
     on<DeleteCardioSessionEvent>((event, emit) async {
       final result = await repository.deleteCardioSession(event.id);
-      result.fold(
-        (f) => _emitFailure(f.message, emit),
-        (_) => null,
-      );
+      result.fold((f) => _emitFailure(f.message, emit), (_) => null);
     });
 
     on<UpdatePreferenceEvent>((event, emit) async {
       final result = await repository.updatePreference(event.key, event.value);
-      result.fold(
-        (f) => _emitFailure(f.message, emit),
-        (_) => null,
-      );
+      result.fold((f) => _emitFailure(f.message, emit), (_) => null);
     });
 
     on<ToggleExerciseFavoriteEvent>((event, emit) async {
@@ -420,10 +395,7 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
         event.exerciseId,
         event.notes,
       );
-      result.fold(
-        (f) => _emitFailure(f.message, emit),
-        (_) => null,
-      );
+      result.fold((f) => _emitFailure(f.message, emit), (_) => null);
     });
 
     on<StreamErrorEvent>((event, emit) {
@@ -478,7 +450,7 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
   StreamSubscription<List<WorkoutSessionEntity>>? _workoutSessionsSubscription;
   StreamSubscription<List<BodyWeightLogEntity>>? _bodyWeightLogsSubscription;
   StreamSubscription<List<BodyMeasurementEntity>>?
-      _bodyMeasurementsSubscription;
+  _bodyMeasurementsSubscription;
   StreamSubscription<List<CardioSessionEntity>>? _cardioSessionsSubscription;
   StreamSubscription<Map<String, String>>? _settingsSubscription;
 

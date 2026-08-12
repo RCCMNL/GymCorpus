@@ -47,9 +47,9 @@ class NotificationsScreen extends StatelessWidget {
               if (state.unreadCount == 0) return const SizedBox.shrink();
               return TextButton(
                 onPressed: () {
-                  context
-                      .read<NotificationsBloc>()
-                      .add(MarkAllNotificationsReadEvent());
+                  context.read<NotificationsBloc>().add(
+                    MarkAllNotificationsReadEvent(),
+                  );
                 },
                 child: Text(
                   'SEGNA TUTTE LETTE',
@@ -170,14 +170,14 @@ class NotificationsScreen extends StatelessWidget {
                 onTap: () {
                   if (!notification.isRead) {
                     context.read<NotificationsBloc>().add(
-                          MarkNotificationReadEvent(notification.id),
-                        );
+                      MarkNotificationReadEvent(notification.id),
+                    );
                   }
                 },
                 onDismissed: () {
                   context.read<NotificationsBloc>().add(
-                        DeleteNotificationEvent(notification.id),
-                      );
+                    DeleteNotificationEvent(notification.id),
+                  );
                 },
               ),
             ),
@@ -275,10 +275,7 @@ class _NotificationTile extends StatelessWidget {
           color: theme.colorScheme.error.withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(20),
         ),
-        child: Icon(
-          Icons.delete_outline,
-          color: theme.colorScheme.error,
-        ),
+        child: Icon(Icons.delete_outline, color: theme.colorScheme.error),
       ),
       child: GestureDetector(
         onTap: onTap,
@@ -289,8 +286,7 @@ class _NotificationTile extends StatelessWidget {
           decoration: BoxDecoration(
             color: notification.isRead
                 ? theme.colorScheme.surfaceContainerHigh
-                : theme.colorScheme.surfaceContainerHigh
-                    .withValues(alpha: 0.8),
+                : theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.8),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: notification.isRead

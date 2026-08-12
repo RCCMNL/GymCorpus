@@ -27,9 +27,9 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
 
   @override
   Stream<List<NotificationLogEntity>> watchNotificationLogs() {
-    return _db
-        .watchAllNotificationLogs()
-        .map((rows) => rows.map(_toEntity).toList());
+    return _db.watchAllNotificationLogs().map(
+      (rows) => rows.map(_toEntity).toList(),
+    );
   }
 
   @override

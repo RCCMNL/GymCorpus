@@ -22,11 +22,17 @@ class NutritionScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: theme.colorScheme.tertiary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: theme.colorScheme.tertiary.withValues(alpha: 0.2)),
+                  border: Border.all(
+                    color: theme.colorScheme.tertiary.withValues(alpha: 0.2),
+                  ),
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.construction_rounded, color: theme.colorScheme.tertiary, size: 20),
+                    Icon(
+                      Icons.construction_rounded,
+                      color: theme.colorScheme.tertiary,
+                      size: 20,
+                    ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
@@ -43,7 +49,10 @@ class NutritionScreen extends StatelessWidget {
               const SizedBox(height: 32),
               ShaderMask(
                 shaderCallback: (bounds) => LinearGradient(
-                  colors: [theme.colorScheme.primary, theme.colorScheme.tertiary],
+                  colors: [
+                    theme.colorScheme.primary,
+                    theme.colorScheme.tertiary,
+                  ],
                 ).createShader(bounds),
                 child: Text(
                   'Nutrizione',
@@ -65,26 +74,41 @@ class NutritionScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 32),
-              
               _buildMacroSection(theme),
               const SizedBox(height: 24),
               _buildWaterTracker(theme),
               const SizedBox(height: 32),
-              
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   _buildSectionTitle('PASTI DI OGGI', theme),
                   TextButton(
                     onPressed: () {},
-                    child: Text('Aggiungi +', style: TextStyle(color: theme.colorScheme.primary, fontWeight: FontWeight.bold)),
+                    child: Text(
+                      'Aggiungi +',
+                      style: TextStyle(
+                        color: theme.colorScheme.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ],
               ),
               const SizedBox(height: 8),
-              _buildMealItem(theme, 'Colazione', '450 kcal', Icons.bakery_dining, Colors.orange),
-              _buildMealItem(theme, 'Pranzo', '820 kcal', Icons.lunch_dining, Colors.green),
-              
+              _buildMealItem(
+                theme,
+                'Colazione',
+                '450 kcal',
+                Icons.bakery_dining,
+                Colors.orange,
+              ),
+              _buildMealItem(
+                theme,
+                'Pranzo',
+                '820 kcal',
+                Icons.lunch_dining,
+                Colors.green,
+              ),
               const SizedBox(height: 32),
               _buildSectionTitle('ARTICOLI E CONSIGLI', theme),
               const SizedBox(height: 16),
@@ -185,7 +209,9 @@ class NutritionScreen extends StatelessWidget {
           ],
         ),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: theme.colorScheme.tertiary.withValues(alpha: 0.1)),
+        border: Border.all(
+          color: theme.colorScheme.tertiary.withValues(alpha: 0.1),
+        ),
       ),
       child: Column(
         children: [
@@ -217,8 +243,12 @@ class NutritionScreen extends StatelessWidget {
             child: LinearProgressIndicator(
               value: 0.48,
               minHeight: 8,
-              backgroundColor: theme.colorScheme.tertiary.withValues(alpha: 0.1),
-              valueColor: AlwaysStoppedAnimation<Color>(theme.colorScheme.tertiary),
+              backgroundColor: theme.colorScheme.tertiary.withValues(
+                alpha: 0.1,
+              ),
+              valueColor: AlwaysStoppedAnimation<Color>(
+                theme.colorScheme.tertiary,
+              ),
             ),
           ),
           const SizedBox(height: 16),
@@ -231,7 +261,9 @@ class NutritionScreen extends StatelessWidget {
                 child: Icon(
                   Icons.local_drink,
                   size: 20,
-                  color: isFilled ? theme.colorScheme.tertiary : theme.colorScheme.outline.withValues(alpha: 0.3),
+                  color: isFilled
+                      ? theme.colorScheme.tertiary
+                      : theme.colorScheme.outline.withValues(alpha: 0.3),
                 ),
               );
             }),
@@ -241,7 +273,13 @@ class NutritionScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildMealItem(ThemeData theme, String title, String calories, IconData icon, Color color) {
+  Widget _buildMealItem(
+    ThemeData theme,
+    String title,
+    String calories,
+    IconData icon,
+    Color color,
+  ) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -275,7 +313,10 @@ class NutritionScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          Icon(Icons.chevron_right, color: theme.colorScheme.outline.withValues(alpha: 0.3)),
+          Icon(
+            Icons.chevron_right,
+            color: theme.colorScheme.outline.withValues(alpha: 0.3),
+          ),
         ],
       ),
     );
@@ -292,14 +333,19 @@ class NutritionScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildArticleCard(BuildContext context, ThemeData theme, String title, String summary, String imageUrl) {
+  Widget _buildArticleCard(
+    BuildContext context,
+    ThemeData theme,
+    String title,
+    String summary,
+    String imageUrl,
+  ) {
     return GestureDetector(
       onTap: () {
-        context.push('/training/nutrition/article', extra: {
-          'title': title,
-          'body': summary,
-          'imageUrl': imageUrl,
-        });
+        context.push(
+          '/training/nutrition/article',
+          extra: {'title': title, 'body': summary, 'imageUrl': imageUrl},
+        );
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
@@ -311,7 +357,9 @@ class NutritionScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(20),
+              ),
               child: Image.network(
                 imageUrl,
                 height: 120,
@@ -320,7 +368,10 @@ class NutritionScreen extends StatelessWidget {
                   height: 120,
                   width: double.infinity,
                   color: theme.colorScheme.surfaceContainerHighest,
-                  child: Icon(Icons.broken_image_rounded, color: theme.colorScheme.outline.withValues(alpha: 0.3)),
+                  child: Icon(
+                    Icons.broken_image_rounded,
+                    color: theme.colorScheme.outline.withValues(alpha: 0.3),
+                  ),
                 ),
                 fit: BoxFit.cover,
               ),
@@ -332,12 +383,17 @@ class NutritionScreen extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     summary,
-                    style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.outline),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.outline,
+                    ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),

@@ -5,7 +5,11 @@ publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-  sdk: ">=3.0.0 <4.0.0"
+  # Da 3.7 in poi `dart format` usa lo stile "tall", che dispone un argomento
+  # per riga e mantiene le virgole finali. Con la versione di linguaggio
+  # precedente il formattatore rimuoveva le virgole che `dart fix` aggiungeva
+  # per soddisfare require_trailing_commas, e i due strumenti si annullavano.
+  sdk: ">=3.8.0 <4.0.0"
 
 dependencies:
   cloud_firestore: ^6.2.0

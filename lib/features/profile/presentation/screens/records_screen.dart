@@ -17,8 +17,7 @@ class _RecordsScreenState extends State<RecordsScreen> {
   @override
   void initState() {
     super.initState();
-    final bloc = context.read<TrainingBloc>();
-    bloc
+    context.read<TrainingBloc>()
       ..add(LoadWeightLogsEvent())
       ..add(LoadWorkoutSessionsEvent())
       ..add(LoadCardioSessionsEvent());
@@ -76,10 +75,7 @@ class _RecordsScreenState extends State<RecordsScreen> {
 }
 
 class _RecordTile extends StatelessWidget {
-  const _RecordTile({
-    required this.record,
-    required this.theme,
-  });
+  const _RecordTile({required this.record, required this.theme});
 
   final PersonalRecord record;
   final ThemeData theme;
@@ -88,7 +84,8 @@ class _RecordTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = _categoryColor(record.category, theme);
 
-    final isNumeric = RegExp(r'^\d').hasMatch(record.value) || record.value == '-';
+    final isNumeric =
+        RegExp(r'^\d').hasMatch(record.value) || record.value == '-';
 
     return Container(
       padding: const EdgeInsets.all(18),
@@ -100,7 +97,6 @@ class _RecordTile extends StatelessWidget {
         ),
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
             width: 46,
@@ -142,8 +138,7 @@ class _RecordTile extends StatelessWidget {
                       color: theme.colorScheme.outline,
                     ),
                   ),
-                if (!isNumeric)
-                  const SizedBox(height: 2),
+                if (!isNumeric) const SizedBox(height: 2),
                 if (!isNumeric)
                   Text(
                     record.subtitle,

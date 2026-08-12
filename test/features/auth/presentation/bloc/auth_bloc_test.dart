@@ -44,8 +44,9 @@ void main() {
     blocTest<AuthBloc, AuthState>(
       'registra l utente e salva profilo e consensi granulari',
       build: () {
-        when(() => repository.signUp('mario@example.com', 'password123'))
-            .thenAnswer((_) async => const Right(baseUser));
+        when(
+          () => repository.signUp('mario@example.com', 'password123'),
+        ).thenAnswer((_) async => const Right(baseUser));
         when(
           () => repository.updateProfileDetails(
             firstName: 'Mario',
@@ -85,8 +86,9 @@ void main() {
         AuthState.authenticated(completedUser),
       ],
       verify: (_) {
-        verify(() => repository.signUp('mario@example.com', 'password123'))
-            .called(1);
+        verify(
+          () => repository.signUp('mario@example.com', 'password123'),
+        ).called(1);
         verify(
           () => repository.updateProfileDetails(
             firstName: 'Mario',
@@ -109,8 +111,9 @@ void main() {
     blocTest<AuthBloc, AuthState>(
       'mantiene i dati profilo nello stato locale se il sync post signup fallisce',
       build: () {
-        when(() => repository.signUp('mario@example.com', 'password123'))
-            .thenAnswer((_) async => const Right(baseUser));
+        when(
+          () => repository.signUp('mario@example.com', 'password123'),
+        ).thenAnswer((_) async => const Right(baseUser));
         when(
           () => repository.updateProfileDetails(
             firstName: 'Mario',
@@ -186,8 +189,9 @@ void main() {
     blocTest<AuthBloc, AuthState>(
       'emette errore se la creazione account fallisce',
       build: () {
-        when(() => repository.signUp('mario@example.com', 'password123'))
-            .thenAnswer((_) async => const Left(ServerFailure('email usata')));
+        when(
+          () => repository.signUp('mario@example.com', 'password123'),
+        ).thenAnswer((_) async => const Left(ServerFailure('email usata')));
 
         return AuthBloc(repository);
       },

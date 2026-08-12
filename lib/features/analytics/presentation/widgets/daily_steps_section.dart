@@ -34,13 +34,13 @@ class _DailyStepsSectionState extends State<DailyStepsSection> {
     try {
       debugPrint('[DailyStepsSection] Controllo permessi...');
       final hasPermission = await _healthService.checkPermissions();
-      
+
       if (!hasPermission) {
         debugPrint('[DailyStepsSection] Richiesta permessi in corso...');
         final granted = await _healthService.requestPermissions();
-        
+
         if (!granted) {
-          debugPrint('[DailyStepsSection] Permessi negati dall\'utente.');
+          debugPrint("[DailyStepsSection] Permessi negati dall'utente.");
           if (mounted) {
             setState(() {
               _isLoading = false;
@@ -48,7 +48,9 @@ class _DailyStepsSectionState extends State<DailyStepsSection> {
             });
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                content: Text('Permessi salute necessari per visualizzare i passi.'),
+                content: Text(
+                  'Permessi salute necessari per visualizzare i passi.',
+                ),
                 backgroundColor: Colors.orange,
               ),
             );
@@ -59,7 +61,7 @@ class _DailyStepsSectionState extends State<DailyStepsSection> {
 
       debugPrint('[DailyStepsSection] Caricamento dati settimanali...');
       final weekly = await _healthService.getWeeklyActivity();
-      
+
       if (mounted) {
         setState(() {
           _weeklyData = weekly;
@@ -324,9 +326,9 @@ class _DailyStepsSectionState extends State<DailyStepsSection> {
                     children: [
                       Text(
                         today.steps.toString().replaceAllMapped(
-                              RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-                              (m) => '${m[1]}.',
-                            ),
+                          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+                          (m) => '${m[1]}.',
+                        ),
                         style: theme.textTheme.headlineMedium?.copyWith(
                           fontWeight: FontWeight.w900,
                           fontFamily: 'Lexend',
@@ -376,10 +378,7 @@ class _DailyStepsSectionState extends State<DailyStepsSection> {
 
             // Weekly Chart
             if (_weeklyData != null && _weeklyData!.isNotEmpty)
-              _WeeklyStepsChart(
-                data: _weeklyData!,
-                dailyGoal: _dailyGoal,
-              ),
+              _WeeklyStepsChart(data: _weeklyData!, dailyGoal: _dailyGoal),
           ],
         ),
       ),
@@ -424,10 +423,7 @@ class _MiniMetric extends StatelessWidget {
 // ─── WEEKLY STEPS CHART ─────────────────────────────────────────────────────
 
 class _WeeklyStepsChart extends StatelessWidget {
-  const _WeeklyStepsChart({
-    required this.data,
-    required this.dailyGoal,
-  });
+  const _WeeklyStepsChart({required this.data, required this.dailyGoal});
 
   final List<DailyActivity> data;
   final int dailyGoal;
@@ -517,7 +513,6 @@ class _WeeklyStepsChart extends StatelessWidget {
                 ),
               ),
               gridData: FlGridData(
-                show: true,
                 drawVerticalLine: false,
                 horizontalInterval: dailyGoal.toDouble(),
                 getDrawingHorizontalLine: (value) => FlLine(
@@ -549,17 +544,20 @@ class _WeeklyStepsChart extends StatelessWidget {
                                 Colors.greenAccent.shade400,
                               ]
                             : isToday
-                                ? [
-                                    Colors.greenAccent.shade400
-                                        .withValues(alpha: 0.7),
-                                    Colors.greenAccent.shade400,
-                                  ]
-                                : [
-                                    theme.colorScheme.primary
-                                        .withValues(alpha: 0.3),
-                                    theme.colorScheme.primary
-                                        .withValues(alpha: 0.5),
-                                  ],
+                            ? [
+                                Colors.greenAccent.shade400.withValues(
+                                  alpha: 0.7,
+                                ),
+                                Colors.greenAccent.shade400,
+                              ]
+                            : [
+                                theme.colorScheme.primary.withValues(
+                                  alpha: 0.3,
+                                ),
+                                theme.colorScheme.primary.withValues(
+                                  alpha: 0.5,
+                                ),
+                              ],
                       ),
                     ),
                   ],

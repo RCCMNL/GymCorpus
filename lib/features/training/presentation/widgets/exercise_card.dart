@@ -2,11 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 
 class ExerciseCard extends StatelessWidget {
-  const ExerciseCard({
-    required this.exercise,
-    super.key,
-    this.onTap,
-  });
+  const ExerciseCard({required this.exercise, super.key, this.onTap});
 
   final ExerciseEntity exercise;
   final VoidCallback? onTap;

@@ -28,15 +28,10 @@ class _SplashScreenState extends State<SplashScreen>
       duration: const Duration(milliseconds: 1200),
     );
 
-    _fadeAnimation = Tween<double>(begin: 1, end: 1).animate(
-      _mainController,
-    );
+    _fadeAnimation = Tween<double>(begin: 1, end: 1).animate(_mainController);
 
     _scaleAnimation = Tween<double>(begin: 1, end: 1).animate(
-      CurvedAnimation(
-        parent: _mainController,
-        curve: Curves.easeOutCubic,
-      ),
+      CurvedAnimation(parent: _mainController, curve: Curves.easeOutCubic),
     );
 
     _mainController.forward();
@@ -97,8 +92,9 @@ class _SplashScreenState extends State<SplashScreen>
                         color: Colors.white,
                         shadows: [
                           Shadow(
-                            color: theme.colorScheme.primary
-                                .withValues(alpha: 0.5),
+                            color: theme.colorScheme.primary.withValues(
+                              alpha: 0.5,
+                            ),
                             blurRadius: 20,
                           ),
                         ],

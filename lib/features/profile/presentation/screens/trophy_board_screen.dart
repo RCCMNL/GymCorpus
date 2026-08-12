@@ -17,8 +17,7 @@ class _TrophyBoardScreenState extends State<TrophyBoardScreen> {
   @override
   void initState() {
     super.initState();
-    final bloc = context.read<TrainingBloc>();
-    bloc
+    context.read<TrainingBloc>()
       ..add(LoadWeightLogsEvent())
       ..add(LoadWorkoutSessionsEvent())
       ..add(LoadCardioSessionsEvent());
@@ -73,10 +72,7 @@ class _TrophyBoardScreenState extends State<TrophyBoardScreen> {
                 ...groupedAchievements.values.map(
                   (group) => Padding(
                     padding: const EdgeInsets.only(bottom: 16),
-                    child: _GroupedAchievementCard(
-                      group: group,
-                      theme: theme,
-                    ),
+                    child: _GroupedAchievementCard(group: group, theme: theme),
                   ),
                 ),
               ],
@@ -89,10 +85,7 @@ class _TrophyBoardScreenState extends State<TrophyBoardScreen> {
 }
 
 class _GroupedAchievementCard extends StatelessWidget {
-  const _GroupedAchievementCard({
-    required this.group,
-    required this.theme,
-  });
+  const _GroupedAchievementCard({required this.group, required this.theme});
 
   final List<AchievementProgress> group;
   final ThemeData theme;
@@ -100,17 +93,19 @@ class _GroupedAchievementCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Ordina per tier
-    final sortedGroup = [...group]..sort((a, b) => a.definition.tier.compareTo(b.definition.tier));
-    
+    final sortedGroup = [...group]
+      ..sort((a, b) => a.definition.tier.compareTo(b.definition.tier));
+
     final highestUnlocked = sortedGroup.where((a) => a.isUnlocked).lastOrNull;
     final nextToUnlock = sortedGroup.where((a) => !a.isUnlocked).firstOrNull;
-    
+
     // Se tutti sono sbloccati, mostra l'ultimo. Se nessuno è sbloccato, mostra il primo.
-    final displayAchievement = nextToUnlock ?? highestUnlocked ?? sortedGroup.first;
+    final displayAchievement =
+        nextToUnlock ?? highestUnlocked ?? sortedGroup.first;
     final isMastered = nextToUnlock == null;
-    
+
     final color = _categoryColor(displayAchievement.definition.category, theme);
-    final rarityColor = highestUnlocked != null 
+    final rarityColor = highestUnlocked != null
         ? _rarityColor(highestUnlocked.definition.rarity)
         : theme.colorScheme.outline.withValues(alpha: 0.5);
 
@@ -120,18 +115,20 @@ class _GroupedAchievementCard extends StatelessWidget {
         color: theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.45),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: isMastered 
-              ? Colors.amber.withValues(alpha: 0.5) 
+          color: isMastered
+              ? Colors.amber.withValues(alpha: 0.5)
               : rarityColor.withValues(alpha: 0.2),
           width: isMastered ? 2 : 1,
         ),
-        boxShadow: isMastered ? [
-          BoxShadow(
-            color: Colors.amber.withValues(alpha: 0.1),
-            blurRadius: 15,
-            spreadRadius: 1,
-          )
-        ] : null,
+        boxShadow: isMastered
+            ? [
+                BoxShadow(
+                  color: Colors.amber.withValues(alpha: 0.1),
+                  blurRadius: 15,
+                  spreadRadius: 1,
+                ),
+              ]
+            : null,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -162,7 +159,9 @@ class _GroupedAchievementCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      displayAchievement.definition.title.split(' ').first, // Nome del gruppo
+                      displayAchievement.definition.title
+                          .split(' ')
+                          .first, // Nome del gruppo
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w900,
                         letterSpacing: 0.5,
@@ -170,14 +169,18 @@ class _GroupedAchievementCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Row(
-                      children: sortedGroup.map((a) => Padding(
-                        padding: const EdgeInsets.only(right: 6),
-                        child: _TierIndicator(
-                          rarity: a.definition.rarity,
-                          isUnlocked: a.isUnlocked,
-                          theme: theme,
-                        ),
-                      )).toList(),
+                      children: sortedGroup
+                          .map(
+                            (a) => Padding(
+                              padding: const EdgeInsets.only(right: 6),
+                              child: _TierIndicator(
+                                rarity: a.definition.rarity,
+                                isUnlocked: a.isUnlocked,
+                                theme: theme,
+                              ),
+                            ),
+                          )
+                          .toList(),
                     ),
                   ],
                 ),
@@ -188,9 +191,9 @@ class _GroupedAchievementCard extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           Text(
-            isMastered 
-              ? 'Sfida Completata! Hai raggiunto il grado massimo.'
-              : displayAchievement.definition.description,
+            isMastered
+                ? 'Sfida Completata! Hai raggiunto il grado massimo.'
+                : displayAchievement.definition.description,
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
               height: 1.4,
@@ -203,7 +206,9 @@ class _GroupedAchievementCard extends StatelessWidget {
               child: LinearProgressIndicator(
                 value: displayAchievement.ratio,
                 minHeight: 8,
-                backgroundColor: theme.colorScheme.surface.withValues(alpha: 0.3),
+                backgroundColor: theme.colorScheme.surface.withValues(
+                  alpha: 0.3,
+                ),
                 valueColor: AlwaysStoppedAnimation(color),
               ),
             ),
@@ -233,8 +238,8 @@ class _GroupedAchievementCard extends StatelessWidget {
   }
 
   String _formatValue(double v) {
-    if (v >= 1000000) return '${(v/1000000).toStringAsFixed(1)}M';
-    if (v >= 1000) return '${(v/1000).toStringAsFixed(1)}k';
+    if (v >= 1000000) return '${(v / 1000000).toStringAsFixed(1)}M';
+    if (v >= 1000) return '${(v / 1000).toStringAsFixed(1)}k';
     return v.round().toString();
   }
 }
@@ -258,10 +263,12 @@ class _TierIndicator extends StatelessWidget {
       height: 12,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: isUnlocked ? color : theme.colorScheme.outline.withValues(alpha: 0.2),
-        boxShadow: isUnlocked ? [
-          BoxShadow(color: color.withValues(alpha: 0.4), blurRadius: 4)
-        ] : null,
+        color: isUnlocked
+            ? color
+            : theme.colorScheme.outline.withValues(alpha: 0.2),
+        boxShadow: isUnlocked
+            ? [BoxShadow(color: color.withValues(alpha: 0.4), blurRadius: 4)]
+            : null,
       ),
     );
   }
@@ -277,10 +284,7 @@ Color _rarityColor(AchievementRarity rarity) {
 }
 
 class _LevelHero extends StatelessWidget {
-  const _LevelHero({
-    required this.progress,
-    required this.theme,
-  });
+  const _LevelHero({required this.progress, required this.theme});
 
   final AthleteProgress progress;
   final ThemeData theme;
@@ -357,8 +361,9 @@ class _LevelHero extends StatelessWidget {
             child: LinearProgressIndicator(
               value: progress.levelRatio,
               minHeight: 8,
-              backgroundColor:
-                  theme.colorScheme.surface.withValues(alpha: 0.45),
+              backgroundColor: theme.colorScheme.surface.withValues(
+                alpha: 0.45,
+              ),
               valueColor: AlwaysStoppedAnimation(theme.colorScheme.tertiary),
             ),
           ),

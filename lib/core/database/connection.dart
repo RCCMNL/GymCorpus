@@ -66,8 +66,10 @@ Future<String> _obtainEncryptionKey(FlutterSecureStorage storage) async {
 
   final random = Random.secure();
   final bytes = List<int>.generate(32, (_) => random.nextInt(256));
-  final keyHex =
-      bytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join().toUpperCase();
+  final keyHex = bytes
+      .map((b) => b.toRadixString(16).padLeft(2, '0'))
+      .join()
+      .toUpperCase();
 
   await storage.write(key: _encryptionKeyStorageKey, value: keyHex);
   return keyHex;

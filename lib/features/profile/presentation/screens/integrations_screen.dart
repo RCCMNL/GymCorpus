@@ -33,11 +33,15 @@ class _IntegrationsScreenState extends State<IntegrationsScreen> {
       final data = {
         'export_date': DateTime.now().toIso8601String(),
         'routines_count': routines.length,
-        'weight_logs': weightLogs.map((l) => {
-          'date': l.timestamp.toIso8601String(),
-          'weight': l.weight,
-          'reps': l.reps,
-        },).toList(),
+        'weight_logs': weightLogs
+            .map(
+              (l) => {
+                'date': l.timestamp.toIso8601String(),
+                'weight': l.weight,
+                'reps': l.reps,
+              },
+            )
+            .toList(),
       };
 
       final jsonString = jsonEncode(data);
@@ -46,10 +50,14 @@ class _IntegrationsScreenState extends State<IntegrationsScreen> {
       await file.writeAsString(jsonString);
 
       // ignore: deprecated_member_use
-      await Share.shareXFiles([XFile(file.path)], text: 'Esportazione dati GymCorpus');
+      await Share.shareXFiles([
+        XFile(file.path),
+      ], text: 'Esportazione dati GymCorpus');
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Errore durante l'esportazione: $e")));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Errore durante l'esportazione: $e")),
+        );
       }
     } finally {
       if (mounted) setState(() => _isExporting = false);
@@ -71,7 +79,10 @@ class _IntegrationsScreenState extends State<IntegrationsScreen> {
                 level: 0,
                 child: pw.Text(
                   'GymCorpus - Report Allenamenti',
-                  style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold),
+                  style: pw.TextStyle(
+                    fontSize: 24,
+                    fontWeight: pw.FontWeight.bold,
+                  ),
                 ),
               ),
               pw.Padding(
@@ -79,7 +90,13 @@ class _IntegrationsScreenState extends State<IntegrationsScreen> {
                 child: pw.Text('Report generato il ${DateTime.now()}'),
               ),
               pw.SizedBox(height: 20),
-              pw.Text('Riepilogo Recente', style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
+              pw.Text(
+                'Riepilogo Recente',
+                style: pw.TextStyle(
+                  fontSize: 18,
+                  fontWeight: pw.FontWeight.bold,
+                ),
+              ),
               pw.SizedBox(height: 10),
               pw.TableHelper.fromTextArray(
                 context: context,
@@ -94,16 +111,26 @@ class _IntegrationsScreenState extends State<IntegrationsScreen> {
                 ],
               ),
               pw.SizedBox(height: 40),
-              pw.Center(child: pw.Text('Fine del Report', style: const pw.TextStyle(color: PdfColors.grey))),
+              pw.Center(
+                child: pw.Text(
+                  'Fine del Report',
+                  style: const pw.TextStyle(color: PdfColors.grey),
+                ),
+              ),
             ];
           },
         ),
       );
 
-      await Printing.sharePdf(bytes: await pdf.save(), filename: 'gym_corpus_report.pdf');
+      await Printing.sharePdf(
+        bytes: await pdf.save(),
+        filename: 'gym_corpus_report.pdf',
+      );
     } catch (e) {
-       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Errore durante l'esportazione PDF: $e")));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Errore durante l'esportazione PDF: $e")),
+        );
       }
     } finally {
       if (mounted) setState(() => _isExporting = false);
@@ -130,7 +157,6 @@ class _IntegrationsScreenState extends State<IntegrationsScreen> {
                 ),
               ),
               const SizedBox(height: 32),
-
               _buildSectionTitle('SALUTE (IN SVILUPPO)', theme),
               const SizedBox(height: 12),
               _buildIntegrationItem(
@@ -144,7 +170,6 @@ class _IntegrationsScreenState extends State<IntegrationsScreen> {
                 ),
                 theme: theme,
               ),
-
               const SizedBox(height: 32),
               _buildSectionTitle('ESPORTAZIONE DATI', theme),
               const SizedBox(height: 12),
@@ -162,20 +187,26 @@ class _IntegrationsScreenState extends State<IntegrationsScreen> {
                 onTap: _isExporting ? null : _exportAsJson,
                 theme: theme,
               ),
-              
               if (_isExporting) ...[
                 const SizedBox(height: 24),
                 const Center(child: CircularProgressIndicator()),
                 const SizedBox(height: 8),
-                const Center(child: Text('Generazione file in corso...', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold))),
+                const Center(
+                  child: Text(
+                    'Generazione file in corso...',
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                  ),
+                ),
               ],
-
               const SizedBox(height: 48),
               _buildSectionTitle('GDPR COMPLIANCE', theme),
               const SizedBox(height: 12),
               Text(
                 'I tuoi dati sono protetti e appartengono a te. Puoi scaricarli o eliminare il tuo account in qualsiasi momento dalla sezione Sicurezza.',
-                style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.outline, height: 1.5),
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.outline,
+                  height: 1.5,
+                ),
               ),
             ],
           ),
@@ -213,7 +244,12 @@ class _IntegrationsScreenState extends State<IntegrationsScreen> {
         onTap: onTap,
         leading: Icon(icon, color: theme.colorScheme.primary),
         title: Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text(subtitle, style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.outline)),
+        subtitle: Text(
+          subtitle,
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: theme.colorScheme.outline,
+          ),
+        ),
         trailing: trailing ?? const Icon(Icons.chevron_right, size: 20),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),

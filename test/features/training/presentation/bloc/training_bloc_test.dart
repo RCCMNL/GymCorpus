@@ -27,22 +27,30 @@ void main() {
     mockAuthRepository = MockAuthRepository();
 
     // Default stubs to prevent 'Null is not a subtype of Stream' errors
-    when(() => mockRepository.watchExercises())
-        .thenAnswer((_) => const Stream.empty());
-    when(() => mockRepository.watchRoutines())
-        .thenAnswer((_) => const Stream.empty());
-    when(() => mockRepository.watchWeightLogs())
-        .thenAnswer((_) => const Stream.empty());
-    when(() => mockRepository.watchWorkoutSessions())
-        .thenAnswer((_) => const Stream.empty());
-    when(() => mockRepository.watchBodyWeightLogs())
-        .thenAnswer((_) => const Stream.empty());
-    when(() => mockRepository.watchAllSettings())
-        .thenAnswer((_) => const Stream.empty());
-    when(() => mockRepository.watchCardioSessions())
-        .thenAnswer((_) => const Stream.empty());
-    when(() => mockRepository.watchBodyMeasurements())
-        .thenAnswer((_) => const Stream.empty());
+    when(
+      () => mockRepository.watchExercises(),
+    ).thenAnswer((_) => const Stream.empty());
+    when(
+      () => mockRepository.watchRoutines(),
+    ).thenAnswer((_) => const Stream.empty());
+    when(
+      () => mockRepository.watchWeightLogs(),
+    ).thenAnswer((_) => const Stream.empty());
+    when(
+      () => mockRepository.watchWorkoutSessions(),
+    ).thenAnswer((_) => const Stream.empty());
+    when(
+      () => mockRepository.watchBodyWeightLogs(),
+    ).thenAnswer((_) => const Stream.empty());
+    when(
+      () => mockRepository.watchAllSettings(),
+    ).thenAnswer((_) => const Stream.empty());
+    when(
+      () => mockRepository.watchCardioSessions(),
+    ).thenAnswer((_) => const Stream.empty());
+    when(
+      () => mockRepository.watchBodyMeasurements(),
+    ).thenAnswer((_) => const Stream.empty());
     when(
       () => mockAuthRepository.updateProfileDetails(
         firstName: any<String?>(named: 'firstName'),
@@ -56,9 +64,8 @@ void main() {
         clearWeight: any<bool>(named: 'clearWeight'),
       ),
     ).thenAnswer(
-      (_) async => const Right(
-        UserEntity(id: 'user-1', email: 'test@example.com'),
-      ),
+      (_) async =>
+          const Right(UserEntity(id: 'user-1', email: 'test@example.com')),
     );
 
     bloc = TrainingBloc(
@@ -85,16 +92,16 @@ void main() {
       blocTest<TrainingBloc, TrainingState>(
         'una scrittura fallita non cancella i dati gia caricati',
         build: () {
-          when(() => mockRepository.toggleExerciseFavorite(1, isFavorite: true))
-              .thenAnswer(
+          when(
+            () => mockRepository.toggleExerciseFavorite(1, isFavorite: true),
+          ).thenAnswer(
             (_) async => const Left(DatabaseFailure('database bloccato')),
           );
           return bloc;
         },
         seed: () => TrainingLoaded(exercises: tExercises),
-        act: (bloc) => bloc.add(
-          const ToggleExerciseFavoriteEvent(1, isFavorite: true),
-        ),
+        act: (bloc) =>
+            bloc.add(const ToggleExerciseFavoriteEvent(1, isFavorite: true)),
         expect: () => [
           TrainingLoaded(
             exercises: tExercises,
@@ -120,9 +127,7 @@ void main() {
           return bloc;
         },
         act: (bloc) => bloc.add(const DeleteRoutineEvent(7)),
-        expect: () => [
-          const TrainingError('routine inesistente'),
-        ],
+        expect: () => [const TrainingError('routine inesistente')],
       );
 
       blocTest<TrainingBloc, TrainingState>(
@@ -133,9 +138,7 @@ void main() {
           actionError: 'database bloccato',
         ),
         act: (bloc) => bloc.add(const ClearActionErrorEvent()),
-        expect: () => [
-          TrainingLoaded(exercises: tExercises),
-        ],
+        expect: () => [TrainingLoaded(exercises: tExercises)],
       );
 
       blocTest<TrainingBloc, TrainingState>(
@@ -150,14 +153,13 @@ void main() {
     blocTest<TrainingBloc, TrainingState>(
       'emette [TrainingLoaded] quando load event ha successo',
       build: () {
-        when(() => mockRepository.watchExercises())
-            .thenAnswer((_) => Stream.value(tExercises));
+        when(
+          () => mockRepository.watchExercises(),
+        ).thenAnswer((_) => Stream.value(tExercises));
         return bloc;
       },
       act: (bloc) => bloc.add(LoadExercisesEvent()),
-      expect: () => [
-        TrainingLoaded(exercises: tExercises),
-      ],
+      expect: () => [TrainingLoaded(exercises: tExercises)],
     );
 
     blocTest<TrainingBloc, TrainingState>(
@@ -172,8 +174,9 @@ void main() {
             durationSeconds: 3600,
           ),
         ];
-        when(() => mockRepository.watchWorkoutSessions())
-            .thenAnswer((_) => Stream.value(sessions));
+        when(
+          () => mockRepository.watchWorkoutSessions(),
+        ).thenAnswer((_) => Stream.value(sessions));
         return bloc;
       },
       act: (bloc) => bloc.add(LoadWorkoutSessionsEvent()),
@@ -208,11 +211,7 @@ void main() {
       act: (bloc) {
         bloc
           ..add(
-            const StartWorkoutSessionEvent(
-              id: 100,
-              name: 'Push',
-              routineId: 7,
-            ),
+            const StartWorkoutSessionEvent(id: 100, name: 'Push', routineId: 7),
           )
           ..add(
             const CompleteWorkoutSessionEvent(
@@ -242,8 +241,9 @@ void main() {
     blocTest<TrainingBloc, TrainingState>(
       'aggiorna il lastEstimated1RM quando aggiungi un Set con RPE > 8',
       build: () {
-        when(() => mockRepository.watchExercises())
-            .thenAnswer((_) => Stream.value(tExercises));
+        when(
+          () => mockRepository.watchExercises(),
+        ).thenAnswer((_) => Stream.value(tExercises));
         when(
           () => mockRepository.addSetToExercise(
             workoutId: 1,
@@ -278,8 +278,9 @@ void main() {
     blocTest<TrainingBloc, TrainingState>(
       'sincronizza il profilo quando aggiungi un peso corporeo',
       build: () {
-        when(() => mockRepository.addBodyWeightLogEntry(82))
-            .thenAnswer((_) async => const Right(1));
+        when(
+          () => mockRepository.addBodyWeightLogEntry(82),
+        ).thenAnswer((_) async => const Right(1));
         return bloc;
       },
       seed: () => const TrainingLoaded(exercises: []),
@@ -287,9 +288,7 @@ void main() {
       expect: () => <TrainingState>[],
       verify: (_) {
         verify(
-          () => mockAuthRepository.updateProfileDetails(
-            weight: 82,
-          ),
+          () => mockAuthRepository.updateProfileDetails(weight: 82),
         ).called(1);
       },
     );
@@ -322,32 +321,23 @@ void main() {
     blocTest<TrainingBloc, TrainingState>(
       'sincronizza il profilo quando modifichi il peso piu recente',
       build: () {
-        when(() => mockRepository.updateBodyWeightLogEntry(2, 83))
-            .thenAnswer((_) async => const Right(null));
+        when(
+          () => mockRepository.updateBodyWeightLogEntry(2, 83),
+        ).thenAnswer((_) async => const Right(null));
         return bloc;
       },
       seed: () => TrainingLoaded(
         exercises: const [],
         bodyWeightLogs: [
-          BodyWeightLogEntity(
-            id: 2,
-            weight: 82,
-            date: DateTime(2026, 4, 25),
-          ),
-          BodyWeightLogEntity(
-            id: 1,
-            weight: 81,
-            date: DateTime(2026, 4, 24),
-          ),
+          BodyWeightLogEntity(id: 2, weight: 82, date: DateTime(2026, 4, 25)),
+          BodyWeightLogEntity(id: 1, weight: 81, date: DateTime(2026, 4, 24)),
         ],
       ),
       act: (bloc) => bloc.add(const UpdateBodyWeightLogEvent(2, 83)),
       expect: () => <TrainingState>[],
       verify: (_) {
         verify(
-          () => mockAuthRepository.updateProfileDetails(
-            weight: 83,
-          ),
+          () => mockAuthRepository.updateProfileDetails(weight: 83),
         ).called(1);
       },
     );
@@ -355,23 +345,16 @@ void main() {
     blocTest<TrainingBloc, TrainingState>(
       'non sincronizza il profilo quando modifichi un peso storico',
       build: () {
-        when(() => mockRepository.updateBodyWeightLogEntry(1, 80))
-            .thenAnswer((_) async => const Right(null));
+        when(
+          () => mockRepository.updateBodyWeightLogEntry(1, 80),
+        ).thenAnswer((_) async => const Right(null));
         return bloc;
       },
       seed: () => TrainingLoaded(
         exercises: const [],
         bodyWeightLogs: [
-          BodyWeightLogEntity(
-            id: 2,
-            weight: 82,
-            date: DateTime(2026, 4, 25),
-          ),
-          BodyWeightLogEntity(
-            id: 1,
-            weight: 81,
-            date: DateTime(2026, 4, 24),
-          ),
+          BodyWeightLogEntity(id: 2, weight: 82, date: DateTime(2026, 4, 25)),
+          BodyWeightLogEntity(id: 1, weight: 81, date: DateTime(2026, 4, 24)),
         ],
       ),
       act: (bloc) => bloc.add(const UpdateBodyWeightLogEvent(1, 80)),
@@ -389,32 +372,23 @@ void main() {
     blocTest<TrainingBloc, TrainingState>(
       'sincronizza il profilo con il peso precedente quando elimini il piu recente',
       build: () {
-        when(() => mockRepository.deleteBodyWeightLogEntry(2))
-            .thenAnswer((_) async => const Right(null));
+        when(
+          () => mockRepository.deleteBodyWeightLogEntry(2),
+        ).thenAnswer((_) async => const Right(null));
         return bloc;
       },
       seed: () => TrainingLoaded(
         exercises: const [],
         bodyWeightLogs: [
-          BodyWeightLogEntity(
-            id: 2,
-            weight: 82,
-            date: DateTime(2026, 4, 25),
-          ),
-          BodyWeightLogEntity(
-            id: 1,
-            weight: 81,
-            date: DateTime(2026, 4, 24),
-          ),
+          BodyWeightLogEntity(id: 2, weight: 82, date: DateTime(2026, 4, 25)),
+          BodyWeightLogEntity(id: 1, weight: 81, date: DateTime(2026, 4, 24)),
         ],
       ),
       act: (bloc) => bloc.add(const DeleteBodyWeightLogEvent(2)),
       expect: () => <TrainingState>[],
       verify: (_) {
         verify(
-          () => mockAuthRepository.updateProfileDetails(
-            weight: 81,
-          ),
+          () => mockAuthRepository.updateProfileDetails(weight: 81),
         ).called(1);
       },
     );
@@ -422,27 +396,22 @@ void main() {
     blocTest<TrainingBloc, TrainingState>(
       'cancella il peso profilo quando elimini ultimo log corporeo',
       build: () {
-        when(() => mockRepository.deleteBodyWeightLogEntry(1))
-            .thenAnswer((_) async => const Right(null));
+        when(
+          () => mockRepository.deleteBodyWeightLogEntry(1),
+        ).thenAnswer((_) async => const Right(null));
         return bloc;
       },
       seed: () => TrainingLoaded(
         exercises: const [],
         bodyWeightLogs: [
-          BodyWeightLogEntity(
-            id: 1,
-            weight: 81,
-            date: DateTime(2026, 4, 24),
-          ),
+          BodyWeightLogEntity(id: 1, weight: 81, date: DateTime(2026, 4, 24)),
         ],
       ),
       act: (bloc) => bloc.add(const DeleteBodyWeightLogEvent(1)),
       expect: () => <TrainingState>[],
       verify: (_) {
         verify(
-          () => mockAuthRepository.updateProfileDetails(
-            clearWeight: true,
-          ),
+          () => mockAuthRepository.updateProfileDetails(clearWeight: true),
         ).called(1);
       },
     );

@@ -5,11 +5,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/core/widgets/social_icons.dart';
+import 'package:gym_corpus/features/auth/domain/entities/user_entity.dart';
 import 'package:gym_corpus/features/auth/domain/repositories/auth_repository.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_event.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
-import 'package:gym_corpus/features/auth/domain/entities/user_entity.dart';
 import 'package:intl/intl.dart';
 import 'package:local_auth/local_auth.dart';
 
@@ -23,7 +23,7 @@ class SecurityScreen extends StatefulWidget {
 class _SecurityScreenState extends State<SecurityScreen> {
   final LocalAuthentication _auth = LocalAuthentication();
   final AuthRepository _authRepository = GetIt.I<AuthRepository>();
-  
+
   bool _canCheckBiometrics = false;
   bool _isBiometricEnabled = false;
 
@@ -37,7 +37,8 @@ class _SecurityScreenState extends State<SecurityScreen> {
   Future<void> _checkBiometrics() async {
     bool canCheckBiometrics;
     try {
-      canCheckBiometrics = await _auth.canCheckBiometrics || await _auth.isDeviceSupported();
+      canCheckBiometrics =
+          await _auth.canCheckBiometrics || await _auth.isDeviceSupported();
     } catch (e) {
       debugPrint('SecurityScreen._checkBiometrics error: $e');
       canCheckBiometrics = false;
@@ -62,9 +63,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
       try {
         final didAuthenticate = await _auth.authenticate(
           localizedReason: 'Autenticati per abilitare lo sblocco biometrico',
-          options: const AuthenticationOptions(
-            stickyAuth: true,
-          ),
+          options: const AuthenticationOptions(stickyAuth: true),
         );
         if (didAuthenticate) {
           setState(() => _isBiometricEnabled = true);
@@ -83,16 +82,14 @@ class _SecurityScreenState extends State<SecurityScreen> {
       try {
         final didAuthenticate = await _auth.authenticate(
           localizedReason: 'Autenticati per disabilitare lo sblocco biometrico',
-          options: const AuthenticationOptions(
-            stickyAuth: true,
-          ),
+          options: const AuthenticationOptions(stickyAuth: true),
         );
         if (didAuthenticate) {
           setState(() => _isBiometricEnabled = false);
           await _authRepository.setBiometricEnabled(enabled: false);
         } else {
           // Authentication failed, keep it enabled in UI
-          unawaited(_loadBiometricPreference()); 
+          unawaited(_loadBiometricPreference());
         }
       } catch (e) {
         debugPrint('SecurityScreen._toggleBiometrics disable error: $e');
@@ -110,9 +107,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
       try {
         return await _auth.authenticate(
           localizedReason: reason,
-          options: const AuthenticationOptions(
-            stickyAuth: true,
-          ),
+          options: const AuthenticationOptions(stickyAuth: true),
         );
       } catch (e) {
         debugPrint('SecurityScreen._verifyBiomanualIfEnabled error: $e');
@@ -134,31 +129,41 @@ class _SecurityScreenState extends State<SecurityScreen> {
   }
 
   Future<void> _showChangePasswordDialog() async {
-    final verified = await _verifyBiomanualIfEnabled('Autenticati per cambiare la password');
+    final verified = await _verifyBiomanualIfEnabled(
+      'Autenticati per cambiare la password',
+    );
     if (!verified && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Autenticazione richiesta per continuare')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Autenticazione richiesta per continuare'),
+        ),
+      );
       return;
     }
 
     if (!mounted) return;
-    
+
     final currentPasswordController = TextEditingController();
     final newPasswordController = TextEditingController();
     final theme = Theme.of(context);
 
-    unawaited(showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Padding(
-        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-        child: _ChangePasswordSheet(
-          currentPasswordController: currentPasswordController,
-          newPasswordController: newPasswordController,
-          theme: theme,
+    unawaited(
+      showModalBottomSheet<void>(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (context) => Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: _ChangePasswordSheet(
+            currentPasswordController: currentPasswordController,
+            newPasswordController: newPasswordController,
+            theme: theme,
+          ),
         ),
       ),
-    ),);
+    );
   }
 
   Future<void> _showDeleteAccountDialog(List<String> authProviders) async {
@@ -167,7 +172,9 @@ class _SecurityScreenState extends State<SecurityScreen> {
     );
     if (!verified && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Autenticazione richiesta per continuare')),
+        const SnackBar(
+          content: Text('Autenticazione richiesta per continuare'),
+        ),
       );
       return;
     }
@@ -225,7 +232,9 @@ class _SecurityScreenState extends State<SecurityScreen> {
             ),
             actions: [
               TextButton(
-                onPressed: isDeleting ? null : () => Navigator.pop(dialogContext),
+                onPressed: isDeleting
+                    ? null
+                    : () => Navigator.pop(dialogContext),
                 child: const Text('ANNULLA'),
               ),
               TextButton(
@@ -247,8 +256,9 @@ class _SecurityScreenState extends State<SecurityScreen> {
                         });
 
                         final result = await _authRepository.deleteAccount(
-                          currentPassword:
-                              requiresPassword ? currentPassword : null,
+                          currentPassword: requiresPassword
+                              ? currentPassword
+                              : null,
                         );
 
                         if (!mounted) return;
@@ -263,8 +273,8 @@ class _SecurityScreenState extends State<SecurityScreen> {
                           ),
                           (_) {
                             context.read<AuthBloc>().add(
-                                  const AuthEvent.logoutRequested(),
-                                );
+                              const AuthEvent.logoutRequested(),
+                            );
                             _showFeedback('Account eliminato con successo');
                           },
                         );
@@ -311,7 +321,10 @@ class _SecurityScreenState extends State<SecurityScreen> {
             children: [
               ShaderMask(
                 shaderCallback: (bounds) => LinearGradient(
-                  colors: [theme.colorScheme.primary, theme.colorScheme.tertiary],
+                  colors: [
+                    theme.colorScheme.primary,
+                    theme.colorScheme.tertiary,
+                  ],
                 ).createShader(bounds),
                 child: Text(
                   'Sicurezza',
@@ -324,7 +337,6 @@ class _SecurityScreenState extends State<SecurityScreen> {
                 ),
               ),
               const SizedBox(height: 32),
-
               _buildSectionTitle('AUTENTICAZIONE', theme),
               const SizedBox(height: 12),
               _SecurityItem(
@@ -333,15 +345,14 @@ class _SecurityScreenState extends State<SecurityScreen> {
                 onTap: _showChangePasswordDialog,
               ),
               if (_canCheckBiometrics)
-                  _SecurityItem(
-                    icon: Icons.fingerprint,
-                    label: 'Accesso Biometrico',
-                    trailing: Switch(
-                      value: _isBiometricEnabled,
-                      onChanged: (val) => unawaited(_toggleBiometrics(val)),
-                    ),
+                _SecurityItem(
+                  icon: Icons.fingerprint,
+                  label: 'Accesso Biometrico',
+                  trailing: Switch(
+                    value: _isBiometricEnabled,
+                    onChanged: (val) => unawaited(_toggleBiometrics(val)),
                   ),
-              
+                ),
               const SizedBox(height: 32),
               _buildSectionTitle('LOGIN SOCIAL', theme),
               const SizedBox(height: 12),
@@ -349,17 +360,26 @@ class _SecurityScreenState extends State<SecurityScreen> {
                 leading: const GoogleLogo(size: 20),
                 label: 'Google Account',
                 trailing: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
-                    color: (currentUser?.authProviders.contains('google.com') ?? false)
+                    color:
+                        (currentUser?.authProviders.contains('google.com') ??
+                            false)
                         ? theme.colorScheme.primary.withValues(alpha: 0.1)
                         : theme.colorScheme.outline.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    (currentUser?.authProviders.contains('google.com') ?? false) ? 'COLLEGATO' : 'NON COLLEGATO',
+                    (currentUser?.authProviders.contains('google.com') ?? false)
+                        ? 'COLLEGATO'
+                        : 'NON COLLEGATO',
                     style: theme.textTheme.labelSmall?.copyWith(
-                      color: (currentUser?.authProviders.contains('google.com') ?? false)
+                      color:
+                          (currentUser?.authProviders.contains('google.com') ??
+                              false)
                           ? theme.colorScheme.primary
                           : theme.colorScheme.outline,
                       fontWeight: FontWeight.w900,
@@ -368,86 +388,126 @@ class _SecurityScreenState extends State<SecurityScreen> {
                   ),
                 ),
               ),
-              
               const SizedBox(height: 32),
               _buildSectionTitle('CRONOLOGIA ACCESSI', theme),
               const SizedBox(height: 12),
               ...((currentUser?.loginHistory.isNotEmpty ?? false)
-                  ? currentUser!.loginHistory.take(2).toList()
-                  : [
-                      if (currentUser?.lastLoginDate != null)
-                        LoginEntry(
-                          date: currentUser!.lastLoginDate!,
-                          device: currentUser.lastLoginDevice ?? 'Dispositivo Corrente',
-                        ),
-                    ]).asMap().entries.map((entry) {
-                final index = entry.key;
-                final login = entry.value;
-                final date = DateFormat('dd MMM yyyy, HH:mm', 'it_IT').format(login.date);
-                
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 8),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.surfaceContainerHigh,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.important_devices, color: theme.colorScheme.primary),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(login.device, style: const TextStyle(fontWeight: FontWeight.bold)),
-                            Text(index == 0 ? 'Ultimo accesso: $date' : 'Accesso precedente: $date', 
-                                 style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.outline)),
-                          ],
-                        ),
+                      ? currentUser!.loginHistory.take(2).toList()
+                      : [
+                          if (currentUser?.lastLoginDate != null)
+                            LoginEntry(
+                              date: currentUser!.lastLoginDate!,
+                              device:
+                                  currentUser.lastLoginDevice ??
+                                  'Dispositivo Corrente',
+                            ),
+                        ])
+                  .asMap()
+                  .entries
+                  .map((entry) {
+                    final index = entry.key;
+                    final login = entry.value;
+                    final date = DateFormat(
+                      'dd MMM yyyy, HH:mm',
+                      'it_IT',
+                    ).format(login.date);
+
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surfaceContainerHigh,
+                        borderRadius: BorderRadius.circular(16),
                       ),
-                      if (index == 0)
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                theme.colorScheme.primary.withValues(alpha: 0.2),
-                                theme.colorScheme.tertiary.withValues(alpha: 0.2),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.important_devices,
+                            color: theme.colorScheme.primary,
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  login.device,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  index == 0
+                                      ? 'Ultimo accesso: $date'
+                                      : 'Accesso precedente: $date',
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: theme.colorScheme.outline,
+                                  ),
+                                ),
                               ],
                             ),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: theme.colorScheme.primary.withValues(alpha: 0.2)),
                           ),
-                          child: Text(
-                            'ATTIVO', 
-                            style: TextStyle(
-                              color: theme.colorScheme.primary, 
-                              fontSize: 10, 
-                              fontWeight: FontWeight.w900,
-                              letterSpacing: 1.1,
+                          if (index == 0)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    theme.colorScheme.primary.withValues(
+                                      alpha: 0.2,
+                                    ),
+                                    theme.colorScheme.tertiary.withValues(
+                                      alpha: 0.2,
+                                    ),
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: theme.colorScheme.primary.withValues(
+                                    alpha: 0.2,
+                                  ),
+                                ),
+                              ),
+                              child: Text(
+                                'ATTIVO',
+                                style: TextStyle(
+                                  color: theme.colorScheme.primary,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: 1.1,
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                    ],
-                  ),
-                );
-              }),
-
+                        ],
+                      ),
+                    );
+                  }),
               const SizedBox(height: 48),
               _buildSectionTitle('ZONA PERICOLOSA', theme),
               const SizedBox(height: 12),
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton.icon(
-                  onPressed: () =>
-                      _showDeleteAccountDialog(currentUser?.authProviders ?? const <String>[]),
+                  onPressed: () => _showDeleteAccountDialog(
+                    currentUser?.authProviders ?? const <String>[],
+                  ),
                   icon: const Icon(Icons.delete_forever, color: Colors.red),
-                  label: const Text('ELIMINA ACCOUNT', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                  label: const Text(
+                    'ELIMINA ACCOUNT',
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     side: const BorderSide(color: Colors.red),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                   ),
                 ),
               ),
@@ -514,7 +574,11 @@ class _SecurityItem extends StatelessWidget {
       ),
       child: ListTile(
         onTap: onTap,
-        leading: leading ?? (icon != null ? Icon(icon, color: theme.colorScheme.primary) : null),
+        leading:
+            leading ??
+            (icon != null
+                ? Icon(icon, color: theme.colorScheme.primary)
+                : null),
         title: Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
         trailing: trailing ?? const Icon(Icons.chevron_right, size: 20),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -657,7 +721,9 @@ class _ChangePasswordSheetState extends State<_ChangePasswordSheet> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: widget.theme.colorScheme.outline.withValues(alpha: 0.3),
+                  color: widget.theme.colorScheme.outline.withValues(
+                    alpha: 0.3,
+                  ),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -670,14 +736,26 @@ class _ChangePasswordSheetState extends State<_ChangePasswordSheet> {
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        widget.theme.colorScheme.primary.withValues(alpha: 0.15),
-                        widget.theme.colorScheme.tertiary.withValues(alpha: 0.1),
+                        widget.theme.colorScheme.primary.withValues(
+                          alpha: 0.15,
+                        ),
+                        widget.theme.colorScheme.tertiary.withValues(
+                          alpha: 0.1,
+                        ),
                       ],
                     ),
                     shape: BoxShape.circle,
-                    border: Border.all(color: widget.theme.colorScheme.primary.withValues(alpha: 0.1)),
+                    border: Border.all(
+                      color: widget.theme.colorScheme.primary.withValues(
+                        alpha: 0.1,
+                      ),
+                    ),
                   ),
-                  child: Icon(Icons.lock_reset_rounded, color: widget.theme.colorScheme.primary, size: 28),
+                  child: Icon(
+                    Icons.lock_reset_rounded,
+                    color: widget.theme.colorScheme.primary,
+                    size: 28,
+                  ),
                 ),
                 const SizedBox(width: 16),
                 Column(
@@ -692,7 +770,9 @@ class _ChangePasswordSheetState extends State<_ChangePasswordSheet> {
                     ),
                     Text(
                       'Assicurati che sia complessa e sicura',
-                      style: widget.theme.textTheme.bodySmall?.copyWith(color: widget.theme.colorScheme.outline),
+                      style: widget.theme.textTheme.bodySmall?.copyWith(
+                        color: widget.theme.colorScheme.outline,
+                      ),
                     ),
                   ],
                 ),
@@ -704,7 +784,8 @@ class _ChangePasswordSheetState extends State<_ChangePasswordSheet> {
               label: 'PASSWORD ATTUALE',
               icon: Icons.lock_open_rounded,
               obscure: _obscureCurrent,
-              onToggleObscure: () => setState(() => _obscureCurrent = !_obscureCurrent),
+              onToggleObscure: () =>
+                  setState(() => _obscureCurrent = !_obscureCurrent),
             ),
             const SizedBox(height: 24),
             _buildField(
@@ -723,15 +804,30 @@ class _ChangePasswordSheetState extends State<_ChangePasswordSheet> {
                   backgroundColor: widget.theme.colorScheme.primary,
                   foregroundColor: widget.theme.colorScheme.onPrimary,
                   padding: const EdgeInsets.symmetric(vertical: 18),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                   elevation: 8,
-                  shadowColor: widget.theme.colorScheme.primary.withValues(alpha: 0.4),
+                  shadowColor: widget.theme.colorScheme.primary.withValues(
+                    alpha: 0.4,
+                  ),
                 ),
-                child: _isLoading 
-                    ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 3, color: Colors.white)) 
+                child: _isLoading
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 3,
+                          color: Colors.white,
+                        ),
+                      )
                     : const Text(
                         'AGGIORNA PASSWORD',
-                        style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1.5, fontSize: 13),
+                        style: TextStyle(
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 1.5,
+                          fontSize: 13,
+                        ),
                       ),
               ),
             ),
@@ -767,7 +863,9 @@ class _ChangePasswordSheetState extends State<_ChangePasswordSheet> {
           decoration: BoxDecoration(
             color: widget.theme.colorScheme.surfaceContainerHigh,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: widget.theme.colorScheme.outline.withValues(alpha: 0.1)),
+            border: Border.all(
+              color: widget.theme.colorScheme.outline.withValues(alpha: 0.1),
+            ),
           ),
           child: TextField(
             controller: controller,
@@ -775,16 +873,30 @@ class _ChangePasswordSheetState extends State<_ChangePasswordSheet> {
             enabled: !_isLoading,
             style: const TextStyle(fontWeight: FontWeight.bold),
             decoration: InputDecoration(
-              prefixIcon: Icon(icon, color: widget.theme.colorScheme.primary, size: 20),
+              prefixIcon: Icon(
+                icon,
+                color: widget.theme.colorScheme.primary,
+                size: 20,
+              ),
               suffixIcon: IconButton(
-                icon: Icon(obscure ? Icons.visibility_off_rounded : Icons.visibility_rounded, size: 20),
+                icon: Icon(
+                  obscure
+                      ? Icons.visibility_off_rounded
+                      : Icons.visibility_rounded,
+                  size: 20,
+                ),
                 onPressed: onToggleObscure,
                 color: widget.theme.colorScheme.outline,
               ),
               border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
+              contentPadding: const EdgeInsets.symmetric(
+                vertical: 18,
+                horizontal: 16,
+              ),
               hintText: '********',
-              hintStyle: TextStyle(color: widget.theme.colorScheme.outline.withValues(alpha: 0.5)),
+              hintStyle: TextStyle(
+                color: widget.theme.colorScheme.outline.withValues(alpha: 0.5),
+              ),
             ),
           ),
         ),

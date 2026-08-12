@@ -81,16 +81,15 @@ const backExercises = [
   ExercisesCompanion(
     name: Value('Lat Machine (Presa neutra/ V-Bar)'),
     targetMuscle: Value('Dorso'),
-    equipment:
-        Value('Macchinario (Lat Machine), V-Bar (maniglia stretta neutra)'),
+    equipment: Value(
+      'Macchinario (Lat Machine), V-Bar (maniglia stretta neutra)',
+    ),
     focusArea: Value('Gran dorsale, Romboidi'),
     preparation: Value('Siediti alla macchina. Aggancia la V-Bar e afferrala.'),
     execution: Value(
       'Tira la maniglia verso il petto. La presa stretta e neutra permette un ottimo allungamento in alto e una forte contrazione in basso.',
     ),
-    tips: Value(
-      "Molto efficace per colpire la parte 'interna' della schiena.",
-    ),
+    tips: Value("Molto efficace per colpire la parte 'interna' della schiena."),
   ),
   ExercisesCompanion(
     name: Value('Rematore con bilanciere'),
@@ -220,9 +219,7 @@ const backExercises = [
     name: Value('Hyperextensions'),
     targetMuscle: Value('Dorso'),
     equipment: Value('Panca 45° (Hyperextension) o GHD'),
-    focusArea: Value(
-      'Erettori spinali (zona lombare), Glutei, Ischiocrurali',
-    ),
+    focusArea: Value('Erettori spinali (zona lombare), Glutei, Ischiocrurali'),
     preparation: Value(
       'Posizionati sulla panca 45°, caviglie bloccate, bacino sul bordo del pad. Incrocia le braccia al petto (o mani dietro la testa/peso).',
     ),
@@ -252,8 +249,7 @@ const backExercises = [
     name: Value('Pullover'),
     targetMuscle: Value('Dorso'),
     equipment: Value('Manubrio, Panca piana'),
-    focusArea:
-        Value('Gran dorsale (allungamento), Petto, Serrato anteriore'),
+    focusArea: Value('Gran dorsale (allungamento), Petto, Serrato anteriore'),
     preparation: Value(
       "Appoggia solo la parte alta della schiena (scapole) di traverso su una panca piana. Piedi a terra, bacino basso. Tieni un manubrio 'a coppa' sopra il petto.",
     ),

@@ -76,7 +76,8 @@ class HealthService {
     HealthDataType.STEPS,
     _distanceType,
     _caloriesType,
-    HealthDataType.WORKOUT, // Aggiunto per migliorare il riconoscimento attività
+    HealthDataType
+        .WORKOUT, // Aggiunto per migliorare il riconoscimento attività
   ];
 
   /// Controlla se l'utente ha già concesso i permessi.
@@ -89,7 +90,9 @@ class HealthService {
       if (Platform.isAndroid) {
         final status = await _health.getHealthConnectSdkStatus();
         if (status != HealthConnectSdkStatus.sdkAvailable) {
-          debugPrint('[HealthService] Health Connect SDK non disponibile: $status');
+          debugPrint(
+            '[HealthService] Health Connect SDK non disponibile: $status',
+          );
           // Non forziamo l'installazione qui, lo gestiremo nella UI con un messaggio
           return false;
         }
@@ -98,8 +101,7 @@ class HealthService {
       // Configura l'health plugin
       await _health.configure();
 
-      final permissions =
-          _readTypes.map((_) => HealthDataAccess.READ).toList();
+      final permissions = _readTypes.map((_) => HealthDataAccess.READ).toList();
       final granted = await _health.requestAuthorization(
         _readTypes,
         permissions: permissions,
@@ -120,15 +122,13 @@ class HealthService {
     try {
       await _health.configure();
 
-      final permissions =
-          _readTypes.map((_) => HealthDataAccess.READ).toList();
+      final permissions = _readTypes.map((_) => HealthDataAccess.READ).toList();
       final hasPermissions = await _health.hasPermissions(
         _readTypes,
         permissions: permissions,
       );
 
-      _isAuthorized = hasPermissions ?? false;
-      return _isAuthorized;
+      return _isAuthorized = hasPermissions ?? false;
     } catch (e) {
       debugPrint('[HealthService] Check permissions error: $e');
       // Anche lo stato in memoria va invalidato: lasciarlo a true dopo un
@@ -144,17 +144,14 @@ class HealthService {
     final end = start.add(const Duration(days: 1));
 
     try {
-      final steps = await _getAggregatedValue(
-        HealthDataType.STEPS,
-        start,
-        end,
-      );
+      final steps = await _getAggregatedValue(HealthDataType.STEPS, start, end);
       final distance = await _getAggregatedValue(_distanceType, start, end);
       final calories = await _getAggregatedValue(_caloriesType, start, end);
 
       // Stima minuti attivi: ~100 passi/minuto di camminata media
-      final activeMinutes =
-          steps > 0 ? (steps / 100).round().clamp(0, 1440) : 0;
+      final activeMinutes = steps > 0
+          ? (steps / 100).round().clamp(0, 1440)
+          : 0;
 
       return DailyActivity(
         date: start,

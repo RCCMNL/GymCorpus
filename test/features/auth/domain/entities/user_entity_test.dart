@@ -66,19 +66,14 @@ void main() {
         marketingConsentUpdatedAt: consentDate,
         profilingConsentUpdatedAt: consentDate,
         authProviders: const ['password'],
-        loginHistory: [
-          LoginEntry(date: lastLoginDate, device: 'Pixel'),
-        ],
+        loginHistory: [LoginEntry(date: lastLoginDate, device: 'Pixel')],
       );
 
       final parsed = UserEntity.fromJson(user.toJson());
 
       expect(parsed, user);
       expect(parsed.toJson()['birthDate'], birthDate.toIso8601String());
-      expect(
-        parsed.toJson()['termsAcceptedAt'],
-        consentDate.toIso8601String(),
-      );
+      expect(parsed.toJson()['termsAcceptedAt'], consentDate.toIso8601String());
       expect(parsed.marketingConsent, isTrue);
       expect(parsed.profilingConsent, isFalse);
       expect(parsed.loginHistory.single.device, 'Pixel');

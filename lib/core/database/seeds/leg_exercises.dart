@@ -299,9 +299,7 @@ const legExercises = [
     name: Value('Glute Ham Raise'),
     targetMuscle: Value('Gambe'),
     equipment: Value('Macchinario GHR (o panca apposita)'),
-    focusArea: Value(
-      'Ischiocrurali (entrambe le funzioni), Glutei, Polpacci',
-    ),
+    focusArea: Value('Ischiocrurali (entrambe le funzioni), Glutei, Polpacci'),
     preparation: Value(
       'Posizionati sulla macchina GHR, caviglie bloccate, ginocchia appoggiate sul cuscinetto, busto eretto.',
     ),

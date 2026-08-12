@@ -17,23 +17,29 @@ class WorkoutDetailScreen extends StatelessWidget {
 
   final RoutineEntity routine;
 
-  void _removeSingleExercise(BuildContext context,
-      RoutineExerciseEntity exerciseToRemove, RoutineEntity currentRoutine) {
+  void _removeSingleExercise(
+    BuildContext context,
+    RoutineExerciseEntity exerciseToRemove,
+    RoutineEntity currentRoutine,
+  ) {
     final updatedList = currentRoutine.exercises
         .where((e) => e.id != exerciseToRemove.id)
         .toList();
     context.read<TrainingBloc>().add(
-          UpdateRoutineEvent(
-            id: currentRoutine.id,
-            title: currentRoutine.title,
-            exercises: updatedList,
-            estDuration: currentRoutine.estimatedDuration,
-          ),
-        );
+      UpdateRoutineEvent(
+        id: currentRoutine.id,
+        title: currentRoutine.title,
+        exercises: updatedList,
+        estDuration: currentRoutine.estimatedDuration,
+      ),
+    );
   }
 
-  void _showEditExerciseSheet(BuildContext context, RoutineExerciseEntity re,
-      RoutineEntity currentRoutine) {
+  void _showEditExerciseSheet(
+    BuildContext context,
+    RoutineExerciseEntity re,
+    RoutineEntity currentRoutine,
+  ) {
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -49,19 +55,23 @@ class WorkoutDetailScreen extends StatelessWidget {
       builder: (context) => AlertDialog(
         backgroundColor: Theme.of(context).colorScheme.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: const Text('Elimina Routine',
-            style:
-                TextStyle(fontWeight: FontWeight.w900, fontFamily: 'Lexend')),
+        title: const Text(
+          'Elimina Routine',
+          style: TextStyle(fontWeight: FontWeight.w900, fontFamily: 'Lexend'),
+        ),
         content: const Text(
           'Sei sicuro di voler eliminare questa routine? Questa azione non può essere annullata.',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('ANNULLA',
-                style: TextStyle(
-                    color: Theme.of(context).colorScheme.outline,
-                    fontWeight: FontWeight.w900)),
+            child: Text(
+              'ANNULLA',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.outline,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
           ),
           TextButton(
             onPressed: () {
@@ -70,8 +80,10 @@ class WorkoutDetailScreen extends StatelessWidget {
               context.pop(); // Go back from detail screen
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('ELIMINA PERMANENTEMENTE',
-                style: TextStyle(fontWeight: FontWeight.w900)),
+            child: const Text(
+              'ELIMINA PERMANENTEMENTE',
+              style: TextStyle(fontWeight: FontWeight.w900),
+            ),
           ),
         ],
       ),
@@ -79,23 +91,30 @@ class WorkoutDetailScreen extends StatelessWidget {
   }
 
   void _showNotesDialog(
-      BuildContext context, ExerciseEntity exercise, ThemeData theme) {
+    BuildContext context,
+    ExerciseEntity exercise,
+    ThemeData theme,
+  ) {
     showDialog<void>(
       context: context,
       builder: (ctx) {
         return AlertDialog(
           backgroundColor: theme.colorScheme.surfaceContainerHigh,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
           title: Row(
             children: [
               Icon(Icons.notes_rounded, color: theme.colorScheme.primary),
               const SizedBox(width: 8),
-              const Text('Le tue note',
-                  style: TextStyle(
-                      fontFamily: 'Lexend',
-                      fontWeight: FontWeight.w900,
-                      fontSize: 18)),
+              const Text(
+                'Le tue note',
+                style: TextStyle(
+                  fontFamily: 'Lexend',
+                  fontWeight: FontWeight.w900,
+                  fontSize: 18,
+                ),
+              ),
             ],
           ),
           content: Text(
@@ -104,11 +123,13 @@ class WorkoutDetailScreen extends StatelessWidget {
                 ? exercise.userNotes!
                 : "Nessuna nota presente per questo esercizio.\n\nPuoi aggiungere appunti dalla schermata dei dettagli dell'esercizio.",
             style: theme.textTheme.bodyMedium?.copyWith(
-              color: (exercise.userNotes != null &&
+              color:
+                  (exercise.userNotes != null &&
                       exercise.userNotes!.trim().isNotEmpty)
                   ? theme.colorScheme.onSurface
                   : theme.colorScheme.outline,
-              fontStyle: (exercise.userNotes != null &&
+              fontStyle:
+                  (exercise.userNotes != null &&
                       exercise.userNotes!.trim().isNotEmpty)
                   ? FontStyle.normal
                   : FontStyle.italic,
@@ -117,10 +138,13 @@ class WorkoutDetailScreen extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: Text('CHIUDI',
-                  style: TextStyle(
-                      color: theme.colorScheme.primary,
-                      fontWeight: FontWeight.w900)),
+              child: Text(
+                'CHIUDI',
+                style: TextStyle(
+                  color: theme.colorScheme.primary,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
             ),
           ],
         );
@@ -170,11 +194,13 @@ class WorkoutDetailScreen extends StatelessWidget {
                     ),
                     borderRadius: BorderRadius.circular(28),
                     border: Border.all(
-                        color:
-                            theme.colorScheme.primary.withValues(alpha: 0.05)),
+                      color: theme.colorScheme.primary.withValues(alpha: 0.05),
+                    ),
                   ),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 24,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -189,7 +215,7 @@ class WorkoutDetailScreen extends StatelessWidget {
                                 end: Alignment.bottomCenter,
                                 colors: [
                                   Colors.orangeAccent,
-                                  Colors.deepOrange
+                                  Colors.deepOrange,
                                 ],
                               ),
                               borderRadius: BorderRadius.circular(2),
@@ -199,8 +225,9 @@ class WorkoutDetailScreen extends StatelessWidget {
                           Text(
                             'ROUTINE ATTUALE',
                             style: theme.textTheme.labelSmall?.copyWith(
-                              color: theme.colorScheme.primary
-                                  .withValues(alpha: 0.6),
+                              color: theme.colorScheme.primary.withValues(
+                                alpha: 0.6,
+                              ),
                               letterSpacing: 2,
                               fontWeight: FontWeight.w900,
                               fontSize: 10,
@@ -213,7 +240,7 @@ class WorkoutDetailScreen extends StatelessWidget {
                         shaderCallback: (bounds) => LinearGradient(
                           colors: [
                             theme.colorScheme.primary,
-                            theme.colorScheme.tertiary
+                            theme.colorScheme.tertiary,
                           ],
                         ).createShader(bounds),
                         child: Text(
@@ -235,8 +262,9 @@ class WorkoutDetailScreen extends StatelessWidget {
                           _HeaderTag(
                             icon: Icons.fitness_center_rounded,
                             label: '${exercises.length} ESERCIZI',
-                            color: theme.colorScheme.primary
-                                .withValues(alpha: 0.08),
+                            color: theme.colorScheme.primary.withValues(
+                              alpha: 0.08,
+                            ),
                             textColor: theme.colorScheme.primary,
                           ),
                           const SizedBox(width: 8),
@@ -273,7 +301,8 @@ class WorkoutDetailScreen extends StatelessWidget {
                           setsList = jsonDecode(re.setsData!) as List<dynamic>;
                         } catch (e) {
                           debugPrint(
-                              'WorkoutDetailScreen sets parse error: $e');
+                            'WorkoutDetailScreen sets parse error: $e',
+                          );
                           setsList = [];
                         }
                       }
@@ -283,18 +312,21 @@ class WorkoutDetailScreen extends StatelessWidget {
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
-                              theme.colorScheme.surfaceContainerHigh
-                                  .withValues(alpha: 0.8),
-                              theme.colorScheme.surfaceContainer
-                                  .withValues(alpha: 0.5),
+                              theme.colorScheme.surfaceContainerHigh.withValues(
+                                alpha: 0.8,
+                              ),
+                              theme.colorScheme.surfaceContainer.withValues(
+                                alpha: 0.5,
+                              ),
                             ],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
-                            color: theme.colorScheme.outline
-                                .withValues(alpha: 0.1),
+                            color: theme.colorScheme.outline.withValues(
+                              alpha: 0.1,
+                            ),
                             width: 1.5,
                           ),
                         ),
@@ -302,14 +334,19 @@ class WorkoutDetailScreen extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             ListTile(
-                              contentPadding:
-                                  const EdgeInsets.fromLTRB(16, 16, 8, 16),
+                              contentPadding: const EdgeInsets.fromLTRB(
+                                16,
+                                16,
+                                8,
+                                16,
+                              ),
                               leading: Container(
                                 width: 48,
                                 height: 48,
                                 decoration: BoxDecoration(
-                                  color: theme.colorScheme.primary
-                                      .withValues(alpha: 0.15),
+                                  color: theme.colorScheme.primary.withValues(
+                                    alpha: 0.15,
+                                  ),
                                   borderRadius: BorderRadius.circular(14),
                                 ),
                                 child: ClipRRect(
@@ -318,16 +355,23 @@ class WorkoutDetailScreen extends StatelessWidget {
                                       ? Image.network(
                                           re.exercise.imageUrl!,
                                           fit: BoxFit.cover,
-                                          errorBuilder: (context, error,
-                                                  stackTrace) =>
-                                              Icon(Icons.fitness_center_rounded,
-                                                  color:
-                                                      theme.colorScheme.primary,
-                                                  size: 22),
+                                          errorBuilder:
+                                              (
+                                                context,
+                                                error,
+                                                stackTrace,
+                                              ) => Icon(
+                                                Icons.fitness_center_rounded,
+                                                color:
+                                                    theme.colorScheme.primary,
+                                                size: 22,
+                                              ),
                                         )
-                                      : Icon(Icons.fitness_center_rounded,
+                                      : Icon(
+                                          Icons.fitness_center_rounded,
                                           color: theme.colorScheme.primary,
-                                          size: 22),
+                                          size: 22,
+                                        ),
                                 ),
                               ),
                               title: Text(
@@ -344,7 +388,9 @@ class WorkoutDetailScreen extends StatelessWidget {
                                   children: [
                                     Container(
                                       padding: const EdgeInsets.symmetric(
-                                          horizontal: 8, vertical: 4),
+                                        horizontal: 8,
+                                        vertical: 4,
+                                      ),
                                       decoration: BoxDecoration(
                                         color: theme.colorScheme.tertiary
                                             .withValues(alpha: 0.15),
@@ -363,7 +409,9 @@ class WorkoutDetailScreen extends StatelessWidget {
                                     const SizedBox(width: 6),
                                     Container(
                                       padding: const EdgeInsets.symmetric(
-                                          horizontal: 8, vertical: 4),
+                                        horizontal: 8,
+                                        vertical: 4,
+                                      ),
                                       decoration: BoxDecoration(
                                         color: theme.colorScheme.outline
                                             .withValues(alpha: 0.1),
@@ -386,26 +434,37 @@ class WorkoutDetailScreen extends StatelessWidget {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   IconButton(
-                                    icon: Icon(Icons.info_outline_rounded,
-                                        color: theme.colorScheme.primary),
+                                    icon: Icon(
+                                      Icons.info_outline_rounded,
+                                      color: theme.colorScheme.primary,
+                                    ),
                                     onPressed: () => _showNotesDialog(
-                                        context, re.exercise, theme),
+                                      context,
+                                      re.exercise,
+                                      theme,
+                                    ),
                                   ),
                                   PopupMenuButton<String>(
                                     onSelected: (val) {
                                       if (val == 'edit') {
                                         _showEditExerciseSheet(
-                                            context, re, currentRoutine);
+                                          context,
+                                          re,
+                                          currentRoutine,
+                                        );
                                       } else if (val == 'remove_exercise') {
                                         _removeSingleExercise(
-                                            context, re, currentRoutine);
+                                          context,
+                                          re,
+                                          currentRoutine,
+                                        );
                                       } else if (val == 'delete_routine') {
                                         _showDeleteDialog(context);
                                       }
                                     },
                                     shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(16)),
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
                                     color:
                                         theme.colorScheme.surfaceContainerHigh,
                                     elevation: 8,
@@ -413,28 +472,34 @@ class WorkoutDetailScreen extends StatelessWidget {
                                       padding: const EdgeInsets.all(4),
                                       decoration: BoxDecoration(
                                         color: theme
-                                            .colorScheme.surfaceContainerHighest
+                                            .colorScheme
+                                            .surfaceContainerHighest
                                             .withValues(alpha: 0.5),
                                         shape: BoxShape.circle,
                                       ),
-                                      child: Icon(Icons.more_horiz_rounded,
-                                          color: theme.colorScheme.primary),
+                                      child: Icon(
+                                        Icons.more_horiz_rounded,
+                                        color: theme.colorScheme.primary,
+                                      ),
                                     ),
                                     itemBuilder: (context) => [
                                       PopupMenuItem(
                                         value: 'edit',
                                         child: Row(
                                           children: [
-                                            Icon(Icons.edit_note_rounded,
-                                                size: 20,
-                                                color:
-                                                    theme.colorScheme.primary),
+                                            Icon(
+                                              Icons.edit_note_rounded,
+                                              size: 20,
+                                              color: theme.colorScheme.primary,
+                                            ),
                                             const SizedBox(width: 12),
-                                            const Text('Modifica serie',
-                                                style: TextStyle(
-                                                    fontSize: 14,
-                                                    fontWeight:
-                                                        FontWeight.w600)),
+                                            const Text(
+                                              'Modifica serie',
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
                                           ],
                                         ),
                                       ),
@@ -443,17 +508,20 @@ class WorkoutDetailScreen extends StatelessWidget {
                                         child: Row(
                                           children: [
                                             Icon(
-                                                Icons
-                                                    .remove_circle_outline_rounded,
-                                                size: 20,
-                                                color: theme.colorScheme.error),
+                                              Icons
+                                                  .remove_circle_outline_rounded,
+                                              size: 20,
+                                              color: theme.colorScheme.error,
+                                            ),
                                             const SizedBox(width: 12),
-                                            Text('Rimuovi esercizio',
-                                                style: TextStyle(
-                                                    fontSize: 14,
-                                                    fontWeight: FontWeight.w600,
-                                                    color: theme
-                                                        .colorScheme.error)),
+                                            Text(
+                                              'Rimuovi esercizio',
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w600,
+                                                color: theme.colorScheme.error,
+                                              ),
+                                            ),
                                           ],
                                         ),
                                       ),
@@ -462,16 +530,20 @@ class WorkoutDetailScreen extends StatelessWidget {
                                         value: 'delete_routine',
                                         child: Row(
                                           children: [
-                                            Icon(Icons.delete_forever_rounded,
-                                                size: 20,
-                                                color: theme.colorScheme.error),
+                                            Icon(
+                                              Icons.delete_forever_rounded,
+                                              size: 20,
+                                              color: theme.colorScheme.error,
+                                            ),
                                             const SizedBox(width: 12),
-                                            Text('Elimina routine',
-                                                style: TextStyle(
-                                                    fontSize: 14,
-                                                    fontWeight: FontWeight.w600,
-                                                    color: theme
-                                                        .colorScheme.error)),
+                                            Text(
+                                              'Elimina routine',
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w600,
+                                                color: theme.colorScheme.error,
+                                              ),
+                                            ),
                                           ],
                                         ),
                                       ),
@@ -482,8 +554,12 @@ class WorkoutDetailScreen extends StatelessWidget {
                             ),
                             if (setsList.isNotEmpty)
                               Padding(
-                                padding:
-                                    const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                                padding: const EdgeInsets.fromLTRB(
+                                  16,
+                                  0,
+                                  16,
+                                  16,
+                                ),
                                 child: Column(
                                   children: [
                                     const Divider(height: 1),
@@ -493,17 +569,20 @@ class WorkoutDetailScreen extends StatelessWidget {
                                       final setData =
                                           entry.value as Map<String, dynamic>;
                                       return Container(
-                                        margin:
-                                            const EdgeInsets.only(bottom: 8),
+                                        margin: const EdgeInsets.only(
+                                          bottom: 8,
+                                        ),
                                         padding: const EdgeInsets.all(12),
                                         decoration: BoxDecoration(
                                           color: idx.isEven
-                                              ? theme.colorScheme
-                                                  .surfaceContainerHighest
-                                                  .withValues(alpha: 0.3)
+                                              ? theme
+                                                    .colorScheme
+                                                    .surfaceContainerHighest
+                                                    .withValues(alpha: 0.3)
                                               : Colors.transparent,
-                                          borderRadius:
-                                              BorderRadius.circular(12),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
                                         ),
                                         child: Row(
                                           children: [
@@ -516,7 +595,9 @@ class WorkoutDetailScreen extends StatelessWidget {
                                                     theme.colorScheme.primary
                                                         .withValues(alpha: 0.2),
                                                     theme.colorScheme.primary
-                                                        .withValues(alpha: 0.05)
+                                                        .withValues(
+                                                          alpha: 0.05,
+                                                        ),
                                                   ],
                                                   begin: Alignment.topCenter,
                                                   end: Alignment.bottomCenter,
@@ -527,12 +608,15 @@ class WorkoutDetailScreen extends StatelessWidget {
                                                 child: Text(
                                                   '${idx + 1}',
                                                   style: theme
-                                                      .textTheme.labelSmall
+                                                      .textTheme
+                                                      .labelSmall
                                                       ?.copyWith(
-                                                    fontWeight: FontWeight.w900,
-                                                    color: theme
-                                                        .colorScheme.primary,
-                                                  ),
+                                                        fontWeight:
+                                                            FontWeight.w900,
+                                                        color: theme
+                                                            .colorScheme
+                                                            .primary,
+                                                      ),
                                                 ),
                                               ),
                                             ),
@@ -549,25 +633,30 @@ class WorkoutDetailScreen extends StatelessWidget {
                                                         Text(
                                                           isImperial
                                                               ? UnitConverter.kgToLb(
-                                                                      (setData['weight']
-                                                                              as num)
-                                                                          .toDouble())
-                                                                  .toStringAsFixed(
-                                                                      1)
+                                                                  (setData['weight']
+                                                                          as num)
+                                                                      .toDouble(),
+                                                                ).toStringAsFixed(
+                                                                  1,
+                                                                )
                                                               : (setData['weight']
-                                                                      as num)
-                                                                  .toDouble()
-                                                                  .toStringAsFixed(
-                                                                      1),
-                                                          style: theme.textTheme
+                                                                        as num)
+                                                                    .toDouble()
+                                                                    .toStringAsFixed(
+                                                                      1,
+                                                                    ),
+                                                          style: theme
+                                                              .textTheme
                                                               .titleMedium
                                                               ?.copyWith(
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w900),
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w900,
+                                                              ),
                                                         ),
                                                         const SizedBox(
-                                                            width: 4),
+                                                          width: 4,
+                                                        ),
                                                         Text(
                                                           isImperial
                                                               ? 'LB'
@@ -587,12 +676,14 @@ class WorkoutDetailScreen extends StatelessWidget {
                                                     children: [
                                                       Text(
                                                         '${setData['reps']}',
-                                                        style: theme.textTheme
+                                                        style: theme
+                                                            .textTheme
                                                             .titleMedium
                                                             ?.copyWith(
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w900),
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w900,
+                                                            ),
                                                       ),
                                                       const SizedBox(width: 4),
                                                       Text(
@@ -670,8 +761,11 @@ class _QuickTipBox extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  const Icon(Icons.tips_and_updates_rounded,
-                      size: 20, color: Colors.orangeAccent),
+                  const Icon(
+                    Icons.tips_and_updates_rounded,
+                    size: 20,
+                    color: Colors.orangeAccent,
+                  ),
                   const SizedBox(width: 10),
                   Text(
                     'PRO TIP',
@@ -817,9 +911,8 @@ class _QuickExerciseEditPanelState extends State<_QuickExerciseEditPanel> {
         .toList();
     repsControllers = sets
         .map(
-          (s) => TextEditingController(
-            text: s.reps == 0 ? '' : s.reps.toString(),
-          ),
+          (s) =>
+              TextEditingController(text: s.reps == 0 ? '' : s.reps.toString()),
         )
         .toList();
   }
@@ -846,17 +939,14 @@ class _QuickExerciseEditPanelState extends State<_QuickExerciseEditPanel> {
     final isImperial = (settings['units'] ?? 'KG') == 'LB';
 
     final setsToSave = sets.map((s) {
-      double w = _isBodyweight ? 0.0 : s.weight;
+      var w = _isBodyweight ? 0.0 : s.weight;
       if (isImperial) w = UnitConverter.lbToKg(w);
-      return {
-        'weight': w,
-        'reps': s.reps,
-      };
+      return {'weight': w, 'reps': s.reps};
     }).toList();
 
     final updatedSetsJson = jsonEncode(setsToSave);
 
-    double firstWeight = _isBodyweight ? 0.0 : sets.first.weight;
+    var firstWeight = _isBodyweight ? 0.0 : sets.first.weight;
     if (isImperial) firstWeight = UnitConverter.lbToKg(firstWeight);
 
     final updatedExercise = widget.re.copyWith(
@@ -871,13 +961,13 @@ class _QuickExerciseEditPanelState extends State<_QuickExerciseEditPanel> {
     }).toList();
 
     context.read<TrainingBloc>().add(
-          UpdateRoutineEvent(
-            id: widget.routine.id,
-            title: widget.routine.title,
-            exercises: updatedExercises,
-            estDuration: widget.routine.estimatedDuration,
-          ),
-        );
+      UpdateRoutineEvent(
+        id: widget.routine.id,
+        title: widget.routine.title,
+        exercises: updatedExercises,
+        estDuration: widget.routine.estimatedDuration,
+      ),
+    );
 
     // Breve attesa per permettere al DB di scrivere e al Bloc di emettere
     await Future<void>.delayed(const Duration(milliseconds: 300));
@@ -894,7 +984,7 @@ class _QuickExerciseEditPanelState extends State<_QuickExerciseEditPanel> {
               gradient: LinearGradient(
                 colors: [
                   theme.colorScheme.tertiary,
-                  theme.colorScheme.tertiary.withValues(alpha: 0.8)
+                  theme.colorScheme.tertiary.withValues(alpha: 0.8),
                 ],
               ),
               borderRadius: BorderRadius.circular(20),
@@ -908,8 +998,11 @@ class _QuickExerciseEditPanelState extends State<_QuickExerciseEditPanel> {
             ),
             child: Row(
               children: [
-                Icon(Icons.check_circle_rounded,
-                    color: theme.colorScheme.onTertiary, size: 24),
+                Icon(
+                  Icons.check_circle_rounded,
+                  color: theme.colorScheme.onTertiary,
+                  size: 24,
+                ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
@@ -976,13 +1069,16 @@ class _QuickExerciseEditPanelState extends State<_QuickExerciseEditPanel> {
                         gradient: LinearGradient(
                           colors: [
                             theme.colorScheme.primary.withValues(alpha: 0.1),
-                            theme.colorScheme.tertiary.withValues(alpha: 0.1)
+                            theme.colorScheme.tertiary.withValues(alpha: 0.1),
                           ],
                         ),
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(Icons.edit_note_rounded,
-                          color: theme.colorScheme.primary, size: 28),
+                      child: Icon(
+                        Icons.edit_note_rounded,
+                        color: theme.colorScheme.primary,
+                        size: 28,
+                      ),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
@@ -1001,8 +1097,9 @@ class _QuickExerciseEditPanelState extends State<_QuickExerciseEditPanel> {
                           ),
                           Text(
                             'Modifica parametri serie',
-                            style: theme.textTheme.labelSmall
-                                ?.copyWith(color: theme.colorScheme.outline),
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              color: theme.colorScheme.outline,
+                            ),
                           ),
                         ],
                       ),
@@ -1022,8 +1119,9 @@ class _QuickExerciseEditPanelState extends State<_QuickExerciseEditPanel> {
                               width: 28,
                               height: 28,
                               decoration: BoxDecoration(
-                                color: theme.colorScheme.primary
-                                    .withValues(alpha: 0.1),
+                                color: theme.colorScheme.primary.withValues(
+                                  alpha: 0.1,
+                                ),
                                 shape: BoxShape.circle,
                               ),
                               child: Center(
@@ -1049,9 +1147,14 @@ class _QuickExerciseEditPanelState extends State<_QuickExerciseEditPanel> {
                                     )
                                   : _MiniInput(
                                       controller: weightControllers[idx],
-                                      label: (context.read<TrainingBloc>().state
+                                      label:
+                                          (context.read<TrainingBloc>().state
                                                   is TrainingLoaded &&
-                                              (context.read<TrainingBloc>().state
+                                              (context
+                                                              .read<
+                                                                TrainingBloc
+                                                              >()
+                                                              .state
                                                           as TrainingLoaded)
                                                       .settings['units'] ==
                                                   'LB')
@@ -1078,8 +1181,9 @@ class _QuickExerciseEditPanelState extends State<_QuickExerciseEditPanel> {
                               icon: Icon(
                                 Icons.remove_circle_outline_rounded,
                                 size: 22,
-                                color:
-                                    Colors.orangeAccent.withValues(alpha: 0.5),
+                                color: Colors.orangeAccent.withValues(
+                                  alpha: 0.5,
+                                ),
                               ),
                               onPressed: () => setState(() {
                                 if (sets.length > 1) {
@@ -1112,23 +1216,30 @@ class _QuickExerciseEditPanelState extends State<_QuickExerciseEditPanel> {
                           ),
                         );
                       }),
-                      icon: const Icon(Icons.add_rounded,
-                          color: Colors.orangeAccent),
+                      icon: const Icon(
+                        Icons.add_rounded,
+                        color: Colors.orangeAccent,
+                      ),
                       label: const Text(
                         'AGGIUNGI SERIE',
                         style: TextStyle(
-                            color: Colors.orangeAccent,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 0.5,
-                            fontSize: 12),
+                          color: Colors.orangeAccent,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 0.5,
+                          fontSize: 12,
+                        ),
                       ),
                       style: TextButton.styleFrom(
-                        backgroundColor:
-                            Colors.orangeAccent.withValues(alpha: 0.1),
+                        backgroundColor: Colors.orangeAccent.withValues(
+                          alpha: 0.1,
+                        ),
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 12),
+                          horizontal: 20,
+                          vertical: 12,
+                        ),
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12)),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
                     ),
                   ],
@@ -1141,8 +1252,9 @@ class _QuickExerciseEditPanelState extends State<_QuickExerciseEditPanel> {
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color:
-                              theme.colorScheme.primary.withValues(alpha: 0.3),
+                          color: theme.colorScheme.primary.withValues(
+                            alpha: 0.3,
+                          ),
                           blurRadius: 15,
                           offset: const Offset(0, 5),
                         ),
@@ -1171,9 +1283,10 @@ class _QuickExerciseEditPanelState extends State<_QuickExerciseEditPanel> {
                           : const Text(
                               'SALVA MODIFICHE',
                               style: TextStyle(
-                                  fontWeight: FontWeight.w900,
-                                  letterSpacing: 1.5,
-                                  fontSize: 14),
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 1.5,
+                                fontSize: 14,
+                              ),
                             ),
                     ),
                   ),
@@ -1205,8 +1318,9 @@ class _MiniInput extends StatelessWidget {
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(16),
-        border:
-            Border.all(color: theme.colorScheme.primary.withValues(alpha: 0.1)),
+        border: Border.all(
+          color: theme.colorScheme.primary.withValues(alpha: 0.1),
+        ),
       ),
       child: TextField(
         controller: controller,
@@ -1214,7 +1328,10 @@ class _MiniInput extends StatelessWidget {
         onChanged: onChanged,
         textAlign: TextAlign.center,
         style: const TextStyle(
-            fontSize: 16, fontWeight: FontWeight.w900, fontFamily: 'Lexend'),
+          fontSize: 16,
+          fontWeight: FontWeight.w900,
+          fontFamily: 'Lexend',
+        ),
         decoration: InputDecoration(
           labelText: label,
           labelStyle: TextStyle(
@@ -1225,12 +1342,15 @@ class _MiniInput extends StatelessWidget {
           ),
           floatingLabelBehavior: FloatingLabelBehavior.always,
           isDense: true,
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 14,
+          ),
           border: InputBorder.none,
           hintText: '0',
           hintStyle: TextStyle(
-              color: theme.colorScheme.outline.withValues(alpha: 0.3)),
+            color: theme.colorScheme.outline.withValues(alpha: 0.3),
+          ),
         ),
       ),
     );

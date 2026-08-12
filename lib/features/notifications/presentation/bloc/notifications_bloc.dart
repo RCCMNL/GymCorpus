@@ -16,7 +16,7 @@ const int _trainingBaseNotificationId = 9010; // 9010-9016 per lun-dom
 @injectable
 class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
   NotificationsBloc({required this.repository})
-      : super(const NotificationsState(isLoading: true)) {
+    : super(const NotificationsState(isLoading: true)) {
     on<LoadNotificationsEvent>(_onLoad);
     on<UpdateNotificationsList>(_onUpdate);
     on<MarkNotificationReadEvent>(_onMarkRead);
@@ -29,10 +29,8 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
     on<ScheduleTrainingReminderEvent>(_onScheduleTraining);
     on<CancelTrainingReminderEvent>(_onCancelTraining);
 
-    _tapSubscription =
-        NotificationService.instance.notificationTapStream.listen(
-      _onNotificationTapped,
-    );
+    _tapSubscription = NotificationService.instance.notificationTapStream
+        .listen(_onNotificationTapped);
   }
 
   final NotificationsRepository repository;
@@ -44,20 +42,12 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
     required String body,
     required String type,
   }) async {
-    await repository.addNotificationLog(
-      title: title,
-      body: body,
-      type: type,
-    );
+    await repository.addNotificationLog(title: title, body: body, type: type);
   }
 
   void _onNotificationTapped(NotificationPayloadData payload) {
     unawaited(
-      _addLog(
-        title: payload.title,
-        body: payload.body,
-        type: payload.type,
-      ),
+      _addLog(title: payload.title, body: payload.body, type: payload.type),
     );
   }
 
@@ -75,10 +65,7 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
     UpdateNotificationsList event,
     Emitter<NotificationsState> emit,
   ) {
-    emit(state.copyWith(
-      notifications: event.notifications,
-      isLoading: false,
-    ));
+    emit(state.copyWith(notifications: event.notifications, isLoading: false));
   }
 
   Future<void> _onMarkRead(
@@ -113,11 +100,7 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
     AddNotificationLogEvent event,
     Emitter<NotificationsState> emit,
   ) async {
-    await _addLog(
-      title: event.title,
-      body: event.body,
-      type: event.type,
-    );
+    await _addLog(title: event.title, body: event.body, type: event.type);
   }
 
   Future<void> _onScheduleStretching(
@@ -158,7 +141,6 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
         minute: event.minute,
       );
     }
-
   }
 
   Future<void> _onCancelTraining(

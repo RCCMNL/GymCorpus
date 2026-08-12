@@ -38,7 +38,10 @@ class _CustomWorkoutsScreenState extends State<CustomWorkoutsScreen> {
               final routines = state.routines;
 
               return SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 16,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -91,15 +94,23 @@ class _CustomWorkoutsScreenState extends State<CustomWorkoutsScreen> {
                         GestureDetector(
                           onTap: () => context.push('/custom/new'),
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 18,
+                              vertical: 12,
+                            ),
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
-                                colors: [theme.colorScheme.primary, theme.colorScheme.tertiary],
+                                colors: [
+                                  theme.colorScheme.primary,
+                                  theme.colorScheme.tertiary,
+                                ],
                               ),
                               borderRadius: BorderRadius.circular(24),
                               boxShadow: [
                                 BoxShadow(
-                                  color: theme.colorScheme.primary.withValues(alpha: 0.3),
+                                  color: theme.colorScheme.primary.withValues(
+                                    alpha: 0.3,
+                                  ),
                                   blurRadius: 12,
                                   offset: const Offset(0, 4),
                                 ),
@@ -107,7 +118,11 @@ class _CustomWorkoutsScreenState extends State<CustomWorkoutsScreen> {
                             ),
                             child: Row(
                               children: [
-                                const Icon(Icons.add_rounded, color: Colors.white, size: 20),
+                                const Icon(
+                                  Icons.add_rounded,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
                                 const SizedBox(width: 6),
                                 Text(
                                   'NUOVO',
@@ -130,7 +145,10 @@ class _CustomWorkoutsScreenState extends State<CustomWorkoutsScreen> {
                     if (routines.isEmpty)
                       Center(
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 60, horizontal: 24),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 60,
+                            horizontal: 24,
+                          ),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -140,7 +158,13 @@ class _CustomWorkoutsScreenState extends State<CustomWorkoutsScreen> {
                                   color: theme.colorScheme.surfaceContainerHigh,
                                   shape: BoxShape.circle,
                                 ),
-                                child: Icon(Icons.edit_document, size: 48, color: theme.colorScheme.outline.withValues(alpha: 0.5)),
+                                child: Icon(
+                                  Icons.edit_document,
+                                  size: 48,
+                                  color: theme.colorScheme.outline.withValues(
+                                    alpha: 0.5,
+                                  ),
+                                ),
                               ),
                               const SizedBox(height: 24),
                               Text(
@@ -185,7 +209,6 @@ class _CustomWorkoutsScreenState extends State<CustomWorkoutsScreen> {
                     const SizedBox(height: 24),
 
                     // Rimosso vecchio pulsante Create Workout in basso
-
                     const SizedBox(height: 100), // Space for Nav
                   ],
                 ),
@@ -250,10 +273,7 @@ class _WorkoutsLoadError extends StatelessWidget {
 }
 
 class _WorkoutCard extends StatelessWidget {
-  const _WorkoutCard({
-    required this.routine,
-    required this.color,
-  });
+  const _WorkoutCard({required this.routine, required this.color});
 
   final RoutineEntity routine;
   final Color color;
@@ -293,7 +313,10 @@ class _WorkoutCard extends StatelessWidget {
                   elevation: 0,
                   behavior: SnackBarBehavior.floating,
                   content: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
                     decoration: BoxDecoration(
                       color: theme.colorScheme.error,
                       borderRadius: BorderRadius.circular(20),
@@ -307,7 +330,11 @@ class _WorkoutCard extends StatelessWidget {
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.delete_forever_rounded, color: Colors.white, size: 24),
+                        const Icon(
+                          Icons.delete_forever_rounded,
+                          color: Colors.white,
+                          size: 24,
+                        ),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
@@ -396,7 +423,10 @@ class _WorkoutCard extends StatelessWidget {
                           Row(
                             children: [
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 6,
+                                ),
                                 decoration: BoxDecoration(
                                   color: color.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(10),
@@ -404,42 +434,57 @@ class _WorkoutCard extends StatelessWidget {
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Icon(Icons.fitness_center_rounded, size: 14, color: color),
+                                    Icon(
+                                      Icons.fitness_center_rounded,
+                                      size: 14,
+                                      color: color,
+                                    ),
                                     const SizedBox(width: 6),
                                     Text(
                                       '${routine.exercises.length} ESERCIZI',
-                                      style: theme.textTheme.labelSmall?.copyWith(
-                                        color: color,
-                                        fontWeight: FontWeight.w900,
-                                        letterSpacing: 0.5,
-                                        fontSize: 9,
-                                        fontFamily: 'Lexend',
-                                      ),
+                                      style: theme.textTheme.labelSmall
+                                          ?.copyWith(
+                                            color: color,
+                                            fontWeight: FontWeight.w900,
+                                            letterSpacing: 0.5,
+                                            fontSize: 9,
+                                            fontFamily: 'Lexend',
+                                          ),
                                     ),
                                   ],
                                 ),
                               ),
                               const SizedBox(width: 8),
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 6,
+                                ),
                                 decoration: BoxDecoration(
-                                  color: theme.colorScheme.tertiary.withValues(alpha: 0.1),
+                                  color: theme.colorScheme.tertiary.withValues(
+                                    alpha: 0.1,
+                                  ),
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Icon(Icons.timer_outlined, size: 14, color: theme.colorScheme.tertiary),
+                                    Icon(
+                                      Icons.timer_outlined,
+                                      size: 14,
+                                      color: theme.colorScheme.tertiary,
+                                    ),
                                     const SizedBox(width: 6),
                                     Text(
                                       '${routine.estimatedDuration ?? "--"} MIN',
-                                      style: theme.textTheme.labelSmall?.copyWith(
-                                        color: theme.colorScheme.tertiary,
-                                        fontWeight: FontWeight.w900,
-                                        letterSpacing: 0.5,
-                                        fontSize: 9,
-                                        fontFamily: 'Lexend',
-                                      ),
+                                      style: theme.textTheme.labelSmall
+                                          ?.copyWith(
+                                            color: theme.colorScheme.tertiary,
+                                            fontWeight: FontWeight.w900,
+                                            letterSpacing: 0.5,
+                                            fontSize: 9,
+                                            fontFamily: 'Lexend',
+                                          ),
                                     ),
                                   ],
                                 ),
@@ -455,7 +500,8 @@ class _WorkoutCard extends StatelessWidget {
                         _ActionButton(
                           icon: Icons.edit_rounded,
                           color: theme.colorScheme.primary,
-                          onTap: () => context.push('/custom/edit', extra: routine),
+                          onTap: () =>
+                              context.push('/custom/edit', extra: routine),
                         ),
                         const SizedBox(width: 8),
                         _ActionButton(
@@ -477,7 +523,11 @@ class _WorkoutCard extends StatelessWidget {
 }
 
 class _ActionButton extends StatelessWidget {
-  const _ActionButton({required this.icon, required this.color, required this.onTap});
+  const _ActionButton({
+    required this.icon,
+    required this.color,
+    required this.onTap,
+  });
   final IconData icon;
   final Color color;
   final VoidCallback onTap;

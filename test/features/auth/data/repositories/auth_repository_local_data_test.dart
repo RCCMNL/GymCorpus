@@ -67,11 +67,15 @@ void main() {
     () async {
       final user = buildUser('utente-nuovo');
       when(() => firebaseAuth.currentUser).thenReturn(user);
-      when(() => localDataSource.getUserSession()).thenAnswer((_) async => null);
-      when(() => localDataSource.getLocalDataOwner())
-          .thenAnswer((_) async => 'utente-precedente');
-      when(database.clearLocalUserData)
-          .thenThrow(Exception('database bloccato'));
+      when(
+        () => localDataSource.getUserSession(),
+      ).thenAnswer((_) async => null);
+      when(
+        () => localDataSource.getLocalDataOwner(),
+      ).thenAnswer((_) async => 'utente-precedente');
+      when(
+        database.clearLocalUserData,
+      ).thenThrow(Exception('database bloccato'));
       when(() => firebaseAuth.signOut()).thenAnswer((_) async {});
 
       final result = await repository.checkSession();
@@ -87,13 +91,18 @@ void main() {
     () async {
       final user = buildUser('utente-corrente');
       when(() => firebaseAuth.currentUser).thenReturn(user);
-      when(() => localDataSource.getUserSession()).thenAnswer((_) async => null);
-      when(() => localDataSource.getLocalDataOwner())
-          .thenAnswer((_) async => 'utente-corrente');
-      when(() => remoteDataSource.getUserProfile(any()))
-          .thenAnswer((_) async => null);
-      when(() => localDataSource.saveUserSession(any()))
-          .thenAnswer((_) async {});
+      when(
+        () => localDataSource.getUserSession(),
+      ).thenAnswer((_) async => null);
+      when(
+        () => localDataSource.getLocalDataOwner(),
+      ).thenAnswer((_) async => 'utente-corrente');
+      when(
+        () => remoteDataSource.getUserProfile(any()),
+      ).thenAnswer((_) async => null);
+      when(
+        () => localDataSource.saveUserSession(any()),
+      ).thenAnswer((_) async {});
 
       await repository.checkSession();
 

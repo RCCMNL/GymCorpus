@@ -78,41 +78,43 @@ void main() {
       );
     });
 
-    test('conta gli allenamenti dai workoutId dei set quando mancano sessioni',
-        () {
-      final now = DateTime(2026, 4, 27);
-      final progress = AthleteProgressService.calculate(
-        workoutSessions: const [],
-        workoutSets: [
-          WorkoutSetEntity(
-            id: 1,
-            workoutId: 10,
-            exerciseId: 1,
-            reps: 5,
-            weight: 80,
-            timestamp: now,
-          ),
-          WorkoutSetEntity(
-            id: 2,
-            workoutId: 11,
-            exerciseId: 1,
-            reps: 5,
-            weight: 85,
-            timestamp: now,
-          ),
-        ],
-        cardioSessions: const [],
-        exercises: const [
-          ExerciseEntity(id: 1, name: 'Panca', targetMuscle: 'Petto'),
-        ],
-      );
+    test(
+      'conta gli allenamenti dai workoutId dei set quando mancano sessioni',
+      () {
+        final now = DateTime(2026, 4, 27);
+        final progress = AthleteProgressService.calculate(
+          workoutSessions: const [],
+          workoutSets: [
+            WorkoutSetEntity(
+              id: 1,
+              workoutId: 10,
+              exerciseId: 1,
+              reps: 5,
+              weight: 80,
+              timestamp: now,
+            ),
+            WorkoutSetEntity(
+              id: 2,
+              workoutId: 11,
+              exerciseId: 1,
+              reps: 5,
+              weight: 85,
+              timestamp: now,
+            ),
+          ],
+          cardioSessions: const [],
+          exercises: const [
+            ExerciseEntity(id: 1, name: 'Panca', targetMuscle: 'Petto'),
+          ],
+        );
 
-      final workoutsRecord = progress.records.firstWhere(
-        (record) => record.title == 'Allenamenti completati',
-      );
+        final workoutsRecord = progress.records.firstWhere(
+          (record) => record.title == 'Allenamenti completati',
+        );
 
-      expect(workoutsRecord.value, '2');
-      expect(progress.xp, greaterThanOrEqualTo(200));
-    });
+        expect(workoutsRecord.value, '2');
+        expect(progress.xp, greaterThanOrEqualTo(200));
+      },
+    );
   });
 }

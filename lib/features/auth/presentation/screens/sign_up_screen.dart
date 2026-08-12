@@ -29,8 +29,8 @@ class _SignUpScreenState extends State<SignUpScreen>
   bool _obscurePassword = true;
   bool _obscureConfirm = true;
   bool _acceptedLegal = false;
-  bool _marketingConsent = false;
-  bool _profilingConsent = false;
+  final bool _marketingConsent = false;
+  final bool _profilingConsent = false;
   int _currentStep = 0;
   bool _isGoogleSignUpFlow = false;
 
@@ -43,14 +43,20 @@ class _SignUpScreenState extends State<SignUpScreen>
   void initState() {
     super.initState();
     _animController = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 900));
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    );
     _fadeIn = CurvedAnimation(
-        parent: _animController,
-        curve: const Interval(0, 0.6, curve: Curves.easeOut));
+      parent: _animController,
+      curve: const Interval(0, 0.6, curve: Curves.easeOut),
+    );
     _slideUp = Tween<Offset>(begin: const Offset(0, 0.08), end: Offset.zero)
-        .animate(CurvedAnimation(
+        .animate(
+          CurvedAnimation(
             parent: _animController,
-            curve: const Interval(0.1, 0.7, curve: Curves.easeOutCubic)));
+            curve: const Interval(0.1, 0.7, curve: Curves.easeOutCubic),
+          ),
+        );
     _animController.forward();
   }
 
@@ -68,15 +74,18 @@ class _SignUpScreenState extends State<SignUpScreen>
   }
 
   void _showSnack(String msg, {bool isError = false}) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(msg),
-      duration: const Duration(seconds: 3),
-      backgroundColor:
-          isError ? Theme.of(context).colorScheme.error : Colors.orange,
-      behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-    ));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(msg),
+        duration: const Duration(seconds: 3),
+        backgroundColor: isError
+            ? Theme.of(context).colorScheme.error
+            : Colors.orange,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      ),
+    );
   }
 
   void _goToStep2() {
@@ -105,9 +114,11 @@ class _SignUpScreenState extends State<SignUpScreen>
       _currentStep = 1;
       _isGoogleSignUpFlow = false;
     });
-    _pageController.animateToPage(1,
-        duration: const Duration(milliseconds: 400),
-        curve: Curves.easeInOutCubic);
+    _pageController.animateToPage(
+      1,
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeInOutCubic,
+    );
   }
 
   void _startGoogleSignUp() {
@@ -115,16 +126,20 @@ class _SignUpScreenState extends State<SignUpScreen>
       _currentStep = 1;
       _isGoogleSignUpFlow = true;
     });
-    _pageController.animateToPage(1,
-        duration: const Duration(milliseconds: 400),
-        curve: Curves.easeInOutCubic);
+    _pageController.animateToPage(
+      1,
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeInOutCubic,
+    );
   }
 
   void _goBackToStep1() {
     setState(() => _currentStep = 0);
-    _pageController.animateToPage(0,
-        duration: const Duration(milliseconds: 400),
-        curve: Curves.easeInOutCubic);
+    _pageController.animateToPage(
+      0,
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeInOutCubic,
+    );
   }
 
   void _onSignUpPressed() {
@@ -148,19 +163,21 @@ class _SignUpScreenState extends State<SignUpScreen>
       return;
     }
 
-    context.read<AuthBloc>().add(AuthEvent.signUpRequested(
-          email: _emailController.text.trim(),
-          password: _passwordController.text,
-          firstName: firstName,
-          lastName: lastName,
-          username: username,
-          birthDate: _birthDate!,
-          gender: _gender,
-          acceptedTerms: _acceptedLegal,
-          acceptedPrivacy: _acceptedLegal,
-          marketingConsent: _marketingConsent,
-          profilingConsent: _profilingConsent,
-        ));
+    context.read<AuthBloc>().add(
+      AuthEvent.signUpRequested(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+        firstName: firstName,
+        lastName: lastName,
+        username: username,
+        birthDate: _birthDate!,
+        gender: _gender,
+        acceptedTerms: _acceptedLegal,
+        acceptedPrivacy: _acceptedLegal,
+        marketingConsent: _marketingConsent,
+        profilingConsent: _profilingConsent,
+      ),
+    );
   }
 
   void _onGoogleSignUpPressed() {
@@ -185,13 +202,13 @@ class _SignUpScreenState extends State<SignUpScreen>
     }
 
     context.read<AuthBloc>().add(
-          AuthEvent.googleSignInRequested(
-            acceptedTerms: _acceptedLegal,
-            acceptedPrivacy: _acceptedLegal,
-            marketingConsent: _marketingConsent,
-            profilingConsent: _profilingConsent,
-          ),
-        );
+      AuthEvent.googleSignInRequested(
+        acceptedTerms: _acceptedLegal,
+        acceptedPrivacy: _acceptedLegal,
+        marketingConsent: _marketingConsent,
+        profilingConsent: _profilingConsent,
+      ),
+    );
   }
 
   Future<void> _selectDate() async {
@@ -224,7 +241,9 @@ class _SignUpScreenState extends State<SignUpScreen>
                       width: 40,
                       height: 4,
                       decoration: BoxDecoration(
-                        color: theme.colorScheme.outline.withValues(alpha: 0.25),
+                        color: theme.colorScheme.outline.withValues(
+                          alpha: 0.25,
+                        ),
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
@@ -289,14 +308,14 @@ class _SignUpScreenState extends State<SignUpScreen>
               if (_isGoogleSignUpFlow) {
                 setState(() => _isGoogleSignUpFlow = false);
                 context.read<AuthBloc>().add(
-                      AuthEvent.updateProfileRequested(
-                        firstName: _firstNameController.text.trim(),
-                        lastName: _lastNameController.text.trim(),
-                        username: _usernameController.text.trim(),
-                        birthDate: _birthDate,
-                        gender: _gender,
-                      ),
-                    );
+                  AuthEvent.updateProfileRequested(
+                    firstName: _firstNameController.text.trim(),
+                    lastName: _lastNameController.text.trim(),
+                    username: _usernameController.text.trim(),
+                    birthDate: _birthDate,
+                    gender: _gender,
+                  ),
+                );
               }
               context.go('/training');
             },
@@ -304,33 +323,39 @@ class _SignUpScreenState extends State<SignUpScreen>
           );
         },
         builder: (context, state) {
-          final isLoading =
-              state.maybeWhen(loading: (_) => true, orElse: () => false);
-          return Stack(children: [
-            AmbientBackground(theme: theme),
-            SafeArea(
-              child: FadeTransition(
-                opacity: _fadeIn,
-                child: SlideTransition(
-                  position: _slideUp,
-                  child: Column(children: [
-                    _buildTopBar(theme),
-                    _buildStepIndicator(theme),
-                    Expanded(
-                      child: PageView(
-                        controller: _pageController,
-                        physics: const NeverScrollableScrollPhysics(),
-                        children: [
-                          _buildStep1(theme, isLoading),
-                          _buildStep2(theme, isLoading),
-                        ],
-                      ),
+          final isLoading = state.maybeWhen(
+            loading: (_) => true,
+            orElse: () => false,
+          );
+          return Stack(
+            children: [
+              AmbientBackground(theme: theme),
+              SafeArea(
+                child: FadeTransition(
+                  opacity: _fadeIn,
+                  child: SlideTransition(
+                    position: _slideUp,
+                    child: Column(
+                      children: [
+                        _buildTopBar(theme),
+                        _buildStepIndicator(theme),
+                        Expanded(
+                          child: PageView(
+                            controller: _pageController,
+                            physics: const NeverScrollableScrollPhysics(),
+                            children: [
+                              _buildStep1(theme, isLoading),
+                              _buildStep2(theme, isLoading),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                  ]),
+                  ),
                 ),
               ),
-            ),
-          ]);
+            ],
+          );
         },
       ),
     );
@@ -339,59 +364,68 @@ class _SignUpScreenState extends State<SignUpScreen>
   Widget _buildTopBar(ThemeData theme) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      child: Row(children: [
-        Container(
-          decoration: BoxDecoration(
-            color: theme.colorScheme.primary.withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: theme.colorScheme.primary.withValues(alpha: 0.14),
+      child: Row(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primary.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: theme.colorScheme.primary.withValues(alpha: 0.14),
+              ),
+            ),
+            child: IconButton(
+              icon: Icon(
+                Icons.arrow_back_rounded,
+                color: theme.colorScheme.primary,
+              ),
+              onPressed: () {
+                if (_currentStep == 1) {
+                  _goBackToStep1();
+                } else {
+                  context.pop();
+                }
+              },
             ),
           ),
-          child: IconButton(
-            icon: Icon(
-              Icons.arrow_back_rounded,
-              color: theme.colorScheme.primary,
+          const Spacer(),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  theme.colorScheme.primary.withValues(alpha: 0.18),
+                  theme.colorScheme.tertiary.withValues(alpha: 0.12),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(999),
+              border: Border.all(
+                color: theme.colorScheme.primary.withValues(alpha: 0.14),
+              ),
             ),
-            onPressed: () {
-              if (_currentStep == 1)
-                _goBackToStep1();
-              else
-                context.pop();
-            },
-          ),
-        ),
-        const Spacer(),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                theme.colorScheme.primary.withValues(alpha: 0.18),
-                theme.colorScheme.tertiary.withValues(alpha: 0.12),
-              ],
-            ),
-            borderRadius: BorderRadius.circular(999),
-            border: Border.all(
-              color: theme.colorScheme.primary.withValues(alpha: 0.14),
-            ),
-          ),
-          child: Text('Passo ${_currentStep + 1} di 2',
+            child: Text(
+              'Passo ${_currentStep + 1} di 2',
               style: theme.textTheme.labelSmall?.copyWith(
-                  color: theme.colorScheme.onSurface, letterSpacing: 1)),
-        ),
-      ]),
+                color: theme.colorScheme.onSurface,
+                letterSpacing: 1,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildStepIndicator(ThemeData theme) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 8),
-      child: Row(children: [
-        _stepDot(theme, 0),
-        Expanded(child: _stepLine(theme, 0)),
-        _stepDot(theme, 1),
-      ]),
+      child: Row(
+        children: [
+          _stepDot(theme, 0),
+          Expanded(child: _stepLine(theme, 0)),
+          _stepDot(theme, 1),
+        ],
+      ),
     );
   }
 
@@ -409,8 +443,9 @@ class _SignUpScreenState extends State<SignUpScreen>
         boxShadow: isActive
             ? [
                 BoxShadow(
-                    color: theme.colorScheme.primary.withValues(alpha: 0.4),
-                    blurRadius: 8)
+                  color: theme.colorScheme.primary.withValues(alpha: 0.4),
+                  blurRadius: 8,
+                ),
               ]
             : null,
       ),
@@ -426,10 +461,7 @@ class _SignUpScreenState extends State<SignUpScreen>
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: isActive
-              ? [
-                  theme.colorScheme.primary,
-                  theme.colorScheme.tertiary,
-                ]
+              ? [theme.colorScheme.primary, theme.colorScheme.tertiary]
               : [
                   theme.colorScheme.outline.withValues(alpha: 0.22),
                   theme.colorScheme.outline.withValues(alpha: 0.08),
@@ -453,17 +485,22 @@ class _SignUpScreenState extends State<SignUpScreen>
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Crea il tuo account',
-                      style: theme.textTheme.headlineLarge?.copyWith(
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: -0.5,
-                          fontSize: 28)),
+                  Text(
+                    'Crea il tuo account',
+                    style: theme.textTheme.headlineLarge?.copyWith(
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: -0.5,
+                      fontSize: 28,
+                    ),
+                  ),
                   const SizedBox(height: 4),
-                  Text('INIZIA IL TUO PERCORSO',
-                      style: theme.textTheme.labelSmall?.copyWith(
-                          letterSpacing: 2,
-                          color: theme.colorScheme.primary
-                              .withValues(alpha: 0.7))),
+                  Text(
+                    'INIZIA IL TUO PERCORSO',
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      letterSpacing: 2,
+                      color: theme.colorScheme.primary.withValues(alpha: 0.7),
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(width: 16),
@@ -476,8 +513,9 @@ class _SignUpScreenState extends State<SignUpScreen>
                     color: theme.colorScheme.primary.withValues(alpha: 0.05),
                     boxShadow: [
                       BoxShadow(
-                        color:
-                            theme.colorScheme.primary.withValues(alpha: 0.15),
+                        color: theme.colorScheme.primary.withValues(
+                          alpha: 0.15,
+                        ),
                         blurRadius: 20,
                         spreadRadius: 2,
                       ),
@@ -512,12 +550,13 @@ class _SignUpScreenState extends State<SignUpScreen>
                 authLabel(theme, 'Email'),
                 const SizedBox(height: 8),
                 AuthTextField(
-                    controller: _emailController,
-                    hint: 'nome@esempio.com',
-                    icon: Icons.email_outlined,
-                    keyboardType: TextInputType.emailAddress,
-                    autofill: const [AutofillHints.email],
-                    action: TextInputAction.next),
+                  controller: _emailController,
+                  hint: 'nome@esempio.com',
+                  icon: Icons.email_outlined,
+                  keyboardType: TextInputType.emailAddress,
+                  autofill: const [AutofillHints.email],
+                  action: TextInputAction.next,
+                ),
                 const SizedBox(height: 16),
                 authLabel(theme, 'Password'),
                 const SizedBox(height: 8),
@@ -529,14 +568,16 @@ class _SignUpScreenState extends State<SignUpScreen>
                   autofill: const [AutofillHints.newPassword],
                   action: TextInputAction.next,
                   suffixIcon: IconButton(
-                      icon: Icon(
-                          _obscurePassword
-                              ? Icons.visibility_off_rounded
-                              : Icons.visibility_rounded,
-                          size: 20,
-                          color: theme.colorScheme.outline),
-                      onPressed: () =>
-                          setState(() => _obscurePassword = !_obscurePassword)),
+                    icon: Icon(
+                      _obscurePassword
+                          ? Icons.visibility_off_rounded
+                          : Icons.visibility_rounded,
+                      size: 20,
+                      color: theme.colorScheme.outline,
+                    ),
+                    onPressed: () =>
+                        setState(() => _obscurePassword = !_obscurePassword),
+                  ),
                 ),
                 const SizedBox(height: 16),
                 authLabel(theme, 'Conferma password'),
@@ -550,25 +591,31 @@ class _SignUpScreenState extends State<SignUpScreen>
                   action: TextInputAction.done,
                   onSubmitted: (_) => _goToStep2(),
                   suffixIcon: IconButton(
-                      icon: Icon(
-                          _obscureConfirm
-                              ? Icons.visibility_off_rounded
-                              : Icons.visibility_rounded,
-                          size: 20,
-                          color: theme.colorScheme.outline),
-                      onPressed: () =>
-                          setState(() => _obscureConfirm = !_obscureConfirm)),
+                    icon: Icon(
+                      _obscureConfirm
+                          ? Icons.visibility_off_rounded
+                          : Icons.visibility_rounded,
+                      size: 20,
+                      color: theme.colorScheme.outline,
+                    ),
+                    onPressed: () =>
+                        setState(() => _obscureConfirm = !_obscureConfirm),
+                  ),
                 ),
                 const SizedBox(height: 22),
                 AuthPrimaryButton(
-                    label: 'CONTINUA', isLoading: false, onPressed: _goToStep2),
+                  label: 'CONTINUA',
+                  isLoading: false,
+                  onPressed: _goToStep2,
+                ),
                 const SizedBox(height: 22),
                 authDivider(theme, 'OPPURE REGISTRATI CON'),
                 const SizedBox(height: 20),
                 AuthSocialButton(
-                    logo: const GoogleLogo(size: 20),
-                    label: 'Registrati con Google',
-                    onTap: _startGoogleSignUp),
+                  logo: const GoogleLogo(size: 20),
+                  label: 'Registrati con Google',
+                  onTap: _startGoogleSignUp,
+                ),
               ],
             ),
           ),
@@ -577,17 +624,22 @@ class _SignUpScreenState extends State<SignUpScreen>
             child: GestureDetector(
               onTap: () => context.pop(),
               child: RichText(
-                  text: TextSpan(
-                      style: theme.textTheme.bodyMedium
-                          ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-                      children: [
+                text: TextSpan(
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                  children: [
                     const TextSpan(text: 'Hai già un account? '),
                     TextSpan(
-                        text: 'Accedi',
-                        style: TextStyle(
-                            color: theme.colorScheme.tertiary,
-                            fontWeight: FontWeight.bold))
-                  ])),
+                      text: 'Accedi',
+                      style: TextStyle(
+                        color: theme.colorScheme.tertiary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
           const SizedBox(height: 32),
@@ -604,90 +656,120 @@ class _SignUpScreenState extends State<SignUpScreen>
         children: [
           const SizedBox(height: 16),
           Center(
-              child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                      gradient: LinearGradient(colors: [
-                        theme.colorScheme.primary.withValues(alpha: 0.22),
-                        theme.colorScheme.tertiary.withValues(alpha: 0.16),
-                      ]),
-                      shape: BoxShape.circle),
-                  child: Icon(Icons.person_outline_rounded,
-                      size: 40, color: theme.colorScheme.primary))),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    theme.colorScheme.primary.withValues(alpha: 0.22),
+                    theme.colorScheme.tertiary.withValues(alpha: 0.16),
+                  ],
+                ),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.person_outline_rounded,
+                size: 40,
+                color: theme.colorScheme.primary,
+              ),
+            ),
+          ),
           const SizedBox(height: 16),
           Center(
-              child: Text('Parlaci di te',
-                  style: theme.textTheme.headlineLarge?.copyWith(
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: -0.5,
-                      fontSize: 28))),
+            child: Text(
+              'Parlaci di te',
+              style: theme.textTheme.headlineLarge?.copyWith(
+                fontWeight: FontWeight.w900,
+                letterSpacing: -0.5,
+                fontSize: 28,
+              ),
+            ),
+          ),
           const SizedBox(height: 6),
           Center(
-              child: Text('COMPLETA IL TUO PROFILO',
-                  style: theme.textTheme.labelSmall?.copyWith(
-                      letterSpacing: 2,
-                      color:
-                          theme.colorScheme.primary.withValues(alpha: 0.7)))),
+            child: Text(
+              'COMPLETA IL TUO PROFILO',
+              style: theme.textTheme.labelSmall?.copyWith(
+                letterSpacing: 2,
+                color: theme.colorScheme.primary.withValues(alpha: 0.7),
+              ),
+            ),
+          ),
           const SizedBox(height: 28),
           GlassCard(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(children: [
-                  Expanded(
+                Row(
+                  children: [
+                    Expanded(
                       child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                        authLabel(theme, 'Nome'),
-                        const SizedBox(height: 8),
-                        AuthTextField(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          authLabel(theme, 'Nome'),
+                          const SizedBox(height: 8),
+                          AuthTextField(
                             controller: _firstNameController,
                             hint: 'nome',
                             autofill: const [AutofillHints.givenName],
-                            action: TextInputAction.next)
-                      ])),
-                  const SizedBox(width: 12),
-                  Expanded(
+                            action: TextInputAction.next,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
                       child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                        authLabel(theme, 'Cognome'),
-                        const SizedBox(height: 8),
-                        AuthTextField(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          authLabel(theme, 'Cognome'),
+                          const SizedBox(height: 8),
+                          AuthTextField(
                             controller: _lastNameController,
                             hint: 'cognome',
                             autofill: const [AutofillHints.familyName],
-                            action: TextInputAction.next)
-                      ])),
-                ]),
+                            action: TextInputAction.next,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 16),
                 authLabel(theme, 'Username'),
                 const SizedBox(height: 8),
                 AuthTextField(
-                    controller: _usernameController,
-                    hint: 'username',
-                    icon: Icons.alternate_email_rounded,
-                    prefixIconConstraints:
-                        const BoxConstraints(minWidth: 30, minHeight: 18),
-                    autofill: const [AutofillHints.username],
-                    action: TextInputAction.done),
+                  controller: _usernameController,
+                  hint: 'username',
+                  icon: Icons.alternate_email_rounded,
+                  prefixIconConstraints: const BoxConstraints(
+                    minWidth: 30,
+                    minHeight: 18,
+                  ),
+                  autofill: const [AutofillHints.username],
+                  action: TextInputAction.done,
+                ),
                 const SizedBox(height: 16),
-                Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Expanded(child: _buildDatePicker(theme)),
-                  const SizedBox(width: 12),
-                  Expanded(child: _buildGenderSelector(theme))
-                ]),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(child: _buildDatePicker(theme)),
+                    const SizedBox(width: 12),
+                    Expanded(child: _buildGenderSelector(theme)),
+                  ],
+                ),
                 const SizedBox(height: 18),
                 _buildLegalConsents(theme),
                 const SizedBox(height: 22),
                 AuthPrimaryButton(
-                    label: _isGoogleSignUpFlow
-                        ? 'CONTINUA CON GOOGLE'
-                        : 'CREA ACCOUNT',
-                    isLoading: isLoading,
-                    onPressed: _isGoogleSignUpFlow
-                        ? _onGoogleSignUpPressed
-                        : _onSignUpPressed),
+                  label: _isGoogleSignUpFlow
+                      ? 'CONTINUA CON GOOGLE'
+                      : 'CREA ACCOUNT',
+                  isLoading: isLoading,
+                  onPressed: _isGoogleSignUpFlow
+                      ? _onGoogleSignUpPressed
+                      : _onSignUpPressed,
+                ),
               ],
             ),
           ),
@@ -709,23 +791,32 @@ class _SignUpScreenState extends State<SignUpScreen>
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
             decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(14)),
-            child: Row(children: [
-              Icon(Icons.calendar_today_rounded,
-                  size: 18, color: theme.colorScheme.primary),
-              const SizedBox(width: 8),
-              Expanded(
+              color: theme.colorScheme.surfaceContainerHighest,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.calendar_today_rounded,
+                  size: 18,
+                  color: theme.colorScheme.primary,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
                   child: Text(
-                      _birthDate == null
-                          ? 'Seleziona'
-                          : DateFormat('dd/MM/yyyy').format(_birthDate!),
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                          color: _birthDate == null
-                              ? theme.colorScheme.outline
-                              : theme.colorScheme.onSurface))),
-            ]),
+                    _birthDate == null
+                        ? 'Seleziona'
+                        : DateFormat('dd/MM/yyyy').format(_birthDate!),
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: _birthDate == null
+                          ? theme.colorScheme.outline
+                          : theme.colorScheme.onSurface,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ],
@@ -740,8 +831,9 @@ class _SignUpScreenState extends State<SignUpScreen>
         const SizedBox(height: 8),
         Container(
           decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(14)),
+            color: theme.colorScheme.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(14),
+          ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               value: _gender,
@@ -752,7 +844,7 @@ class _SignUpScreenState extends State<SignUpScreen>
               items: const [
                 DropdownMenuItem(value: 'Uomo', child: Text('Uomo')),
                 DropdownMenuItem(value: 'Donna', child: Text('Donna')),
-                DropdownMenuItem(value: 'Altro', child: Text('Altro'))
+                DropdownMenuItem(value: 'Altro', child: Text('Altro')),
               ],
               onChanged: (v) {
                 if (v != null) setState(() => _gender = v);
@@ -772,8 +864,9 @@ class _SignUpScreenState extends State<SignUpScreen>
         const SizedBox(height: 10),
         Container(
           decoration: BoxDecoration(
-            color:
-                theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.7),
+            color: theme.colorScheme.surfaceContainerHighest.withValues(
+              alpha: 0.7,
+            ),
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
               color: _acceptedLegal

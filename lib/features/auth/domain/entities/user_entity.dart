@@ -1,20 +1,17 @@
 import 'package:equatable/equatable.dart';
 
 class LoginEntry extends Equatable {
-  const LoginEntry({
-    required this.date,
-    required this.device,
-  });
+  const LoginEntry({required this.date, required this.device});
 
   factory LoginEntry.fromJson(Map<String, dynamic> json) => LoginEntry(
-        date: DateTime.parse(json['date'] as String),
-        device: json['device'] as String,
-      );
+    date: DateTime.parse(json['date'] as String),
+    device: json['device'] as String,
+  );
 
   Map<String, dynamic> toJson() => {
-        'date': date.toIso8601String(),
-        'device': device,
-      };
+    'date': date.toIso8601String(),
+    'device': device,
+  };
 
   final DateTime date;
   final String device;
@@ -96,11 +93,13 @@ class UserEntity extends Equatable {
       profilingConsentUpdatedAt: json['profilingConsentUpdatedAt'] != null
           ? DateTime.parse(json['profilingConsentUpdatedAt'] as String)
           : null,
-      authProviders: (json['authProviders'] as List<dynamic>?)
+      authProviders:
+          (json['authProviders'] as List<dynamic>?)
               ?.map((e) => e as String)
               .toList() ??
           const [],
-      loginHistory: (json['loginHistory'] as List<dynamic>?)
+      loginHistory:
+          (json['loginHistory'] as List<dynamic>?)
               ?.map((e) => LoginEntry.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
@@ -108,31 +107,29 @@ class UserEntity extends Equatable {
   }
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-        'id': id,
-        'firstName': firstName,
-        'lastName': lastName,
-        'email': email,
-        'photoUrl': photoUrl,
-        'username': username,
-        'weight': weight,
-        'height': height,
-        'birthDate': birthDate?.toIso8601String(),
-        'trainingObjective': trainingObjective,
-        'lastLoginDate': lastLoginDate?.toIso8601String(),
-        'lastLoginDevice': lastLoginDevice,
-        'gender': gender,
-        'termsAcceptedAt': termsAcceptedAt?.toIso8601String(),
-        'privacyAcceptedAt': privacyAcceptedAt?.toIso8601String(),
-        'legalVersion': legalVersion,
-        'marketingConsent': marketingConsent,
-        'profilingConsent': profilingConsent,
-        'marketingConsentUpdatedAt':
-            marketingConsentUpdatedAt?.toIso8601String(),
-        'profilingConsentUpdatedAt':
-            profilingConsentUpdatedAt?.toIso8601String(),
-        'authProviders': authProviders,
-        'loginHistory': loginHistory.map((e) => e.toJson()).toList(),
-      };
+    'id': id,
+    'firstName': firstName,
+    'lastName': lastName,
+    'email': email,
+    'photoUrl': photoUrl,
+    'username': username,
+    'weight': weight,
+    'height': height,
+    'birthDate': birthDate?.toIso8601String(),
+    'trainingObjective': trainingObjective,
+    'lastLoginDate': lastLoginDate?.toIso8601String(),
+    'lastLoginDevice': lastLoginDevice,
+    'gender': gender,
+    'termsAcceptedAt': termsAcceptedAt?.toIso8601String(),
+    'privacyAcceptedAt': privacyAcceptedAt?.toIso8601String(),
+    'legalVersion': legalVersion,
+    'marketingConsent': marketingConsent,
+    'profilingConsent': profilingConsent,
+    'marketingConsentUpdatedAt': marketingConsentUpdatedAt?.toIso8601String(),
+    'profilingConsentUpdatedAt': profilingConsentUpdatedAt?.toIso8601String(),
+    'authProviders': authProviders,
+    'loginHistory': loginHistory.map((e) => e.toJson()).toList(),
+  };
 
   final String id;
   final String? firstName;
@@ -215,27 +212,27 @@ class UserEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        firstName,
-        lastName,
-        email,
-        photoUrl,
-        username,
-        weight,
-        height,
-        birthDate,
-        trainingObjective,
-        lastLoginDate,
-        lastLoginDevice,
-        gender,
-        termsAcceptedAt,
-        privacyAcceptedAt,
-        legalVersion,
-        marketingConsent,
-        profilingConsent,
-        marketingConsentUpdatedAt,
-        profilingConsentUpdatedAt,
-        authProviders,
-        loginHistory,
-      ];
+    id,
+    firstName,
+    lastName,
+    email,
+    photoUrl,
+    username,
+    weight,
+    height,
+    birthDate,
+    trainingObjective,
+    lastLoginDate,
+    lastLoginDevice,
+    gender,
+    termsAcceptedAt,
+    privacyAcceptedAt,
+    legalVersion,
+    marketingConsent,
+    profilingConsent,
+    marketingConsentUpdatedAt,
+    profilingConsentUpdatedAt,
+    authProviders,
+    loginHistory,
+  ];
 }

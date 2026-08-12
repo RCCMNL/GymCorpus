@@ -14,9 +14,7 @@ const forearmExercises = [
     execution: Value(
       "Fletti il polso portando il manubrio verso l'alto il più possibile (contrazione). Scendi lentamente, lasciando che il manubrio allunghi i flessori, quasi 'rotolando' sulle dita.",
     ),
-    tips: Value(
-      "Isola il movemento solo al polso. Non muovere l'avambraccio.",
-    ),
+    tips: Value("Isola il movemento solo al polso. Non muovere l'avambraccio."),
   ),
   ExercisesCompanion(
     name: Value('Wrist Curls con bilanciere'),
@@ -130,8 +128,9 @@ const forearmExercises = [
     targetMuscle: Value('Avambracci'),
     equipment: Value('Sbarra per trazioni'),
     focusArea: Value('Resistenza della presa, Decompressione spinale'),
-    preparation:
-        Value('Afferra la sbarra (presa prona o supina) larghezza spalle.'),
+    preparation: Value(
+      'Afferra la sbarra (presa prona o supina) larghezza spalle.',
+    ),
     execution: Value(
       'Rimani appeso alla sbarra (piedi sollevati da terra) per il tempo massimo possibile (time under tension).',
     ),

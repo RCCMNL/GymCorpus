@@ -21,11 +21,17 @@ class YogaScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: theme.colorScheme.tertiary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: theme.colorScheme.tertiary.withValues(alpha: 0.2)),
+                  border: Border.all(
+                    color: theme.colorScheme.tertiary.withValues(alpha: 0.2),
+                  ),
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.construction_rounded, color: theme.colorScheme.tertiary, size: 20),
+                    Icon(
+                      Icons.construction_rounded,
+                      color: theme.colorScheme.tertiary,
+                      size: 20,
+                    ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
@@ -42,7 +48,10 @@ class YogaScreen extends StatelessWidget {
               const SizedBox(height: 32),
               ShaderMask(
                 shaderCallback: (bounds) => LinearGradient(
-                  colors: [theme.colorScheme.primary, theme.colorScheme.tertiary],
+                  colors: [
+                    theme.colorScheme.primary,
+                    theme.colorScheme.tertiary,
+                  ],
                 ).createShader(bounds),
                 child: Text(
                   'Yoga & Mind',
@@ -64,7 +73,6 @@ class YogaScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 32),
-              
               _buildSectionTitle('LIVELLO', theme),
               const SizedBox(height: 12),
               SingleChildScrollView(
@@ -79,7 +87,6 @@ class YogaScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 32),
-              
               _buildSectionTitle('SESSIONI CONSIGLIATE', theme),
               const SizedBox(height: 16),
               _buildYogaCard(
@@ -96,7 +103,6 @@ class YogaScreen extends StatelessWidget {
                 Icons.spa,
                 Colors.tealAccent,
               ),
-              
               const SizedBox(height: 32),
               _buildSectionTitle('FLOW DEL GIORNO', theme),
               const SizedBox(height: 16),
@@ -105,7 +111,9 @@ class YogaScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
                   image: DecorationImage(
-                    image: const NetworkImage('https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&q=80&w=600'),
+                    image: const NetworkImage(
+                      'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&q=80&w=600',
+                    ),
                     fit: BoxFit.cover,
                     colorFilter: ColorFilter.mode(
                       Colors.black.withValues(alpha: 0.6),
@@ -125,14 +133,21 @@ class YogaScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: theme.colorScheme.primary,
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: const Text(
                         'NUOVO',
-                        style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -148,7 +163,10 @@ class YogaScreen extends StatelessWidget {
                     const SizedBox(height: 8),
                     Text(
                       'Una sessione immersiva per eliminare lo stress quotidiano.',
-                      style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 14),
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.8),
+                        fontSize: 14,
+                      ),
                     ),
                     const SizedBox(height: 20),
                     ElevatedButton.icon(
@@ -158,7 +176,10 @@ class YogaScreen extends StatelessWidget {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
                         foregroundColor: Colors.black,
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
@@ -185,7 +206,9 @@ class YogaScreen extends StatelessWidget {
         selectedColor: theme.colorScheme.primary.withValues(alpha: 0.2),
         checkmarkColor: theme.colorScheme.primary,
         labelStyle: TextStyle(
-          color: isSelected ? theme.colorScheme.primary : theme.colorScheme.outline,
+          color: isSelected
+              ? theme.colorScheme.primary
+              : theme.colorScheme.outline,
           fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
           fontSize: 12,
         ),
@@ -211,7 +234,13 @@ class YogaScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildYogaCard(ThemeData theme, String title, String subtitle, IconData icon, Color iconColor) {
+  Widget _buildYogaCard(
+    ThemeData theme,
+    String title,
+    String subtitle,
+    IconData icon,
+    Color iconColor,
+  ) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
@@ -236,11 +265,16 @@ class YogaScreen extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
                 ),
                 Text(
                   subtitle,
-                  style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.outline),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.outline,
+                  ),
                 ),
               ],
             ),

@@ -4,8 +4,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest_all.dart' as tz_data;
+import 'package:timezone/timezone.dart' as tz;
 
 class NotificationPayloadData {
   const NotificationPayloadData({
@@ -14,18 +14,6 @@ class NotificationPayloadData {
     required this.body,
     this.source,
   });
-
-  final String type;
-  final String title;
-  final String body;
-  final String? source;
-
-  String encode() => jsonEncode({
-        'type': type,
-        'title': title,
-        'body': body,
-        'source': source,
-      });
 
   factory NotificationPayloadData.fromEncoded(String payload) {
     final decoded = jsonDecode(payload) as Map<String, dynamic>;
@@ -36,15 +24,29 @@ class NotificationPayloadData {
       source: decoded['source'] as String?,
     );
   }
+
+  final String type;
+  final String title;
+  final String body;
+  final String? source;
+
+  String encode() => jsonEncode({
+    'type': type,
+    'title': title,
+    'body': body,
+    'source': source,
+  });
 }
 
 class NotificationService {
   NotificationService._();
   static final NotificationService instance = NotificationService._();
-  static const MethodChannel _timezoneChannel =
-      MethodChannel('gym_corpus/device_timezone');
-  static const MethodChannel _settingsChannel =
-      MethodChannel('gym_corpus/system_settings');
+  static const MethodChannel _timezoneChannel = MethodChannel(
+    'gym_corpus/device_timezone',
+  );
+  static const MethodChannel _settingsChannel = MethodChannel(
+    'gym_corpus/system_settings',
+  );
 
   final FlutterLocalNotificationsPlugin _notificationsPlugin =
       FlutterLocalNotificationsPlugin();
@@ -57,32 +59,32 @@ class NotificationService {
 
   static const AndroidNotificationChannel _generalChannel =
       AndroidNotificationChannel(
-    'gym_corpus_channel',
-    'Allenamenti e Notifiche',
-    description: 'Notifiche relative agli allenamenti e nutrizione',
-    importance: Importance.max,
-  );
+        'gym_corpus_channel',
+        'Allenamenti e Notifiche',
+        description: 'Notifiche relative agli allenamenti e nutrizione',
+        importance: Importance.max,
+      );
 
   static const AndroidNotificationChannel _scheduledChannel =
       AndroidNotificationChannel(
-    'gym_corpus_scheduled',
-    'Promemoria',
-    description: 'Promemoria giornalieri per allenamento e stretching',
-    importance: Importance.high,
-  );
+        'gym_corpus_scheduled',
+        'Promemoria',
+        description: 'Promemoria giornalieri per allenamento e stretching',
+        importance: Importance.high,
+      );
 
   Future<void> init() async {
-    const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('@mipmap/launcher_icon');
+    const initializationSettingsAndroid = AndroidInitializationSettings(
+      '@mipmap/launcher_icon',
+    );
 
-    const DarwinInitializationSettings initializationSettingsIOS =
-        DarwinInitializationSettings(
+    const initializationSettingsIOS = DarwinInitializationSettings(
       requestAlertPermission: false,
       requestBadgePermission: false,
       requestSoundPermission: false,
     );
 
-    const InitializationSettings initializationSettings = InitializationSettings(
+    const initializationSettings = InitializationSettings(
       android: initializationSettingsAndroid,
       iOS: initializationSettingsIOS,
     );
@@ -103,11 +105,13 @@ class NotificationService {
 
     await _notificationsPlugin
         .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
+          AndroidFlutterLocalNotificationsPlugin
+        >()
         ?.createNotificationChannel(_generalChannel);
     await _notificationsPlugin
         .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
+          AndroidFlutterLocalNotificationsPlugin
+        >()
         ?.createNotificationChannel(_scheduledChannel);
 
     if (!_tzInitialized) {
@@ -133,16 +137,14 @@ class NotificationService {
   Future<void> requestPermissions() async {
     final iosPermissions = await _notificationsPlugin
         .resolvePlatformSpecificImplementation<
-            IOSFlutterLocalNotificationsPlugin>()
-        ?.requestPermissions(
-          alert: true,
-          badge: true,
-          sound: true,
-        );
+          IOSFlutterLocalNotificationsPlugin
+        >()
+        ?.requestPermissions(alert: true, badge: true, sound: true);
 
     final androidPermissions = await _notificationsPlugin
         .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
+          AndroidFlutterLocalNotificationsPlugin
+        >()
         ?.requestNotificationsPermission();
 
     debugPrint(
@@ -154,7 +156,8 @@ class NotificationService {
   Future<bool> areNotificationsEnabled() async {
     final androidEnabled = await _notificationsPlugin
         .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
+          AndroidFlutterLocalNotificationsPlugin
+        >()
         ?.areNotificationsEnabled();
 
     if (androidEnabled != null) {
@@ -163,7 +166,8 @@ class NotificationService {
 
     final iosPermissions = await _notificationsPlugin
         .resolvePlatformSpecificImplementation<
-            IOSFlutterLocalNotificationsPlugin>()
+          IOSFlutterLocalNotificationsPlugin
+        >()
         ?.checkPermissions();
 
     if (iosPermissions == null) {
@@ -187,7 +191,7 @@ class NotificationService {
     required String body,
     NotificationPayloadData? payload,
   }) async {
-    const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
+    const androidDetails = AndroidNotificationDetails(
       'gym_corpus_channel',
       'Allenamenti e Notifiche',
       channelDescription: 'Notifiche relative agli allenamenti e nutrizione',
@@ -196,7 +200,7 @@ class NotificationService {
       priority: Priority.high,
     );
 
-    const NotificationDetails platformDetails = NotificationDetails(
+    const platformDetails = NotificationDetails(
       android: androidDetails,
       iOS: DarwinNotificationDetails(),
     );
@@ -219,8 +223,7 @@ class NotificationService {
     required int minute,
     NotificationPayloadData? payload,
   }) async {
-    const AndroidNotificationDetails androidDetails =
-        AndroidNotificationDetails(
+    const androidDetails = AndroidNotificationDetails(
       'gym_corpus_scheduled',
       'Promemoria',
       channelDescription: 'Promemoria giornalieri per allenamento e stretching',
@@ -229,7 +232,7 @@ class NotificationService {
       priority: Priority.high,
     );
 
-    const NotificationDetails platformDetails = NotificationDetails(
+    const platformDetails = NotificationDetails(
       android: androidDetails,
       iOS: DarwinNotificationDetails(),
     );
@@ -276,8 +279,7 @@ class NotificationService {
     required int minute,
     NotificationPayloadData? payload,
   }) async {
-    const AndroidNotificationDetails androidDetails =
-        AndroidNotificationDetails(
+    const androidDetails = AndroidNotificationDetails(
       'gym_corpus_scheduled',
       'Promemoria',
       channelDescription: 'Promemoria giornalieri per allenamento e stretching',
@@ -286,7 +288,7 @@ class NotificationService {
       priority: Priority.high,
     );
 
-    const NotificationDetails platformDetails = NotificationDetails(
+    const platformDetails = NotificationDetails(
       android: androidDetails,
       iOS: DarwinNotificationDetails(),
     );
@@ -301,8 +303,7 @@ class NotificationService {
       minute,
     );
 
-    while (scheduledDate.weekday != dayOfWeek ||
-        !scheduledDate.isAfter(now)) {
+    while (scheduledDate.weekday != dayOfWeek || !scheduledDate.isAfter(now)) {
       scheduledDate = scheduledDate.add(const Duration(days: 1));
     }
 

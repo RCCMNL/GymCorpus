@@ -134,32 +134,29 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           profilingConsentUpdatedAt: consentTimestamp,
         );
 
-        updateResult.fold(
-          (failure) {
-            debugPrint(
-              'AuthBloc._onSignUp profile update error: ${failure.message}',
-            );
-            emit(
-              AuthState.authenticated(
-                user.copyWith(
-                  firstName: firstName,
-                  lastName: lastName,
-                  username: username,
-                  birthDate: birthDate,
-                  gender: gender,
-                  termsAcceptedAt: consentTimestamp,
-                  privacyAcceptedAt: consentTimestamp,
-                  legalVersion: currentLegalVersion,
-                  marketingConsent: marketingConsent,
-                  profilingConsent: profilingConsent,
-                  marketingConsentUpdatedAt: consentTimestamp,
-                  profilingConsentUpdatedAt: consentTimestamp,
-                ),
+        updateResult.fold((failure) {
+          debugPrint(
+            'AuthBloc._onSignUp profile update error: ${failure.message}',
+          );
+          emit(
+            AuthState.authenticated(
+              user.copyWith(
+                firstName: firstName,
+                lastName: lastName,
+                username: username,
+                birthDate: birthDate,
+                gender: gender,
+                termsAcceptedAt: consentTimestamp,
+                privacyAcceptedAt: consentTimestamp,
+                legalVersion: currentLegalVersion,
+                marketingConsent: marketingConsent,
+                profilingConsent: profilingConsent,
+                marketingConsentUpdatedAt: consentTimestamp,
+                profilingConsentUpdatedAt: consentTimestamp,
               ),
-            );
-          },
-          (updatedUser) => emit(AuthState.authenticated(updatedUser)),
-        );
+            ),
+          );
+        }, (updatedUser) => emit(AuthState.authenticated(updatedUser)));
       },
     );
   }
@@ -265,12 +262,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       trainingObjective: trainingObjective,
       syncWeightHistory: weight != null,
     );
-    result.fold(
-      (failure) {
-        debugPrint('AuthBloc._onUpdateProfile error: ${failure.message}');
-      },
-      (user) => emit(AuthState.authenticated(user)),
-    );
+    result.fold((failure) {
+      debugPrint('AuthBloc._onUpdateProfile error: ${failure.message}');
+    }, (user) => emit(AuthState.authenticated(user)));
   }
 
   Future<void> _onChangePassword(
@@ -278,8 +272,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     String newPassword,
     Emitter<AuthState> emit,
   ) async {
-    final result =
-        await _repository.changePassword(currentPassword, newPassword);
+    final result = await _repository.changePassword(
+      currentPassword,
+      newPassword,
+    );
     result.fold(
       (failure) {
         // Handle failure locally in UI instead of emitting state, as the UI stays open
@@ -299,5 +295,4 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       },
     );
   }
-
 }

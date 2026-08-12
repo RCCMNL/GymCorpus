@@ -16,5 +16,6 @@ class AuthState with _$AuthState {
   const factory AuthState.loading({UserEntity? previousUser}) = _Loading;
   const factory AuthState.authenticated(UserEntity user) = _Authenticated;
   const factory AuthState.unauthenticated() = _Unauthenticated;
-  const factory AuthState.error(String message, {UserEntity? previousUser}) = _Error;
+  const factory AuthState.error(String message, {UserEntity? previousUser}) =
+      _Error;
 }

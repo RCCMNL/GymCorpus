@@ -21,8 +21,9 @@ void main() {
   });
 
   test('non blocca se la biometria non e attiva', () async {
-    when(() => authRepository.isBiometricEnabled())
-        .thenAnswer((_) async => false);
+    when(
+      () => authRepository.isBiometricEnabled(),
+    ).thenAnswer((_) async => false);
 
     await controller.lockIfEnabled();
 
@@ -30,8 +31,9 @@ void main() {
   });
 
   test('blocca e notifica se la biometria e attiva', () async {
-    when(() => authRepository.isBiometricEnabled())
-        .thenAnswer((_) async => true);
+    when(
+      () => authRepository.isBiometricEnabled(),
+    ).thenAnswer((_) async => true);
     var notifications = 0;
     controller.addListener(() => notifications++);
 
@@ -42,14 +44,14 @@ void main() {
   });
 
   test('unlock sblocca e notifica una sola volta', () async {
-    when(() => authRepository.isBiometricEnabled())
-        .thenAnswer((_) async => true);
+    when(
+      () => authRepository.isBiometricEnabled(),
+    ).thenAnswer((_) async => true);
     await controller.lockIfEnabled();
 
     var notifications = 0;
-    controller.addListener(() => notifications++);
-
     controller
+      ..addListener(() => notifications++)
       ..unlock()
       ..unlock();
 
@@ -58,8 +60,9 @@ void main() {
   });
 
   test('non riblocca mentre il prompt di sistema e aperto', () async {
-    when(() => authRepository.isBiometricEnabled())
-        .thenAnswer((_) async => true);
+    when(
+      () => authRepository.isBiometricEnabled(),
+    ).thenAnswer((_) async => true);
 
     // Il prompt biometrico porta l'app in stato inactive: se il ciclo di vita
     // richiudesse il lucchetto proprio ora, l'utente resterebbe intrappolato
@@ -76,8 +79,9 @@ void main() {
   });
 
   test('un blocco gia attivo non viene rinotificato', () async {
-    when(() => authRepository.isBiometricEnabled())
-        .thenAnswer((_) async => true);
+    when(
+      () => authRepository.isBiometricEnabled(),
+    ).thenAnswer((_) async => true);
     await controller.lockIfEnabled();
 
     var notifications = 0;

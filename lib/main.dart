@@ -59,9 +59,7 @@ void main() async {
   final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
@@ -96,8 +94,8 @@ class BlocRefreshStream extends ChangeNotifier {
   BlocRefreshStream(Stream<AuthState> stream) {
     notifyListeners();
     _subscription = stream.asBroadcastStream().listen(
-          (dynamic _) => notifyListeners(),
-        );
+      (dynamic _) => notifyListeners(),
+    );
   }
 
   late final StreamSubscription<AuthState> _subscription;
@@ -235,9 +233,8 @@ class _GymAppState extends State<GymApp> with WidgetsBindingObserver {
               routes: [
                 GoRoute(
                   path: 'session',
-                  builder: (context, state) => TrainingScreen(
-                    routine: _extraOf<RoutineEntity>(state),
-                  ),
+                  builder: (context, state) =>
+                      TrainingScreen(routine: _extraOf<RoutineEntity>(state)),
                 ),
                 GoRoute(
                   path: 'cardio',
@@ -407,7 +404,6 @@ class _GymAppState extends State<GymApp> with WidgetsBindingObserver {
     );
   }
 
-
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
@@ -445,8 +441,8 @@ class _GymAppState extends State<GymApp> with WidgetsBindingObserver {
             ..add(LoadSettingsEvent()),
         ),
         BlocProvider<NotificationsBloc>(
-          create: (_) => di.sl<NotificationsBloc>()
-            ..add(LoadNotificationsEvent()),
+          create: (_) =>
+              di.sl<NotificationsBloc>()..add(LoadNotificationsEvent()),
         ),
       ],
       child: BlocListener<TrainingBloc, TrainingState>(
@@ -482,10 +478,7 @@ class _GymAppState extends State<GymApp> with WidgetsBindingObserver {
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
-          supportedLocales: const [
-            Locale('it', 'IT'),
-            Locale('en', 'US'),
-          ],
+          supportedLocales: const [Locale('it', 'IT'), Locale('en', 'US')],
           locale: const Locale('it', 'IT'),
         ),
       ),

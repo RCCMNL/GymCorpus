@@ -28,8 +28,11 @@ void main() {
 
     test('fallback logico per rep estreme (evitano denominatore negativo/0)', () {
       // Se reps > ~37, denominator <= 0, dovrebbe tornare il peso senza divisione.
-      final rm = TrainingCalculations.calculateBrzycki1RM(weight: 100, reps: 40);
-      expect(rm, 100.0); 
+      final rm = TrainingCalculations.calculateBrzycki1RM(
+        weight: 100,
+        reps: 40,
+      );
+      expect(rm, 100.0);
     });
   });
 }

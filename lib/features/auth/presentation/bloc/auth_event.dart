@@ -22,9 +22,8 @@ class AuthEvent with _$AuthEvent {
     required bool marketingConsent,
     required bool profilingConsent,
   }) = _SignUpRequested;
-  const factory AuthEvent.forgotPasswordRequested({
-    required String email,
-  }) = _ForgotPasswordRequested;
+  const factory AuthEvent.forgotPasswordRequested({required String email}) =
+      _ForgotPasswordRequested;
 
   const factory AuthEvent.googleSignInRequested({
     @Default(false) bool acceptedTerms,

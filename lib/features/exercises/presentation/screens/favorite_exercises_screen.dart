@@ -11,7 +11,8 @@ class FavoriteExercisesScreen extends StatefulWidget {
   const FavoriteExercisesScreen({super.key});
 
   @override
-  State<FavoriteExercisesScreen> createState() => _FavoriteExercisesScreenState();
+  State<FavoriteExercisesScreen> createState() =>
+      _FavoriteExercisesScreenState();
 }
 
 class _FavoriteExercisesScreenState extends State<FavoriteExercisesScreen> {
@@ -29,7 +30,9 @@ class _FavoriteExercisesScreenState extends State<FavoriteExercisesScreen> {
           builder: (context, state) {
             if (state is TrainingLoaded) {
               final favoriteExercises = state.exercises.where((e) {
-                final matchesSearch = e.name.toLowerCase().contains(_searchQuery.toLowerCase());
+                final matchesSearch = e.name.toLowerCase().contains(
+                  _searchQuery.toLowerCase(),
+                );
                 return e.isFavorite && matchesSearch;
               }).toList();
 
@@ -48,7 +51,11 @@ class _FavoriteExercisesScreenState extends State<FavoriteExercisesScreen> {
                               color: theme.colorScheme.surfaceContainerHigh,
                               shape: BoxShape.circle,
                             ),
-                            child: Icon(Icons.arrow_back_ios_new, size: 16, color: theme.colorScheme.primary),
+                            child: Icon(
+                              Icons.arrow_back_ios_new,
+                              size: 16,
+                              color: theme.colorScheme.primary,
+                            ),
                           ),
                         ),
                         const SizedBox(width: 16),
@@ -65,18 +72,21 @@ class _FavoriteExercisesScreenState extends State<FavoriteExercisesScreen> {
                                 ).createShader(bounds),
                                 child: Text(
                                   'Preferiti',
-                                  style: theme.textTheme.headlineSmall?.copyWith(
-                                    fontWeight: FontWeight.w900,
-                                    color: Colors.white,
-                                    fontFamily: 'Lexend',
-                                  ),
+                                  style: theme.textTheme.headlineSmall
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.w900,
+                                        color: Colors.white,
+                                        fontFamily: 'Lexend',
+                                      ),
                                 ),
                               ),
                               Text(
                                 'I TUOI ESERCIZI SALVATI',
                                 style: theme.textTheme.labelSmall?.copyWith(
                                   letterSpacing: 1.5,
-                                  color: theme.colorScheme.primary.withValues(alpha: 0.5),
+                                  color: theme.colorScheme.primary.withValues(
+                                    alpha: 0.5,
+                                  ),
                                   fontWeight: FontWeight.w900,
                                 ),
                               ),
@@ -92,7 +102,8 @@ class _FavoriteExercisesScreenState extends State<FavoriteExercisesScreen> {
                     padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.8),
+                        color: theme.colorScheme.surfaceContainerHigh
+                            .withValues(alpha: 0.8),
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: TextField(
@@ -100,10 +111,19 @@ class _FavoriteExercisesScreenState extends State<FavoriteExercisesScreen> {
                         style: const TextStyle(fontWeight: FontWeight.bold),
                         decoration: InputDecoration(
                           hintText: 'Cerca tra i preferiti...',
-                          hintStyle: TextStyle(color: theme.colorScheme.outline.withValues(alpha: 0.6)),
-                          prefixIcon: Icon(Icons.search, color: theme.colorScheme.primary),
+                          hintStyle: TextStyle(
+                            color: theme.colorScheme.outline.withValues(
+                              alpha: 0.6,
+                            ),
+                          ),
+                          prefixIcon: Icon(
+                            Icons.search,
+                            color: theme.colorScheme.primary,
+                          ),
                           border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: 14,
+                          ),
                         ),
                       ),
                     ),
@@ -119,7 +139,9 @@ class _FavoriteExercisesScreenState extends State<FavoriteExercisesScreen> {
                             itemBuilder: (context, index) {
                               return Padding(
                                 padding: const EdgeInsets.only(bottom: 12),
-                                child: _ExerciseTile(exercise: favoriteExercises[index]),
+                                child: _ExerciseTile(
+                                  exercise: favoriteExercises[index],
+                                ),
                               );
                             },
                           ),
@@ -179,7 +201,9 @@ class _FavoriteExercisesScreenState extends State<FavoriteExercisesScreen> {
             label: const Text('Esplora Esercizi'),
             style: FilledButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
           ),
         ],
@@ -227,7 +251,7 @@ class _ExerciseTile extends StatelessWidget {
                           fit: BoxFit.cover,
                           loadingBuilder: (context, child, loadingProgress) {
                             if (loadingProgress == null) return child;
-                            return Container(
+                            return ColoredBox(
                               color: theme.colorScheme.surfaceContainerHighest,
                               child: Center(
                                 child: SizedBox(
@@ -235,9 +259,13 @@ class _ExerciseTile extends StatelessWidget {
                                   height: 20,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
-                                    value: loadingProgress.expectedTotalBytes != null
-                                        ? loadingProgress.cumulativeBytesLoaded /
-                                            loadingProgress.expectedTotalBytes!
+                                    value:
+                                        loadingProgress.expectedTotalBytes !=
+                                            null
+                                        ? loadingProgress
+                                                  .cumulativeBytesLoaded /
+                                              loadingProgress
+                                                  .expectedTotalBytes!
                                         : null,
                                   ),
                                 ),
@@ -246,9 +274,9 @@ class _ExerciseTile extends StatelessWidget {
                           },
                           errorBuilder: (context, error, stackTrace) =>
                               Image.asset(
-                            'assets/images/placeholder-image.png',
-                            fit: BoxFit.cover,
-                          ),
+                                'assets/images/placeholder-image.png',
+                                fit: BoxFit.cover,
+                              ),
                         )
                       : Image.asset(
                           'assets/images/placeholder-image.png',
@@ -274,13 +302,21 @@ class _ExerciseTile extends StatelessWidget {
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        Icon(Icons.bolt, size: 12, color: theme.colorScheme.outline.withValues(alpha: 0.5)),
+                        Icon(
+                          Icons.bolt,
+                          size: 12,
+                          color: theme.colorScheme.outline.withValues(
+                            alpha: 0.5,
+                          ),
+                        ),
                         const SizedBox(width: 4),
                         Expanded(
                           child: Text(
                             exercise.equipment?.toUpperCase() ?? 'CORPO LIBERO',
                             style: theme.textTheme.labelSmall?.copyWith(
-                              color: theme.colorScheme.outline.withValues(alpha: 0.7),
+                              color: theme.colorScheme.outline.withValues(
+                                alpha: 0.7,
+                              ),
                               fontSize: 9,
                               fontWeight: FontWeight.w900,
                             ),
@@ -296,17 +332,19 @@ class _ExerciseTile extends StatelessWidget {
               GestureDetector(
                 onTap: () {
                   context.read<TrainingBloc>().add(
-                        ToggleExerciseFavoriteEvent(
-                          exercise.id,
-                          isFavorite: !exercise.isFavorite,
-                        ),
-                      );
+                    ToggleExerciseFavoriteEvent(
+                      exercise.id,
+                      isFavorite: !exercise.isFavorite,
+                    ),
+                  );
                 },
                 behavior: HitTestBehavior.opaque,
                 child: Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(8),
                   child: Icon(
-                    exercise.isFavorite ? Icons.favorite : Icons.favorite_border,
+                    exercise.isFavorite
+                        ? Icons.favorite
+                        : Icons.favorite_border,
                     color: Colors.redAccent.withValues(alpha: 0.8),
                     size: 22,
                   ),

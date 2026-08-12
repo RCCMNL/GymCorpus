@@ -5,7 +5,14 @@ import 'package:gym_corpus/features/training/domain/entities/cardio_session.dart
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/domain/entities/workout_session.dart';
 
-enum AchievementCategory { consistency, performance, cardio, variety, specialization, streak }
+enum AchievementCategory {
+  consistency,
+  performance,
+  cardio,
+  variety,
+  specialization,
+  streak,
+}
 
 enum AchievementRarity { bronze, silver, gold, platinum }
 
@@ -32,10 +39,7 @@ class AchievementDefinition {
 }
 
 class AchievementProgress {
-  const AchievementProgress({
-    required this.definition,
-    required this.current,
-  });
+  const AchievementProgress({required this.definition, required this.current});
 
   final AchievementDefinition definition;
   final double current;
@@ -70,14 +74,14 @@ class AthleteProgress {
   });
 
   factory AthleteProgress.empty() => const AthleteProgress(
-        xp: 0,
-        level: 1,
-        levelTitle: 'Recluta',
-        currentLevelXp: 0,
-        nextLevelXp: 500,
-        achievements: [],
-        records: [],
-      );
+    xp: 0,
+    level: 1,
+    levelTitle: 'Recluta',
+    currentLevelXp: 0,
+    nextLevelXp: 500,
+    achievements: [],
+    records: [],
+  );
 
   final int xp;
   final int level;
@@ -401,7 +405,8 @@ class AthleteProgressService {
       groupId: 'mastery',
       tier: 3,
       title: '1000 Reps Club',
-      description: 'Raggiungi 1000 ripetizioni totali per un singolo esercizio.',
+      description:
+          'Raggiungi 1000 ripetizioni totali per un singolo esercizio.',
       category: AchievementCategory.variety,
       rarity: AchievementRarity.silver,
       target: 1000,
@@ -447,11 +452,13 @@ class AthleteProgressService {
     required List<ExerciseEntity> exercises,
   }) {
     final exerciseById = {
-      for (final exercise in exercises) exercise.id: exercise
+      for (final exercise in exercises) exercise.id: exercise,
     };
     final workoutIdsFromSets = workoutSets.map((set) => set.workoutId).toSet();
-    final completedWorkoutCount =
-        math.max(workoutSessions.length, workoutIdsFromSets.length);
+    final completedWorkoutCount = math.max(
+      workoutSessions.length,
+      workoutIdsFromSets.length,
+    );
     final volumeByWorkout = <int, double>{};
     final triedExerciseIds = <int>{};
     final trainedMuscles = <String>{};
@@ -482,10 +489,7 @@ class AthleteProgressService {
       0,
       (maxValue, session) => math.max(maxValue, session.calories),
     );
-    final maxVolume = volumeByWorkout.values.fold<double>(
-      0,
-      (maxValue, volume) => math.max(maxValue, volume),
-    );
+    final maxVolume = volumeByWorkout.values.fold<double>(0, math.max);
     final maxWeight = workoutSets.fold<double>(
       0,
       (maxValue, set) => math.max(maxValue, set.weight),
@@ -510,14 +514,14 @@ class AthleteProgressService {
       setsPerExercise.update(set.exerciseId, (v) => v + 1, ifAbsent: () => 1);
     }
     int? favoriteExerciseId;
-    int maxSets = 0;
+    var maxSets = 0;
     setsPerExercise.forEach((id, count) {
       if (count > maxSets) {
         maxSets = count;
         favoriteExerciseId = id;
       }
     });
-    final favoriteExerciseName = favoriteExerciseId != null 
+    final favoriteExerciseName = favoriteExerciseId != null
         ? (exerciseById[favoriteExerciseId]?.name ?? 'Nessuno')
         : 'Nessuno';
 
@@ -529,7 +533,13 @@ class AthleteProgressService {
     final specializationLegs = _calculateMuscleFocusCount(
       workoutSets: workoutSets,
       exerciseById: exerciseById,
-      targetMuscles: {'gambe', 'quadricipiti', 'femorali', 'glutei', 'polpacci'},
+      targetMuscles: {
+        'gambe',
+        'quadricipiti',
+        'femorali',
+        'glutei',
+        'polpacci',
+      },
     );
 
     final specializationPush = _calculateMuscleFocusCount(
@@ -539,9 +549,9 @@ class AthleteProgressService {
     );
 
     // Lifestyle & Mastery Metrics
-    int earlyBirdCount = 0;
-    int nightOwlCount = 0;
-    int maxDurationMinutes = 0;
+    var earlyBirdCount = 0;
+    var nightOwlCount = 0;
+    var maxDurationMinutes = 0;
     final exerciseVolume = <int, double>{};
     final exerciseReps = <int, int>{};
 
@@ -557,19 +567,39 @@ class AthleteProgressService {
 
     for (final set in workoutSets) {
       final volume = set.weight * set.reps;
-      exerciseVolume.update(set.exerciseId, (v) => v + volume, ifAbsent: () => volume);
-      exerciseReps.update(set.exerciseId, (v) => v + set.reps, ifAbsent: () => set.reps);
+      exerciseVolume.update(
+        set.exerciseId,
+        (v) => v + volume,
+        ifAbsent: () => volume,
+      );
+      exerciseReps.update(
+        set.exerciseId,
+        (v) => v + set.reps,
+        ifAbsent: () => set.reps,
+      );
     }
 
-    final benchId = exercises.where((e) => e.name.toLowerCase().contains('panca piana')).firstOrNull?.id;
-    final squatId = exercises.where((e) => e.name.toLowerCase().contains('squat')).firstOrNull?.id;
-    
-    final benchVolume = benchId != null ? (exerciseVolume[benchId] ?? 0.0) : 0.0;
-    final squatVolume = squatId != null ? (exerciseVolume[squatId] ?? 0.0) : 0.0;
-    final maxSingleExerciseReps = exerciseReps.isEmpty ? 0 : exerciseReps.values.reduce(math.max);
+    final benchId = exercises
+        .where((e) => e.name.toLowerCase().contains('panca piana'))
+        .firstOrNull
+        ?.id;
+    final squatId = exercises
+        .where((e) => e.name.toLowerCase().contains('squat'))
+        .firstOrNull
+        ?.id;
+
+    final benchVolume = benchId != null
+        ? (exerciseVolume[benchId] ?? 0.0)
+        : 0.0;
+    final squatVolume = squatId != null
+        ? (exerciseVolume[squatId] ?? 0.0)
+        : 0.0;
+    final maxSingleExerciseReps = exerciseReps.isEmpty
+        ? 0
+        : exerciseReps.values.reduce(math.max);
 
     // Cardio Metrics
-    bool hasSpeedDemon = false;
+    var hasSpeedDemon = false;
     for (final session in cardioSessions) {
       if (session.avgSpeed > 0) {
         final paceInSeconds = 3600 / session.avgSpeed;
@@ -584,20 +614,17 @@ class AthleteProgressService {
           'veterano_10' ||
           'veterano_50' ||
           'veterano_100' ||
-          'veterano_500' =>
-            completedWorkoutCount.toDouble(),
+          'veterano_500' => completedWorkoutCount.toDouble(),
           'volume_5k' ||
           'volume_15k' ||
           'volume_30k' ||
-          'volume_50k' =>
-            maxVolume,
+          'volume_50k' => maxVolume,
           'heavy_80' || 'heavy_120' || 'heavy_180' || 'heavy_250' => maxWeight,
           'dist_10' || 'dist_50' || 'dist_200' || 'dist_1000' => totalCardioKm,
           'variety_10' ||
           'variety_30' ||
           'variety_60' ||
-          'variety_100' =>
-            triedExerciseIds.length.toDouble(),
+          'variety_100' => triedExerciseIds.length.toDouble(),
           'streak_4w' || 'streak_12w' => maxConsecutiveWeeks.toDouble(),
           'specialist_legs' => specializationLegs.toDouble(),
           'specialist_push' => specializationPush.toDouble(),
@@ -614,10 +641,13 @@ class AthleteProgressService {
       );
     }).toList();
 
-    final unlockedAchievements = achievements.where((a) => a.isUnlocked).toList();
-    
+    final unlockedAchievements = achievements
+        .where((a) => a.isUnlocked)
+        .toList();
+
     // 1. XP di Base dalle Attività
-    double totalXp = (completedWorkoutCount * 100) +
+    var totalXp =
+        (completedWorkoutCount * 100) +
         (workoutSets.length * 5) +
         (cardioSessions.length * 50) +
         (totalCardioMinutes * 1) +
@@ -639,7 +669,7 @@ class AthleteProgressService {
     for (final a in achievements) {
       groups.putIfAbsent(a.definition.groupId, () => []).add(a);
     }
-    
+
     for (final group in groups.values) {
       if (group.every((a) => a.isUnlocked) && group.length > 1) {
         totalXp += 500; // Bonus "Mastery" per aver completato la serie
@@ -650,9 +680,9 @@ class AthleteProgressService {
 
     // 4. Calcolo Livello Dinamico
     // XP per livello N = 500 + (N-1) * 250
-    int currentLevel = 1;
-    int remainingXp = finalXp;
-    int xpForNextLevel = 500;
+    var currentLevel = 1;
+    var remainingXp = finalXp;
+    var xpForNextLevel = 500;
 
     while (remainingXp >= xpForNextLevel) {
       remainingXp -= xpForNextLevel;
@@ -713,21 +743,21 @@ class AthleteProgressService {
       null,
       (best, set) => best == null || set.weight > best.weight ? set : best,
     );
-    final bestOneRepMax = workoutSets.fold<_OneRepMaxRecord?>(
-      null,
-      (best, set) {
-        if (set.reps <= 0 || set.weight <= 0) return best;
-        final estimated = TrainingCalculations.calculateBrzycki1RM(
-          weight: set.weight,
-          reps: set.reps,
-        );
-        if (estimated <= 0) return best;
-        if (best == null || estimated > best.value) {
-          return _OneRepMaxRecord(set: set, value: estimated);
-        }
-        return best;
-      },
-    );
+    final bestOneRepMax = workoutSets.fold<_OneRepMaxRecord?>(null, (
+      best,
+      set,
+    ) {
+      if (set.reps <= 0 || set.weight <= 0) return best;
+      final estimated = TrainingCalculations.calculateBrzycki1RM(
+        weight: set.weight,
+        reps: set.reps,
+      );
+      if (estimated <= 0) return best;
+      if (best == null || estimated > best.value) {
+        return _OneRepMaxRecord(set: set, value: estimated);
+      }
+      return best;
+    });
     final longestCardio = cardioSessions.fold<CardioSessionEntity?>(
       null,
       (best, session) =>
@@ -773,8 +803,9 @@ class AthleteProgressService {
         value: longestCardio == null
             ? '-'
             : '${longestCardio.distance.toStringAsFixed(2)} km',
-        subtitle:
-            longestCardio == null ? 'Nessuna sessione' : 'Sessione piu lunga',
+        subtitle: longestCardio == null
+            ? 'Nessuna sessione'
+            : 'Sessione piu lunga',
         category: AchievementCategory.cardio,
       ),
       PersonalRecord(
@@ -864,31 +895,35 @@ class AthleteProgressService {
     return 'Recluta';
   }
 
-  static int _calculateMaxConsecutiveWeeks(List<WorkoutSessionEntity> sessions) {
+  static int _calculateMaxConsecutiveWeeks(
+    List<WorkoutSessionEntity> sessions,
+  ) {
     if (sessions.isEmpty) return 0;
 
-    final dates = sessions
-        .map((s) => s.completedAt ?? s.date)
-        .map((d) => DateTime(d.year, d.month, d.day))
-        .toSet()
-        .toList()
-      ..sort();
+    final dates =
+        sessions
+            .map((s) => s.completedAt ?? s.date)
+            .map((d) => DateTime(d.year, d.month, d.day))
+            .toSet()
+            .toList()
+          ..sort();
 
     if (dates.isEmpty) return 0;
 
     final weeks = <int>{};
     for (final date in dates) {
       // Calcolo settimana ISO o simile
-      final firstDayOfYear = DateTime(date.year, 1, 1);
+      final firstDayOfYear = DateTime(date.year);
       final weekNumber =
-          ((date.difference(firstDayOfYear).inDays + firstDayOfYear.weekday) / 7)
+          ((date.difference(firstDayOfYear).inDays + firstDayOfYear.weekday) /
+                  7)
               .ceil();
       weeks.add(date.year * 100 + weekNumber);
     }
 
     final sortedWeeks = weeks.toList()..sort();
-    int maxStreak = 0;
-    int currentStreak = 0;
+    var maxStreak = 0;
+    var currentStreak = 0;
     int? lastWeek;
 
     for (final week in sortedWeeks) {
@@ -901,7 +936,7 @@ class AthleteProgressService {
         final currYear = week ~/ 100;
         final currWk = week % 100;
 
-        bool isNext = false;
+        var isNext = false;
         if (currYear == lastYear && currWk == lastWk + 1) {
           isNext = true;
         } else if (currYear == lastYear + 1 && lastWk >= 52 && currWk == 1) {
@@ -931,7 +966,7 @@ class AthleteProgressService {
       final exercise = exerciseById[set.exerciseId];
       if (exercise != null) {
         final muscle = exercise.targetMuscle.toLowerCase().trim();
-        if (targetMuscles.any((m) => muscle.contains(m))) {
+        if (targetMuscles.any(muscle.contains)) {
           workoutIds.add(set.workoutId);
         }
       }
@@ -944,10 +979,13 @@ class AthleteProgressService {
     final workoutsByWeek = <String, int>{};
     for (final s in sessions) {
       final date = s.completedAt ?? s.date;
-      final weekKey = '${date.year}-W${((date.difference(DateTime(date.year, 1, 1)).inDays + DateTime(date.year, 1, 1).weekday) / 7).ceil()}';
+      final weekKey =
+          '${date.year}-W${((date.difference(DateTime(date.year)).inDays + DateTime(date.year).weekday) / 7).ceil()}';
       workoutsByWeek.update(weekKey, (v) => v + 1, ifAbsent: () => 1);
     }
-    return workoutsByWeek.values.isEmpty ? 0 : workoutsByWeek.values.reduce(math.max);
+    return workoutsByWeek.values.isEmpty
+        ? 0
+        : workoutsByWeek.values.reduce(math.max);
   }
 
   static String _formatLargeNumber(double value) {
@@ -961,10 +999,7 @@ class AthleteProgressService {
 }
 
 class _OneRepMaxRecord {
-  const _OneRepMaxRecord({
-    required this.set,
-    required this.value,
-  });
+  const _OneRepMaxRecord({required this.set, required this.value});
 
   final WorkoutSetEntity set;
   final double value;

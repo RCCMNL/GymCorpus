@@ -8,9 +8,9 @@ import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
 // ignore: unused_import
-import 'package:gym_corpus/features/training/presentation/screens/yoga_screen.dart';
-// ignore: unused_import
 import 'package:gym_corpus/features/training/presentation/screens/nutrition_screen.dart';
+// ignore: unused_import
+import 'package:gym_corpus/features/training/presentation/screens/yoga_screen.dart';
 
 class TrainingDashboardScreen extends StatelessWidget {
   const TrainingDashboardScreen({super.key});
@@ -47,7 +47,7 @@ class TrainingDashboardScreen extends StatelessWidget {
                     _buildYourRoutinesSection(context, state, theme),
 
                     const SizedBox(height: 40),
-                    
+
                     // MOVED SECTION: Dashboard Grid
                     _buildSectionTitle(theme, 'ATTIVITÀ RAPIDA'),
                     const SizedBox(height: 16),
@@ -100,7 +100,11 @@ class TrainingDashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildYourRoutinesSection(BuildContext context, TrainingState state, ThemeData theme) {
+  Widget _buildYourRoutinesSection(
+    BuildContext context,
+    TrainingState state,
+    ThemeData theme,
+  ) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
@@ -128,7 +132,8 @@ class TrainingDashboardScreen extends StatelessWidget {
                   final routine = state.routines[index];
                   return _RoutineCard(
                     routine: routine,
-                    onTap: () => context.go('/training/session', extra: routine),
+                    onTap: () =>
+                        context.go('/training/session', extra: routine),
                   );
                 },
               ),
@@ -268,7 +273,12 @@ class TrainingDashboardScreen extends StatelessWidget {
       context: context,
       backgroundColor: Colors.transparent,
       builder: (ctx) => Container(
-        padding: EdgeInsets.fromLTRB(24, 28, 24, MediaQuery.of(ctx).padding.bottom + 24),
+        padding: EdgeInsets.fromLTRB(
+          24,
+          28,
+          24,
+          MediaQuery.of(ctx).padding.bottom + 24,
+        ),
         decoration: BoxDecoration(
           color: theme.colorScheme.surface,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
@@ -277,7 +287,8 @@ class TrainingDashboardScreen extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 40, height: 4,
+              width: 40,
+              height: 4,
               decoration: BoxDecoration(
                 color: theme.colorScheme.outline.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(2),
@@ -287,7 +298,9 @@ class TrainingDashboardScreen extends StatelessWidget {
             Text(
               'SCEGLI ATTIVITÀ',
               style: theme.textTheme.labelSmall?.copyWith(
-                fontWeight: FontWeight.w900, letterSpacing: 2, fontSize: 10,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 2,
+                fontSize: 10,
                 color: theme.colorScheme.outline,
               ),
             ),
@@ -385,11 +398,20 @@ class _DashboardCard extends StatelessWidget {
                       if (isBeta) ...[
                         const SizedBox(width: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
-                            color: theme.colorScheme.tertiary.withValues(alpha: 0.2),
+                            color: theme.colorScheme.tertiary.withValues(
+                              alpha: 0.2,
+                            ),
                             borderRadius: BorderRadius.circular(6),
-                            border: Border.all(color: theme.colorScheme.tertiary.withValues(alpha: 0.3)),
+                            border: Border.all(
+                              color: theme.colorScheme.tertiary.withValues(
+                                alpha: 0.3,
+                              ),
+                            ),
                           ),
                           child: Text(
                             'BETA',
@@ -430,11 +452,11 @@ class _WorkoutSelectorModal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final maxHeight = MediaQuery.of(context).size.height * 0.75;
-        
+
         return Container(
           constraints: BoxConstraints(maxHeight: maxHeight),
           padding: const EdgeInsets.only(top: 12),
@@ -471,7 +493,8 @@ class _WorkoutSelectorModal extends StatelessWidget {
                       icon: Container(
                         padding: const EdgeInsets.all(4),
                         decoration: BoxDecoration(
-                          color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                          color: theme.colorScheme.surfaceContainerHighest
+                              .withValues(alpha: 0.5),
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(Icons.close, size: 20),
@@ -488,14 +511,19 @@ class _WorkoutSelectorModal extends StatelessWidget {
                       final routines = state.routines;
                       if (routines.isEmpty) {
                         return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 60, horizontal: 40),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 60,
+                            horizontal: 40,
+                          ),
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Icon(
                                 Icons.fitness_center_outlined,
                                 size: 48,
-                                color: theme.colorScheme.outline.withValues(alpha: 0.3),
+                                color: theme.colorScheme.outline.withValues(
+                                  alpha: 0.3,
+                                ),
                               ),
                               const SizedBox(height: 16),
                               Text(
@@ -555,7 +583,11 @@ class _WorkoutSelectorModal extends StatelessWidget {
 }
 
 class _RoutineCard extends StatelessWidget {
-  const _RoutineCard({required this.routine, required this.onTap, this.horizontal = true});
+  const _RoutineCard({
+    required this.routine,
+    required this.onTap,
+    this.horizontal = true,
+  });
 
   final RoutineEntity routine;
   final VoidCallback onTap;
@@ -620,15 +652,14 @@ class _RoutineCard extends StatelessWidget {
                         color: primary.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(16),
                       ),
-                      child: Icon(
-                        Icons.bolt_rounded,
-                        color: primary,
-                        size: 20,
-                      ),
+                      child: Icon(Icons.bolt_rounded, color: primary, size: 20),
                     ),
                     if (routine.estimatedDuration != null)
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: tertiary.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(20),
@@ -714,7 +745,8 @@ class _CardioOptionTile extends StatelessWidget {
         child: Column(
           children: [
             Container(
-              width: 56, height: 56,
+              width: 56,
+              height: 56,
               decoration: BoxDecoration(
                 color: color.withValues(alpha: 0.15),
                 shape: BoxShape.circle,

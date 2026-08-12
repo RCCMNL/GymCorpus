@@ -26,5 +26,16 @@ class CardioSessionEntity extends Equatable {
   final DateTime date;
 
   @override
-  List<Object?> get props => [id, type, distance, duration, avgSpeed, pace, calories, steps, routeJson, date];
+  List<Object?> get props => [
+    id,
+    type,
+    distance,
+    duration,
+    avgSpeed,
+    pace,
+    calories,
+    steps,
+    routeJson,
+    date,
+  ];
 }

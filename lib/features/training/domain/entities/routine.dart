@@ -17,7 +17,13 @@ class RoutineEntity extends Equatable {
   final List<RoutineExerciseEntity> exercises;
 
   @override
-  List<Object?> get props => [id, title, estimatedDuration, createdAt, exercises];
+  List<Object?> get props => [
+    id,
+    title,
+    estimatedDuration,
+    createdAt,
+    exercises,
+  ];
 }
 
 class RoutineExerciseEntity extends Equatable {
@@ -64,6 +70,14 @@ class RoutineExerciseEntity extends Equatable {
   }
 
   @override
-  List<Object?> get props =>
-      [id, routineId, exercise, sets, reps, weight, orderIndex, setsData];
+  List<Object?> get props => [
+    id,
+    routineId,
+    exercise,
+    sets,
+    reps,
+    weight,
+    orderIndex,
+    setsData,
+  ];
 }

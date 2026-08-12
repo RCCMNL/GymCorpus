@@ -5,11 +5,10 @@ import 'package:injectable/injectable.dart';
 
 final sl = GetIt.instance;
 
-@InjectableInit(
-  initializerName: 'initInjectable',
-)
+@InjectableInit(initializerName: 'initInjectable')
 Future<void> configureDependencies() async {
-  sl.initInjectable();
-  // Registrazioni manuali (non Injectable)
-  sl.registerLazySingleton<HealthService>(HealthService.new);
+  sl
+    ..initInjectable()
+    // Registrazioni manuali (non Injectable)
+    ..registerLazySingleton<HealthService>(HealthService.new);
 }

@@ -51,8 +51,9 @@ void main() {
       expect(find.text('Leggi i termini'), findsOneWidget);
     });
 
-    testWidgets('non invia signup se mancano campi obbligatori',
-        (tester) async {
+    testWidgets('non invia signup se mancano campi obbligatori', (
+      tester,
+    ) async {
       await pumpScreen(tester);
       await goToProfileStep(tester);
 

@@ -63,9 +63,7 @@ class _CardioHistoryScreenState extends State<CardioHistoryScreen> {
 
             final sessions = List<CardioSessionEntity>.from(
               state.cardioSessions,
-            );
-
-            sessions.sort((a, b) => b.date.compareTo(a.date));
+            )..sort((a, b) => b.date.compareTo(a.date));
 
             if (sessions.isEmpty) {
               return _EmptyHistoryView(theme: theme);
@@ -325,9 +323,7 @@ class _OverviewStat extends StatelessWidget {
         decoration: BoxDecoration(
           color: theme.colorScheme.surface.withValues(alpha: 0.6),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: accentColor.withValues(alpha: 0.12),
-          ),
+          border: Border.all(color: accentColor.withValues(alpha: 0.12)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -457,10 +453,7 @@ class _DismissibleCardioCard extends StatelessWidget {
             backgroundColor: theme.colorScheme.surface,
             title: const Text(
               'ELIMINA SESSIONE',
-              style: TextStyle(
-                fontWeight: FontWeight.w900,
-                fontSize: 16,
-              ),
+              style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
             ),
             content: const Text(
               'Sei sicuro di voler eliminare definitivamente questa sessione di cardio?',
@@ -508,28 +501,20 @@ class _DismissibleCardioCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.redAccent.withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(22),
-          border: Border.all(
-            color: Colors.redAccent.withValues(alpha: 0.18),
-          ),
+          border: Border.all(color: Colors.redAccent.withValues(alpha: 0.18)),
         ),
         child: const Icon(
           Icons.delete_outline_rounded,
           color: Colors.redAccent,
         ),
       ),
-      child: _DetailedCardioCard(
-        session: session,
-        accentColor: accentColor,
-      ),
+      child: _DetailedCardioCard(session: session, accentColor: accentColor),
     );
   }
 }
 
 class _DetailedCardioCard extends StatefulWidget {
-  const _DetailedCardioCard({
-    required this.session,
-    required this.accentColor,
-  });
+  const _DetailedCardioCard({required this.session, required this.accentColor});
 
   final CardioSessionEntity session;
   final Color accentColor;
@@ -604,9 +589,7 @@ class _DetailedCardioCardState extends State<_DetailedCardioCard> {
           height: MediaQuery.of(ctx).size.height * 0.85,
           decoration: BoxDecoration(
             color: theme.colorScheme.surface,
-            borderRadius: const BorderRadius.vertical(
-              top: Radius.circular(32),
-            ),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
           ),
           child: Column(
             children: [
@@ -666,11 +649,11 @@ class _DetailedCardioCardState extends State<_DetailedCardioCard> {
                               initialZoom: 15,
                               initialCameraFit:
                                   route.length > 1 && bounds != null
-                                      ? CameraFit.bounds(
-                                          bounds: bounds,
-                                          padding: const EdgeInsets.all(40),
-                                        )
-                                      : null,
+                                  ? CameraFit.bounds(
+                                      bounds: bounds,
+                                      padding: const EdgeInsets.all(40),
+                                    )
+                                  : null,
                             ),
                             children: [
                               TileLayer(
@@ -881,9 +864,7 @@ class _DetailedCardioCardState extends State<_DetailedCardioCard> {
                             ),
                           ),
                           Icon(
-                            _showMap
-                                ? Icons.expand_less
-                                : Icons.expand_more,
+                            _showMap ? Icons.expand_less : Icons.expand_more,
                             size: 16,
                             color: theme.colorScheme.tertiary,
                           ),
@@ -929,11 +910,11 @@ class _DetailedCardioCardState extends State<_DetailedCardioCard> {
                                 initialZoom: 14,
                                 initialCameraFit:
                                     route.length > 1 && bounds != null
-                                        ? CameraFit.bounds(
-                                            bounds: bounds,
-                                            padding: const EdgeInsets.all(12),
-                                          )
-                                        : null,
+                                    ? CameraFit.bounds(
+                                        bounds: bounds,
+                                        padding: const EdgeInsets.all(12),
+                                      )
+                                    : null,
                               ),
                               children: [
                                 TileLayer(

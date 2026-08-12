@@ -58,7 +58,9 @@ class TrainingRepositoryImpl implements TrainingRepository {
 
   @override
   Future<Either<Failure, void>> updateExerciseNotes(
-      int id, String notes) async {
+    int id,
+    String notes,
+  ) async {
     try {
       await database.updateExerciseNotes(id, notes);
       return const Right(null);
@@ -69,10 +71,9 @@ class TrainingRepositoryImpl implements TrainingRepository {
 
   @override
   Stream<List<RoutineEntity>> watchRoutines() {
-    return database
-        .select(database.routines)
-        .watch()
-        .asyncMap((routinesList) async {
+    return database.select(database.routines).watch().asyncMap((
+      routinesList,
+    ) async {
       final routineEntities = <RoutineEntity>[];
 
       for (final routineData in routinesList) {
@@ -80,11 +81,11 @@ class TrainingRepositoryImpl implements TrainingRepository {
         final exercisesQuery = database.select(database.routineExercises).join([
           innerJoin(
             database.exercises,
-            database.exercises.id
-                .equalsExp(database.routineExercises.exerciseId),
+            database.exercises.id.equalsExp(
+              database.routineExercises.exerciseId,
+            ),
           ),
-        ])
-          ..where(database.routineExercises.routineId.equals(routineData.id));
+        ])..where(database.routineExercises.routineId.equals(routineData.id));
 
         final rows = await exercisesQuery.get();
 
@@ -142,7 +143,9 @@ class TrainingRepositoryImpl implements TrainingRepository {
   ) async {
     try {
       return await database.transaction(() async {
-        final routineId = await database.into(database.routines).insert(
+        final routineId = await database
+            .into(database.routines)
+            .insert(
               RoutinesCompanion(
                 title: Value(title),
                 estimatedDuration: Value(estDuration),
@@ -151,7 +154,9 @@ class TrainingRepositoryImpl implements TrainingRepository {
             );
 
         for (final re in routineExercises) {
-          await database.into(database.routineExercises).insert(
+          await database
+              .into(database.routineExercises)
+              .insert(
                 RoutineExercisesCompanion(
                   routineId: Value(routineId),
                   exerciseId: Value(re.exercise.id),
@@ -180,9 +185,9 @@ class TrainingRepositoryImpl implements TrainingRepository {
     try {
       await database.transaction(() async {
         // Update routine metadata
-        await (database.update(database.routines)
-              ..where((t) => t.id.equals(id)))
-            .write(
+        await (database.update(
+          database.routines,
+        )..where((t) => t.id.equals(id))).write(
           RoutinesCompanion(
             title: Value(title),
             estimatedDuration: Value(estDuration),
@@ -190,13 +195,15 @@ class TrainingRepositoryImpl implements TrainingRepository {
         );
 
         // Delete existing exercise associations
-        await (database.delete(database.routineExercises)
-              ..where((t) => t.routineId.equals(id)))
-            .go();
+        await (database.delete(
+          database.routineExercises,
+        )..where((t) => t.routineId.equals(id))).go();
 
         // Re-insert current exercises
         for (final re in exercises) {
-          await database.into(database.routineExercises).insert(
+          await database
+              .into(database.routineExercises)
+              .insert(
                 RoutineExercisesCompanion(
                   routineId: Value(id),
                   exerciseId: Value(re.exercise.id),
@@ -332,11 +339,8 @@ class TrainingRepositoryImpl implements TrainingRepository {
     return database.watchLatestWeightEntries().map((logs) {
       return logs
           .map(
-            (l) => BodyWeightLogEntity(
-              id: l.id,
-              weight: l.weight,
-              date: l.date,
-            ),
+            (l) =>
+                BodyWeightLogEntity(id: l.id, weight: l.weight, date: l.date),
           )
           .toList();
     });
@@ -352,10 +356,7 @@ class TrainingRepositoryImpl implements TrainingRepository {
       }
 
       final id = await database.insertWeightLog(
-        WeightLogsCompanion(
-          weight: Value(weight),
-          date: Value(DateTime.now()),
-        ),
+        WeightLogsCompanion(weight: Value(weight), date: Value(DateTime.now())),
       );
       return Right(id);
     } catch (e) {
@@ -418,10 +419,7 @@ class TrainingRepositoryImpl implements TrainingRepository {
         final weight = baseWeight + variations[i];
         latestWeight = weight;
         await database.insertWeightLog(
-          WeightLogsCompanion(
-            weight: Value(weight),
-            date: Value(date),
-          ),
+          WeightLogsCompanion(weight: Value(weight), date: Value(date)),
         );
       }
       return Right(latestWeight);

@@ -43,12 +43,14 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
               // Filtering
               final filteredExercises = state.exercises.where((e) {
                 final search = _searchQuery.toLowerCase();
-                final matchesSearch = e.name.toLowerCase().contains(search) ||
+                final matchesSearch =
+                    e.name.toLowerCase().contains(search) ||
                     (e.equipment?.toLowerCase().contains(search) ?? false) ||
                     e.categories.any(
                       (category) => category.toLowerCase().contains(search),
                     );
-                final matchesMuscle = _selectedMuscle == 'Tutti' ||
+                final matchesMuscle =
+                    _selectedMuscle == 'Tutti' ||
                     (_selectedMuscle == 'Preferiti' && e.isFavorite) ||
                     e.categories.contains(_selectedMuscle);
                 return matchesSearch && matchesMuscle;
@@ -59,8 +61,8 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
               for (final ex in filteredExercises) {
                 final categories =
                     _selectedMuscle == 'Tutti' || _selectedMuscle == 'Preferiti'
-                        ? ex.categories
-                        : ex.categories.where((c) => c == _selectedMuscle);
+                    ? ex.categories
+                    : ex.categories.where((c) => c == _selectedMuscle);
 
                 for (final category in categories) {
                   final section = category.isEmpty ? 'Altro' : category;
@@ -101,13 +103,18 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
                           decoration: InputDecoration(
                             hintText: 'Cerca esercizio...',
                             hintStyle: TextStyle(
-                                color: theme.colorScheme.outline
-                                    .withValues(alpha: 0.6)),
-                            prefixIcon: Icon(Icons.search,
-                                color: theme.colorScheme.primary),
+                              color: theme.colorScheme.outline.withValues(
+                                alpha: 0.6,
+                              ),
+                            ),
+                            prefixIcon: Icon(
+                              Icons.search,
+                              color: theme.colorScheme.primary,
+                            ),
                             border: InputBorder.none,
-                            contentPadding:
-                                const EdgeInsets.symmetric(vertical: 14),
+                            contentPadding: const EdgeInsets.symmetric(
+                              vertical: 14,
+                            ),
                           ),
                         ),
                       ),
@@ -143,7 +150,8 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
                                 fontSize: 12,
                               ),
                               shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(24)),
+                                borderRadius: BorderRadius.circular(24),
+                              ),
                               showCheckmark: false,
                               side: BorderSide.none,
                             ),
@@ -159,8 +167,9 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
                   ...sections.expand((section) {
                     final exercises = grouped[section] ?? [];
                     final isExpanded = _expandedCategories.contains(section);
-                    final displayedExercises =
-                        isExpanded ? exercises : exercises.take(3).toList();
+                    final displayedExercises = isExpanded
+                        ? exercises
+                        : exercises.take(3).toList();
                     final hasMore = exercises.length > 3;
 
                     return [
@@ -182,7 +191,7 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
                                       end: Alignment.bottomCenter,
                                       colors: [
                                         Colors.orangeAccent,
-                                        Colors.deepOrange
+                                        Colors.deepOrange,
                                       ],
                                     ),
                                     borderRadius: BorderRadius.circular(2),
@@ -192,13 +201,13 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
                                 Expanded(
                                   child: Text(
                                     section.toUpperCase(),
-                                    style:
-                                        theme.textTheme.titleMedium?.copyWith(
-                                      fontWeight: FontWeight.w900,
-                                      letterSpacing: 0.5,
-                                      fontFamily: 'Lexend',
-                                      color: theme.colorScheme.primary,
-                                    ),
+                                    style: theme.textTheme.titleMedium
+                                        ?.copyWith(
+                                          fontWeight: FontWeight.w900,
+                                          letterSpacing: 0.5,
+                                          fontFamily: 'Lexend',
+                                          color: theme.colorScheme.primary,
+                                        ),
                                   ),
                                 ),
                                 if (hasMore)
@@ -236,16 +245,17 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
                       SliverPadding(
                         padding: const EdgeInsets.symmetric(horizontal: 24),
                         sliver: SliverList(
-                          delegate: SliverChildBuilderDelegate(
-                            (context, index) {
-                              return Padding(
-                                padding: const EdgeInsets.only(bottom: 12),
-                                child: _ExerciseTile(
-                                    exercise: displayedExercises[index]),
-                              );
-                            },
-                            childCount: displayedExercises.length,
-                          ),
+                          delegate: SliverChildBuilderDelegate((
+                            context,
+                            index,
+                          ) {
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 12),
+                              child: _ExerciseTile(
+                                exercise: displayedExercises[index],
+                              ),
+                            );
+                          }, childCount: displayedExercises.length),
                         ),
                       ),
                     ];
@@ -307,7 +317,7 @@ class _ExerciseTile extends StatelessWidget {
                           fit: BoxFit.cover,
                           loadingBuilder: (context, child, loadingProgress) {
                             if (loadingProgress == null) return child;
-                            return Container(
+                            return ColoredBox(
                               color: theme.colorScheme.surfaceContainerHighest,
                               child: Center(
                                 child: SizedBox(
@@ -315,11 +325,13 @@ class _ExerciseTile extends StatelessWidget {
                                   height: 20,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
-                                    value: loadingProgress.expectedTotalBytes !=
+                                    value:
+                                        loadingProgress.expectedTotalBytes !=
                                             null
                                         ? loadingProgress
-                                                .cumulativeBytesLoaded /
-                                            loadingProgress.expectedTotalBytes!
+                                                  .cumulativeBytesLoaded /
+                                              loadingProgress
+                                                  .expectedTotalBytes!
                                         : null,
                                   ),
                                 ),
@@ -328,9 +340,9 @@ class _ExerciseTile extends StatelessWidget {
                           },
                           errorBuilder: (context, error, stackTrace) =>
                               Image.asset(
-                            'assets/images/placeholder-image.png',
-                            fit: BoxFit.cover,
-                          ),
+                                'assets/images/placeholder-image.png',
+                                fit: BoxFit.cover,
+                              ),
                         )
                       : Image.asset(
                           'assets/images/placeholder-image.png',
@@ -356,17 +368,21 @@ class _ExerciseTile extends StatelessWidget {
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        Icon(Icons.bolt,
-                            size: 12,
-                            color: theme.colorScheme.outline
-                                .withValues(alpha: 0.5)),
+                        Icon(
+                          Icons.bolt,
+                          size: 12,
+                          color: theme.colorScheme.outline.withValues(
+                            alpha: 0.5,
+                          ),
+                        ),
                         const SizedBox(width: 4),
                         Expanded(
                           child: Text(
                             exercise.equipment?.toUpperCase() ?? 'CORPO LIBERO',
                             style: theme.textTheme.labelSmall?.copyWith(
-                              color: theme.colorScheme.outline
-                                  .withValues(alpha: 0.7),
+                              color: theme.colorScheme.outline.withValues(
+                                alpha: 0.7,
+                              ),
                               fontSize: 9,
                               fontWeight: FontWeight.w900,
                             ),
@@ -382,15 +398,15 @@ class _ExerciseTile extends StatelessWidget {
               GestureDetector(
                 onTap: () {
                   context.read<TrainingBloc>().add(
-                        ToggleExerciseFavoriteEvent(
-                          exercise.id,
-                          isFavorite: !exercise.isFavorite,
-                        ),
-                      );
+                    ToggleExerciseFavoriteEvent(
+                      exercise.id,
+                      isFavorite: !exercise.isFavorite,
+                    ),
+                  );
                 },
                 behavior: HitTestBehavior.opaque,
                 child: Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(8),
                   child: Icon(
                     exercise.isFavorite
                         ? Icons.favorite

@@ -61,10 +61,9 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Stream<UserEntity?> get userStream => _userStreamController.stream;
 
-  String get _effectiveGoogleServerClientId =>
-      _googleServerClientId.isNotEmpty
-          ? _googleServerClientId
-          : _defaultGoogleServerClientId;
+  String get _effectiveGoogleServerClientId => _googleServerClientId.isNotEmpty
+      ? _googleServerClientId
+      : _defaultGoogleServerClientId;
 
   Future<void> _prepareLocalDataForUser(String userId) async {
     final ownerId = await _localDataSource.getLocalDataOwner();
@@ -149,16 +148,14 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<void> _syncWeightHistoryFromProfile(double weight) async {
     final database = GetIt.I<AppDatabase>();
     final latestLog = await database.getLatestWeightEntry();
-    final shouldInsert = latestLog == null ||
+    final shouldInsert =
+        latestLog == null ||
         _hasMeaningfulWeightChange(latestLog.weight, weight);
 
     if (!shouldInsert) return;
 
     await database.insertWeightLog(
-      WeightLogsCompanion(
-        weight: Value(weight),
-        date: Value(DateTime.now()),
-      ),
+      WeightLogsCompanion(weight: Value(weight), date: Value(DateTime.now())),
     );
   }
 
@@ -207,7 +204,7 @@ class AuthRepositoryImpl implements AuthRepository {
     final newEntry = LoginEntry(date: now, device: device);
 
     // Seed history if empty using previous lastLogin data
-    final List<LoginEntry> currentHistory = List.from(user.loginHistory);
+    final currentHistory = List<LoginEntry>.from(user.loginHistory);
     if (currentHistory.isEmpty && user.lastLoginDate != null) {
       currentHistory.add(
         LoginEntry(
@@ -254,8 +251,9 @@ class AuthRepositoryImpl implements AuthRepository {
     return user.copyWith(
       termsAcceptedAt: acceptedTerms ? now : user.termsAcceptedAt,
       privacyAcceptedAt: acceptedPrivacy ? now : user.privacyAcceptedAt,
-      legalVersion:
-          acceptedTerms && acceptedPrivacy ? _currentLegalVersion : null,
+      legalVersion: acceptedTerms && acceptedPrivacy
+          ? _currentLegalVersion
+          : null,
       marketingConsent: marketingConsent,
       profilingConsent: profilingConsent,
       marketingConsentUpdatedAt: now,
@@ -278,8 +276,9 @@ class AuthRepositoryImpl implements AuthRepository {
         final baseUser = _mapFirebaseUser(credential.user!);
         await _prepareLocalDataForUser(baseUser.id);
         final remoteUser = await _remoteDataSource.getUserProfile(baseUser.id);
-        final user = (remoteUser ?? baseUser)
-            .copyWith(authProviders: baseUser.authProviders);
+        final user = (remoteUser ?? baseUser).copyWith(
+          authProviders: baseUser.authProviders,
+        );
 
         final finalUser = await _updateLoginHistory(user);
         _userStreamController.add(finalUser);
@@ -349,8 +348,8 @@ class AuthRepositoryImpl implements AuthRepository {
       // Try local cache first for instant UI response
       UserEntity? mergedUser =
           cachedUser != null && cachedUser.id == baseUser.id
-              ? cachedUser
-              : baseUser;
+          ? cachedUser
+          : baseUser;
 
       try {
         final remoteUser = await _remoteDataSource
@@ -377,7 +376,8 @@ class AuthRepositoryImpl implements AuthRepository {
         firstName: firebaseUser.displayName != null
             ? firebaseUser.displayName!.split(' ').first
             : finalUser.firstName,
-        lastName: firebaseUser.displayName != null &&
+        lastName:
+            firebaseUser.displayName != null &&
                 firebaseUser.displayName!.contains(' ')
             ? firebaseUser.displayName!.split(' ').sublist(1).join(' ')
             : finalUser.lastName,
@@ -420,7 +420,8 @@ class AuthRepositoryImpl implements AuthRepository {
     bool profilingConsent = false,
   }) async {
     try {
-      final isRegistrationIntent = acceptedTerms ||
+      final isRegistrationIntent =
+          acceptedTerms ||
           acceptedPrivacy ||
           marketingConsent ||
           profilingConsent;
@@ -435,9 +436,7 @@ class AuthRepositoryImpl implements AuthRepository {
       }
 
       final googleSignIn = GoogleSignIn.instance;
-      await googleSignIn.initialize(
-        serverClientId: serverClientId,
-      );
+      await googleSignIn.initialize(serverClientId: serverClientId);
 
       final googleUser = await googleSignIn.authenticate();
 
@@ -453,8 +452,9 @@ class AuthRepositoryImpl implements AuthRepository {
         idToken: idToken,
       );
 
-      final userCredential =
-          await _firebaseAuth.signInWithCredential(credential);
+      final userCredential = await _firebaseAuth.signInWithCredential(
+        credential,
+      );
       if (userCredential.user != null) {
         final isNewUser = userCredential.additionalUserInfo?.isNewUser ?? false;
         if (!isNewUser && isRegistrationIntent) {
@@ -480,8 +480,9 @@ class AuthRepositoryImpl implements AuthRepository {
         final remoteUser = isNewUser
             ? null
             : await _remoteDataSource.getUserProfile(baseUser.id);
-        var user = (remoteUser ?? baseUser)
-            .copyWith(authProviders: baseUser.authProviders);
+        var user = (remoteUser ?? baseUser).copyWith(
+          authProviders: baseUser.authProviders,
+        );
         if (isNewUser) {
           user = _applyLegalConsents(
             user,
@@ -516,7 +517,8 @@ class AuthRepositoryImpl implements AuthRepository {
     bool profilingConsent = false,
   }) async {
     try {
-      final isRegistrationIntent = acceptedTerms ||
+      final isRegistrationIntent =
+          acceptedTerms ||
           acceptedPrivacy ||
           marketingConsent ||
           profilingConsent;
@@ -532,8 +534,9 @@ class AuthRepositoryImpl implements AuthRepository {
         accessToken: appleCredential.authorizationCode,
       );
 
-      final userCredential =
-          await _firebaseAuth.signInWithCredential(credential);
+      final userCredential = await _firebaseAuth.signInWithCredential(
+        credential,
+      );
       if (userCredential.user != null) {
         final isNewUser = userCredential.additionalUserInfo?.isNewUser ?? false;
         if (!isNewUser && isRegistrationIntent) {
@@ -559,8 +562,9 @@ class AuthRepositoryImpl implements AuthRepository {
         final remoteUser = isNewUser
             ? null
             : await _remoteDataSource.getUserProfile(baseUser.id);
-        var user = (remoteUser ?? baseUser)
-            .copyWith(authProviders: baseUser.authProviders);
+        var user = (remoteUser ?? baseUser).copyWith(
+          authProviders: baseUser.authProviders,
+        );
         if (isNewUser) {
           user = _applyLegalConsents(
             user,
@@ -592,9 +596,7 @@ class AuthRepositoryImpl implements AuthRepository {
         final currentUser = localUser != null && localUser.id == user.uid
             ? localUser
             : _mapFirebaseUser(user);
-        final updatedUser = currentUser.copyWith(
-          photoUrl: filePath,
-        );
+        final updatedUser = currentUser.copyWith(photoUrl: filePath);
 
         await _localDataSource.saveUserSession(updatedUser);
         return Right(updatedUser);
@@ -641,8 +643,8 @@ class AuthRepositoryImpl implements AuthRepository {
       final cachedLocalUser = await _localDataSource.getUserSession();
       final localUser =
           cachedLocalUser != null && cachedLocalUser.id == user.uid
-              ? cachedLocalUser
-              : null;
+          ? cachedLocalUser
+          : null;
       final remoteUser = await _remoteDataSource
           .getUserProfile(user.uid)
           .timeout(const Duration(seconds: 5));
@@ -701,8 +703,10 @@ class AuthRepositoryImpl implements AuthRepository {
       }
 
       final email = user.email!;
-      final cred =
-          EmailAuthProvider.credential(email: email, password: currentPassword);
+      final cred = EmailAuthProvider.credential(
+        email: email,
+        password: currentPassword,
+      );
 
       await user.reauthenticateWithCredential(cred);
       await user.updatePassword(newPassword);
@@ -762,8 +766,9 @@ class AuthRepositoryImpl implements AuthRepository {
     String? currentPassword,
   }) async {
     try {
-      final providerIds =
-          user.providerData.map((info) => info.providerId).toSet();
+      final providerIds = user.providerData
+          .map((info) => info.providerId)
+          .toSet();
 
       if (providerIds.contains('password')) {
         final email = user.email;
@@ -802,9 +807,7 @@ class AuthRepositoryImpl implements AuthRepository {
         }
 
         final googleSignIn = GoogleSignIn.instance;
-        await googleSignIn.initialize(
-          serverClientId: serverClientId,
-        );
+        await googleSignIn.initialize(serverClientId: serverClientId);
 
         final googleUser = await googleSignIn.authenticate();
         final googleAuth = googleUser.authentication;

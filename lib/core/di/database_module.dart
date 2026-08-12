@@ -27,11 +27,11 @@ abstract class DatabaseModule {
   ///   del database non deve seguire i dati altrove.
   @lazySingleton
   FlutterSecureStorage get secureStorage => const FlutterSecureStorage(
-        aOptions: AndroidOptions(encryptedSharedPreferences: true),
-        iOptions: IOSOptions(
-          accessibility: KeychainAccessibility.first_unlock_this_device,
-        ),
-      );
+    aOptions: AndroidOptions(encryptedSharedPreferences: true),
+    iOptions: IOSOptions(
+      accessibility: KeychainAccessibility.first_unlock_this_device,
+    ),
+  );
 
   @lazySingleton
   FirebaseAuth get firebaseAuth => FirebaseAuth.instance;

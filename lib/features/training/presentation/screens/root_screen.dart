@@ -34,7 +34,9 @@ class _RootScreenState extends State<RootScreen> {
       exercises: state.exercises,
     );
 
-    final unlockedBadges = progress.achievements.where((a) => a.isUnlocked).toList();
+    final unlockedBadges = progress.achievements
+        .where((a) => a.isUnlocked)
+        .toList();
     final unlockedCount = unlockedBadges.length;
 
     // Se è la prima volta che carichiamo, salviamo solo il conteggio
@@ -46,12 +48,12 @@ class _RootScreenState extends State<RootScreen> {
     // Se ci sono nuovi badge
     if (unlockedCount > _lastUnlockedCount) {
       final newBadgesCount = unlockedCount - _lastUnlockedCount;
-      
+
       // Controlliamo se le notifiche badge sono abilitate nelle impostazioni
       final badgeEnabled = state.settings['notif_badge_enabled'] != 'false';
 
       if (badgeEnabled) {
-        for (int i = 0; i < newBadgesCount; i++) {
+        for (var i = 0; i < newBadgesCount; i++) {
           final badge = unlockedBadges[unlockedCount - 1 - i];
           NotificationService.instance.showNotification(
             id: DateTime.now().millisecondsSinceEpoch.remainder(100000) + i,
@@ -60,15 +62,16 @@ class _RootScreenState extends State<RootScreen> {
                 'Hai ottenuto: ${badge.definition.title}. ${badge.definition.description}',
           );
           context.read<NotificationsBloc>().add(
-                AddNotificationLogEvent(
-                  title: 'Nuovo badge sbloccato!',
-                  body: 'Hai ottenuto: ${badge.definition.title}. ${badge.definition.description}',
-                  type: 'badge',
-                ),
-              );
+            AddNotificationLogEvent(
+              title: 'Nuovo badge sbloccato!',
+              body:
+                  'Hai ottenuto: ${badge.definition.title}. ${badge.definition.description}',
+              type: 'badge',
+            ),
+          );
         }
       }
-      
+
       _lastUnlockedCount = unlockedCount;
     }
   }
@@ -111,15 +114,23 @@ class _RootScreenState extends State<RootScreen> {
         ),
       );
     }
-
     // Piattaforme iOS (Cupertino) per schermi standard
     else if (!kIsWeb && Platform.isIOS) {
       scaffoldWidget = CupertinoTabScaffold(
         tabBar: CupertinoTabBar(
           items: const [
-            BottomNavigationBarItem(icon: Icon(CupertinoIcons.flame), label: 'Training'),
-            BottomNavigationBarItem(icon: Icon(CupertinoIcons.list_bullet), label: 'Esercizi'),
-            BottomNavigationBarItem(icon: Icon(CupertinoIcons.graph_square), label: 'Analytics'),
+            BottomNavigationBarItem(
+              icon: Icon(CupertinoIcons.flame),
+              label: 'Training',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(CupertinoIcons.list_bullet),
+              label: 'Esercizi',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(CupertinoIcons.graph_square),
+              label: 'Analytics',
+            ),
           ],
           currentIndex: _calculateSelectedIndex(context),
           onTap: (index) => _onItemTapped(index, context),
@@ -131,7 +142,7 @@ class _RootScreenState extends State<RootScreen> {
         },
       );
     }
-    // Material 3 / Custom Stitch Design Default 
+    // Material 3 / Custom Stitch Design Default
     else {
       scaffoldWidget = Scaffold(
         extendBody: true, // Important to see blur over content
@@ -143,9 +154,10 @@ class _RootScreenState extends State<RootScreen> {
     return BlocListener<TrainingBloc, TrainingState>(
       listenWhen: (previous, current) {
         if (previous is TrainingLoaded && current is TrainingLoaded) {
-          return previous.workoutSessions.length != current.workoutSessions.length ||
-                 previous.weightLogs.length != current.weightLogs.length ||
-                 previous.cardioSessions.length != current.cardioSessions.length;
+          return previous.workoutSessions.length !=
+                  current.workoutSessions.length ||
+              previous.weightLogs.length != current.weightLogs.length ||
+              previous.cardioSessions.length != current.cardioSessions.length;
         }
         return false;
       },
@@ -160,7 +172,7 @@ class _RootScreenState extends State<RootScreen> {
 
   Widget _buildCustomNavBar(BuildContext context) {
     final selectedIndex = _calculateSelectedIndex(context);
-    
+
     return Container(
       height: 90,
       decoration: BoxDecoration(
@@ -183,11 +195,41 @@ class _RootScreenState extends State<RootScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildNavItem(context, 0, Icons.list_alt, 'Esercizi', selectedIndex),
-                _buildNavItem(context, 1, Icons.dashboard_customize, 'Custom', selectedIndex),
-                _buildNavItem(context, 2, Icons.fitness_center, 'Training', selectedIndex),
-                _buildNavItem(context, 3, Icons.insights, 'Analytics', selectedIndex),
-                _buildNavItem(context, 4, Icons.person, 'Profile', selectedIndex),
+                _buildNavItem(
+                  context,
+                  0,
+                  Icons.list_alt,
+                  'Esercizi',
+                  selectedIndex,
+                ),
+                _buildNavItem(
+                  context,
+                  1,
+                  Icons.dashboard_customize,
+                  'Custom',
+                  selectedIndex,
+                ),
+                _buildNavItem(
+                  context,
+                  2,
+                  Icons.fitness_center,
+                  'Training',
+                  selectedIndex,
+                ),
+                _buildNavItem(
+                  context,
+                  3,
+                  Icons.insights,
+                  'Analytics',
+                  selectedIndex,
+                ),
+                _buildNavItem(
+                  context,
+                  4,
+                  Icons.person,
+                  'Profile',
+                  selectedIndex,
+                ),
               ],
             ),
           ),
@@ -196,48 +238,60 @@ class _RootScreenState extends State<RootScreen> {
     );
   }
 
-  Widget _buildNavItem(BuildContext context, int index, IconData icon, String label, int selectedIndex) {
+  Widget _buildNavItem(
+    BuildContext context,
+    int index,
+    IconData icon,
+    String label,
+    int selectedIndex,
+  ) {
     final theme = Theme.of(context);
     final isSelected = index == selectedIndex;
     final isTraining = label.toUpperCase() == 'TRAINING';
-    
+
     return GestureDetector(
       onTap: () => _onItemTapped(index, context),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
         curve: Curves.easeOutCubic,
         padding: EdgeInsets.symmetric(
-          horizontal: isTraining ? 14 : 10, 
+          horizontal: isTraining ? 14 : 10,
           vertical: isTraining ? 4 : 6,
         ),
         decoration: BoxDecoration(
-          color: isSelected 
-              ? (isTraining 
-                  ? const Color(0xFF3367FF) 
-                  : const Color(0xFF3367FF).withValues(alpha: 0.2)) 
+          color: isSelected
+              ? (isTraining
+                    ? const Color(0xFF3367FF)
+                    : const Color(0xFF3367FF).withValues(alpha: 0.2))
               : Colors.transparent,
           borderRadius: BorderRadius.circular(isTraining ? 20 : 24),
-          boxShadow: isSelected && isTraining ? [
-            BoxShadow(
-              color: const Color(0xFF3367FF).withValues(alpha: 0.4),
-              blurRadius: 15,
-              offset: const Offset(0, 4),
-            ),
-          ] : null,
-          gradient: isSelected && isTraining ? const LinearGradient(
-            colors: [Color(0xFF3367FF), Color(0xFF94AAFF)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ) : null,
+          boxShadow: isSelected && isTraining
+              ? [
+                  BoxShadow(
+                    color: const Color(0xFF3367FF).withValues(alpha: 0.4),
+                    blurRadius: 15,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+              : null,
+          gradient: isSelected && isTraining
+              ? const LinearGradient(
+                  colors: [Color(0xFF3367FF), Color(0xFF94AAFF)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                )
+              : null,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               icon,
-              color: isSelected 
-                  ? (isTraining ? Colors.white : const Color(0xFF94AAFF)) 
-                  : theme.colorScheme.outline.withValues(alpha: isTraining ? 0.8 : 0.5),
+              color: isSelected
+                  ? (isTraining ? Colors.white : const Color(0xFF94AAFF))
+                  : theme.colorScheme.outline.withValues(
+                      alpha: isTraining ? 0.8 : 0.5,
+                    ),
               size: isTraining ? 26 : 22,
             ),
             SizedBox(height: isTraining ? 2 : 4),
@@ -248,9 +302,11 @@ class _RootScreenState extends State<RootScreen> {
                 fontSize: 8,
                 fontWeight: isSelected ? FontWeight.w900 : FontWeight.w500,
                 letterSpacing: 0.8,
-                color: isSelected 
-                    ? (isTraining ? Colors.white : const Color(0xFF94AAFF)) 
-                    : theme.colorScheme.outline.withValues(alpha: isTraining ? 0.8 : 0.5),
+                color: isSelected
+                    ? (isTraining ? Colors.white : const Color(0xFF94AAFF))
+                    : theme.colorScheme.outline.withValues(
+                        alpha: isTraining ? 0.8 : 0.5,
+                      ),
               ),
             ),
           ],

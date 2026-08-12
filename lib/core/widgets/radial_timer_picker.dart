@@ -34,7 +34,7 @@ class _RadialTimerPickerState extends State<RadialTimerPicker> {
   void _updateAngle(Offset localPosition, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
     final position = localPosition - center;
-    
+
     var angle = atan2(position.dy, position.dx) + pi / 2;
     if (angle < 0) angle += 2 * pi;
 
@@ -48,16 +48,16 @@ class _RadialTimerPickerState extends State<RadialTimerPicker> {
         if (_laps < 10) _laps++; // Cap at 10 mins (600s)
       }
     }
-    
+
     _lastAngle = angle;
-    
+
     setState(() {
       _angle = angle;
     });
 
     final currentSeconds = ((angle / (2 * pi)) * 60).round() % 60;
     final totalSeconds = (_laps * 60) + currentSeconds;
-    
+
     widget.onChanged(max(1, totalSeconds));
   }
 
@@ -69,8 +69,10 @@ class _RadialTimerPickerState extends State<RadialTimerPicker> {
     final displayValue = max(1, totalSeconds);
 
     return GestureDetector(
-      onPanUpdate: (details) => _updateAngle(details.localPosition, Size(widget.size, widget.size)),
-      onPanDown: (details) => _updateAngle(details.localPosition, Size(widget.size, widget.size)),
+      onPanUpdate: (details) =>
+          _updateAngle(details.localPosition, Size(widget.size, widget.size)),
+      onPanDown: (details) =>
+          _updateAngle(details.localPosition, Size(widget.size, widget.size)),
       child: Stack(
         alignment: Alignment.center,
         children: [
@@ -152,12 +154,12 @@ class _RadialPainter extends CustomPainter {
 
     // If we have more than 0 laps, we might want to show the underlying full circle
     if (laps > 0) {
-       final fullCirclePaint = Paint()
+      final fullCirclePaint = Paint()
         ..color = color.withValues(alpha: 0.2)
         ..style = PaintingStyle.stroke
         ..strokeWidth = strokeWidth
         ..strokeCap = StrokeCap.round;
-       canvas.drawCircle(center, radius - strokeWidth, fullCirclePaint);
+      canvas.drawCircle(center, radius - strokeWidth, fullCirclePaint);
     }
 
     // Draw Progress
@@ -193,17 +195,24 @@ class _RadialPainter extends CustomPainter {
     canvas
       ..drawCircle(handleCenter, 14, handlePaint)
       ..drawCircle(handleCenter, 14, handleBorderPaint);
-    
+
     // Lap counter inside handle or indicator
     if (laps > 0) {
       final textPainter = TextPainter(
         text: TextSpan(
           text: laps.toString(),
-          style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: color,
+            fontSize: 10,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         textDirection: TextDirection.ltr,
       )..layout();
-      textPainter.paint(canvas, handleCenter - Offset(textPainter.width / 2, textPainter.height / 2));
+      textPainter.paint(
+        canvas,
+        handleCenter - Offset(textPainter.width / 2, textPainter.height / 2),
+      );
     }
   }
 

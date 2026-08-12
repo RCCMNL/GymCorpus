@@ -36,8 +36,7 @@ class _ProgressScreenState extends State<ProgressScreen>
   }
 
   void _reloadProgressData() {
-    final bloc = context.read<TrainingBloc>();
-    bloc
+    context.read<TrainingBloc>()
       ..add(LoadBodyWeightLogsEvent())
       ..add(LoadBodyMeasurementsEvent());
   }
@@ -63,9 +62,9 @@ class _ProgressScreenState extends State<ProgressScreen>
             }
 
             final profileWeight = context.read<AuthBloc>().state.maybeWhen(
-                  authenticated: (user) => user.weight,
-                  orElse: () => null,
-                );
+              authenticated: (user) => user.weight,
+              orElse: () => null,
+            );
 
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -157,15 +156,16 @@ class _ProgressHeroState extends State<_ProgressHero> {
     final theme = Theme.of(context);
     final sortedLogs = List<BodyWeightLogEntity>.from(widget.logs)
       ..sort((a, b) => b.date.compareTo(a.date));
-    final sortedMeasurements = List<BodyMeasurementEntity>.from(widget.measurements)
-      ..sort((a, b) => b.date.compareTo(a.date));
+    final sortedMeasurements = List<BodyMeasurementEntity>.from(
+      widget.measurements,
+    )..sort((a, b) => b.date.compareTo(a.date));
 
     final isImperial = widget.settings['units'] == 'LB';
     final latestWeight = sortedLogs.isNotEmpty ? sortedLogs.first : null;
     final previousWeight = sortedLogs.length > 1 ? sortedLogs[1] : null;
 
     final isWeightTab = widget.activeTab == 0;
-    
+
     // For measurements summary grid
     final latestByPart = <String, BodyMeasurementEntity>{};
     for (final measurement in sortedMeasurements) {
@@ -181,9 +181,9 @@ class _ProgressHeroState extends State<_ProgressHero> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          isWeightTab 
-            ? 'Controlla l\'andamento del tuo peso.'
-            : 'Monitora le tue circonferenze corporee.',
+          isWeightTab
+              ? "Controlla l'andamento del tuo peso."
+              : 'Monitora le tue circonferenze corporee.',
           style: theme.textTheme.bodyMedium?.copyWith(
             color: theme.colorScheme.outline,
           ),
@@ -196,19 +196,23 @@ class _ProgressHeroState extends State<_ProgressHero> {
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: isWeightTab 
-                ? [
-                    theme.colorScheme.primary.withValues(alpha: 0.16),
-                    theme.colorScheme.tertiary.withValues(alpha: 0.10),
-                  ]
-                : [
-                    theme.colorScheme.tertiary.withValues(alpha: 0.16),
-                    theme.colorScheme.primary.withValues(alpha: 0.10),
-                  ],
+              colors: isWeightTab
+                  ? [
+                      theme.colorScheme.primary.withValues(alpha: 0.16),
+                      theme.colorScheme.tertiary.withValues(alpha: 0.10),
+                    ]
+                  : [
+                      theme.colorScheme.tertiary.withValues(alpha: 0.16),
+                      theme.colorScheme.primary.withValues(alpha: 0.10),
+                    ],
             ),
             borderRadius: BorderRadius.circular(28),
             border: Border.all(
-              color: (isWeightTab ? theme.colorScheme.primary : theme.colorScheme.tertiary).withValues(alpha: 0.14),
+              color:
+                  (isWeightTab
+                          ? theme.colorScheme.primary
+                          : theme.colorScheme.tertiary)
+                      .withValues(alpha: 0.14),
             ),
           ),
           child: Column(
@@ -222,7 +226,9 @@ class _ProgressHeroState extends State<_ProgressHero> {
                       height: 50,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: theme.colorScheme.surface.withValues(alpha: 0.24),
+                        color: theme.colorScheme.surface.withValues(
+                          alpha: 0.24,
+                        ),
                       ),
                       child: Icon(
                         Icons.monitor_weight_outlined,
@@ -238,10 +244,10 @@ class _ProgressHeroState extends State<_ProgressHero> {
                             latestWeight != null
                                 ? _formatWeight(latestWeight.weight, isImperial)
                                 : widget.profileWeight != null
-                                    ? _formatWeight(
-                                        widget.profileWeight!,
-                                        isImperial,
-                                      )
+                                ? _formatWeight(
+                                    widget.profileWeight!,
+                                    isImperial,
+                                  )
                                 : '--',
                             style: theme.textTheme.headlineSmall?.copyWith(
                               fontFamily: 'Lexend',
@@ -252,7 +258,7 @@ class _ProgressHeroState extends State<_ProgressHero> {
                             latestWeight != null
                                 ? 'Ultimo peso registrato'
                                 : widget.profileWeight != null
-                                    ? 'Peso attuale dal profilo'
+                                ? 'Peso attuale dal profilo'
                                 : 'Nessun peso registrato',
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: theme.colorScheme.outline,
@@ -262,10 +268,7 @@ class _ProgressHeroState extends State<_ProgressHero> {
                       ),
                     ),
                     if (weightDelta != null)
-                      _DeltaBadge(
-                        value: weightDelta,
-                        isImperial: isImperial,
-                      ),
+                      _DeltaBadge(value: weightDelta, isImperial: isImperial),
                   ],
                 ),
                 const SizedBox(height: 18),
@@ -276,9 +279,12 @@ class _ProgressHeroState extends State<_ProgressHero> {
                         icon: Icons.history_toggle_off_rounded,
                         label: 'Ultimo log peso',
                         value: latestWeight != null
-                            ? DateFormat('dd MMM yyyy', 'it_IT').format(latestWeight.date)
+                            ? DateFormat(
+                                'dd MMM yyyy',
+                                'it_IT',
+                              ).format(latestWeight.date)
                             : widget.profileWeight != null
-                                ? 'Profilo'
+                            ? 'Profilo'
                             : 'Nessun dato',
                       ),
                     ),
@@ -292,7 +298,9 @@ class _ProgressHeroState extends State<_ProgressHero> {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: theme.colorScheme.tertiary.withValues(alpha: 0.15),
+                          color: theme.colorScheme.tertiary.withValues(
+                            alpha: 0.15,
+                          ),
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
@@ -323,7 +331,9 @@ class _ProgressHeroState extends State<_ProgressHero> {
                         ),
                       ),
                       Icon(
-                        _isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                        _isExpanded
+                            ? Icons.keyboard_arrow_up
+                            : Icons.keyboard_arrow_down,
                         color: theme.colorScheme.tertiary,
                       ),
                     ],
@@ -334,23 +344,31 @@ class _ProgressHeroState extends State<_ProgressHero> {
                   GridView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      childAspectRatio: 2.3,
-                      crossAxisSpacing: 10,
-                      mainAxisSpacing: 10,
-                    ),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          childAspectRatio: 2.3,
+                          crossAxisSpacing: 10,
+                          mainAxisSpacing: 10,
+                        ),
                     itemCount: sortedParts.length,
                     itemBuilder: (context, index) {
                       final part = sortedParts[index];
                       final m = latestByPart[part]!;
                       return Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 8,
+                        ),
                         decoration: BoxDecoration(
-                          color: theme.colorScheme.surface.withValues(alpha: 0.35),
+                          color: theme.colorScheme.surface.withValues(
+                            alpha: 0.35,
+                          ),
                           borderRadius: BorderRadius.circular(14),
                           border: Border.all(
-                            color: theme.colorScheme.outline.withValues(alpha: 0.05),
+                            color: theme.colorScheme.outline.withValues(
+                              alpha: 0.05,
+                            ),
                           ),
                         ),
                         child: Column(
@@ -517,28 +535,30 @@ class _WeightHistoryTab extends StatelessWidget {
                   final idx = entry.key;
                   final monthKey = entry.value;
                   final monthLogs = groupedLogs[monthKey]!;
-                  
+
                   return _MonthlyAccordion(
                     title: _formatMonthKey(monthKey),
                     count: monthLogs.length,
                     initiallyExpanded: idx == 0,
                     child: Column(
-                      children: monthLogs.map(
-                        (log) => Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: _LogTile(
-                            title: _formatWeight(log.weight, isImperial),
-                            subtitle: DateFormat(
-                              'dd MMM yyyy, HH:mm',
-                              'it_IT',
-                            ).format(log.date),
-                            icon: Icons.scale_rounded,
-                            onDelete: () => context
-                                .read<TrainingBloc>()
-                                .add(DeleteBodyWeightLogEvent(log.id!)),
-                          ),
-                        ),
-                      ).toList(),
+                      children: monthLogs
+                          .map(
+                            (log) => Padding(
+                              padding: const EdgeInsets.only(bottom: 12),
+                              child: _LogTile(
+                                title: _formatWeight(log.weight, isImperial),
+                                subtitle: DateFormat(
+                                  'dd MMM yyyy, HH:mm',
+                                  'it_IT',
+                                ).format(log.date),
+                                icon: Icons.scale_rounded,
+                                onDelete: () => context
+                                    .read<TrainingBloc>()
+                                    .add(DeleteBodyWeightLogEvent(log.id!)),
+                              ),
+                            ),
+                          )
+                          .toList(),
                     ),
                   );
                 }),
@@ -551,100 +571,102 @@ class _WeightHistoryTab extends StatelessWidget {
 }
 
 Future<void> _showAddWeightSheet(BuildContext context, bool isImperial) async {
-    final controller = TextEditingController();
-    final theme = Theme.of(context);
+  final controller = TextEditingController();
+  final theme = Theme.of(context);
 
-    await showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (sheetContext) {
-        return Padding(
-          padding: EdgeInsets.only(
-            left: 16,
-            right: 16,
-            bottom: MediaQuery.of(sheetContext).viewInsets.bottom + 16,
-            top: 24,
+  await showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (sheetContext) {
+      return Padding(
+        padding: EdgeInsets.only(
+          left: 16,
+          right: 16,
+          bottom: MediaQuery.of(sheetContext).viewInsets.bottom + 16,
+          top: 24,
+        ),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surface,
+            borderRadius: BorderRadius.circular(28),
+            border: Border.all(
+              color: theme.colorScheme.outline.withValues(alpha: 0.08),
+            ),
           ),
-          child: Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surface,
-              borderRadius: BorderRadius.circular(28),
-              border: Border.all(
-                color: theme.colorScheme.outline.withValues(alpha: 0.08),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Registra peso',
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w900,
+                  fontFamily: 'Lexend',
+                ),
               ),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Registra peso',
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w900,
-                    fontFamily: 'Lexend',
+              const SizedBox(height: 6),
+              Text(
+                'Salva il valore attuale per aggiornare la tua cronologia.',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.outline,
+                ),
+              ),
+              const SizedBox(height: 20),
+              TextField(
+                controller: controller,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                autofocus: true,
+                decoration: InputDecoration(
+                  labelText: 'Peso',
+                  suffixText: isImperial ? 'lb' : 'kg',
+                  filled: true,
+                  fillColor: theme.colorScheme.surfaceContainerHigh.withValues(
+                    alpha: 0.35,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide: BorderSide.none,
                   ),
                 ),
-                const SizedBox(height: 6),
-                Text(
-                  'Salva il valore attuale per aggiornare la tua cronologia.',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.outline,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                TextField(
-                  controller: controller,
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
-                  autofocus: true,
-                  decoration: InputDecoration(
-                    labelText: 'Peso',
-                    suffixText: isImperial ? 'lb' : 'kg',
-                    filled: true,
-                    fillColor: theme.colorScheme.surfaceContainerHigh
-                        .withValues(alpha: 0.35),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(18),
-                      borderSide: BorderSide.none,
+              ),
+              const SizedBox(height: 18),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(sheetContext),
+                      child: const Text('Annulla'),
                     ),
                   ),
-                ),
-                const SizedBox(height: 18),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () => Navigator.pop(sheetContext),
-                        child: const Text('Annulla'),
-                      ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: FilledButton(
+                      onPressed: () {
+                        final valStr = controller.text.replaceAll(',', '.');
+                        var value = double.tryParse(valStr);
+                        if (value == null) return;
+                        if (isImperial) value = UnitConverter.lbToKg(value);
+                        context.read<TrainingBloc>().add(
+                          AddBodyWeightLogEvent(value),
+                        );
+                        Navigator.pop(sheetContext);
+                      },
+                      child: const Text('Salva'),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: FilledButton(
-                        onPressed: () {
-                          final valStr = controller.text.replaceAll(',', '.');
-                          var value = double.tryParse(valStr);
-                          if (value == null) return;
-                          if (isImperial) value = UnitConverter.lbToKg(value);
-                          context
-                              .read<TrainingBloc>()
-                              .add(AddBodyWeightLogEvent(value));
-                          Navigator.pop(sheetContext);
-                        },
-                        child: const Text('Salva'),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+                  ),
+                ],
+              ),
+            ],
           ),
-        );
-      },
-    );
-  }
+        ),
+      );
+    },
+  );
+}
 
 class _MeasurementsTab extends StatelessWidget {
   const _MeasurementsTab({
@@ -663,14 +685,21 @@ class _MeasurementsTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final sortedMeasurements = List<BodyMeasurementEntity>.from(measurements)
       ..sort((a, b) => b.date.compareTo(a.date));
-    
+
     // Group by session (minute precision)
     final sessions = <DateTime, List<BodyMeasurementEntity>>{};
     for (final m in sortedMeasurements) {
-      final sessionKey = DateTime(m.date.year, m.date.month, m.date.day, m.date.hour, m.date.minute);
+      final sessionKey = DateTime(
+        m.date.year,
+        m.date.month,
+        m.date.day,
+        m.date.hour,
+        m.date.minute,
+      );
       sessions.putIfAbsent(sessionKey, () => []).add(m);
     }
-    final sortedSessionKeys = sessions.keys.toList()..sort((a, b) => b.compareTo(a));
+    final sortedSessionKeys = sessions.keys.toList()
+      ..sort((a, b) => b.compareTo(a));
 
     // Group sessions by month
     final groupedSessions = <String, List<DateTime>>{};
@@ -719,7 +748,7 @@ class _MeasurementsTab extends StatelessWidget {
                   final monthIdx = monthEntry.key;
                   final monthKey = monthEntry.value;
                   final monthSessions = groupedSessions[monthKey]!;
-                  
+
                   return _MonthlyAccordion(
                     title: _formatMonthKey(monthKey),
                     count: monthSessions.length,
@@ -746,10 +775,7 @@ class _MeasurementsTab extends StatelessWidget {
 }
 
 class _MeasurementSessionCard extends StatelessWidget {
-  const _MeasurementSessionCard({
-    required this.date,
-    required this.items,
-  });
+  const _MeasurementSessionCard({required this.date, required this.items});
 
   final DateTime date;
   final List<BodyMeasurementEntity> items;
@@ -762,7 +788,9 @@ class _MeasurementSessionCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.05)),
+        border: Border.all(
+          color: theme.colorScheme.outline.withValues(alpha: 0.05),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -774,7 +802,11 @@ class _MeasurementSessionCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Icon(Icons.calendar_today_outlined, size: 14, color: theme.colorScheme.primary),
+                    Icon(
+                      Icons.calendar_today_outlined,
+                      size: 14,
+                      color: theme.colorScheme.primary,
+                    ),
                     const SizedBox(width: 8),
                     Text(
                       DateFormat('dd MMM yyyy, HH:mm', 'it_IT').format(date),
@@ -787,7 +819,10 @@ class _MeasurementSessionCard extends StatelessWidget {
                   ],
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: theme.colorScheme.tertiary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
@@ -844,8 +879,9 @@ class _MiniMeasurementChip extends StatelessWidget {
           decoration: BoxDecoration(
             color: theme.colorScheme.surface,
             borderRadius: BorderRadius.circular(10),
-            border:
-                Border.all(color: theme.colorScheme.outline.withValues(alpha: 0.1)),
+            border: Border.all(
+              color: theme.colorScheme.outline.withValues(alpha: 0.1),
+            ),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -929,7 +965,9 @@ class _MonthlyAccordionState extends State<_MonthlyAccordion> {
                   width: 4,
                   height: 16,
                   decoration: BoxDecoration(
-                    color: _expanded ? theme.colorScheme.primary : theme.colorScheme.outline.withValues(alpha: 0.2),
+                    color: _expanded
+                        ? theme.colorScheme.primary
+                        : theme.colorScheme.outline.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -939,12 +977,17 @@ class _MonthlyAccordionState extends State<_MonthlyAccordion> {
                   style: theme.textTheme.labelSmall?.copyWith(
                     letterSpacing: 1.5,
                     fontWeight: FontWeight.w900,
-                    color: _expanded ? theme.colorScheme.onSurface : theme.colorScheme.outline.withValues(alpha: 0.7),
+                    color: _expanded
+                        ? theme.colorScheme.onSurface
+                        : theme.colorScheme.outline.withValues(alpha: 0.7),
                   ),
                 ),
                 const SizedBox(width: 8),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: theme.colorScheme.outline.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(4),
@@ -960,7 +1003,9 @@ class _MonthlyAccordionState extends State<_MonthlyAccordion> {
                 ),
                 const Spacer(),
                 Icon(
-                  _expanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                  _expanded
+                      ? Icons.keyboard_arrow_up
+                      : Icons.keyboard_arrow_down,
                   size: 18,
                   color: theme.colorScheme.outline.withValues(alpha: 0.5),
                 ),
@@ -983,87 +1028,99 @@ String _formatMonthKey(String key) {
   final year = parts[0];
   final month = int.parse(parts[1]);
   final monthName = [
-    '', 'Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno',
-    'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'
+    '',
+    'Gennaio',
+    'Febbraio',
+    'Marzo',
+    'Aprile',
+    'Maggio',
+    'Giugno',
+    'Luglio',
+    'Agosto',
+    'Settembre',
+    'Ottobre',
+    'Novembre',
+    'Dicembre',
   ][month];
   return '$monthName $year'.toUpperCase();
 }
 
 Future<void> _showAddMeasurementSheet(BuildContext context) async {
-    final theme = Theme.of(context);
-    final trainingBloc = context.read<TrainingBloc>();
-    final state = trainingBloc.state;
-    
-    // Pre-fill with latest values if available
-    final latestValues = <String, double>{};
-    if (state is TrainingLoaded) {
-      for (final m in state.bodyMeasurements) {
-        latestValues.putIfAbsent(m.part, () => m.value);
-      }
+  final theme = Theme.of(context);
+  final trainingBloc = context.read<TrainingBloc>();
+  final state = trainingBloc.state;
+
+  // Pre-fill with latest values if available
+  final latestValues = <String, double>{};
+  if (state is TrainingLoaded) {
+    for (final m in state.bodyMeasurements) {
+      latestValues.putIfAbsent(m.part, () => m.value);
     }
+  }
 
-    final parts = [
-      'Petto',
-      'Vita',
-      'Fianchi',
-      'Bicipite DX',
-      'Bicipite SX',
-      'Coscia DX',
-      'Coscia SX',
-      'Polpaccio',
-    ];
+  final parts = [
+    'Petto',
+    'Vita',
+    'Fianchi',
+    'Bicipite DX',
+    'Bicipite SX',
+    'Coscia DX',
+    'Coscia SX',
+    'Polpaccio',
+  ];
 
-    final controllers = {
-      for (var part in parts) part: TextEditingController()
-    };
+  final controllers = {for (final part in parts) part: TextEditingController()};
 
-    await showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (sheetContext) {
-        return DraggableScrollableSheet(
-          initialChildSize: 0.85,
-          maxChildSize: 0.95,
-          minChildSize: 0.5,
-          builder: (_, scrollController) {
-            return Container(
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surface,
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+  await showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (sheetContext) {
+      return DraggableScrollableSheet(
+        initialChildSize: 0.85,
+        maxChildSize: 0.95,
+        minChildSize: 0.5,
+        builder: (_, scrollController) {
+          return Container(
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surface,
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(32),
               ),
-              child: Column(
-                children: [
-                  const SizedBox(height: 12),
-                  Container(
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.outlineVariant,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
+            ),
+            child: Column(
+              children: [
+                const SizedBox(height: 12),
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.outlineVariant,
+                    borderRadius: BorderRadius.circular(2),
                   ),
-                  Expanded(
-                    child: ListView(
-                      controller: scrollController,
-                      padding: const EdgeInsets.all(24),
-                      children: [
-                        Text(
-                          'Check-in Misure',
-                          style: theme.textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.w900,
-                            fontFamily: 'Lexend',
-                          ),
+                ),
+                Expanded(
+                  child: ListView(
+                    controller: scrollController,
+                    padding: const EdgeInsets.all(24),
+                    children: [
+                      Text(
+                        'Check-in Misure',
+                        style: theme.textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.w900,
+                          fontFamily: 'Lexend',
                         ),
-                        const SizedBox(height: 6),
-                        Text(
-                          'Inserisci le circonferenze attuali. Lascia vuoto per non aggiornare.',
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: theme.colorScheme.outline,
-                          ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        'Inserisci le circonferenze attuali. Lascia vuoto per non aggiornare.',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.outline,
                         ),
-                        const SizedBox(height: 24),
-                        ...parts.map((part) => Padding(
+                      ),
+                      const SizedBox(height: 24),
+                      ...parts.map(
+                        (part) => Padding(
                           padding: const EdgeInsets.only(bottom: 16),
                           child: Row(
                             children: [
@@ -1081,14 +1138,29 @@ Future<void> _showAddMeasurementSheet(BuildContext context) async {
                                 flex: 3,
                                 child: TextField(
                                   controller: controllers[part],
-                                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                                  textInputAction: part == parts.last ? TextInputAction.done : TextInputAction.next,
+                                  keyboardType:
+                                      const TextInputType.numberWithOptions(
+                                        decimal: true,
+                                      ),
+                                  textInputAction: part == parts.last
+                                      ? TextInputAction.done
+                                      : TextInputAction.next,
                                   decoration: InputDecoration(
-                                    hintText: latestValues[part]?.toStringAsFixed(1) ?? '0.0',
+                                    hintText:
+                                        latestValues[part]?.toStringAsFixed(
+                                          1,
+                                        ) ??
+                                        '0.0',
                                     suffixText: 'cm',
-                                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 12,
+                                    ),
                                     filled: true,
-                                    fillColor: theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.3),
+                                    fillColor: theme
+                                        .colorScheme
+                                        .surfaceContainerHigh
+                                        .withValues(alpha: 0.3),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(16),
                                       borderSide: BorderSide.none,
@@ -1098,171 +1170,185 @@ Future<void> _showAddMeasurementSheet(BuildContext context) async {
                               ),
                             ],
                           ),
-                        )),
-                        const SizedBox(height: 24),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: OutlinedButton(
-                                onPressed: () => Navigator.pop(sheetContext),
-                                style: OutlinedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(vertical: 16),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                ),
-                                child: const Text('Annulla'),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: FilledButton(
-                                onPressed: () {
-                                  final measurements = <String, double>{};
-                                  controllers.forEach((part, controller) {
-                                    final val = double.tryParse(controller.text.replaceAll(',', '.'));
-                                    if (val != null) {
-                                      measurements[part] = val;
-                                    }
-                                  });
-                                  
-                                  if (measurements.isNotEmpty) {
-                                    trainingBloc.add(AddMultipleBodyMeasurementsEvent(measurements));
-                                  }
-                                  Navigator.pop(sheetContext);
-                                },
-                                style: FilledButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(vertical: 16),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                ),
-                                child: const Text('Salva Check-in'),
-                              ),
-                            ),
-                          ],
                         ),
-                        const SizedBox(height: 32),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(height: 24),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton(
+                              onPressed: () => Navigator.pop(sheetContext),
+                              style: OutlinedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 16,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                              ),
+                              child: const Text('Annulla'),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: FilledButton(
+                              onPressed: () {
+                                final measurements = <String, double>{};
+                                controllers.forEach((part, controller) {
+                                  final val = double.tryParse(
+                                    controller.text.replaceAll(',', '.'),
+                                  );
+                                  if (val != null) {
+                                    measurements[part] = val;
+                                  }
+                                });
+
+                                if (measurements.isNotEmpty) {
+                                  trainingBloc.add(
+                                    AddMultipleBodyMeasurementsEvent(
+                                      measurements,
+                                    ),
+                                  );
+                                }
+                                Navigator.pop(sheetContext);
+                              },
+                              style: FilledButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 16,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                              ),
+                              child: const Text('Salva Check-in'),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 32),
+                    ],
                   ),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
+                ),
+              ],
+            ),
+          );
+        },
+      );
+    },
+  );
+}
 
 Future<void> _showEditMeasurementSheet(
   BuildContext context,
   BodyMeasurementEntity measurement,
 ) async {
-    final controller = TextEditingController(
-      text: measurement.value.toStringAsFixed(1),
-    );
-    final theme = Theme.of(context);
+  final controller = TextEditingController(
+    text: measurement.value.toStringAsFixed(1),
+  );
+  final theme = Theme.of(context);
 
-    await showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (sheetContext) {
-        return Padding(
-          padding: EdgeInsets.only(
-            left: 16,
-            right: 16,
-            bottom: MediaQuery.of(sheetContext).viewInsets.bottom + 16,
-            top: 24,
+  await showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (sheetContext) {
+      return Padding(
+        padding: EdgeInsets.only(
+          left: 16,
+          right: 16,
+          bottom: MediaQuery.of(sheetContext).viewInsets.bottom + 16,
+          top: 24,
+        ),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surface,
+            borderRadius: BorderRadius.circular(28),
+            border: Border.all(
+              color: theme.colorScheme.outline.withValues(alpha: 0.08),
+            ),
           ),
-          child: Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surface,
-              borderRadius: BorderRadius.circular(28),
-              border: Border.all(
-                color: theme.colorScheme.outline.withValues(alpha: 0.08),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Modifica ${measurement.part}',
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w900,
+                  fontFamily: 'Lexend',
+                ),
               ),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Modifica ${measurement.part}',
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w900,
-                    fontFamily: 'Lexend',
+              const SizedBox(height: 18),
+              TextField(
+                controller: controller,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                decoration: InputDecoration(
+                  labelText: 'Circonferenza',
+                  suffixText: 'cm',
+                  filled: true,
+                  fillColor: theme.colorScheme.surfaceContainerHigh.withValues(
+                    alpha: 0.35,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide: BorderSide.none,
                   ),
                 ),
-                const SizedBox(height: 18),
-                TextField(
-                  controller: controller,
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
-                  decoration: InputDecoration(
-                    labelText: 'Circonferenza',
-                    suffixText: 'cm',
-                    filled: true,
-                    fillColor: theme.colorScheme.surfaceContainerHigh
-                        .withValues(alpha: 0.35),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(18),
-                      borderSide: BorderSide.none,
+              ),
+              const SizedBox(height: 18),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(sheetContext),
+                      child: const Text('Annulla'),
                     ),
                   ),
-                ),
-                const SizedBox(height: 18),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () => Navigator.pop(sheetContext),
-                        child: const Text('Annulla'),
-                      ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: FilledButton(
+                      onPressed: () {
+                        final value = double.tryParse(
+                          controller.text.replaceAll(',', '.'),
+                        );
+                        if (value == null) return;
+                        context.read<TrainingBloc>().add(
+                          UpdateBodyMeasurementEvent(measurement.id!, value),
+                        );
+                        Navigator.pop(sheetContext);
+                      },
+                      child: const Text('Aggiorna'),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: FilledButton(
-                        onPressed: () {
-                          final value = double.tryParse(
-                            controller.text.replaceAll(',', '.'),
-                          );
-                          if (value == null) return;
-                          context.read<TrainingBloc>().add(
-                                UpdateBodyMeasurementEvent(
-                                  measurement.id!,
-                                  value,
-                                ),
-                              );
-                          Navigator.pop(sheetContext);
-                        },
-                        child: const Text('Aggiorna'),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                // DeleteBodyMeasurementEvent esisteva in bloc e repository ma
-                // non veniva inviato da nessuna schermata: le misurazioni si
-                // potevano solo aggiungere.
-                TextButton.icon(
-                  onPressed: () {
-                    context
-                        .read<TrainingBloc>()
-                        .add(DeleteBodyMeasurementEvent(measurement.id!));
-                    Navigator.pop(sheetContext);
-                  },
-                  icon: const Icon(Icons.delete_outline, size: 18),
-                  style: TextButton.styleFrom(
-                    foregroundColor: theme.colorScheme.error,
                   ),
-                  label: const Text('Elimina misurazione'),
+                ],
+              ),
+              const SizedBox(height: 4),
+              // DeleteBodyMeasurementEvent esisteva in bloc e repository ma
+              // non veniva inviato da nessuna schermata: le misurazioni si
+              // potevano solo aggiungere.
+              TextButton.icon(
+                onPressed: () {
+                  context.read<TrainingBloc>().add(
+                    DeleteBodyMeasurementEvent(measurement.id!),
+                  );
+                  Navigator.pop(sheetContext);
+                },
+                icon: const Icon(Icons.delete_outline, size: 18),
+                style: TextButton.styleFrom(
+                  foregroundColor: theme.colorScheme.error,
                 ),
-              ],
-            ),
+                label: const Text('Elimina misurazione'),
+              ),
+            ],
           ),
-        );
-      },
-    );
-  }
+        ),
+      );
+    },
+  );
+}
 
 class _MeasurementTipsCard extends StatelessWidget {
   const _MeasurementTipsCard();
@@ -1438,10 +1524,7 @@ class _LogTile extends StatelessWidget {
 }
 
 class _ProgressErrorState extends StatelessWidget {
-  const _ProgressErrorState({
-    required this.message,
-    required this.onRetry,
-  });
+  const _ProgressErrorState({required this.message, required this.onRetry});
 
   final String message;
   final VoidCallback onRetry;
@@ -1456,7 +1539,9 @@ class _ProgressErrorState extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.4),
+            color: theme.colorScheme.surfaceContainerHigh.withValues(
+              alpha: 0.4,
+            ),
             borderRadius: BorderRadius.circular(28),
             border: Border.all(
               color: theme.colorScheme.error.withValues(alpha: 0.16),
@@ -1624,10 +1709,7 @@ class _HeroMetricChip extends StatelessWidget {
 }
 
 class _DeltaBadge extends StatelessWidget {
-  const _DeltaBadge({
-    required this.value,
-    required this.isImperial,
-  });
+  const _DeltaBadge({required this.value, required this.isImperial});
 
   final double value;
   final bool isImperial;

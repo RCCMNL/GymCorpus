@@ -34,7 +34,9 @@ class _DailyActivityScreenState extends State<DailyActivityScreen> {
       }
     }
 
-    final data = await _healthService.getWeeklyActivity(days: 30); // Ultimi 30 giorni per lo storico
+    final data = await _healthService.getWeeklyActivity(
+      days: 30,
+    ); // Ultimi 30 giorni per lo storico
     if (mounted) {
       setState(() {
         _weeklyData = data.reversed.toList(); // Più recenti prima
@@ -53,7 +55,11 @@ class _DailyActivityScreenState extends State<DailyActivityScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded, color: theme.colorScheme.onSurface, size: 20),
+          icon: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: theme.colorScheme.onSurface,
+            size: 20,
+          ),
           onPressed: () => context.pop(),
         ),
         title: Text(
@@ -70,15 +76,15 @@ class _DailyActivityScreenState extends State<DailyActivityScreen> {
               child: CircularProgressIndicator(color: Colors.greenAccent),
             )
           : _weeklyData == null || _weeklyData!.isEmpty
-              ? _buildEmptyState(theme)
-              : ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                  itemCount: _weeklyData!.length,
-                  itemBuilder: (context, index) {
-                    final activity = _weeklyData![index];
-                    return _ActivityDayCard(activity: activity);
-                  },
-                ),
+          ? _buildEmptyState(theme)
+          : ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              itemCount: _weeklyData!.length,
+              itemBuilder: (context, index) {
+                final activity = _weeklyData![index];
+                return _ActivityDayCard(activity: activity);
+              },
+            ),
     );
   }
 
@@ -87,7 +93,11 @@ class _DailyActivityScreenState extends State<DailyActivityScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.directions_walk_rounded, size: 48, color: theme.colorScheme.outline.withValues(alpha: 0.5)),
+          Icon(
+            Icons.directions_walk_rounded,
+            size: 48,
+            color: theme.colorScheme.outline.withValues(alpha: 0.5),
+          ),
           const SizedBox(height: 16),
           Text(
             'Nessun dato disponibile',
@@ -110,8 +120,10 @@ class _ActivityDayCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isToday = DateFormat('yyyy-MM-dd').format(activity.date) == DateFormat('yyyy-MM-dd').format(DateTime.now());
-    
+    final isToday =
+        DateFormat('yyyy-MM-dd').format(activity.date) ==
+        DateFormat('yyyy-MM-dd').format(DateTime.now());
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(20),
@@ -119,7 +131,7 @@ class _ActivityDayCard extends StatelessWidget {
         color: theme.colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: isToday 
+          color: isToday
               ? Colors.greenAccent.shade400.withValues(alpha: 0.3)
               : theme.colorScheme.outline.withValues(alpha: 0.08),
           width: isToday ? 1.5 : 1.0,
@@ -132,15 +144,26 @@ class _ActivityDayCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                isToday ? 'Oggi' : DateFormat('EEEE d MMM', 'it_IT').format(activity.date).toUpperCase(),
+                isToday
+                    ? 'Oggi'
+                    : DateFormat(
+                        'EEEE d MMM',
+                        'it_IT',
+                      ).format(activity.date).toUpperCase(),
                 style: theme.textTheme.labelSmall?.copyWith(
                   fontWeight: FontWeight.w800,
                   letterSpacing: 1.2,
-                  color: isToday ? Colors.greenAccent.shade400 : theme.colorScheme.onSurfaceVariant,
+                  color: isToday
+                      ? Colors.greenAccent.shade400
+                      : theme.colorScheme.onSurfaceVariant,
                 ),
               ),
               if (activity.steps >= 10000)
-                Icon(Icons.emoji_events_rounded, size: 16, color: Colors.amber.shade400),
+                Icon(
+                  Icons.emoji_events_rounded,
+                  size: 16,
+                  color: Colors.amber.shade400,
+                ),
             ],
           ),
           const SizedBox(height: 16),
@@ -177,14 +200,22 @@ class _ActivityDayCard extends StatelessWidget {
                 label: 'Distanza',
                 color: Colors.blueAccent,
               ),
-              Container(width: 1, height: 30, color: theme.colorScheme.outline.withValues(alpha: 0.2)),
+              Container(
+                width: 1,
+                height: 30,
+                color: theme.colorScheme.outline.withValues(alpha: 0.2),
+              ),
               _StatItem(
                 icon: Icons.timer_outlined,
                 value: activity.formattedActiveTime,
                 label: 'Attività',
                 color: Colors.orangeAccent,
               ),
-              Container(width: 1, height: 30, color: theme.colorScheme.outline.withValues(alpha: 0.2)),
+              Container(
+                width: 1,
+                height: 30,
+                color: theme.colorScheme.outline.withValues(alpha: 0.2),
+              ),
               _StatItem(
                 icon: Icons.local_fire_department_rounded,
                 value: '${activity.caloriesBurned.round()}',
@@ -215,7 +246,7 @@ class _StatItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Column(
       children: [
         Row(

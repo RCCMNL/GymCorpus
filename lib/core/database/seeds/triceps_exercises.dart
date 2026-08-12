@@ -93,9 +93,7 @@ const tricepsExercises = [
     execution: Value(
       "Estendi le braccia spingendo il bilanciere verso l'alto. Scendi controllato.",
     ),
-    tips: Value(
-      'Simile al manubrio singolo ma permette di usare più carico.',
-    ),
+    tips: Value('Simile al manubrio singolo ma permette di usare più carico.'),
   ),
   ExercisesCompanion(
     name: Value('Overhead Extension ai cavi'),

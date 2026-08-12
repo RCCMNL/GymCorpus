@@ -60,8 +60,12 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
 
               final workoutIds = logs.map((e) => e.workoutId).toSet();
               for (final wid in workoutIds) {
-                final sessionLogs = logs.where((e) => e.workoutId == wid).toList();
-                final withRpe = sessionLogs.where((e) => e.rpe != null).toList();
+                final sessionLogs = logs
+                    .where((e) => e.workoutId == wid)
+                    .toList();
+                final withRpe = sessionLogs
+                    .where((e) => e.rpe != null)
+                    .toList();
                 int durationSec;
                 if (withRpe.isNotEmpty) {
                   durationSec = withRpe.last.rpe!;
@@ -94,13 +98,19 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   )
                   .toList();
               monthSessions = monthLogs.map((e) => e.workoutId).toSet().length;
-              monthWeight =
-                  monthLogs.fold(0, (sum, e) => sum + (e.weight * e.reps));
+              monthWeight = monthLogs.fold(
+                0,
+                (sum, e) => sum + (e.weight * e.reps),
+              );
 
               final monthWorkoutIds = monthLogs.map((e) => e.workoutId).toSet();
               for (final wid in monthWorkoutIds) {
-                final sessionLogs = logs.where((e) => e.workoutId == wid).toList();
-                final withRpe = sessionLogs.where((e) => e.rpe != null).toList();
+                final sessionLogs = logs
+                    .where((e) => e.workoutId == wid)
+                    .toList();
+                final withRpe = sessionLogs
+                    .where((e) => e.rpe != null)
+                    .toList();
                 int durationSec;
                 if (withRpe.isNotEmpty) {
                   durationSec = withRpe.last.rpe!;
@@ -124,19 +134,19 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             }
             final isImperial = currentUnit == 'LB';
 
-            String _fmtDuration(int minutes) {
+            String fmtDuration(int minutes) {
               if (minutes < 60) return '${minutes}min';
               final h = minutes ~/ 60;
               final m = minutes % 60;
               return m == 0 ? '${h}h' : '${h}h${m}m';
             }
 
-            String _fmtVolume(double kg) {
+            String fmtVolume(double kg) {
               if (kg < 1000) return '${kg.toStringAsFixed(0)} kg';
               return '${(kg / 1000).toStringAsFixed(1)}k kg';
             }
 
-            String _fmtVolumeImperial(double kg) {
+            String fmtVolumeImperial(double kg) {
               final lb = UnitConverter.kgToLb(kg);
               if (lb < 1000) return '${lb.toStringAsFixed(0)} lb';
               return '${(lb / 1000).toStringAsFixed(1)}k lb';
@@ -188,14 +198,14 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                       ),
                       _StatItem(
                         icon: Icons.schedule,
-                        value: _fmtDuration(totalRealMinutes),
+                        value: fmtDuration(totalRealMinutes),
                         label: 'Tempo totale',
                       ),
                       _StatItem(
                         icon: Icons.scale,
                         value: isImperial
-                            ? _fmtVolumeImperial(totalWeight)
-                            : _fmtVolume(totalWeight),
+                            ? fmtVolumeImperial(totalWeight)
+                            : fmtVolume(totalWeight),
                         label: 'Volume',
                       ),
                     ],
@@ -212,14 +222,14 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                       ),
                       _StatItem(
                         icon: Icons.timer,
-                        value: _fmtDuration(monthRealMinutes),
+                        value: fmtDuration(monthRealMinutes),
                         label: 'Tempo trascorso',
                       ),
                       _StatItem(
                         icon: Icons.trending_up,
                         value: isImperial
-                            ? _fmtVolumeImperial(monthWeight)
-                            : _fmtVolume(monthWeight),
+                            ? fmtVolumeImperial(monthWeight)
+                            : fmtVolume(monthWeight),
                         label: 'Volume',
                       ),
                     ],
@@ -229,9 +239,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
 
                   // This Week Activity Card
                   _ActivityCard(
-                    weightLogs: state is TrainingLoaded
-                        ? state.weightLogs
-                        : [],
+                    weightLogs: state is TrainingLoaded ? state.weightLogs : [],
                   ),
 
                   const SizedBox(height: 24),
@@ -290,8 +298,9 @@ class _InsightsSection extends StatelessWidget {
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(24),
-        border:
-            Border.all(color: theme.colorScheme.primary.withValues(alpha: 0.1)),
+        border: Border.all(
+          color: theme.colorScheme.primary.withValues(alpha: 0.1),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -360,9 +369,12 @@ class _InsightsSection extends StatelessWidget {
 
     // Weight stability insight
     if (loaded.bodyWeightLogs.length >= 3) {
-      final recent3 =
-          loaded.bodyWeightLogs.take(3).map((e) => e.weight).toList();
-      final range = recent3.reduce((a, b) => a > b ? a : b) -
+      final recent3 = loaded.bodyWeightLogs
+          .take(3)
+          .map((e) => e.weight)
+          .toList();
+      final range =
+          recent3.reduce((a, b) => a > b ? a : b) -
           recent3.reduce((a, b) => a < b ? a : b);
       if (range < 0.5) {
         insights.add(
@@ -382,26 +394,26 @@ class _InsightsSection extends StatelessWidget {
       final now = DateTime.now();
       final last30 = logs
           .where(
-            (e) => e.timestamp.isAfter(
-              now.subtract(const Duration(days: 30)),
-            ),
+            (e) => e.timestamp.isAfter(now.subtract(const Duration(days: 30))),
           )
           .toList();
       final prev30 = logs
           .where(
             (e) =>
                 e.timestamp.isAfter(now.subtract(const Duration(days: 60))) &&
-                e.timestamp.isBefore(
-                  now.subtract(const Duration(days: 30)),
-                ),
+                e.timestamp.isBefore(now.subtract(const Duration(days: 30))),
           )
           .toList();
 
       if (last30.isNotEmpty && prev30.isNotEmpty) {
-        final volLast =
-            last30.fold<double>(0, (sum, e) => sum + e.weight * e.reps);
-        final volPrev =
-            prev30.fold<double>(0, (sum, e) => sum + e.weight * e.reps);
+        final volLast = last30.fold<double>(
+          0,
+          (sum, e) => sum + e.weight * e.reps,
+        );
+        final volPrev = prev30.fold<double>(
+          0,
+          (sum, e) => sum + e.weight * e.reps,
+        );
         if (volPrev > 0) {
           final change = ((volLast - volPrev) / volPrev * 100).round();
           if (change > 0) {
@@ -429,8 +441,10 @@ class _InsightsSection extends StatelessWidget {
 
     // Cardio sessions insight
     if (loaded.cardioSessions.isNotEmpty) {
-      final totalKm =
-          loaded.cardioSessions.fold<double>(0, (sum, e) => sum + e.distance);
+      final totalKm = loaded.cardioSessions.fold<double>(
+        0,
+        (sum, e) => sum + e.distance,
+      );
       insights.add(
         _Insight(
           icon: Icons.directions_run,
@@ -548,7 +562,9 @@ class _ActivityCard extends StatelessWidget {
     for (final log in weightLogs) {
       final ts = log.timestamp;
       final diff = DateTime(ts.year, ts.month, ts.day)
-          .difference(DateTime(startOfWeek.year, startOfWeek.month, startOfWeek.day))
+          .difference(
+            DateTime(startOfWeek.year, startOfWeek.month, startOfWeek.day),
+          )
           .inDays;
       if (diff >= 0 && diff < 7) result[diff] = true;
     }
@@ -601,16 +617,18 @@ class _ActivityCard extends StatelessWidget {
                               width: 2,
                             )
                           : (isDone
-                              ? null
-                              : Border.all(
-                                  color: theme.colorScheme.outline
-                                      .withValues(alpha: 0.2),
-                                )),
+                                ? null
+                                : Border.all(
+                                    color: theme.colorScheme.outline.withValues(
+                                      alpha: 0.2,
+                                    ),
+                                  )),
                       boxShadow: isDone
                           ? [
                               BoxShadow(
-                                color: theme.colorScheme.secondary
-                                    .withValues(alpha: 0.4),
+                                color: theme.colorScheme.secondary.withValues(
+                                  alpha: 0.4,
+                                ),
                                 blurRadius: 12,
                               ),
                             ]
@@ -628,8 +646,9 @@ class _ActivityCard extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                       color: isToday
                           ? theme.colorScheme.primary
-                          : theme.colorScheme.onSurfaceVariant
-                              .withValues(alpha: isDone ? 1 : 0.6),
+                          : theme.colorScheme.onSurfaceVariant.withValues(
+                              alpha: isDone ? 1 : 0.6,
+                            ),
                     ),
                   ),
                 ],
@@ -663,9 +682,9 @@ class _WeightTrackingCardState extends State<_WeightTrackingCard> {
         var min = '--';
         var trendPoints = <double>[];
         final profileWeight = context.read<AuthBloc>().state.maybeWhen(
-              authenticated: (user) => user.weight,
-              orElse: () => null,
-            );
+          authenticated: (user) => user.weight,
+          orElse: () => null,
+        );
 
         final trainingState = context.read<TrainingBloc>().state;
         final settings = trainingState is TrainingLoaded
@@ -693,8 +712,9 @@ class _WeightTrackingCardState extends State<_WeightTrackingCard> {
               }
             }
 
-            var lastWeight =
-                logs.reduce((a, b) => a.date.isBefore(b.date) ? a : b).weight;
+            var lastWeight = logs
+                .reduce((a, b) => a.date.isBefore(b.date) ? a : b)
+                .weight;
 
             for (var i = 0; i < 30; i++) {
               final d = startDate.add(Duration(days: i));
@@ -712,10 +732,11 @@ class _WeightTrackingCardState extends State<_WeightTrackingCard> {
 
             // Stats
             final latestWeightValue = logs.first.weight;
-            current = (isImperial
-                    ? UnitConverter.kgToLb(latestWeightValue)
-                    : latestWeightValue)
-                .toStringAsFixed(1);
+            current =
+                (isImperial
+                        ? UnitConverter.kgToLb(latestWeightValue)
+                        : latestWeightValue)
+                    .toStringAsFixed(1);
 
             final allProcessedWeights = logs
                 .map(
@@ -809,8 +830,10 @@ class _WeightTrackingCardState extends State<_WeightTrackingCard> {
                             const SizedBox(width: 8),
                             Text(
                               'ULTIMI 30 GIORNI',
-                              style: theme.textTheme.labelSmall
-                                  ?.copyWith(fontSize: 9, letterSpacing: 1),
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                fontSize: 9,
+                                letterSpacing: 1,
+                              ),
                             ),
                           ],
                         ),
@@ -862,12 +885,13 @@ class _WeightTrackingCardState extends State<_WeightTrackingCard> {
                   child: LineChart(
                     LineChartData(
                       gridData: FlGridData(
-                        show: true,
                         drawVerticalLine: false,
                         horizontalInterval: 1,
                         getDrawingHorizontalLine: (value) {
                           return FlLine(
-                            color: theme.colorScheme.outline.withValues(alpha: 0.05),
+                            color: theme.colorScheme.outline.withValues(
+                              alpha: 0.05,
+                            ),
                             strokeWidth: 1,
                           );
                         },
@@ -876,11 +900,13 @@ class _WeightTrackingCardState extends State<_WeightTrackingCard> {
                       borderData: FlBorderData(show: false),
                       minX: 0,
                       maxX: 29,
-                      minY: (trendPoints.reduce((a, b) => a < b ? a : b) - 2).clamp(0, double.infinity),
+                      minY: (trendPoints.reduce((a, b) => a < b ? a : b) - 2)
+                          .clamp(0, double.infinity),
                       maxY: trendPoints.reduce((a, b) => a > b ? a : b) + 2,
                       lineTouchData: LineTouchData(
                         touchTooltipData: LineTouchTooltipData(
-                          getTooltipColor: (spot) => theme.colorScheme.surfaceContainerHighest,
+                          getTooltipColor: (spot) =>
+                              theme.colorScheme.surfaceContainerHighest,
                           tooltipBorderRadius: BorderRadius.circular(12),
                           getTooltipItems: (List<LineBarSpot> touchedBarSpots) {
                             return touchedBarSpots.map((barSpot) {
@@ -893,7 +919,10 @@ class _WeightTrackingCardState extends State<_WeightTrackingCard> {
                                 ),
                                 children: [
                                   TextSpan(
-                                    text: DateFormat('dd MMM', 'it_IT').format(dates[flSpot.x.toInt()]),
+                                    text: DateFormat(
+                                      'dd MMM',
+                                      'it_IT',
+                                    ).format(dates[flSpot.x.toInt()]),
                                     style: theme.textTheme.labelSmall!.copyWith(
                                       color: theme.colorScheme.primary,
                                       fontWeight: FontWeight.w900,
@@ -904,7 +933,6 @@ class _WeightTrackingCardState extends State<_WeightTrackingCard> {
                             }).toList();
                           },
                         ),
-                        handleBuiltInTouches: true,
                       ),
                       lineBarsData: [
                         LineChartBarData(
@@ -912,7 +940,6 @@ class _WeightTrackingCardState extends State<_WeightTrackingCard> {
                             return FlSpot(e.key.toDouble(), e.value);
                           }).toList(),
                           isCurved: true,
-                          curveSmoothness: 0.35,
                           gradient: LinearGradient(
                             colors: [
                               theme.colorScheme.primary,
@@ -922,7 +949,6 @@ class _WeightTrackingCardState extends State<_WeightTrackingCard> {
                           barWidth: 4,
                           isStrokeCapRound: true,
                           dotData: FlDotData(
-                            show: true,
                             getDotPainter: (spot, percent, barData, index) {
                               final isActual = actualDataDays.contains(index);
                               return FlDotCirclePainter(
@@ -939,7 +965,9 @@ class _WeightTrackingCardState extends State<_WeightTrackingCard> {
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
                               colors: [
-                                theme.colorScheme.primary.withValues(alpha: 0.2),
+                                theme.colorScheme.primary.withValues(
+                                  alpha: 0.2,
+                                ),
                                 theme.colorScheme.primary.withValues(alpha: 0),
                               ],
                             ),
@@ -968,8 +996,9 @@ class _WeightTrackingCardState extends State<_WeightTrackingCard> {
                         '-$weekNum SET',
                         style: theme.textTheme.labelSmall?.copyWith(
                           fontSize: 7,
-                          color:
-                              theme.colorScheme.outline.withValues(alpha: 0.4),
+                          color: theme.colorScheme.outline.withValues(
+                            alpha: 0.4,
+                          ),
                         ),
                       );
                     }),
@@ -997,8 +1026,9 @@ class _WeightTrackingCardState extends State<_WeightTrackingCard> {
   }
 
   void _showWeightDialog(BuildContext context, {BodyWeightLogEntity? log}) {
-    final controller =
-        TextEditingController(text: log != null ? log.weight.toString() : '');
+    final controller = TextEditingController(
+      text: log != null ? log.weight.toString() : '',
+    );
     final trainingState = context.read<TrainingBloc>().state;
     final settings = trainingState is TrainingLoaded
         ? trainingState.settings
@@ -1035,21 +1065,22 @@ class _WeightTrackingCardState extends State<_WeightTrackingCard> {
               foregroundColor: Colors.white,
             ),
             onPressed: () {
-              final weightValue =
-                  double.tryParse(controller.text.replaceAll(',', '.'));
+              final weightValue = double.tryParse(
+                controller.text.replaceAll(',', '.'),
+              );
               if (weightValue != null) {
                 var weight = weightValue;
                 if (isImperial) {
                   weight = UnitConverter.lbToKg(weight);
                 }
                 if (log == null) {
-                  context
-                      .read<TrainingBloc>()
-                      .add(AddBodyWeightLogEvent(weight));
+                  context.read<TrainingBloc>().add(
+                    AddBodyWeightLogEvent(weight),
+                  );
                 } else {
-                  context
-                      .read<TrainingBloc>()
-                      .add(UpdateBodyWeightLogEvent(log.id!, weight));
+                  context.read<TrainingBloc>().add(
+                    UpdateBodyWeightLogEvent(log.id!, weight),
+                  );
                 }
                 Navigator.pop(context);
               }
@@ -1153,7 +1184,8 @@ class _BMICard extends StatelessWidget {
           orElse: () => null,
         );
 
-        final latestWeight = trainingState is TrainingLoaded &&
+        final latestWeight =
+            trainingState is TrainingLoaded &&
                 trainingState.bodyWeightLogs.isNotEmpty
             ? trainingState.bodyWeightLogs.first.weight
             : user?.weight;
@@ -1212,15 +1244,17 @@ class _BMICard extends StatelessWidget {
                     children: [
                       Text(
                         'Indice BMI',
-                        style: theme.textTheme.titleMedium
-                            ?.copyWith(fontWeight: FontWeight.bold),
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       Text(
                         'BODY MASS INDEX',
                         style: theme.textTheme.labelSmall?.copyWith(
                           fontSize: 8,
-                          color: theme.colorScheme.onSurface
-                              .withValues(alpha: 0.6),
+                          color: theme.colorScheme.onSurface.withValues(
+                            alpha: 0.6,
+                          ),
                         ),
                       ),
                     ],
@@ -1335,10 +1369,13 @@ class _CardioHistorySection extends StatelessWidget {
                   onPressed: () => context.push('/analytics/cardio-history'),
                   style: TextButton.styleFrom(
                     visualDensity: VisualDensity.compact,
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    backgroundColor:
-                        theme.colorScheme.primary.withValues(alpha: 0.05),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    backgroundColor: theme.colorScheme.primary.withValues(
+                      alpha: 0.05,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -1372,21 +1409,24 @@ class _CardioHistorySection extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceContainerHighest
-                    .withValues(alpha: 0.1),
+                color: theme.colorScheme.surfaceContainerHighest.withValues(
+                  alpha: 0.1,
+                ),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Center(
                 child: Text(
                   'Nessuna sessione registrata',
-                  style: theme.textTheme.bodySmall
-                      ?.copyWith(color: theme.colorScheme.outline),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.outline,
+                  ),
                 ),
               ),
             )
           else
-            ...displaySessions
-                .map((session) => _CompactCardioCard(session: session)),
+            ...displaySessions.map(
+              (session) => _CompactCardioCard(session: session),
+            ),
         ],
       ),
     );

@@ -68,39 +68,38 @@ void main() {
       ],
     );
 
-    await tester.pumpWidget(
-      MaterialApp.router(
-        routerConfig: router,
-      ),
-    );
+    await tester.pumpWidget(MaterialApp.router(routerConfig: router));
   }
 
   group('LoginScreen', () {
-    testWidgets('mostra una CTA Google esplicita e un aiuto per il primo accesso',
-        (tester) async {
-      await pumpScreen(tester);
+    testWidgets(
+      'mostra una CTA Google esplicita e un aiuto per il primo accesso',
+      (tester) async {
+        await pumpScreen(tester);
 
-      expect(find.text('Accedi con Google'), findsOneWidget);
-      expect(
-        find.text(
-          'Primo accesso? Se non hai ancora un account, usa "Registrati" qui sotto.',
-        ),
-        findsOneWidget,
-      );
-    });
+        expect(find.text('Accedi con Google'), findsOneWidget);
+        expect(
+          find.text(
+            'Primo accesso? Se non hai ancora un account, usa "Registrati" qui sotto.',
+          ),
+          findsOneWidget,
+        );
+      },
+    );
 
     testWidgets(
-        'porta alla registrazione se Google login viene usato con un account nuovo',
-        (tester) async {
-      await pumpScreen(tester);
+      'porta alla registrazione se Google login viene usato con un account nuovo',
+      (tester) async {
+        await pumpScreen(tester);
 
-      await tester.ensureVisible(find.text('Accedi con Google'));
-      await tester.tap(find.text('Accedi con Google'));
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 950));
-      await tester.pumpAndSettle();
+        await tester.ensureVisible(find.text('Accedi con Google'));
+        await tester.tap(find.text('Accedi con Google'));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 950));
+        await tester.pumpAndSettle();
 
-      expect(find.text('Crea il tuo account'), findsOneWidget);
-    });
+        expect(find.text('Crea il tuo account'), findsOneWidget);
+      },
+    );
   });
 }

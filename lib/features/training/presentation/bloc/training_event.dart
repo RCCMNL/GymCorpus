@@ -214,8 +214,16 @@ class SaveCardioSessionEvent extends TrainingEvent {
   final String? routeJson;
 
   @override
-  List<Object?> get props =>
-      [type, distance, duration, avgSpeed, pace, calories, steps, routeJson];
+  List<Object?> get props => [
+    type,
+    distance,
+    duration,
+    avgSpeed,
+    pace,
+    calories,
+    steps,
+    routeJson,
+  ];
 }
 
 class DeleteCardioSessionEvent extends TrainingEvent {

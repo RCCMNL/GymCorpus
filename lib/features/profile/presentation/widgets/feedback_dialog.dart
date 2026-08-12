@@ -57,8 +57,8 @@ class _FeedbackDialogState extends State<FeedbackDialog> {
       );
 
       final deviceInfo = DeviceInfoPlugin();
-      String deviceModel = '';
-      String osVersion = '';
+      var deviceModel = '';
+      var osVersion = '';
 
       if (Platform.isAndroid) {
         final androidInfo = await deviceInfo.androidInfo;
@@ -76,7 +76,8 @@ class _FeedbackDialogState extends State<FeedbackDialog> {
         'to': AppConstants.supportEmail,
         'message': {
           'subject': '[GYMCORPUS] Segnalazione: $subject',
-          'html': '''
+          'html':
+              '''
             <h3>Nuova segnalazione da GymCorpus</h3>
             <p><strong>Utente:</strong> ${user?.fullName ?? 'Anonimo'} (${user?.email ?? 'N/D'})</p>
             <p><strong>Oggetto:</strong> $subject</p>
@@ -97,7 +98,7 @@ class _FeedbackDialogState extends State<FeedbackDialog> {
           'device': deviceModel,
           'os': osVersion,
           'subject': subject,
-        }
+        },
       });
 
       if (mounted) {
@@ -111,9 +112,9 @@ class _FeedbackDialogState extends State<FeedbackDialog> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Errore durante l\'invio: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Errore durante l'invio: $e")));
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -172,13 +173,19 @@ class _FeedbackDialogState extends State<FeedbackDialog> {
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                               colors: [
-                                theme.colorScheme.primary.withValues(alpha: 0.15),
-                                theme.colorScheme.tertiary.withValues(alpha: 0.1),
+                                theme.colorScheme.primary.withValues(
+                                  alpha: 0.15,
+                                ),
+                                theme.colorScheme.tertiary.withValues(
+                                  alpha: 0.1,
+                                ),
                               ],
                             ),
                             borderRadius: BorderRadius.circular(14),
                             border: Border.all(
-                              color: theme.colorScheme.primary.withValues(alpha: 0.2),
+                              color: theme.colorScheme.primary.withValues(
+                                alpha: 0.2,
+                              ),
                             ),
                           ),
                           child: Icon(
@@ -215,7 +222,10 @@ class _FeedbackDialogState extends State<FeedbackDialog> {
                       onPressed: () => Navigator.pop(context),
                       icon: const Icon(Icons.close),
                       style: IconButton.styleFrom(
-                        backgroundColor: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                        backgroundColor: theme
+                            .colorScheme
+                            .surfaceContainerHighest
+                            .withValues(alpha: 0.5),
                       ),
                     ),
                   ],
@@ -245,15 +255,45 @@ class _FeedbackDialogState extends State<FeedbackDialog> {
                         hintText: 'Es: Errore nel salvataggio peso',
                         prefixIcon: Padding(
                           padding: const EdgeInsets.only(left: 12, right: 8),
-                          child: Icon(Icons.subject_rounded, size: 20, color: theme.colorScheme.primary.withValues(alpha: 0.6)),
+                          child: Icon(
+                            Icons.subject_rounded,
+                            size: 20,
+                            color: theme.colorScheme.primary.withValues(
+                              alpha: 0.6,
+                            ),
+                          ),
                         ),
-                        prefixIconConstraints: const BoxConstraints(minWidth: 40, minHeight: 0),
+                        prefixIconConstraints: const BoxConstraints(
+                          minWidth: 40,
+                        ),
                         filled: true,
                         fillColor: theme.colorScheme.surfaceContainerHigh,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.1))),
-                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.1))),
-                        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: theme.colorScheme.primary)),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 14,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide(
+                            color: theme.colorScheme.outline.withValues(
+                              alpha: 0.1,
+                            ),
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide(
+                            color: theme.colorScheme.outline.withValues(
+                              alpha: 0.1,
+                            ),
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide(
+                            color: theme.colorScheme.primary,
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -281,14 +321,34 @@ class _FeedbackDialogState extends State<FeedbackDialog> {
                       maxLines: 5,
                       style: theme.textTheme.bodyLarge,
                       decoration: InputDecoration(
-                        hintText: 'Cosa è successo? Come possiamo riprodurre il problema?',
+                        hintText:
+                            'Cosa è successo? Come possiamo riprodurre il problema?',
                         alignLabelWithHint: true,
                         filled: true,
                         fillColor: theme.colorScheme.surfaceContainerHigh,
                         contentPadding: const EdgeInsets.all(16),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.1))),
-                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.1))),
-                        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: theme.colorScheme.primary)),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide(
+                            color: theme.colorScheme.outline.withValues(
+                              alpha: 0.1,
+                            ),
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide(
+                            color: theme.colorScheme.outline.withValues(
+                              alpha: 0.1,
+                            ),
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide(
+                            color: theme.colorScheme.primary,
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -308,7 +368,11 @@ class _FeedbackDialogState extends State<FeedbackDialog> {
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
-                            side: BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.15)),
+                            side: BorderSide(
+                              color: theme.colorScheme.outline.withValues(
+                                alpha: 0.15,
+                              ),
+                            ),
                           ),
                         ),
                         child: Text(
@@ -331,7 +395,9 @@ class _FeedbackDialogState extends State<FeedbackDialog> {
                           borderRadius: BorderRadius.circular(16),
                           boxShadow: [
                             BoxShadow(
-                              color: theme.colorScheme.primary.withValues(alpha: 0.3),
+                              color: theme.colorScheme.primary.withValues(
+                                alpha: 0.3,
+                              ),
                               blurRadius: 16,
                               offset: const Offset(0, 6),
                             ),
@@ -343,13 +409,31 @@ class _FeedbackDialogState extends State<FeedbackDialog> {
                             backgroundColor: theme.colorScheme.primary,
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 16),
-                            disabledBackgroundColor: theme.colorScheme.primary.withValues(alpha: 0.5),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                            disabledBackgroundColor: theme.colorScheme.primary
+                                .withValues(alpha: 0.5),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
                             elevation: 0,
                           ),
                           child: _isLoading
-                              ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                              : const Text('INVIA SEGNALAZIONE', style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1.1, fontSize: 13, fontFamily: 'Lexend')),
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : const Text(
+                                  'INVIA SEGNALAZIONE',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w900,
+                                    letterSpacing: 1.1,
+                                    fontSize: 13,
+                                    fontFamily: 'Lexend',
+                                  ),
+                                ),
                         ),
                       ),
                     ),
