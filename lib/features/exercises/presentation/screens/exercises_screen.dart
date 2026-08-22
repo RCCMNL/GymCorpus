@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
+import 'package:gym_corpus/features/exercises/domain/exercise_catalog_view.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
@@ -16,7 +17,7 @@ class ExercisesScreen extends StatefulWidget {
 
 class _ExercisesScreenState extends State<ExercisesScreen> {
   String _searchQuery = '';
-  String _selectedMuscle = 'Tutti';
+  String _selectedMuscle = kAllMusclesFilter;
   final Set<String> _expandedCategories = {};
 
   void _toggleCategory(String category) {
@@ -40,48 +41,14 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
         child: BlocBuilder<TrainingBloc, TrainingState>(
           builder: (context, state) {
             if (state is TrainingLoaded) {
-              // Filtering
-              final filteredExercises = state.exercises.where((e) {
-                final search = _searchQuery.toLowerCase();
-                final matchesSearch =
-                    e.name.toLowerCase().contains(search) ||
-                    (e.equipment?.toLowerCase().contains(search) ?? false) ||
-                    e.categories.any(
-                      (category) => category.toLowerCase().contains(search),
-                    );
-                final matchesMuscle =
-                    _selectedMuscle == 'Tutti' ||
-                    (_selectedMuscle == 'Preferiti' && e.isFavorite) ||
-                    e.categories.contains(_selectedMuscle);
-                return matchesSearch && matchesMuscle;
-              }).toList();
-
-              // Grouping
-              final grouped = <String, List<ExerciseEntity>>{};
-              for (final ex in filteredExercises) {
-                final categories =
-                    _selectedMuscle == 'Tutti' || _selectedMuscle == 'Preferiti'
-                    ? ex.categories
-                    : ex.categories.where((c) => c == _selectedMuscle);
-
-                for (final category in categories) {
-                  final section = category.isEmpty ? 'Altro' : category;
-                  grouped.putIfAbsent(section, () => []).add(ex);
-                }
-              }
-              final sections = grouped.keys.toList()..sort();
-
-              // Muscle groups for the horizontal selector
-              final muscleGroups = [
-                'Tutti',
-                'Preferiti',
-                ...state.exercises
-                    .expand((e) => e.categories)
-                    .where((m) => m.isNotEmpty)
-                    .toSet()
-                    .toList()
-                  ..sort(),
-              ];
+              final catalog = ExerciseCatalogView.build(
+                exercises: state.exercises,
+                searchQuery: _searchQuery,
+                selectedMuscle: _selectedMuscle,
+              );
+              final sections = catalog.sections;
+              final grouped = catalog.exercisesBySection;
+              final muscleGroups = catalog.muscleGroups;
 
               return CustomScrollView(
                 physics: const BouncingScrollPhysics(),
