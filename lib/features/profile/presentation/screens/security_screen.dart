@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
+import 'package:gym_corpus/core/widgets/section_title.dart';
 import 'package:gym_corpus/core/widgets/social_icons.dart';
 import 'package:gym_corpus/features/auth/domain/entities/user_entity.dart';
 import 'package:gym_corpus/features/auth/domain/repositories/auth_repository.dart';
@@ -337,7 +338,13 @@ class _SecurityScreenState extends State<SecurityScreen> {
                 ),
               ),
               const SizedBox(height: 32),
-              _buildSectionTitle('AUTENTICAZIONE', theme),
+              SectionTitle(
+                'AUTENTICAZIONE',
+                color: theme.colorScheme.primary.withValues(alpha: 0.8),
+                letterSpacing: 2.5,
+                fontSize: 11,
+                withAccentBar: true,
+              ),
               const SizedBox(height: 12),
               _SecurityItem(
                 icon: Icons.lock_outline,
@@ -354,7 +361,13 @@ class _SecurityScreenState extends State<SecurityScreen> {
                   ),
                 ),
               const SizedBox(height: 32),
-              _buildSectionTitle('LOGIN SOCIAL', theme),
+              SectionTitle(
+                'LOGIN SOCIAL',
+                color: theme.colorScheme.primary.withValues(alpha: 0.8),
+                letterSpacing: 2.5,
+                fontSize: 11,
+                withAccentBar: true,
+              ),
               const SizedBox(height: 12),
               _SecurityItem(
                 leading: const GoogleLogo(size: 20),
@@ -389,7 +402,13 @@ class _SecurityScreenState extends State<SecurityScreen> {
                 ),
               ),
               const SizedBox(height: 32),
-              _buildSectionTitle('CRONOLOGIA ACCESSI', theme),
+              SectionTitle(
+                'CRONOLOGIA ACCESSI',
+                color: theme.colorScheme.primary.withValues(alpha: 0.8),
+                letterSpacing: 2.5,
+                fontSize: 11,
+                withAccentBar: true,
+              ),
               const SizedBox(height: 12),
               ...((currentUser?.loginHistory.isNotEmpty ?? false)
                       ? currentUser!.loginHistory.take(2).toList()
@@ -486,7 +505,13 @@ class _SecurityScreenState extends State<SecurityScreen> {
                     );
                   }),
               const SizedBox(height: 48),
-              _buildSectionTitle('ZONA PERICOLOSA', theme),
+              SectionTitle(
+                'ZONA PERICOLOSA',
+                color: theme.colorScheme.primary.withValues(alpha: 0.8),
+                letterSpacing: 2.5,
+                fontSize: 11,
+                withAccentBar: true,
+              ),
               const SizedBox(height: 12),
               SizedBox(
                 width: double.infinity,
@@ -515,35 +540,6 @@ class _SecurityScreenState extends State<SecurityScreen> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildSectionTitle(String title, ThemeData theme) {
-    return Row(
-      children: [
-        Container(
-          width: 4,
-          height: 14,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [theme.colorScheme.primary, theme.colorScheme.tertiary],
-            ),
-            borderRadius: BorderRadius.circular(2),
-          ),
-        ),
-        const SizedBox(width: 10),
-        Text(
-          title,
-          style: theme.textTheme.labelSmall?.copyWith(
-            letterSpacing: 2.5,
-            fontWeight: FontWeight.w900,
-            color: theme.colorScheme.primary.withValues(alpha: 0.8),
-            fontSize: 11,
-          ),
-        ),
-      ],
     );
   }
 }

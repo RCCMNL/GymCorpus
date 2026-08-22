@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
+import 'package:gym_corpus/core/widgets/section_title.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
@@ -49,7 +50,12 @@ class TrainingDashboardScreen extends StatelessWidget {
                     const SizedBox(height: 40),
 
                     // MOVED SECTION: Dashboard Grid
-                    _buildSectionTitle(theme, 'ATTIVITÀ RAPIDA'),
+                    SectionTitle(
+                      'ATTIVITÀ RAPIDA',
+                      color: theme.colorScheme.outline.withValues(alpha: 0.6),
+                      letterSpacing: 2,
+                      fontSize: 10,
+                    ),
                     const SizedBox(height: 16),
                     _buildDashboardGrid(context, theme),
 
@@ -88,18 +94,6 @@ class TrainingDashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSectionTitle(ThemeData theme, String title) {
-    return Text(
-      title,
-      style: theme.textTheme.labelSmall?.copyWith(
-        letterSpacing: 2,
-        fontWeight: FontWeight.w900,
-        color: theme.colorScheme.outline.withValues(alpha: 0.6),
-        fontSize: 10,
-      ),
-    );
-  }
-
   Widget _buildYourRoutinesSection(
     BuildContext context,
     TrainingState state,
@@ -118,7 +112,12 @@ class TrainingDashboardScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionTitle(theme, 'I TUOI ALLENAMENTI'),
+          SectionTitle(
+            'I TUOI ALLENAMENTI',
+            color: theme.colorScheme.outline.withValues(alpha: 0.6),
+            letterSpacing: 2,
+            fontSize: 10,
+          ),
           const SizedBox(height: 20),
           if (state is TrainingLoaded && state.routines.isNotEmpty)
             SizedBox(

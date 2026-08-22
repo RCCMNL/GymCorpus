@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
+import 'package:gym_corpus/core/widgets/section_title.dart';
 import 'package:gym_corpus/features/training/domain/repositories/training_repository.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
@@ -162,7 +163,11 @@ class _IntegrationsScreenState extends State<IntegrationsScreen> {
                 ),
               ),
               const SizedBox(height: 32),
-              _buildSectionTitle('SALUTE (IN SVILUPPO)', theme),
+              SectionTitle(
+                'SALUTE (IN SVILUPPO)',
+                color: theme.colorScheme.outline,
+                letterSpacing: 2,
+              ),
               const SizedBox(height: 12),
               _buildIntegrationItem(
                 icon: Icons.health_and_safety_outlined,
@@ -176,7 +181,11 @@ class _IntegrationsScreenState extends State<IntegrationsScreen> {
                 theme: theme,
               ),
               const SizedBox(height: 32),
-              _buildSectionTitle('ESPORTAZIONE DATI', theme),
+              SectionTitle(
+                'ESPORTAZIONE DATI',
+                color: theme.colorScheme.outline,
+                letterSpacing: 2,
+              ),
               const SizedBox(height: 12),
               _buildIntegrationItem(
                 icon: Icons.picture_as_pdf_outlined,
@@ -204,7 +213,11 @@ class _IntegrationsScreenState extends State<IntegrationsScreen> {
                 ),
               ],
               const SizedBox(height: 48),
-              _buildSectionTitle('GDPR COMPLIANCE', theme),
+              SectionTitle(
+                'GDPR COMPLIANCE',
+                color: theme.colorScheme.outline,
+                letterSpacing: 2,
+              ),
               const SizedBox(height: 12),
               Text(
                 'I tuoi dati sono protetti e appartengono a te. Puoi scaricarli o eliminare il tuo account in qualsiasi momento dalla sezione Sicurezza.',
@@ -216,17 +229,6 @@ class _IntegrationsScreenState extends State<IntegrationsScreen> {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildSectionTitle(String title, ThemeData theme) {
-    return Text(
-      title,
-      style: theme.textTheme.labelSmall?.copyWith(
-        letterSpacing: 2,
-        fontWeight: FontWeight.w900,
-        color: theme.colorScheme.outline,
       ),
     );
   }

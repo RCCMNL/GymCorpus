@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
+import 'package:gym_corpus/core/widgets/section_title.dart';
 
 class YogaScreen extends StatelessWidget {
   const YogaScreen({super.key});
@@ -73,7 +74,7 @@ class YogaScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 32),
-              _buildSectionTitle('LIVELLO', theme),
+              const SectionTitle('LIVELLO'),
               const SizedBox(height: 12),
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
@@ -87,7 +88,7 @@ class YogaScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 32),
-              _buildSectionTitle('SESSIONI CONSIGLIATE', theme),
+              const SectionTitle('SESSIONI CONSIGLIATE'),
               const SizedBox(height: 16),
               _buildYogaCard(
                 theme,
@@ -104,7 +105,7 @@ class YogaScreen extends StatelessWidget {
                 Colors.tealAccent,
               ),
               const SizedBox(height: 32),
-              _buildSectionTitle('FLOW DEL GIORNO', theme),
+              const SectionTitle('FLOW DEL GIORNO'),
               const SizedBox(height: 16),
               Container(
                 width: double.infinity,
@@ -219,17 +220,6 @@ class YogaScreen extends StatelessWidget {
             color: isSelected ? theme.colorScheme.primary : Colors.transparent,
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildSectionTitle(String title, ThemeData theme) {
-    return Text(
-      title,
-      style: theme.textTheme.labelSmall?.copyWith(
-        letterSpacing: 1.5,
-        fontWeight: FontWeight.w900,
-        color: theme.colorScheme.primary,
       ),
     );
   }

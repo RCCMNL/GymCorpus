@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
+import 'package:gym_corpus/core/widgets/section_title.dart';
 
 class NutritionScreen extends StatelessWidget {
   const NutritionScreen({super.key});
@@ -81,7 +82,7 @@ class NutritionScreen extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _buildSectionTitle('PASTI DI OGGI', theme),
+                  const SectionTitle('PASTI DI OGGI'),
                   TextButton(
                     onPressed: () {},
                     child: Text(
@@ -110,7 +111,7 @@ class NutritionScreen extends StatelessWidget {
                 Colors.green,
               ),
               const SizedBox(height: 32),
-              _buildSectionTitle('ARTICOLI E CONSIGLI', theme),
+              const SectionTitle('ARTICOLI E CONSIGLI'),
               const SizedBox(height: 16),
               _buildArticleCard(
                 context,
@@ -318,17 +319,6 @@ class NutritionScreen extends StatelessWidget {
             color: theme.colorScheme.outline.withValues(alpha: 0.3),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildSectionTitle(String title, ThemeData theme) {
-    return Text(
-      title,
-      style: theme.textTheme.labelSmall?.copyWith(
-        letterSpacing: 1.5,
-        fontWeight: FontWeight.w900,
-        color: theme.colorScheme.primary,
       ),
     );
   }
