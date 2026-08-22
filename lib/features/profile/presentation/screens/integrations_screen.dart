@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/features/training/domain/repositories/training_repository.dart';
 import 'package:path_provider/path_provider.dart';
@@ -25,7 +25,12 @@ class _IntegrationsScreenState extends State<IntegrationsScreen> {
   Future<void> _exportAsJson() async {
     setState(() => _isExporting = true);
     try {
-      final repository = context.read<TrainingRepository>();
+      // GetIt, non context.read: TrainingRepository e' registrato solo nel
+      // service locator, mai esposto tramite RepositoryProvider nell'albero
+      // dei widget. context.read<TrainingRepository>() lanciava sempre
+      // ProviderNotFoundException, catturata dal catch generico qui sotto e
+      // mostrata come errore vago: l'export non ha mai funzionato.
+      final repository = GetIt.I<TrainingRepository>();
       // Get data (simplified)
       final routines = await repository.watchRoutines().first;
       final weightLogs = await repository.watchWeightLogs().first;
@@ -68,7 +73,7 @@ class _IntegrationsScreenState extends State<IntegrationsScreen> {
     setState(() => _isExporting = true);
     try {
       final pdf = pw.Document();
-      final repository = context.read<TrainingRepository>();
+      final repository = GetIt.I<TrainingRepository>();
       final weightLogs = await repository.watchWeightLogs().first;
 
       pdf.addPage(
