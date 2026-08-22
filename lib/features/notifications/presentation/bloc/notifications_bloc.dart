@@ -1,6 +1,8 @@
 import 'dart:async';
 
+import 'package:dartz/dartz.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gym_corpus/core/error/failures.dart';
 import 'package:gym_corpus/core/services/notification_service.dart';
 import 'package:gym_corpus/features/notifications/domain/entities/notification_log_entity.dart';
 import 'package:gym_corpus/features/notifications/domain/repositories/notifications_repository.dart';
@@ -78,39 +80,55 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
     }
   }
 
+  /// Esegue [action] e, se fallisce, porta l'errore in `actionError` invece
+  /// di scartarlo. Restituisce `true` se l'azione e' andata a buon fine.
+  ///
+  /// Il valore di ritorno serve ai cicli di annullamento/programmazione dei
+  /// promemoria (vedi `_onScheduleTraining` e `_onCancelTraining`) per
+  /// fermarsi al primo fallimento: continuare significherebbe annullare o
+  /// programmare i giorni restanti su uno stato gia' a meta', con il rischio
+  /// di promemoria duplicati o mancanti senza che l'errore originale venga
+  /// piu' segnalato.
+  Future<bool> _runOrEmitFailure(
+    Future<Either<Failure, void>> Function() action,
+    Emitter<NotificationsState> emit,
+  ) async {
+    final result = await action();
+    return result.fold((failure) {
+      emit(state.copyWith(actionError: failure.message));
+      return false;
+    }, (_) => true);
+  }
+
   Future<void> _onMarkRead(
     MarkNotificationReadEvent event,
     Emitter<NotificationsState> emit,
   ) async {
-    final result = await repository.markAsRead(event.id);
-    // Prima l'Either veniva scartato: un tap su "segna come letta" che
-    // falliva non produceva alcun errore visibile, e la notifica restava
-    // silenziosamente non letta senza che l'utente lo sapesse.
-    result.fold(
-      (failure) => emit(state.copyWith(actionError: failure.message)),
-      (_) => null,
-    );
+    await _runOrEmitFailure(() => repository.markAsRead(event.id), emit);
   }
 
   Future<void> _onMarkAllRead(
     MarkAllNotificationsReadEvent event,
     Emitter<NotificationsState> emit,
   ) async {
-    await repository.markAllAsRead();
+    await _runOrEmitFailure(repository.markAllAsRead, emit);
   }
 
   Future<void> _onDelete(
     DeleteNotificationEvent event,
     Emitter<NotificationsState> emit,
   ) async {
-    await repository.deleteNotification(event.id);
+    await _runOrEmitFailure(
+      () => repository.deleteNotification(event.id),
+      emit,
+    );
   }
 
   Future<void> _onDeleteAll(
     DeleteAllNotificationsEvent event,
     Emitter<NotificationsState> emit,
   ) async {
-    await repository.deleteAllNotifications();
+    await _runOrEmitFailure(repository.deleteAllNotifications, emit);
   }
 
   Future<void> _onAddLog(
@@ -124,12 +142,15 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
     ScheduleStretchingReminderEvent event,
     Emitter<NotificationsState> emit,
   ) async {
-    await repository.scheduleDailyReminder(
-      notificationId: _stretchingNotificationId,
-      title: 'Stretching time',
-      body: 'E il momento di fare stretching. Anche 10 minuti aiutano.',
-      hour: event.hour,
-      minute: event.minute,
+    await _runOrEmitFailure(
+      () => repository.scheduleDailyReminder(
+        notificationId: _stretchingNotificationId,
+        title: 'Stretching time',
+        body: 'E il momento di fare stretching. Anche 10 minuti aiutano.',
+        hour: event.hour,
+        minute: event.minute,
+      ),
+      emit,
     );
   }
 
@@ -137,7 +158,10 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
     CancelStretchingReminderEvent event,
     Emitter<NotificationsState> emit,
   ) async {
-    await repository.cancelScheduledReminder(_stretchingNotificationId);
+    await _runOrEmitFailure(
+      () => repository.cancelScheduledReminder(_stretchingNotificationId),
+      emit,
+    );
   }
 
   Future<void> _onScheduleTraining(
@@ -145,18 +169,27 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
     Emitter<NotificationsState> emit,
   ) async {
     for (var i = 0; i < 7; i++) {
-      await repository.cancelScheduledReminder(_trainingBaseNotificationId + i);
+      final cancelled = await _runOrEmitFailure(
+        () =>
+            repository.cancelScheduledReminder(_trainingBaseNotificationId + i),
+        emit,
+      );
+      if (!cancelled) return;
     }
 
     for (final day in event.days) {
-      await repository.scheduleWeeklyReminder(
-        notificationId: _trainingBaseNotificationId + (day - 1),
-        title: 'Allenamento previsto',
-        body: 'Oggi e giorno di allenamento. Preparati per la sessione.',
-        dayOfWeek: day,
-        hour: event.hour,
-        minute: event.minute,
+      final scheduled = await _runOrEmitFailure(
+        () => repository.scheduleWeeklyReminder(
+          notificationId: _trainingBaseNotificationId + (day - 1),
+          title: 'Allenamento previsto',
+          body: 'Oggi e giorno di allenamento. Preparati per la sessione.',
+          dayOfWeek: day,
+          hour: event.hour,
+          minute: event.minute,
+        ),
+        emit,
       );
+      if (!scheduled) return;
     }
   }
 
@@ -165,7 +198,12 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
     Emitter<NotificationsState> emit,
   ) async {
     for (var i = 0; i < 7; i++) {
-      await repository.cancelScheduledReminder(_trainingBaseNotificationId + i);
+      final cancelled = await _runOrEmitFailure(
+        () =>
+            repository.cancelScheduledReminder(_trainingBaseNotificationId + i),
+        emit,
+      );
+      if (!cancelled) return;
     }
   }
 

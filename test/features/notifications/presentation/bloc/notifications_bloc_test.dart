@@ -182,14 +182,14 @@ void main() {
       },
     );
 
-    group('errore transitorio di markAsRead', () {
-      // A differenza di deleteNotification e degli altri handler sotto,
-      // markAsRead ora porta il fallimento in actionError invece di
-      // scartare l'Either, sullo stesso schema di
-      // TrainingLoaded.actionError: l'utente vede l'errore, e le notifiche
-      // gia' caricate non vengono perse.
+    group('errore transitorio delle azioni sulle notifiche', () {
+      // markAsRead, markAllAsRead, deleteNotification e
+      // deleteAllNotifications condividono lo stesso _runOrEmitFailure:
+      // un fallimento porta il messaggio in actionError invece di essere
+      // scartato, sullo stesso schema di TrainingLoaded.actionError, e le
+      // notifiche gia' caricate non vengono perse.
       blocTest<NotificationsBloc, NotificationsState>(
-        'un fallimento emette actionError senza perdere le notifiche caricate',
+        'markAsRead fallito emette actionError senza perdere le notifiche caricate',
         build: () {
           when(
             () => mockRepository.markAsRead(1),
@@ -212,6 +212,51 @@ void main() {
       );
 
       blocTest<NotificationsBloc, NotificationsState>(
+        'markAllAsRead fallito emette actionError',
+        build: () {
+          when(
+            mockRepository.markAllAsRead,
+          ).thenAnswer((_) async => const Left(DatabaseFailure('errore db')));
+          return bloc;
+        },
+        seed: () => NotificationsState(notifications: tLogs),
+        act: (bloc) => bloc.add(MarkAllNotificationsReadEvent()),
+        expect: () => [
+          NotificationsState(notifications: tLogs, actionError: 'errore db'),
+        ],
+      );
+
+      blocTest<NotificationsBloc, NotificationsState>(
+        'deleteNotification fallito emette actionError',
+        build: () {
+          when(
+            () => mockRepository.deleteNotification(1),
+          ).thenAnswer((_) async => const Left(DatabaseFailure('errore db')));
+          return bloc;
+        },
+        seed: () => NotificationsState(notifications: tLogs),
+        act: (bloc) => bloc.add(const DeleteNotificationEvent(1)),
+        expect: () => [
+          NotificationsState(notifications: tLogs, actionError: 'errore db'),
+        ],
+      );
+
+      blocTest<NotificationsBloc, NotificationsState>(
+        'deleteAllNotifications fallito emette actionError',
+        build: () {
+          when(
+            mockRepository.deleteAllNotifications,
+          ).thenAnswer((_) async => const Left(DatabaseFailure('errore db')));
+          return bloc;
+        },
+        seed: () => NotificationsState(notifications: tLogs),
+        act: (bloc) => bloc.add(DeleteAllNotificationsEvent()),
+        expect: () => [
+          NotificationsState(notifications: tLogs, actionError: 'errore db'),
+        ],
+      );
+
+      blocTest<NotificationsBloc, NotificationsState>(
         'ClearNotificationActionErrorEvent azzera solo l errore, non le notifiche',
         build: () => bloc,
         seed: () =>
@@ -225,26 +270,6 @@ void main() {
         build: () => bloc,
         seed: () => NotificationsState(notifications: tLogs),
         act: (bloc) => bloc.add(const ClearNotificationActionErrorEvent()),
-        expect: () => <NotificationsState>[],
-      );
-    });
-
-    group('errori del repository sulle azioni singole', () {
-      // markAllAsRead, deleteNotification e deleteAllNotifications
-      // scartano ancora l'Either restituito dal repository: un fallimento
-      // non produce ne' un messaggio d'errore ne' un cambio di stato.
-      // Questi test documentano il comportamento attuale, non lo
-      // convalidano come corretto: e' lo stesso gap gia' risolto sopra per
-      // markAsRead, non ancora esteso ai handler restanti.
-      blocTest<NotificationsBloc, NotificationsState>(
-        'un fallimento di deleteNotification non emette alcuno stato',
-        build: () {
-          when(
-            () => mockRepository.deleteNotification(1),
-          ).thenAnswer((_) async => const Left(DatabaseFailure('errore db')));
-          return bloc;
-        },
-        act: (bloc) => bloc.add(const DeleteNotificationEvent(1)),
         expect: () => <NotificationsState>[],
       );
     });
@@ -294,6 +319,50 @@ void main() {
         verify: (_) {
           verify(() => mockRepository.cancelScheduledReminder(9001)).called(1);
         },
+      );
+
+      blocTest<NotificationsBloc, NotificationsState>(
+        'un fallimento della programmazione emette actionError',
+        build: () {
+          when(
+            () => mockRepository.scheduleDailyReminder(
+              notificationId: 9001,
+              title: any(named: 'title'),
+              body: any(named: 'body'),
+              hour: any(named: 'hour'),
+              minute: any(named: 'minute'),
+            ),
+          ).thenAnswer((_) async => const Left(DatabaseFailure('errore db')));
+          return bloc;
+        },
+        act: (bloc) => bloc.add(
+          const ScheduleStretchingReminderEvent(hour: 7, minute: 30),
+        ),
+        expect: () => [
+          isA<NotificationsState>().having(
+            (s) => s.actionError,
+            'actionError',
+            'errore db',
+          ),
+        ],
+      );
+
+      blocTest<NotificationsBloc, NotificationsState>(
+        'un fallimento della cancellazione emette actionError',
+        build: () {
+          when(
+            () => mockRepository.cancelScheduledReminder(9001),
+          ).thenAnswer((_) async => const Left(DatabaseFailure('errore db')));
+          return bloc;
+        },
+        act: (bloc) => bloc.add(CancelStretchingReminderEvent()),
+        expect: () => [
+          isA<NotificationsState>().having(
+            (s) => s.actionError,
+            'actionError',
+            'errore db',
+          ),
+        ],
       );
     });
 
@@ -430,6 +499,124 @@ void main() {
               () => mockRepository.cancelScheduledReminder(9010 + i),
             ).called(1);
           }
+        },
+      );
+
+      blocTest<NotificationsBloc, NotificationsState>(
+        'un fallimento durante la cancellazione ferma il ciclo prima di programmare',
+        build: () {
+          // I primi tre slot (i=0..2) vengono cancellati, il quarto
+          // (i=3, id 9013) fallisce.
+          for (var i = 0; i < 3; i++) {
+            when(
+              () => mockRepository.cancelScheduledReminder(9010 + i),
+            ).thenAnswer((_) async => const Right(null));
+          }
+          when(
+            () => mockRepository.cancelScheduledReminder(9013),
+          ).thenAnswer((_) async => const Left(DatabaseFailure('errore db')));
+          return bloc;
+        },
+        act: (bloc) => bloc.add(
+          const ScheduleTrainingReminderEvent(hour: 18, minute: 0, days: [1]),
+        ),
+        expect: () => [
+          isA<NotificationsState>().having(
+            (s) => s.actionError,
+            'actionError',
+            'errore db',
+          ),
+        ],
+        verify: (_) {
+          // Gli slot successivi al fallimento non vengono nemmeno tentati:
+          // se venissero chiamati senza uno stub, mocktail lancerebbe
+          // MissingStubError e il test fallirebbe comunque.
+          for (var i = 4; i < 7; i++) {
+            verifyNever(() => mockRepository.cancelScheduledReminder(9010 + i));
+          }
+          // La cancellazione fallita impedisce di iniziare a programmare.
+          verifyNever(
+            () => mockRepository.scheduleWeeklyReminder(
+              notificationId: any(named: 'notificationId'),
+              title: any(named: 'title'),
+              body: any(named: 'body'),
+              dayOfWeek: any(named: 'dayOfWeek'),
+              hour: any(named: 'hour'),
+              minute: any(named: 'minute'),
+            ),
+          );
+        },
+      );
+
+      blocTest<NotificationsBloc, NotificationsState>(
+        'un fallimento durante la programmazione ferma i giorni restanti',
+        build: () {
+          for (var i = 0; i < 7; i++) {
+            when(
+              () => mockRepository.cancelScheduledReminder(9010 + i),
+            ).thenAnswer((_) async => const Right(null));
+          }
+          // Lunedi (giorno 1) viene programmato con successo, mercoledi
+          // (giorno 3) fallisce.
+          when(
+            () => mockRepository.scheduleWeeklyReminder(
+              notificationId: 9010,
+              title: any(named: 'title'),
+              body: any(named: 'body'),
+              dayOfWeek: 1,
+              hour: any(named: 'hour'),
+              minute: any(named: 'minute'),
+            ),
+          ).thenAnswer((_) async => const Right(null));
+          when(
+            () => mockRepository.scheduleWeeklyReminder(
+              notificationId: 9012,
+              title: any(named: 'title'),
+              body: any(named: 'body'),
+              dayOfWeek: 3,
+              hour: any(named: 'hour'),
+              minute: any(named: 'minute'),
+            ),
+          ).thenAnswer((_) async => const Left(DatabaseFailure('errore db')));
+          return bloc;
+        },
+        act: (bloc) => bloc.add(
+          const ScheduleTrainingReminderEvent(
+            hour: 18,
+            minute: 0,
+            days: [1, 3, 5], // venerdi (giorno 5) non deve essere raggiunto
+          ),
+        ),
+        expect: () => [
+          isA<NotificationsState>().having(
+            (s) => s.actionError,
+            'actionError',
+            'errore db',
+          ),
+        ],
+        verify: (_) {
+          verify(
+            () => mockRepository.scheduleWeeklyReminder(
+              notificationId: 9010,
+              title: any(named: 'title'),
+              body: any(named: 'body'),
+              dayOfWeek: 1,
+              hour: any(named: 'hour'),
+              minute: any(named: 'minute'),
+            ),
+          ).called(1);
+          // Il ciclo si ferma al fallimento di mercoledi: venerdi non viene
+          // mai raggiunto, ne' verrebbe risolto senza uno stub dedicato.
+          verifyNever(
+            () => mockRepository.scheduleWeeklyReminder(
+              notificationId: any(named: 'notificationId'),
+              title: any(named: 'title'),
+              body: any(named: 'body'),
+              dayOfWeek: 5,
+              hour: any(named: 'hour'),
+              minute: any(named: 'minute'),
+            ),
+          );
         },
       );
     });
