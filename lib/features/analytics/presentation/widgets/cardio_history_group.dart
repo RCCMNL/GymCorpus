@@ -1,0 +1,171 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gym_corpus/features/analytics/presentation/widgets/detailed_cardio_card.dart';
+import 'package:gym_corpus/features/training/domain/entities/cardio_session.dart';
+import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
+import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
+
+/// Gruppo di sessioni cardio (es. "RECENTI" o "PRECEDENTI") in
+/// CardioHistoryScreen, con titolo, sottotitolo e le relative card.
+class CardioHistoryGroup extends StatelessWidget {
+  const CardioHistoryGroup({
+    required this.title,
+    required this.subtitle,
+    required this.accentColor,
+    required this.sessions,
+    super.key,
+  });
+
+  final String title;
+  final String subtitle;
+  final Color accentColor;
+  final List<CardioSessionEntity> sessions;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.55),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: theme.colorScheme.outline.withValues(alpha: 0.07),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 4,
+                height: 20,
+                decoration: BoxDecoration(
+                  color: accentColor,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: theme.textTheme.labelLarge?.copyWith(
+                        color: accentColor,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 1.4,
+                      ),
+                    ),
+                    Text(
+                      subtitle,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.outline,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          ...sessions.map(
+            (session) => DismissibleCardioCard(
+              session: session,
+              accentColor: accentColor,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Card di sessione cardio eliminabile con swipe, con conferma prima della
+/// cancellazione definitiva.
+class DismissibleCardioCard extends StatelessWidget {
+  const DismissibleCardioCard({
+    required this.session,
+    required this.accentColor,
+    super.key,
+  });
+
+  final CardioSessionEntity session;
+  final Color accentColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Dismissible(
+      key: Key('cardio_${session.id}'),
+      direction: DismissDirection.endToStart,
+      confirmDismiss: (direction) async {
+        final shouldDelete = await showDialog<bool>(
+          context: context,
+          builder: (dialogContext) => AlertDialog(
+            backgroundColor: theme.colorScheme.surface,
+            title: const Text(
+              'ELIMINA SESSIONE',
+              style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
+            ),
+            content: const Text(
+              'Sei sicuro di voler eliminare definitivamente questa sessione di cardio?',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(dialogContext, false),
+                child: Text(
+                  'ANNULLA',
+                  style: TextStyle(color: theme.colorScheme.outline),
+                ),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(dialogContext, true),
+                child: const Text(
+                  'ELIMINA',
+                  style: TextStyle(
+                    color: Colors.redAccent,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+
+        return shouldDelete ?? false;
+      },
+      onDismissed: (direction) {
+        context.read<TrainingBloc>().add(DeleteCardioSessionEvent(session.id));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Sessione eliminata'),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        );
+      },
+      background: Container(
+        margin: const EdgeInsets.only(bottom: 14),
+        padding: const EdgeInsets.only(right: 24),
+        alignment: Alignment.centerRight,
+        decoration: BoxDecoration(
+          color: Colors.redAccent.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(color: Colors.redAccent.withValues(alpha: 0.18)),
+        ),
+        child: const Icon(
+          Icons.delete_outline_rounded,
+          color: Colors.redAccent,
+        ),
+      ),
+      child: DetailedCardioCard(session: session, accentColor: accentColor),
+    );
+  }
+}
