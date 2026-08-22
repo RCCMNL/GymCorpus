@@ -13,72 +13,95 @@ class NotificationsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Scaffold(
-      backgroundColor: theme.colorScheme.surface,
-      appBar: AppBar(
+    return BlocListener<NotificationsBloc, NotificationsState>(
+      listenWhen: (previous, current) => current.actionError != null,
+      listener: (context, state) {
+        final message = state.actionError;
+        if (message == null) return;
+
+        // Consumato subito: cosi' un secondo fallimento identico resta un
+        // cambio di stato osservabile invece di essere ignorato perche'
+        // uguale al precedente.
+        context.read<NotificationsBloc>().add(
+          const ClearNotificationActionErrorEvent(),
+        );
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
+            SnackBar(
+              content: Text(message),
+              behavior: SnackBarBehavior.floating,
+              backgroundColor: theme.colorScheme.error,
+            ),
+          );
+      },
+      child: Scaffold(
         backgroundColor: theme.colorScheme.surface,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_new,
-            color: theme.colorScheme.primary,
-            size: 22,
+        appBar: AppBar(
+          backgroundColor: theme.colorScheme.surface,
+          elevation: 0,
+          leading: IconButton(
+            icon: Icon(
+              Icons.arrow_back_ios_new,
+              color: theme.colorScheme.primary,
+              size: 22,
+            ),
+            onPressed: () => Navigator.maybePop(context),
           ),
-          onPressed: () => Navigator.maybePop(context),
-        ),
-        title: ShaderMask(
-          shaderCallback: (bounds) => LinearGradient(
-            colors: [theme.colorScheme.primary, theme.colorScheme.tertiary],
-          ).createShader(bounds),
-          child: Text(
-            'Notifiche',
-            style: theme.textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.w900,
-              fontFamily: 'Lexend',
-              fontSize: 22,
-              color: Colors.white,
+          title: ShaderMask(
+            shaderCallback: (bounds) => LinearGradient(
+              colors: [theme.colorScheme.primary, theme.colorScheme.tertiary],
+            ).createShader(bounds),
+            child: Text(
+              'Notifiche',
+              style: theme.textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.w900,
+                fontFamily: 'Lexend',
+                fontSize: 22,
+                color: Colors.white,
+              ),
             ),
           ),
-        ),
-        centerTitle: false,
-        actions: [
-          BlocBuilder<NotificationsBloc, NotificationsState>(
-            builder: (context, state) {
-              if (state.unreadCount == 0) return const SizedBox.shrink();
-              return TextButton(
-                onPressed: () {
-                  context.read<NotificationsBloc>().add(
-                    MarkAllNotificationsReadEvent(),
-                  );
-                },
-                child: Text(
-                  'SEGNA TUTTE LETTE',
-                  style: TextStyle(
-                    color: theme.colorScheme.primary,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 10,
-                    letterSpacing: 0.5,
-                    fontFamily: 'Lexend',
+          centerTitle: false,
+          actions: [
+            BlocBuilder<NotificationsBloc, NotificationsState>(
+              builder: (context, state) {
+                if (state.unreadCount == 0) return const SizedBox.shrink();
+                return TextButton(
+                  onPressed: () {
+                    context.read<NotificationsBloc>().add(
+                      MarkAllNotificationsReadEvent(),
+                    );
+                  },
+                  child: Text(
+                    'SEGNA TUTTE LETTE',
+                    style: TextStyle(
+                      color: theme.colorScheme.primary,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 10,
+                      letterSpacing: 0.5,
+                      fontFamily: 'Lexend',
+                    ),
                   ),
-                ),
-              );
-            },
-          ),
-          const SizedBox(width: 8),
-        ],
-      ),
-      body: BlocBuilder<NotificationsBloc, NotificationsState>(
-        builder: (context, state) {
-          if (state.isLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
+                );
+              },
+            ),
+            const SizedBox(width: 8),
+          ],
+        ),
+        body: BlocBuilder<NotificationsBloc, NotificationsState>(
+          builder: (context, state) {
+            if (state.isLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-          if (state.notifications.isEmpty) {
-            return _buildEmptyState(theme);
-          }
+            if (state.notifications.isEmpty) {
+              return _buildEmptyState(theme);
+            }
 
-          return _buildNotificationsList(context, theme, state.notifications);
-        },
+            return _buildNotificationsList(context, theme, state.notifications);
+          },
+        ),
       ),
     );
   }

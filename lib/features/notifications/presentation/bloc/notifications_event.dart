@@ -77,6 +77,16 @@ class ScheduleTrainingReminderEvent extends NotificationsEvent {
 
 class CancelTrainingReminderEvent extends NotificationsEvent {}
 
+/// Azzera l'errore transitorio in `NotificationsState.actionError` dopo che
+/// la UI lo ha mostrato.
+///
+/// Nome distinto dall'omonimo evento di `TrainingEvent` per evitare un
+/// import ambiguo negli schermi che usano entrambi i bloc, come
+/// `NotificationSettingsScreen`.
+class ClearNotificationActionErrorEvent extends NotificationsEvent {
+  const ClearNotificationActionErrorEvent();
+}
+
 // Internal stream update event
 class UpdateNotificationsList extends NotificationsEvent {
   const UpdateNotificationsList(this.notifications);

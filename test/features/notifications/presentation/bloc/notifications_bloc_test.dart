@@ -182,26 +182,60 @@ void main() {
       },
     );
 
-    group('errori del repository sulle azioni singole', () {
-      // NotificationsBloc scarta l'Either restituito da markAsRead,
-      // deleteNotification e simili: un fallimento non produce ne' un
-      // messaggio d'errore ne' un cambio di stato. Diverso da TrainingBloc,
-      // che porta l'errore in TrainingLoaded.actionError. Questi test
-      // documentano il comportamento attuale, non lo convalidano come
-      // corretto: un tap su "elimina" che fallisce in silenzio e' un gap
-      // UX degno di essere rivisto.
+    group('errore transitorio di markAsRead', () {
+      // A differenza di deleteNotification e degli altri handler sotto,
+      // markAsRead ora porta il fallimento in actionError invece di
+      // scartare l'Either, sullo stesso schema di
+      // TrainingLoaded.actionError: l'utente vede l'errore, e le notifiche
+      // gia' caricate non vengono perse.
       blocTest<NotificationsBloc, NotificationsState>(
-        'un fallimento di markAsRead non emette alcuno stato',
+        'un fallimento emette actionError senza perdere le notifiche caricate',
         build: () {
           when(
             () => mockRepository.markAsRead(1),
           ).thenAnswer((_) async => const Left(DatabaseFailure('errore db')));
           return bloc;
         },
+        seed: () => NotificationsState(notifications: tLogs),
         act: (bloc) => bloc.add(const MarkNotificationReadEvent(1)),
-        expect: () => <NotificationsState>[],
+        expect: () => [
+          NotificationsState(notifications: tLogs, actionError: 'errore db'),
+        ],
+        verify: (bloc) {
+          expect(
+            bloc.state.notifications,
+            tLogs,
+            reason:
+                'le notifiche gia caricate devono sopravvivere al fallimento',
+          );
+        },
       );
 
+      blocTest<NotificationsBloc, NotificationsState>(
+        'ClearNotificationActionErrorEvent azzera solo l errore, non le notifiche',
+        build: () => bloc,
+        seed: () =>
+            NotificationsState(notifications: tLogs, actionError: 'errore db'),
+        act: (bloc) => bloc.add(const ClearNotificationActionErrorEvent()),
+        expect: () => [NotificationsState(notifications: tLogs)],
+      );
+
+      blocTest<NotificationsBloc, NotificationsState>(
+        'ClearNotificationActionErrorEvent non emette nulla se non ci sono errori',
+        build: () => bloc,
+        seed: () => NotificationsState(notifications: tLogs),
+        act: (bloc) => bloc.add(const ClearNotificationActionErrorEvent()),
+        expect: () => <NotificationsState>[],
+      );
+    });
+
+    group('errori del repository sulle azioni singole', () {
+      // markAllAsRead, deleteNotification e deleteAllNotifications
+      // scartano ancora l'Either restituito dal repository: un fallimento
+      // non produce ne' un messaggio d'errore ne' un cambio di stato.
+      // Questi test documentano il comportamento attuale, non lo
+      // convalidano come corretto: e' lo stesso gap gia' risolto sopra per
+      // markAsRead, non ancora esteso ai handler restanti.
       blocTest<NotificationsBloc, NotificationsState>(
         'un fallimento di deleteNotification non emette alcuno stato',
         build: () {
@@ -421,6 +455,30 @@ void main() {
 
       expect(updated.notifications, tLogs);
       expect(updated.isLoading, isFalse);
+    });
+
+    test('copyWith senza argomenti non modifica actionError', () {
+      // Come per UserEntity.copyWith(photoUrl: ...), un semplice copyWith
+      // senza clearActionError non rimuove l'errore precedente: e' per
+      // questo che serve un flag esplicito invece di affidarsi a `??`.
+      final state = NotificationsState(
+        notifications: tLogs,
+        actionError: 'errore db',
+      );
+
+      expect(state.copyWith().actionError, 'errore db');
+    });
+
+    test('clearActionError rimuove l errore preservando gli altri campi', () {
+      final state = NotificationsState(
+        notifications: tLogs,
+        actionError: 'errore db',
+      );
+
+      final cleared = state.copyWith(clearActionError: true);
+
+      expect(cleared.actionError, isNull);
+      expect(cleared.notifications, tLogs);
     });
   });
 }

@@ -19,6 +19,7 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
     : super(const NotificationsState(isLoading: true)) {
     on<LoadNotificationsEvent>(_onLoad);
     on<UpdateNotificationsList>(_onUpdate);
+    on<ClearNotificationActionErrorEvent>(_onClearActionError);
     on<MarkNotificationReadEvent>(_onMarkRead);
     on<MarkAllNotificationsReadEvent>(_onMarkAllRead);
     on<DeleteNotificationEvent>(_onDelete);
@@ -68,11 +69,27 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
     emit(state.copyWith(notifications: event.notifications, isLoading: false));
   }
 
+  void _onClearActionError(
+    ClearNotificationActionErrorEvent event,
+    Emitter<NotificationsState> emit,
+  ) {
+    if (state.actionError != null) {
+      emit(state.copyWith(clearActionError: true));
+    }
+  }
+
   Future<void> _onMarkRead(
     MarkNotificationReadEvent event,
     Emitter<NotificationsState> emit,
   ) async {
-    await repository.markAsRead(event.id);
+    final result = await repository.markAsRead(event.id);
+    // Prima l'Either veniva scartato: un tap su "segna come letta" che
+    // falliva non produceva alcun errore visibile, e la notifica restava
+    // silenziosamente non letta senza che l'utente lo sapesse.
+    result.fold(
+      (failure) => emit(state.copyWith(actionError: failure.message)),
+      (_) => null,
+    );
   }
 
   Future<void> _onMarkAllRead(
