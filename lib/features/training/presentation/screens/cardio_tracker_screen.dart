@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +16,10 @@ import 'package:gym_corpus/features/training/domain/entities/cardio_draft.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
+import 'package:gym_corpus/features/training/presentation/widgets/cardio_map_view.dart';
+import 'package:gym_corpus/features/training/presentation/widgets/cardio_overlays.dart';
+import 'package:gym_corpus/features/training/presentation/widgets/cardio_stats_panel.dart';
+import 'package:gym_corpus/features/training/presentation/widgets/gps_status_badge.dart';
 import 'package:latlong2/latlong.dart';
 
 class CardioTrackerScreen extends StatefulWidget {
@@ -446,16 +449,6 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
     );
   }
 
-  String _formatDuration(int seconds) {
-    final h = seconds ~/ 3600;
-    final m = (seconds % 3600) ~/ 60;
-    final s = seconds % 60;
-    if (h > 0) {
-      return '${h.toString().padLeft(2, '0')}:${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
-    }
-    return '${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
-  }
-
   @override
   void dispose() {
     _timer?.cancel();
@@ -481,62 +474,11 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
         body: Stack(
           children: [
             // Map
-            FlutterMap(
+            CardioMapView(
               mapController: _mapController,
-              options: MapOptions(
-                initialCenter:
-                    _currentPosition ??
-                    const LatLng(41.9028, 12.4964), // Roma default
-                initialZoom: 16,
-              ),
-              children: [
-                TileLayer(
-                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                  userAgentPackageName: 'com.gymcorpus.app',
-                ),
-                if (_route.length > 1)
-                  PolylineLayer(
-                    polylines: [
-                      Polyline(
-                        points: _route,
-                        color: isRun
-                            ? theme.colorScheme.primary
-                            : Colors.orangeAccent,
-                        strokeWidth: 5,
-                      ),
-                    ],
-                  ),
-                if (_currentPosition != null)
-                  MarkerLayer(
-                    markers: [
-                      Marker(
-                        point: _currentPosition!,
-                        width: 24,
-                        height: 24,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: isRun
-                                ? theme.colorScheme.primary
-                                : Colors.orangeAccent,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 3),
-                            boxShadow: [
-                              BoxShadow(
-                                color:
-                                    (isRun
-                                            ? theme.colorScheme.primary
-                                            : Colors.orangeAccent)
-                                        .withValues(alpha: 0.4),
-                                blurRadius: 10,
-                                spreadRadius: 2,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-              ],
+              currentPosition: _currentPosition,
+              route: _route,
+              isRun: isRun,
             ),
 
             // Back button
@@ -577,74 +519,9 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
               Positioned(
                 top: MediaQuery.of(context).padding.top + 12,
                 right: 16,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    if (_isTracking)
-                      Container(
-                        margin: const EdgeInsets.only(bottom: 8),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.surface.withValues(
-                            alpha: 0.85,
-                          ),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              _gpsSignalQuality == 2
-                                  ? Icons.signal_cellular_4_bar
-                                  : _gpsSignalQuality == 1
-                                  ? Icons.signal_cellular_alt
-                                  : Icons
-                                        .signal_cellular_connected_no_internet_0_bar,
-                              size: 14,
-                              color: _gpsSignalQuality == 2
-                                  ? Colors.green
-                                  : _gpsSignalQuality == 1
-                                  ? Colors.orange
-                                  : Colors.red,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              _gpsSignalQuality == 2
-                                  ? 'GPS OTTIMO'
-                                  : _gpsSignalQuality == 1
-                                  ? 'GPS DEBOLE'
-                                  : 'GPS PERSO',
-                              style: TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w900,
-                                color: theme.colorScheme.onSurface,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.surface.withValues(
-                          alpha: 0.85,
-                        ),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        '© OpenStreetMap',
-                        style: TextStyle(
-                          fontSize: 9,
-                          color: theme.colorScheme.outline,
-                        ),
-                      ),
-                    ),
-                  ],
+                child: GpsStatusBadge(
+                  gpsSignalQuality: _gpsSignalQuality,
+                  isTracking: _isTracking,
                 ),
               ),
 
@@ -653,447 +530,47 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
               left: 0,
               right: 0,
               bottom: 0,
-              child: ClipRRect(
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(40),
-                ),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-                  child: Container(
-                    padding: EdgeInsets.fromLTRB(
-                      24,
-                      32,
-                      24,
-                      MediaQuery.of(context).padding.bottom + 24,
-                    ),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.surface.withValues(alpha: 0.85),
-                      border: Border(
-                        top: BorderSide(
-                          color: Colors.white.withValues(alpha: 0.1),
-                        ),
-                      ),
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        // Activity Type Label
-                        Row(
-                          children: [
-                            Container(
-                              width: 4,
-                              height: 20,
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                  colors: isRun
-                                      ? [
-                                          theme.colorScheme.primary,
-                                          theme.colorScheme.tertiary,
-                                        ]
-                                      : [
-                                          Colors.orangeAccent,
-                                          Colors.deepOrange,
-                                        ],
-                                ),
-                                borderRadius: BorderRadius.circular(2),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Text(
-                              isRun ? 'CORSA' : 'CAMMINATA',
-                              style: theme.textTheme.labelSmall?.copyWith(
-                                fontWeight: FontWeight.w900,
-                                letterSpacing: 2,
-                                fontSize: 10,
-                                color: isRun
-                                    ? theme.colorScheme.primary
-                                    : Colors.orangeAccent,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 20),
-
-                        // Main Stats
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            _StatColumn(
-                              label: 'DISTANZA',
-                              value: '${distKm.toStringAsFixed(2)} km',
-                              theme: theme,
-                            ),
-                            _StatColumn(
-                              label: 'DURATA',
-                              value: _formatDuration(_elapsedSeconds),
-                              theme: theme,
-                            ),
-                            _StatColumn(
-                              label: 'VEL. MEDIA',
-                              value:
-                                  '${(_elapsedSeconds > 0 ? (distKm / (_elapsedSeconds / 3600)) : 0).toStringAsFixed(1)} km/h',
-                              theme: theme,
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            _StatColumn(
-                              label: 'VELOCITÀ',
-                              value:
-                                  '${_currentSpeedKmh.toStringAsFixed(1)} km/h',
-                              theme: theme,
-                            ),
-                            _StatColumn(
-                              label: 'PASSI',
-                              value: '$_currentSteps',
-                              theme: theme,
-                            ),
-                            _StatColumn(
-                              label: 'CALORIE',
-                              value:
-                                  '${(_getUserWeight() * (widget.type == "run" ? 9.8 : 3.8) * (_elapsedSeconds / 3600)).round()} kcal',
-                              theme: theme,
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 28),
-
-                        // Controls
-                        if (!_isTracking && !_isLocating)
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton.icon(
-                              onPressed: _runCountdown,
-                              icon: Icon(
-                                isRun
-                                    ? Icons.directions_run
-                                    : Icons.directions_walk,
-                              ),
-                              label: Text(
-                                'INIZIA ${isRun ? "CORSA" : "CAMMINATA"}',
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w900,
-                                  letterSpacing: 1.5,
-                                  fontSize: 14,
-                                ),
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: isRun
-                                    ? theme.colorScheme.primary
-                                    : Colors.orangeAccent,
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 18,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                elevation: 0,
-                              ),
-                            ),
-                          )
-                        else
-                          Row(
-                            children: [
-                              Expanded(
-                                child: ElevatedButton.icon(
-                                  onPressed: _isPaused
-                                      ? _resumeTracking
-                                      : _pauseTracking,
-                                  icon: Icon(
-                                    _isPaused
-                                        ? Icons.play_arrow_rounded
-                                        : Icons.pause_rounded,
-                                  ),
-                                  label: Text(
-                                    _isPaused ? 'RIPRENDI' : 'PAUSA',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w900,
-                                      letterSpacing: 1,
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor:
-                                        theme.colorScheme.surfaceContainerHigh,
-                                    foregroundColor:
-                                        theme.colorScheme.onSurface,
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 18,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    elevation: 0,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: ElevatedButton.icon(
-                                  onPressed: _isSaving ? null : _stopAndSave,
-                                  icon: _isSaving
-                                      ? const SizedBox(
-                                          width: 20,
-                                          height: 20,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                            color: Colors.white,
-                                          ),
-                                        )
-                                      : const Icon(Icons.stop_rounded),
-                                  label: Text(
-                                    _isSaving ? 'SALVO...' : 'FINE',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w900,
-                                      letterSpacing: 1,
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.redAccent,
-                                    foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 18,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    elevation: 0,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                      ],
-                    ),
-                  ),
-                ),
+              child: CardioStatsPanel(
+                isRun: isRun,
+                distanceKm: distKm,
+                elapsedSeconds: _elapsedSeconds,
+                currentSpeedKmh: _currentSpeedKmh,
+                currentSteps: _currentSteps,
+                userWeightKg: _getUserWeight(),
+                isTracking: _isTracking,
+                isLocating: _isLocating,
+                isPaused: _isPaused,
+                isSaving: _isSaving,
+                onStart: _runCountdown,
+                onPauseResume: _isPaused ? _resumeTracking : _pauseTracking,
+                onStop: _stopAndSave,
               ),
             ),
 
             // Loading Overlay (Ricerca GPS)
             if (_isLocating)
-              Positioned.fill(
-                child: ColoredBox(
-                  color: theme.colorScheme.surface,
-                  child: Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const CircularProgressIndicator(),
-                        const SizedBox(height: 24),
-                        Text(
-                          'RICERCA SEGNALE GPS...',
-                          style: theme.textTheme.labelLarge?.copyWith(
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 2,
-                            color: theme.colorScheme.primary,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          "Resta all'aperto per una migliore precisione",
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.outline,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
+              const Positioned.fill(child: GpsSearchingOverlay()),
 
             // Countdown Overlay
             if (_showCountdown)
-              Positioned.fill(
-                child: ColoredBox(
-                  color: theme.colorScheme.primary.withValues(alpha: 0.9),
-                  child: Center(
-                    child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 300),
-                      transitionBuilder: (child, animation) {
-                        return ScaleTransition(scale: animation, child: child);
-                      },
-                      child: Text(
-                        _countdown > 0 ? '$_countdown' : 'VIA!',
-                        key: ValueKey<int>(_countdown),
-                        style: const TextStyle(
-                          fontSize: 120,
-                          fontWeight: FontWeight.w900,
-                          color: Colors.white,
-                          fontFamily: 'Lexend',
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+              Positioned.fill(child: CountdownOverlay(countdown: _countdown)),
 
             // Manual Pause Overlay (Explicit)
             if (_isPaused && !_isLocating && !_showCountdown)
               Positioned.fill(
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                  child: ColoredBox(
-                    color: Colors.black.withValues(alpha: 0.4),
-                    child: Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(
-                            Icons.pause_circle_filled_rounded,
-                            size: 100,
-                            color: Colors.white,
-                          ),
-                          const SizedBox(height: 16),
-                          const Text(
-                            'SESSIONE IN PAUSA',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 24,
-                              fontWeight: FontWeight.w900,
-                              fontFamily: 'Lexend',
-                              letterSpacing: 1,
-                            ),
-                          ),
-                          const SizedBox(height: 32),
-                          ElevatedButton.icon(
-                            onPressed: _resumeTracking,
-                            icon: const Icon(Icons.play_arrow_rounded),
-                            label: const Text('RIPRENDI'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: theme.colorScheme.primary,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 32,
-                                vertical: 16,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(32),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
+                child: ManualPauseOverlay(onResume: _resumeTracking),
               ),
 
             // Auto Pause Overlay (Moved to end to ensure it covers UI)
             if (_autoPaused && !_isPaused)
               Positioned.fill(
-                child: GestureDetector(
-                  onTap: () {
+                child: AutoPauseOverlay(
+                  onDismiss: () {
                     setState(() {
                       _autoPaused = false;
                       _secondsWithoutMovement = 0;
                     });
                   },
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-                    child: ColoredBox(
-                      color: theme.colorScheme.surface.withValues(alpha: 0.4),
-                      child: Center(
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 40,
-                            vertical: 36,
-                          ),
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.surface.withValues(
-                              alpha: 0.9,
-                            ),
-                            borderRadius: BorderRadius.circular(32),
-                            border: Border.all(
-                              color: theme.colorScheme.primary.withValues(
-                                alpha: 0.3,
-                              ),
-                              width: 1.5,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: theme.colorScheme.primary.withValues(
-                                  alpha: 0.15,
-                                ),
-                                blurRadius: 40,
-                                spreadRadius: 10,
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(20),
-                                decoration: BoxDecoration(
-                                  color: theme.colorScheme.primary.withValues(
-                                    alpha: 0.1,
-                                  ),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Icon(
-                                  Icons.motion_photos_paused_rounded,
-                                  size: 56,
-                                  color: theme.colorScheme.primary,
-                                ),
-                              ),
-                              const SizedBox(height: 24),
-                              Text(
-                                'IN PAUSA',
-                                style: theme.textTheme.headlineMedium?.copyWith(
-                                  fontWeight: FontWeight.w900,
-                                  fontFamily: 'Lexend',
-                                  letterSpacing: 2,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Rilevato stop.',
-                                style: theme.textTheme.bodyLarge?.copyWith(
-                                  color: theme.colorScheme.outline,
-                                ),
-                              ),
-                              const SizedBox(height: 32),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 24,
-                                  vertical: 12,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: theme.colorScheme.primary,
-                                  borderRadius: BorderRadius.circular(20),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: theme.colorScheme.primary
-                                          .withValues(alpha: 0.4),
-                                      blurRadius: 12,
-                                      offset: const Offset(0, 4),
-                                    ),
-                                  ],
-                                ),
-                                child: const Text(
-                                  'TOCCA PER RIPRENDERE',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w900,
-                                    fontSize: 13,
-                                    letterSpacing: 1,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
                 ),
               ),
           ],
@@ -1144,44 +621,6 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _StatColumn extends StatelessWidget {
-  const _StatColumn({
-    required this.label,
-    required this.value,
-    required this.theme,
-  });
-
-  final String label;
-  final String value;
-  final ThemeData theme;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(
-          label,
-          style: theme.textTheme.labelSmall?.copyWith(
-            color: theme.colorScheme.outline,
-            fontWeight: FontWeight.w900,
-            letterSpacing: 1.5,
-            fontSize: 10,
-          ),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          value,
-          style: theme.textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.w900,
-            fontFamily: 'Lexend',
-            color: theme.colorScheme.onSurface,
-          ),
-        ),
-      ],
     );
   }
 }
