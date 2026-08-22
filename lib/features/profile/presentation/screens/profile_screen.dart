@@ -10,7 +10,7 @@ import 'package:gym_corpus/features/auth/domain/entities/user_entity.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_event.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
-import 'package:gym_corpus/features/profile/domain/services/athlete_progress_service.dart';
+import 'package:gym_corpus/features/profile/presentation/utils/athlete_progress_extensions.dart';
 import 'package:gym_corpus/features/profile/presentation/widgets/custom_segmented_control.dart';
 import 'package:gym_corpus/features/profile/presentation/widgets/feedback_dialog.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
@@ -155,18 +155,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         final photoProvider = _resolveProfileImageProvider(
                           photoUrl,
                         );
-                        // Letto per campo invece che con maybeWhen posizionale:
-                        // quest'ultimo va aggiornato a ogni nuovo campo di
-                        // TrainingLoaded, ed e' l'idioma gia' usato nel resto
-                        // del file e nelle altre schermate.
-                        final athleteProgress = trainingState is TrainingLoaded
-                            ? AthleteProgressService.calculate(
-                                workoutSessions: trainingState.workoutSessions,
-                                workoutSets: trainingState.weightLogs,
-                                cardioSessions: trainingState.cardioSessions,
-                                exercises: trainingState.exercises,
-                              )
-                            : AthleteProgress.empty();
+                        final athleteProgress = trainingState.athleteProgress;
 
                         return Column(
                           children: [

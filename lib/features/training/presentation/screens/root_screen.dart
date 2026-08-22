@@ -9,7 +9,7 @@ import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/services/notification_service.dart';
 import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_bloc.dart';
 import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_event.dart';
-import 'package:gym_corpus/features/profile/domain/services/athlete_progress_service.dart';
+import 'package:gym_corpus/features/profile/presentation/utils/athlete_progress_extensions.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
 
@@ -26,13 +26,7 @@ class _RootScreenState extends State<RootScreen> {
   int _lastUnlockedCount = -1;
 
   void _checkBadges(BuildContext context, TrainingLoaded state) {
-    // Calcoliamo i progressi
-    final progress = AthleteProgressService.calculate(
-      workoutSessions: state.workoutSessions,
-      workoutSets: state.weightLogs,
-      cardioSessions: state.cardioSessions,
-      exercises: state.exercises,
-    );
+    final progress = state.athleteProgress;
 
     final unlockedBadges = progress.achievements
         .where((a) => a.isUnlocked)

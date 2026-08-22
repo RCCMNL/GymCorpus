@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/features/profile/domain/services/athlete_progress_service.dart';
+import 'package:gym_corpus/features/profile/presentation/utils/athlete_progress_extensions.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
@@ -32,14 +33,7 @@ class _TrophyBoardScreenState extends State<TrophyBoardScreen> {
       body: SafeArea(
         child: BlocBuilder<TrainingBloc, TrainingState>(
           builder: (context, state) {
-            final progress = state is TrainingLoaded
-                ? AthleteProgressService.calculate(
-                    workoutSessions: state.workoutSessions,
-                    workoutSets: state.weightLogs,
-                    cardioSessions: state.cardioSessions,
-                    exercises: state.exercises,
-                  )
-                : AthleteProgress.empty();
+            final progress = state.athleteProgress;
 
             // Raggruppamento per GroupId
             final groupedAchievements = <String, List<AchievementProgress>>{};
