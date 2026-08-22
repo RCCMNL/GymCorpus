@@ -4,6 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/utils/unit_converter.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
+import 'package:gym_corpus/features/analytics/domain/analytics_formatters.dart';
+import 'package:gym_corpus/features/analytics/domain/workout_stats_summary.dart';
 import 'package:gym_corpus/features/analytics/presentation/widgets/daily_steps_section.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
@@ -41,53 +43,14 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
       body: SafeArea(
         child: BlocBuilder<TrainingBloc, TrainingState>(
           builder: (context, state) {
-            var sessionsCount = 0;
-            double totalWeight = 0;
-            var monthSessions = 0;
-            double monthWeight = 0;
-            var totalRealMinutes = 0;
-            var monthRealMinutes = 0;
-
+            var stats = WorkoutStatsSummary.empty;
+            var monthStats = WorkoutStatsSummary.empty;
             var currentUnit = 'KG';
+
             if (state is TrainingLoaded) {
               currentUnit = state.settings['units'] ?? 'KG';
               final logs = state.weightLogs;
-              sessionsCount = logs.map((e) => e.workoutId).toSet().length;
-              totalWeight = logs.fold(0, (sum, e) => sum + (e.weight * e.reps));
-
-              double totalSeconds = 0;
-              double monthSeconds = 0;
-
-              final workoutIds = logs.map((e) => e.workoutId).toSet();
-              for (final wid in workoutIds) {
-                final sessionLogs = logs
-                    .where((e) => e.workoutId == wid)
-                    .toList();
-                final withRpe = sessionLogs
-                    .where((e) => e.rpe != null)
-                    .toList();
-                int durationSec;
-                if (withRpe.isNotEmpty) {
-                  durationSec = withRpe.last.rpe!;
-                } else {
-                  final maxTs = sessionLogs
-                      .map((e) => e.timestamp.millisecondsSinceEpoch)
-                      .reduce((a, b) => a > b ? a : b);
-                  // Se wid sembra un timestamp (ms), calcoliamo la differenza reale
-                  if (wid > 1000000000000) {
-                    durationSec = ((maxTs - wid) / 1000).round();
-                  } else {
-                    // Se wid è un ID incrementale (fallback), usiamo la differenza tra i set
-                    final minTs = sessionLogs
-                        .map((e) => e.timestamp.millisecondsSinceEpoch)
-                        .reduce((a, b) => a < b ? a : b);
-                    durationSec = ((maxTs - minTs) / 1000).round();
-                  }
-                  if (durationSec < 0) durationSec = sessionLogs.length * 180;
-                }
-                totalSeconds += durationSec;
-              }
-              totalRealMinutes = (totalSeconds / 60).round();
+              stats = WorkoutStatsSummary.fromLogs(logs);
 
               final now = DateTime.now();
               final monthLogs = logs
@@ -97,60 +60,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                         e.timestamp.year == now.year,
                   )
                   .toList();
-              monthSessions = monthLogs.map((e) => e.workoutId).toSet().length;
-              monthWeight = monthLogs.fold(
-                0,
-                (sum, e) => sum + (e.weight * e.reps),
-              );
-
-              final monthWorkoutIds = monthLogs.map((e) => e.workoutId).toSet();
-              for (final wid in monthWorkoutIds) {
-                final sessionLogs = logs
-                    .where((e) => e.workoutId == wid)
-                    .toList();
-                final withRpe = sessionLogs
-                    .where((e) => e.rpe != null)
-                    .toList();
-                int durationSec;
-                if (withRpe.isNotEmpty) {
-                  durationSec = withRpe.last.rpe!;
-                } else {
-                  final maxTs = sessionLogs
-                      .map((e) => e.timestamp.millisecondsSinceEpoch)
-                      .reduce((a, b) => a > b ? a : b);
-                  if (wid > 1000000000000) {
-                    durationSec = ((maxTs - wid) / 1000).round();
-                  } else {
-                    final minTs = sessionLogs
-                        .map((e) => e.timestamp.millisecondsSinceEpoch)
-                        .reduce((a, b) => a < b ? a : b);
-                    durationSec = ((maxTs - minTs) / 1000).round();
-                  }
-                  if (durationSec < 0) durationSec = sessionLogs.length * 180;
-                }
-                monthSeconds += durationSec;
-              }
-              monthRealMinutes = (monthSeconds / 60).round();
+              monthStats = WorkoutStatsSummary.fromLogs(monthLogs);
             }
             final isImperial = currentUnit == 'LB';
-
-            String fmtDuration(int minutes) {
-              if (minutes < 60) return '${minutes}min';
-              final h = minutes ~/ 60;
-              final m = minutes % 60;
-              return m == 0 ? '${h}h' : '${h}h${m}m';
-            }
-
-            String fmtVolume(double kg) {
-              if (kg < 1000) return '${kg.toStringAsFixed(0)} kg';
-              return '${(kg / 1000).toStringAsFixed(1)}k kg';
-            }
-
-            String fmtVolumeImperial(double kg) {
-              final lb = UnitConverter.kgToLb(kg);
-              if (lb < 1000) return '${lb.toStringAsFixed(0)} lb';
-              return '${(lb / 1000).toStringAsFixed(1)}k lb';
-            }
 
             return SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -193,19 +105,19 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                     stats: [
                       _StatItem(
                         icon: Icons.fitness_center,
-                        value: sessionsCount.toString(),
+                        value: stats.sessionsCount.toString(),
                         label: 'Allenamenti',
                       ),
                       _StatItem(
                         icon: Icons.schedule,
-                        value: fmtDuration(totalRealMinutes),
+                        value: formatWorkoutDuration(stats.totalMinutes),
                         label: 'Tempo totale',
                       ),
                       _StatItem(
                         icon: Icons.scale,
                         value: isImperial
-                            ? fmtVolumeImperial(totalWeight)
-                            : fmtVolume(totalWeight),
+                            ? formatVolumeLb(stats.totalWeight)
+                            : formatVolumeKg(stats.totalWeight),
                         label: 'Volume',
                       ),
                     ],
@@ -217,19 +129,19 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                     stats: [
                       _StatItem(
                         icon: Icons.calendar_month,
-                        value: monthSessions.toString(),
+                        value: monthStats.sessionsCount.toString(),
                         label: 'Allenamenti',
                       ),
                       _StatItem(
                         icon: Icons.timer,
-                        value: fmtDuration(monthRealMinutes),
+                        value: formatWorkoutDuration(monthStats.totalMinutes),
                         label: 'Tempo trascorso',
                       ),
                       _StatItem(
                         icon: Icons.trending_up,
                         value: isImperial
-                            ? fmtVolumeImperial(monthWeight)
-                            : fmtVolume(monthWeight),
+                            ? formatVolumeLb(monthStats.totalWeight)
+                            : formatVolumeKg(monthStats.totalWeight),
                         label: 'Volume',
                       ),
                     ],
