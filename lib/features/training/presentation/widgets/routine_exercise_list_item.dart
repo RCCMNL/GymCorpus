@@ -190,11 +190,14 @@ class RoutineExerciseListItem extends StatelessWidget {
                             color: theme.colorScheme.primary,
                           ),
                           const SizedBox(width: 12),
-                          const Text(
-                            'Modifica serie',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
+                          const Flexible(
+                            child: Text(
+                              'Modifica serie',
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
                         ],
@@ -210,12 +213,15 @@ class RoutineExerciseListItem extends StatelessWidget {
                             color: theme.colorScheme.error,
                           ),
                           const SizedBox(width: 12),
-                          Text(
-                            'Rimuovi esercizio',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: theme.colorScheme.error,
+                          Flexible(
+                            child: Text(
+                              'Rimuovi esercizio',
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: theme.colorScheme.error,
+                              ),
                             ),
                           ),
                         ],
@@ -232,12 +238,15 @@ class RoutineExerciseListItem extends StatelessWidget {
                             color: theme.colorScheme.error,
                           ),
                           const SizedBox(width: 12),
-                          Text(
-                            'Elimina routine',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: theme.colorScheme.error,
+                          Flexible(
+                            child: Text(
+                              'Elimina routine',
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: theme.colorScheme.error,
+                              ),
                             ),
                           ),
                         ],
