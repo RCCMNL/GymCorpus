@@ -36,6 +36,9 @@
       ],
       "api_key": [
         {
+          "current_key": "AIzaSyCyUKTzpZQZeXfve48kmQvDeb2dDs-DOuQ"
+        },
+        {
           "current_key": "AIzaSyDyHEEvzIEZlUW2nppq5oP4ugv-W9k59n0"
         }
       ],
@@ -66,11 +69,30 @@
       },
       "oauth_client": [
         {
+          "client_id": "996703301991-3ggmtl0lbo6omo625vaq8ur0jpdfvhep.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "it.rccmnl.gymcorpus",
+            "certificate_hash": "2c814da06037ddea87ed864da82c7497ec49495a"
+          }
+        },
+        {
+          "client_id": "996703301991-buqn96lifurq1bpm6pj49fc6ann670sc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "it.rccmnl.gymcorpus",
+            "certificate_hash": "c01ad680575472a1d6c515065aedb139018fc14c"
+          }
+        },
+        {
           "client_id": "996703301991-gap14vk81ourfhvkaftpnf8ntvc0g68c.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
+        {
+          "current_key": "AIzaSyCyUKTzpZQZeXfve48kmQvDeb2dDs-DOuQ"
+        },
         {
           "current_key": "AIzaSyDyHEEvzIEZlUW2nppq5oP4ugv-W9k59n0"
         }

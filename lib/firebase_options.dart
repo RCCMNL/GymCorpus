@@ -50,7 +50,7 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDyHEEvzIEZlUW2nppq5oP4ugv-W9k59n0',
+    apiKey: 'AIzaSyCyUKTzpZQZeXfve48kmQvDeb2dDs-DOuQ',
     appId: '1:996703301991:android:ccbe83e19b71b315947fc2',
     messagingSenderId: '996703301991',
     projectId: 'gymcorpus-project',
