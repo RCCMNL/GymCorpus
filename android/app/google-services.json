@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:996703301991:android:7005bdeceb97f161947fc2",
         "android_client_info": {
-          "package_name": "it.rccmnl.gymcorpus"
+          "package_name": "com.example.gym_corpus"
         }
       },
       "oauth_client": [
@@ -17,8 +17,16 @@
           "client_id": "996703301991-0u7d01n9e36c8oj57v2jfmrb37o6hnes.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "it.rccmnl.gymcorpus",
+            "package_name": "com.example.gym_corpus",
             "certificate_hash": "2c814da06037ddea87ed864da82c7497ec49495a"
+          }
+        },
+        {
+          "client_id": "996703301991-iveikk51cq44k3b4lg2u6ejpg38ks2oe.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.gym_corpus",
+            "certificate_hash": "c01ad680575472a1d6c515065aedb139018fc14c"
           }
         },
         {
@@ -28,7 +36,43 @@
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAm3se1v64P8NpSOwSnQccfVf3SjRJ0s9o"
+          "current_key": "AIzaSyDyHEEvzIEZlUW2nppq5oP4ugv-W9k59n0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "996703301991-gap14vk81ourfhvkaftpnf8ntvc0g68c.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "996703301991-30h0tpvpp9ha4ddifh2nb97gdb84rfrp.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.gymCorpus"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:996703301991:android:ccbe83e19b71b315947fc2",
+        "android_client_info": {
+          "package_name": "it.rccmnl.gymcorpus"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "996703301991-gap14vk81ourfhvkaftpnf8ntvc0g68c.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDyHEEvzIEZlUW2nppq5oP4ugv-W9k59n0"
         }
       ],
       "services": {
