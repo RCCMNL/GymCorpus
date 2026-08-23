@@ -105,7 +105,7 @@ const chestExercises = [
       'Pettorali (isolamento, focus sterno-costale, allungamento)',
     ),
     preparation: Value(
-      "Sdraiati sulla panca piana with i manubri sopra il petto, palmi rivolti l'uno verso l'altro. Mantieni i gomiti leggermente piegati (curvatura fissa) per tutto il movemento.",
+      "Sdraiati sulla panca piana con i manubri sopra il petto, palmi rivolti l'uno verso l'altro. Mantieni i gomiti leggermente piegati (curvatura fissa) per tutto il movemento.",
     ),
     execution: Value(
       'Apri le braccia in un ampio arco, abbassando i manubri lateralmente fino a sentire un forte allungamento del petto. I gomiti devono rimanere leggermente flessi. Riporta i manubri in alto usando i pettorali, come se stessi "abbracciando un albero".',
