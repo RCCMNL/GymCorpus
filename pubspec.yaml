@@ -17,6 +17,7 @@ dependencies:
   device_info_plus: ^12.4.0
   drift: ^2.14.0
   equatable: ^2.0.5
+  firebase_app_check: ^0.4.6
   firebase_auth: ^6.3.0
   firebase_core: ^4.6.0
   fl_chart: ^1.2.0
