@@ -97,6 +97,7 @@ const calfExercises = [
     name: Value('Calf Raises su scalino, 2 gambe)'),
     targetMuscle: Value('Polpacci'),
     equipment: Value('Scalino (o rialzo), Corpo libero'),
+    isBodyweight: Value(true),
     focusArea: Value('Gastrocnemio, Soleo'),
     preparation: Value(
       'In piedi, posizionare gli avampiedi sul bordo di uno scalino, talloni liberi nel vuoto.',
@@ -112,6 +113,7 @@ const calfExercises = [
     name: Value('Calf Raises su scalino, 1 gamba)'),
     targetMuscle: Value('Polpacci'),
     equipment: Value('Scalino (o rialzo), Corpo libero'),
+    isBodyweight: Value(true),
     focusArea: Value('Gastrocnemio, Soleo (unilaterale)'),
     preparation: Value(
       "Come il precedente, ma tutto il peso è su una gamba sola. L'altra gamba è sollevata o piegata all'indietro.",

@@ -7,6 +7,9 @@ abstract class AuthLocalDataSource {
   Future<void> saveUserSession(UserEntity user);
   Future<UserEntity?> getUserSession();
   Future<void> clearSession();
+  Future<void> saveLocalDataOwner(String userId);
+  Future<String?> getLocalDataOwner();
+  Future<void> clearLocalDataOwner();
   Future<void> setBiometricEnabled({required bool enabled});
   Future<bool> isBiometricEnabled();
 }
@@ -18,6 +21,7 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   final FlutterSecureStorage _storage;
 
   static const _userKey = 'cached_user_session';
+  static const _localDataOwnerKey = 'local_data_owner_id';
   static const _biometricKey = 'biometric_enabled';
 
   @override
@@ -43,6 +47,21 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   @override
   Future<void> clearSession() async {
     await _storage.delete(key: _userKey);
+  }
+
+  @override
+  Future<void> saveLocalDataOwner(String userId) async {
+    await _storage.write(key: _localDataOwnerKey, value: userId);
+  }
+
+  @override
+  Future<String?> getLocalDataOwner() {
+    return _storage.read(key: _localDataOwnerKey);
+  }
+
+  @override
+  Future<void> clearLocalDataOwner() async {
+    await _storage.delete(key: _localDataOwnerKey);
   }
 
   @override

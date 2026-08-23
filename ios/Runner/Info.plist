@@ -64,9 +64,28 @@
 		</array>
 		<key>UIStatusBarHidden</key>
 		<false/>
+		<!--
+			Nessun UIBackgroundModes "location" e nessuna
+			NSLocationAlwaysUsageDescription: il tracciamento avviene solo
+			mentre l'utente e' sulla schermata cardio e l'app richiede
+			esclusivamente il permesso "while in use". Dichiarare la modalita'
+			background senza usarla viene contestato in revisione App Store.
+		-->
 		<key>NSLocationWhenInUseUsageDescription</key>
 		<string>GymCorpus richiede l'accesso alla tua posizione per tracciare con precisione la distanza e il percorso durante gli allenamenti di corsa o camminata.</string>
-		<key>NSLocationAlwaysUsageDescription</key>
-		<string>Questo permesso permette all'app di continuare a tracciare la tua posizione anche se è in background durante la sessione di corsa.</string>
+		<key>NSPhotoLibraryUsageDescription</key>
+		<string>GymCorpus usa la libreria foto per permetterti di scegliere un'immagine profilo.</string>
+		<key>NSFaceIDUsageDescription</key>
+		<string>GymCorpus usa Face ID per proteggere l'accesso biometrico e le operazioni sensibili.</string>
+		<!--
+			Solo lettura: HealthService richiede esclusivamente
+			HealthDataAccess.READ e non scrive mai nell'app Salute.
+			NSHealthUpdateUsageDescription non va dichiarata finche' non
+			esiste una funzione che scriva davvero, altrimenti si chiede un
+			permesso piu' ampio del necessario e la revisione App Store lo
+			contesta.
+		-->
+		<key>NSHealthShareUsageDescription</key>
+		<string>GymCorpus legge i dati di Salute (passi, distanza, calorie) per mostrarti le statistiche di attività giornaliera e arricchire il tracciamento cardio.</string>
 	</dict>
 </plist>

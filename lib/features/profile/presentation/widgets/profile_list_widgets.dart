@@ -1,0 +1,181 @@
+import 'package:flutter/material.dart';
+
+/// Sezione della lista profilo/impostazioni: titolo con accento colorato e
+/// una card contenente le sue [ProfileItem].
+class ProfileSection extends StatelessWidget {
+  const ProfileSection({required this.title, required this.items, super.key});
+
+  final String title;
+  final List<ProfileItem> items;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 32),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 8, bottom: 16),
+            child: Row(
+              children: [
+                Container(
+                  width: 4,
+                  height: 16,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        theme.colorScheme.primary,
+                        theme.colorScheme.tertiary,
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  title.toUpperCase(),
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1.5,
+                    fontSize: 11,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surfaceContainerHigh.withValues(
+                alpha: 0.4,
+              ),
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                color: theme.colorScheme.outline.withValues(alpha: 0.05),
+              ),
+            ),
+            child: ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: items.length,
+              separatorBuilder: (context, index) => const SizedBox(height: 0),
+              itemBuilder: (context, index) => items[index],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Riga di menu con icona, etichetta e un trailing opzionale (badge, testo,
+/// switch o freccia di navigazione).
+class ProfileItem extends StatelessWidget {
+  const ProfileItem({
+    required this.icon,
+    required this.label,
+    this.trailingText,
+    this.trailing,
+    this.isBadge = false,
+    this.onTap,
+    super.key,
+  });
+
+  final IconData icon;
+  final String label;
+  final String? trailingText;
+  final Widget? trailing;
+  final bool isBadge;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isComingSoon = isBadge && trailingText == 'Prossimamente';
+    final iconColor = isComingSoon
+        ? theme.colorScheme.outline
+        : label == 'Calendario ciclo'
+        ? const Color(0xFFFF4B72)
+        : (label == 'Sicurezza' || label == 'Esercizi Preferiti'
+              ? theme.colorScheme.tertiary
+              : (label == 'Valuta GymCorpus'
+                    ? Colors.orangeAccent
+                    : theme.colorScheme.primary));
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 60),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: label == 'Calendario ciclo'
+                ? const Color(0xFFFF4B72).withValues(alpha: 0.05)
+                : null,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Row(
+            children: [
+              Icon(icon, color: iconColor, size: 24),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  label,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w500,
+                    color: isComingSoon ? theme.colorScheme.outline : null,
+                  ),
+                ),
+              ),
+              if (trailingText != null) ...[
+                if (isBadge)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isComingSoon
+                          ? theme.colorScheme.outline.withValues(alpha: 0.12)
+                          : theme.colorScheme.tertiary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      trailingText!,
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: isComingSoon
+                            ? theme.colorScheme.outline
+                            : theme.colorScheme.tertiary,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  )
+                else
+                  Text(
+                    trailingText!,
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+              ],
+              if (trailing != null) trailing!,
+              if (trailingText == null && trailing == null && !isBadge)
+                Icon(
+                  Icons.chevron_right,
+                  size: 20,
+                  color: theme.colorScheme.outline.withValues(alpha: 0.3),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

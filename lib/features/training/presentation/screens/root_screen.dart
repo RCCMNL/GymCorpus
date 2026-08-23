@@ -4,12 +4,71 @@ import 'dart:ui' as ui;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gym_corpus/core/services/notification_service.dart';
+import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_bloc.dart';
+import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_event.dart';
+import 'package:gym_corpus/features/profile/presentation/utils/athlete_progress_extensions.dart';
+import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
+import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
 
-class RootScreen extends StatelessWidget {
+class RootScreen extends StatefulWidget {
   const RootScreen({required this.child, super.key});
 
   final Widget child;
+
+  @override
+  State<RootScreen> createState() => _RootScreenState();
+}
+
+class _RootScreenState extends State<RootScreen> {
+  int _lastUnlockedCount = -1;
+
+  void _checkBadges(BuildContext context, TrainingLoaded state) {
+    final progress = state.athleteProgress;
+
+    final unlockedBadges = progress.achievements
+        .where((a) => a.isUnlocked)
+        .toList();
+    final unlockedCount = unlockedBadges.length;
+
+    // Se è la prima volta che carichiamo, salviamo solo il conteggio
+    if (_lastUnlockedCount == -1) {
+      _lastUnlockedCount = unlockedCount;
+      return;
+    }
+
+    // Se ci sono nuovi badge
+    if (unlockedCount > _lastUnlockedCount) {
+      final newBadgesCount = unlockedCount - _lastUnlockedCount;
+
+      // Controlliamo se le notifiche badge sono abilitate nelle impostazioni
+      final badgeEnabled = state.settings['notif_badge_enabled'] != 'false';
+
+      if (badgeEnabled) {
+        for (var i = 0; i < newBadgesCount; i++) {
+          final badge = unlockedBadges[unlockedCount - 1 - i];
+          NotificationService.instance.showNotification(
+            id: DateTime.now().millisecondsSinceEpoch.remainder(100000) + i,
+            title: 'Nuovo badge sbloccato!',
+            body:
+                'Hai ottenuto: ${badge.definition.title}. ${badge.definition.description}',
+          );
+          context.read<NotificationsBloc>().add(
+            AddNotificationLogEvent(
+              title: 'Nuovo badge sbloccato!',
+              body:
+                  'Hai ottenuto: ${badge.definition.title}. ${badge.definition.description}',
+              type: 'badge',
+            ),
+          );
+        }
+      }
+
+      _lastUnlockedCount = unlockedCount;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,8 +76,10 @@ class RootScreen extends StatelessWidget {
     final screenWidth = MediaQuery.of(context).size.width;
     final isDesktop = screenWidth > 800;
 
+    Widget scaffoldWidget;
+
     if (isDesktop) {
-      return Scaffold(
+      scaffoldWidget = Scaffold(
         body: SafeArea(
           child: Row(
             children: [
@@ -41,21 +102,29 @@ class RootScreen extends StatelessWidget {
                 onDestinationSelected: (index) => _onItemTapped(index, context),
               ),
               const VerticalDivider(thickness: 1, width: 1),
-              Expanded(child: child),
+              Expanded(child: widget.child),
             ],
           ),
         ),
       );
     }
-
     // Piattaforme iOS (Cupertino) per schermi standard
-    if (!kIsWeb && Platform.isIOS) {
-      return CupertinoTabScaffold(
+    else if (!kIsWeb && Platform.isIOS) {
+      scaffoldWidget = CupertinoTabScaffold(
         tabBar: CupertinoTabBar(
           items: const [
-            BottomNavigationBarItem(icon: Icon(CupertinoIcons.flame), label: 'Training'),
-            BottomNavigationBarItem(icon: Icon(CupertinoIcons.list_bullet), label: 'Esercizi'),
-            BottomNavigationBarItem(icon: Icon(CupertinoIcons.graph_square), label: 'Analytics'),
+            BottomNavigationBarItem(
+              icon: Icon(CupertinoIcons.flame),
+              label: 'Training',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(CupertinoIcons.list_bullet),
+              label: 'Esercizi',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(CupertinoIcons.graph_square),
+              label: 'Analytics',
+            ),
           ],
           currentIndex: _calculateSelectedIndex(context),
           onTap: (index) => _onItemTapped(index, context),
@@ -63,22 +132,41 @@ class RootScreen extends StatelessWidget {
         tabBuilder: (context, index) {
           // Cupertino impone la tab construction in modo specifico,
           // qui passiamo semplicemente il current branch gestito da ShellRoute
-          return CupertinoPageScaffold(child: child);
+          return CupertinoPageScaffold(child: widget.child);
         },
       );
     }
+    // Material 3 / Custom Stitch Design Default
+    else {
+      scaffoldWidget = Scaffold(
+        extendBody: true, // Important to see blur over content
+        body: widget.child,
+        bottomNavigationBar: _buildCustomNavBar(context),
+      );
+    }
 
-    // Material 3 / Custom Stitch Design Default 
-    return Scaffold(
-      extendBody: true, // Important to see blur over content
-      body: child,
-      bottomNavigationBar: _buildCustomNavBar(context),
+    return BlocListener<TrainingBloc, TrainingState>(
+      listenWhen: (previous, current) {
+        if (previous is TrainingLoaded && current is TrainingLoaded) {
+          return previous.workoutSessions.length !=
+                  current.workoutSessions.length ||
+              previous.weightLogs.length != current.weightLogs.length ||
+              previous.cardioSessions.length != current.cardioSessions.length;
+        }
+        return false;
+      },
+      listener: (context, state) {
+        if (state is TrainingLoaded) {
+          _checkBadges(context, state);
+        }
+      },
+      child: scaffoldWidget,
     );
   }
 
   Widget _buildCustomNavBar(BuildContext context) {
     final selectedIndex = _calculateSelectedIndex(context);
-    
+
     return Container(
       height: 90,
       decoration: BoxDecoration(
@@ -101,11 +189,41 @@ class RootScreen extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildNavItem(context, 0, Icons.list_alt, 'Esercizi', selectedIndex),
-                _buildNavItem(context, 1, Icons.dashboard_customize, 'Custom', selectedIndex),
-                _buildNavItem(context, 2, Icons.fitness_center, 'Training', selectedIndex),
-                _buildNavItem(context, 3, Icons.insights, 'Analytics', selectedIndex),
-                _buildNavItem(context, 4, Icons.person, 'Profile', selectedIndex),
+                _buildNavItem(
+                  context,
+                  0,
+                  Icons.list_alt,
+                  'Esercizi',
+                  selectedIndex,
+                ),
+                _buildNavItem(
+                  context,
+                  1,
+                  Icons.dashboard_customize,
+                  'Custom',
+                  selectedIndex,
+                ),
+                _buildNavItem(
+                  context,
+                  2,
+                  Icons.fitness_center,
+                  'Training',
+                  selectedIndex,
+                ),
+                _buildNavItem(
+                  context,
+                  3,
+                  Icons.insights,
+                  'Analytics',
+                  selectedIndex,
+                ),
+                _buildNavItem(
+                  context,
+                  4,
+                  Icons.person,
+                  'Profile',
+                  selectedIndex,
+                ),
               ],
             ),
           ),
@@ -114,48 +232,60 @@ class RootScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildNavItem(BuildContext context, int index, IconData icon, String label, int selectedIndex) {
+  Widget _buildNavItem(
+    BuildContext context,
+    int index,
+    IconData icon,
+    String label,
+    int selectedIndex,
+  ) {
     final theme = Theme.of(context);
     final isSelected = index == selectedIndex;
     final isTraining = label.toUpperCase() == 'TRAINING';
-    
+
     return GestureDetector(
       onTap: () => _onItemTapped(index, context),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
         curve: Curves.easeOutCubic,
         padding: EdgeInsets.symmetric(
-          horizontal: isTraining ? 14 : 10, 
+          horizontal: isTraining ? 14 : 10,
           vertical: isTraining ? 4 : 6,
         ),
         decoration: BoxDecoration(
-          color: isSelected 
-              ? (isTraining 
-                  ? const Color(0xFF3367FF) 
-                  : const Color(0xFF3367FF).withValues(alpha: 0.2)) 
+          color: isSelected
+              ? (isTraining
+                    ? const Color(0xFF3367FF)
+                    : const Color(0xFF3367FF).withValues(alpha: 0.2))
               : Colors.transparent,
           borderRadius: BorderRadius.circular(isTraining ? 20 : 24),
-          boxShadow: isSelected && isTraining ? [
-            BoxShadow(
-              color: const Color(0xFF3367FF).withValues(alpha: 0.4),
-              blurRadius: 15,
-              offset: const Offset(0, 4),
-            ),
-          ] : null,
-          gradient: isSelected && isTraining ? const LinearGradient(
-            colors: [Color(0xFF3367FF), Color(0xFF94AAFF)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ) : null,
+          boxShadow: isSelected && isTraining
+              ? [
+                  BoxShadow(
+                    color: const Color(0xFF3367FF).withValues(alpha: 0.4),
+                    blurRadius: 15,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+              : null,
+          gradient: isSelected && isTraining
+              ? const LinearGradient(
+                  colors: [Color(0xFF3367FF), Color(0xFF94AAFF)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                )
+              : null,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               icon,
-              color: isSelected 
-                  ? (isTraining ? Colors.white : const Color(0xFF94AAFF)) 
-                  : theme.colorScheme.outline.withValues(alpha: isTraining ? 0.8 : 0.5),
+              color: isSelected
+                  ? (isTraining ? Colors.white : const Color(0xFF94AAFF))
+                  : theme.colorScheme.outline.withValues(
+                      alpha: isTraining ? 0.8 : 0.5,
+                    ),
               size: isTraining ? 26 : 22,
             ),
             SizedBox(height: isTraining ? 2 : 4),
@@ -166,9 +296,11 @@ class RootScreen extends StatelessWidget {
                 fontSize: 8,
                 fontWeight: isSelected ? FontWeight.w900 : FontWeight.w500,
                 letterSpacing: 0.8,
-                color: isSelected 
-                    ? (isTraining ? Colors.white : const Color(0xFF94AAFF)) 
-                    : theme.colorScheme.outline.withValues(alpha: isTraining ? 0.8 : 0.5),
+                color: isSelected
+                    ? (isTraining ? Colors.white : const Color(0xFF94AAFF))
+                    : theme.colorScheme.outline.withValues(
+                        alpha: isTraining ? 0.8 : 0.5,
+                      ),
               ),
             ),
           ],

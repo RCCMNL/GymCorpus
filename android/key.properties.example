@@ -1,0 +1,18 @@
+# Template per le credenziali di firma della build di release Android.
+#
+# Copia questo file in android/key.properties e compilalo con i valori reali.
+# android/key.properties NON deve mai essere committato: contiene le password
+# della keystore di pubblicazione.
+#
+# Per generare la keystore (una sola volta, poi conservala in un posto sicuro
+# e con backup: se la perdi non puoi piu' pubblicare aggiornamenti dell'app):
+#
+#   keytool -genkey -v -keystore %USERPROFILE%\gymcorpus-release.jks \
+#     -storetype JKS -keyalg RSA -keysize 2048 -validity 10000 -alias gymcorpus
+#
+# storeFile accetta un percorso assoluto oppure relativo alla cartella android/.
+
+storePassword=LA_PASSWORD_DELLA_KEYSTORE
+keyPassword=LA_PASSWORD_DELLA_CHIAVE
+keyAlias=gymcorpus
+storeFile=C:/percorso/assoluto/gymcorpus-release.jks

@@ -1,0 +1,68 @@
+rules_version = '2';
+
+// Regole di sicurezza Firestore per GymCorpus.
+//
+// Queste regole sono la difesa principale dei dati: le API key contenute in
+// google-services.json e firebase_options.dart sono identificatori pubblici
+// lato client, quindi chiunque puo' estrarle da un APK e parlare col progetto.
+// Cio' che decide chi puo' leggere e scrivere cosa e' solo questo file.
+//
+// Deploy:
+//   firebase deploy --only firestore:rules
+//
+// Il file va tenuto allineato a quello effettivamente attivo in console:
+// una modifica fatta solo dalla console e non riportata qui va persa al
+// deploy successivo.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Profilo utente: contiene dati personali (email, data di nascita, peso,
+    // altezza, cronologia dei dispositivi usati per il login). Ogni utente
+    // vede e modifica soltanto il proprio documento; l'id del documento deve
+    // coincidere con l'uid di Firebase Auth.
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow create, update: if isOwner(userId);
+      allow delete: if isOwner(userId);
+
+      // Nessuna sottocollezione prevista al momento.
+      match /{document=**} {
+        allow read, write: if false;
+      }
+    }
+
+    // Segnalazioni utente: coda di sola scrittura consumata dall'estensione
+    // "Trigger Email".
+    //
+    // Il campo `to` viene dal client, quindi senza vincoli chiunque potrebbe
+    // usare il progetto come relay per inviare email arbitrarie a terzi.
+    // Va percio' bloccato sull'indirizzo di supporto, e i documenti non
+    // devono essere leggibili dai client: contengono email e messaggi di
+    // altri utenti.
+    match /feedbacks/{feedbackId} {
+      allow create: if isSignedIn()
+        && request.resource.data.to == 'support.gymcorpus@gmail.com'
+        && request.resource.data.message is map
+        && request.resource.data.message.subject is string
+        && request.resource.data.message.subject.size() <= 200
+        && request.resource.data.message.html is string
+        && request.resource.data.message.html.size() <= 20000;
+
+      allow read, update, delete: if false;
+    }
+
+    // Tutto cio' che non e' esplicitamente permesso sopra e' negato.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

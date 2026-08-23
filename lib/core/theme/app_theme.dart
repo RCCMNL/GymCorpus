@@ -13,17 +13,15 @@ class AppTheme {
   static const Color _accent = Color(0xFF3367FF);
   static const Color _tertiary = Color(0xFFB5FFC2); // Mint Accent
 
-  static ThemeData get lightTheme => darkTheme; // Defaulting to Dark for that premium feel
+  static ThemeData get lightTheme =>
+      darkTheme; // Defaulting to Dark for that premium feel
 
   static ThemeData get darkTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
       scaffoldBackgroundColor: _background,
-      extensions: const [
-        StitchColors.dark,
-        StitchSpacing.standard,
-      ],
+      extensions: const [StitchColors.dark, StitchSpacing.standard],
       colorScheme: const ColorScheme.dark(
         primary: _primary,
         onPrimary: Color(0xFF00257B),
@@ -37,6 +35,8 @@ class AppTheme {
         onSurface: _onSurface,
         surfaceContainer: _surfaceContainer,
         surfaceContainerHigh: _surfaceContainerHigh,
+        surfaceContainerHighest: Color(0xFF333544),
+        surfaceContainerLowest: Color(0xFF0C0E13),
         outline: _outline,
       ),
       appBarTheme: const AppBarTheme(
@@ -99,10 +99,7 @@ class AppTheme {
           fontWeight: FontWeight.w600,
           color: _onSurface,
         ),
-        bodyLarge: TextStyle(
-          fontFamily: 'Inter',
-          color: _onSurface,
-        ),
+        bodyLarge: TextStyle(fontFamily: 'Inter', color: _onSurface),
         bodyMedium: TextStyle(
           fontFamily: 'Inter',
           color: _onSurface,

@@ -141,7 +141,9 @@ const bicepsExercises = [
     focusArea: Value(
       'Bicipite (fase concentrica), Avambracci (fase eccentrica)',
     ),
-    preparation: Value('In piedi o seduto. Parti with presa supina (palmi su).'),
+    preparation: Value(
+      'In piedi o seduto. Parti with presa supina (palmi su).',
+    ),
     execution: Value(
       'Esegui un normale curl (fase concentrica). In cima, ruota i polsi in presa prona (palmi giù). Scendi lentamente (fase eccentrica) in presa prona. Ruota di nuovo in supinazione in basso.',
     ),
@@ -181,9 +183,7 @@ const bicepsExercises = [
     name: Value('Reverse Curl with bilanciere'),
     targetMuscle: Value('Bicipiti'),
     equipment: Value('Bilanciere (dritto o EZ)'),
-    focusArea: Value(
-      'Avambracci (Brachioradiale, Estensori polso), Brachiale',
-    ),
+    focusArea: Value('Avambracci (Brachioradiale, Estensori polso), Brachiale'),
     preparation: Value(
       'In piedi. Afferra il bilanciere with presa prona (palmi verso il basso) larghezza spalle.',
     ),

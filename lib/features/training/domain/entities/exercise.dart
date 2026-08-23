@@ -12,9 +12,12 @@ class ExerciseEntity extends Equatable {
     this.preparation,
     this.execution,
     this.tips,
+    this.userNotes,
+    this.isBodyweight = false,
     this.isVector = false,
     this.isFavorite = false,
   });
+  static const String bodyweightCategory = 'Corpo libero';
 
   final int id;
   final String name;
@@ -26,24 +29,40 @@ class ExerciseEntity extends Equatable {
   final String? preparation;
   final String? execution;
   final String? tips;
+  final String? userNotes;
+  final bool isBodyweight;
   final bool isVector;
   final bool isFavorite;
 
+  List<String> get categories {
+    final values = <String>[];
+    final muscle = targetMuscle.trim();
+    if (muscle.isNotEmpty) {
+      values.add(muscle);
+    }
+    if (isBodyweight && !values.contains(bodyweightCategory)) {
+      values.add(bodyweightCategory);
+    }
+    return List.unmodifiable(values);
+  }
+
   @override
   List<Object?> get props => [
-        id,
-        name,
-        targetMuscle,
-        referenceVideoUrl,
-        imageUrl,
-        equipment,
-        focusArea,
-        preparation,
-        execution,
-        tips,
-        isVector,
-        isFavorite,
-      ];
+    id,
+    name,
+    targetMuscle,
+    referenceVideoUrl,
+    imageUrl,
+    equipment,
+    focusArea,
+    preparation,
+    execution,
+    tips,
+    userNotes,
+    isBodyweight,
+    isVector,
+    isFavorite,
+  ];
 }
 
 class WorkoutSetEntity extends Equatable {
@@ -66,5 +85,13 @@ class WorkoutSetEntity extends Equatable {
   final DateTime timestamp;
 
   @override
-  List<Object?> get props => [id, workoutId, exerciseId, reps, weight, rpe, timestamp];
+  List<Object?> get props => [
+    id,
+    workoutId,
+    exerciseId,
+    reps,
+    weight,
+    rpe,
+    timestamp,
+  ];
 }

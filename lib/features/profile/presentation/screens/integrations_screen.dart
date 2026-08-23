@@ -2,8 +2,9 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
+import 'package:gym_corpus/core/widgets/section_title.dart';
 import 'package:gym_corpus/features/training/domain/repositories/training_repository.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
@@ -25,7 +26,12 @@ class _IntegrationsScreenState extends State<IntegrationsScreen> {
   Future<void> _exportAsJson() async {
     setState(() => _isExporting = true);
     try {
-      final repository = context.read<TrainingRepository>();
+      // GetIt, non context.read: TrainingRepository e' registrato solo nel
+      // service locator, mai esposto tramite RepositoryProvider nell'albero
+      // dei widget. context.read<TrainingRepository>() lanciava sempre
+      // ProviderNotFoundException, catturata dal catch generico qui sotto e
+      // mostrata come errore vago: l'export non ha mai funzionato.
+      final repository = GetIt.I<TrainingRepository>();
       // Get data (simplified)
       final routines = await repository.watchRoutines().first;
       final weightLogs = await repository.watchWeightLogs().first;
@@ -33,11 +39,15 @@ class _IntegrationsScreenState extends State<IntegrationsScreen> {
       final data = {
         'export_date': DateTime.now().toIso8601String(),
         'routines_count': routines.length,
-        'weight_logs': weightLogs.map((l) => {
-          'date': l.timestamp.toIso8601String(),
-          'weight': l.weight,
-          'reps': l.reps,
-        },).toList(),
+        'weight_logs': weightLogs
+            .map(
+              (l) => {
+                'date': l.timestamp.toIso8601String(),
+                'weight': l.weight,
+                'reps': l.reps,
+              },
+            )
+            .toList(),
       };
 
       final jsonString = jsonEncode(data);
@@ -46,10 +56,14 @@ class _IntegrationsScreenState extends State<IntegrationsScreen> {
       await file.writeAsString(jsonString);
 
       // ignore: deprecated_member_use
-      await Share.shareXFiles([XFile(file.path)], text: 'Esportazione dati GymCorpus');
+      await Share.shareXFiles([
+        XFile(file.path),
+      ], text: 'Esportazione dati GymCorpus');
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Errore durante l'esportazione: $e")));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Errore durante l'esportazione: $e")),
+        );
       }
     } finally {
       if (mounted) setState(() => _isExporting = false);
@@ -60,7 +74,7 @@ class _IntegrationsScreenState extends State<IntegrationsScreen> {
     setState(() => _isExporting = true);
     try {
       final pdf = pw.Document();
-      final repository = context.read<TrainingRepository>();
+      final repository = GetIt.I<TrainingRepository>();
       final weightLogs = await repository.watchWeightLogs().first;
 
       pdf.addPage(
@@ -71,7 +85,10 @@ class _IntegrationsScreenState extends State<IntegrationsScreen> {
                 level: 0,
                 child: pw.Text(
                   'GymCorpus - Report Allenamenti',
-                  style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold),
+                  style: pw.TextStyle(
+                    fontSize: 24,
+                    fontWeight: pw.FontWeight.bold,
+                  ),
                 ),
               ),
               pw.Padding(
@@ -79,7 +96,13 @@ class _IntegrationsScreenState extends State<IntegrationsScreen> {
                 child: pw.Text('Report generato il ${DateTime.now()}'),
               ),
               pw.SizedBox(height: 20),
-              pw.Text('Riepilogo Recente', style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
+              pw.Text(
+                'Riepilogo Recente',
+                style: pw.TextStyle(
+                  fontSize: 18,
+                  fontWeight: pw.FontWeight.bold,
+                ),
+              ),
               pw.SizedBox(height: 10),
               pw.TableHelper.fromTextArray(
                 context: context,
@@ -94,16 +117,26 @@ class _IntegrationsScreenState extends State<IntegrationsScreen> {
                 ],
               ),
               pw.SizedBox(height: 40),
-              pw.Center(child: pw.Text('Fine del Report', style: const pw.TextStyle(color: PdfColors.grey))),
+              pw.Center(
+                child: pw.Text(
+                  'Fine del Report',
+                  style: const pw.TextStyle(color: PdfColors.grey),
+                ),
+              ),
             ];
           },
         ),
       );
 
-      await Printing.sharePdf(bytes: await pdf.save(), filename: 'gym_corpus_report.pdf');
+      await Printing.sharePdf(
+        bytes: await pdf.save(),
+        filename: 'gym_corpus_report.pdf',
+      );
     } catch (e) {
-       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Errore durante l'esportazione PDF: $e")));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Errore durante l'esportazione PDF: $e")),
+        );
       }
     } finally {
       if (mounted) setState(() => _isExporting = false);
@@ -130,8 +163,11 @@ class _IntegrationsScreenState extends State<IntegrationsScreen> {
                 ),
               ),
               const SizedBox(height: 32),
-
-              _buildSectionTitle('SALUTE (IN SVILUPPO)', theme),
+              SectionTitle(
+                'SALUTE (IN SVILUPPO)',
+                color: theme.colorScheme.outline,
+                letterSpacing: 2,
+              ),
               const SizedBox(height: 12),
               _buildIntegrationItem(
                 icon: Icons.health_and_safety_outlined,
@@ -144,9 +180,12 @@ class _IntegrationsScreenState extends State<IntegrationsScreen> {
                 ),
                 theme: theme,
               ),
-
               const SizedBox(height: 32),
-              _buildSectionTitle('ESPORTAZIONE DATI', theme),
+              SectionTitle(
+                'ESPORTAZIONE DATI',
+                color: theme.colorScheme.outline,
+                letterSpacing: 2,
+              ),
               const SizedBox(height: 12),
               _buildIntegrationItem(
                 icon: Icons.picture_as_pdf_outlined,
@@ -162,35 +201,34 @@ class _IntegrationsScreenState extends State<IntegrationsScreen> {
                 onTap: _isExporting ? null : _exportAsJson,
                 theme: theme,
               ),
-              
               if (_isExporting) ...[
                 const SizedBox(height: 24),
                 const Center(child: CircularProgressIndicator()),
                 const SizedBox(height: 8),
-                const Center(child: Text('Generazione file in corso...', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold))),
+                const Center(
+                  child: Text(
+                    'Generazione file in corso...',
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                  ),
+                ),
               ],
-
               const SizedBox(height: 48),
-              _buildSectionTitle('GDPR COMPLIANCE', theme),
+              SectionTitle(
+                'GDPR COMPLIANCE',
+                color: theme.colorScheme.outline,
+                letterSpacing: 2,
+              ),
               const SizedBox(height: 12),
               Text(
                 'I tuoi dati sono protetti e appartengono a te. Puoi scaricarli o eliminare il tuo account in qualsiasi momento dalla sezione Sicurezza.',
-                style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.outline, height: 1.5),
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.outline,
+                  height: 1.5,
+                ),
               ),
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildSectionTitle(String title, ThemeData theme) {
-    return Text(
-      title,
-      style: theme.textTheme.labelSmall?.copyWith(
-        letterSpacing: 2,
-        fontWeight: FontWeight.w900,
-        color: theme.colorScheme.outline,
       ),
     );
   }
@@ -213,7 +251,12 @@ class _IntegrationsScreenState extends State<IntegrationsScreen> {
         onTap: onTap,
         leading: Icon(icon, color: theme.colorScheme.primary),
         title: Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text(subtitle, style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.outline)),
+        subtitle: Text(
+          subtitle,
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: theme.colorScheme.outline,
+          ),
+        ),
         trailing: trailing ?? const Icon(Icons.chevron_right, size: 20),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),

@@ -5,21 +5,45 @@ import 'package:gym_corpus/features/training/domain/entities/body_weight.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_session.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
+import 'package:gym_corpus/features/training/domain/entities/workout_session.dart';
 
 abstract class TrainingRepository {
   Stream<List<ExerciseEntity>> watchExercises();
-  Future<Either<Failure, void>> toggleExerciseFavorite(int id,
-      {required bool isFavorite,});
+  Future<Either<Failure, void>> toggleExerciseFavorite(
+    int id, {
+    required bool isFavorite,
+  });
+
+  Future<Either<Failure, void>> updateExerciseNotes(int id, String notes);
 
   // Routines CRUD
   Stream<List<RoutineEntity>> watchRoutines();
   Future<Either<Failure, int>> addRoutine(
-      String title, List<RoutineExerciseEntity> exercises, int? estDuration,);
-  Future<Either<Failure, void>> updateRoutine(int id, String title,
-      List<RoutineExerciseEntity> exercises, int? estDuration,);
+    String title,
+    List<RoutineExerciseEntity> exercises,
+    int? estDuration,
+  );
+  Future<Either<Failure, void>> updateRoutine(
+    int id,
+    String title,
+    List<RoutineExerciseEntity> exercises,
+    int? estDuration,
+  );
   Future<Either<Failure, void>> deleteRoutine(int id);
 
   Stream<List<WorkoutSetEntity>> watchWeightLogs();
+  Stream<List<WorkoutSessionEntity>> watchWorkoutSessions();
+
+  Future<Either<Failure, int>> startWorkoutSession({
+    required int id,
+    required String name,
+    int? routineId,
+  });
+
+  Future<Either<Failure, void>> completeWorkoutSession({
+    required int workoutId,
+    required int durationSeconds,
+  });
 
   Future<Either<Failure, void>> addSetToExercise({
     required int workoutId,
@@ -34,7 +58,7 @@ abstract class TrainingRepository {
   Future<Either<Failure, int>> addBodyWeightLogEntry(double weight);
   Future<Either<Failure, void>> deleteBodyWeightLogEntry(int id);
   Future<Either<Failure, void>> updateBodyWeightLogEntry(int id, double weight);
-  Future<Either<Failure, void>> reseedWeightHistory();
+  Future<Either<Failure, double?>> reseedWeightHistory();
 
   // Body measurements
   Stream<List<BodyMeasurementEntity>> watchBodyMeasurements();
@@ -51,6 +75,7 @@ abstract class TrainingRepository {
     required double avgSpeed,
     required String pace,
     required int calories,
+    int? steps,
     String? routeJson,
   });
   Future<Either<Failure, void>> deleteCardioSession(int id);

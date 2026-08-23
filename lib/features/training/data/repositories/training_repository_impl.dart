@@ -7,6 +7,7 @@ import 'package:gym_corpus/features/training/domain/entities/body_weight.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_session.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
+import 'package:gym_corpus/features/training/domain/entities/workout_session.dart';
 import 'package:gym_corpus/features/training/domain/repositories/training_repository.dart';
 import 'package:injectable/injectable.dart';
 
@@ -32,6 +33,8 @@ class TrainingRepositoryImpl implements TrainingRepository {
               preparation: e.preparation,
               execution: e.execution,
               tips: e.tips,
+              userNotes: e.userNotes,
+              isBodyweight: e.isBodyweight,
               isVector: e.isVector,
               isFavorite: e.isFavorite,
             ),
@@ -41,8 +44,10 @@ class TrainingRepositoryImpl implements TrainingRepository {
   }
 
   @override
-  Future<Either<Failure, void>> toggleExerciseFavorite(int id,
-      {required bool isFavorite,}) async {
+  Future<Either<Failure, void>> toggleExerciseFavorite(
+    int id, {
+    required bool isFavorite,
+  }) async {
     try {
       await database.toggleExerciseFavorite(id, isFavorite: isFavorite);
       return const Right(null);
@@ -52,22 +57,35 @@ class TrainingRepositoryImpl implements TrainingRepository {
   }
 
   @override
+  Future<Either<Failure, void>> updateExerciseNotes(
+    int id,
+    String notes,
+  ) async {
+    try {
+      await database.updateExerciseNotes(id, notes);
+      return const Right(null);
+    } catch (e) {
+      return Left(DatabaseFailure(e.toString()));
+    }
+  }
+
+  @override
   Stream<List<RoutineEntity>> watchRoutines() {
-    return database
-        .select(database.routines)
-        .watch()
-        .asyncMap((routinesList) async {
+    return database.select(database.routines).watch().asyncMap((
+      routinesList,
+    ) async {
       final routineEntities = <RoutineEntity>[];
 
       for (final routineData in routinesList) {
         // Get exercises for this routine
         final exercisesQuery = database.select(database.routineExercises).join([
           innerJoin(
-              database.exercises,
-              database.exercises.id
-                  .equalsExp(database.routineExercises.exerciseId),),
-        ])
-          ..where(database.routineExercises.routineId.equals(routineData.id));
+            database.exercises,
+            database.exercises.id.equalsExp(
+              database.routineExercises.exerciseId,
+            ),
+          ),
+        ])..where(database.routineExercises.routineId.equals(routineData.id));
 
         final rows = await exercisesQuery.get();
 
@@ -94,6 +112,8 @@ class TrainingRepositoryImpl implements TrainingRepository {
               preparation: exData.preparation,
               execution: exData.execution,
               tips: exData.tips,
+              userNotes: exData.userNotes,
+              isBodyweight: exData.isBodyweight,
               isVector: exData.isVector,
               isFavorite: exData.isFavorite,
             ),
@@ -116,11 +136,16 @@ class TrainingRepositoryImpl implements TrainingRepository {
   }
 
   @override
-  Future<Either<Failure, int>> addRoutine(String title,
-      List<RoutineExerciseEntity> routineExercises, int? estDuration,) async {
+  Future<Either<Failure, int>> addRoutine(
+    String title,
+    List<RoutineExerciseEntity> routineExercises,
+    int? estDuration,
+  ) async {
     try {
       return await database.transaction(() async {
-        final routineId = await database.into(database.routines).insert(
+        final routineId = await database
+            .into(database.routines)
+            .insert(
               RoutinesCompanion(
                 title: Value(title),
                 estimatedDuration: Value(estDuration),
@@ -129,7 +154,9 @@ class TrainingRepositoryImpl implements TrainingRepository {
             );
 
         for (final re in routineExercises) {
-          await database.into(database.routineExercises).insert(
+          await database
+              .into(database.routineExercises)
+              .insert(
                 RoutineExercisesCompanion(
                   routineId: Value(routineId),
                   exerciseId: Value(re.exercise.id),
@@ -149,14 +176,18 @@ class TrainingRepositoryImpl implements TrainingRepository {
   }
 
   @override
-  Future<Either<Failure, void>> updateRoutine(int id, String title,
-      List<RoutineExerciseEntity> exercises, int? estDuration,) async {
+  Future<Either<Failure, void>> updateRoutine(
+    int id,
+    String title,
+    List<RoutineExerciseEntity> exercises,
+    int? estDuration,
+  ) async {
     try {
       await database.transaction(() async {
         // Update routine metadata
-        await (database.update(database.routines)
-              ..where((t) => t.id.equals(id)))
-            .write(
+        await (database.update(
+          database.routines,
+        )..where((t) => t.id.equals(id))).write(
           RoutinesCompanion(
             title: Value(title),
             estimatedDuration: Value(estDuration),
@@ -164,13 +195,15 @@ class TrainingRepositoryImpl implements TrainingRepository {
         );
 
         // Delete existing exercise associations
-        await (database.delete(database.routineExercises)
-              ..where((t) => t.routineId.equals(id)))
-            .go();
+        await (database.delete(
+          database.routineExercises,
+        )..where((t) => t.routineId.equals(id))).go();
 
         // Re-insert current exercises
         for (final re in exercises) {
-          await database.into(database.routineExercises).insert(
+          await database
+              .into(database.routineExercises)
+              .insert(
                 RoutineExercisesCompanion(
                   routineId: Value(id),
                   exerciseId: Value(re.exercise.id),
@@ -219,6 +252,58 @@ class TrainingRepositoryImpl implements TrainingRepository {
   }
 
   @override
+  Stream<List<WorkoutSessionEntity>> watchWorkoutSessions() {
+    return database.watchCompletedWorkouts().map((workouts) {
+      return workouts
+          .map(
+            (w) => WorkoutSessionEntity(
+              id: w.id,
+              date: w.date,
+              name: w.name,
+              routineId: w.routineId,
+              completedAt: w.completedAt,
+              durationSeconds: w.durationSeconds,
+            ),
+          )
+          .toList();
+    });
+  }
+
+  @override
+  Future<Either<Failure, int>> startWorkoutSession({
+    required int id,
+    required String name,
+    int? routineId,
+  }) async {
+    try {
+      final workoutId = await database.insertWorkoutSession(
+        WorkoutsCompanion(
+          id: Value(id),
+          date: Value(DateTime.now()),
+          name: Value(name),
+          routineId: Value(routineId),
+        ),
+      );
+      return Right(workoutId);
+    } catch (e) {
+      return Left(DatabaseFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> completeWorkoutSession({
+    required int workoutId,
+    required int durationSeconds,
+  }) async {
+    try {
+      await database.completeWorkoutSession(workoutId, durationSeconds);
+      return const Right(null);
+    } catch (e) {
+      return Left(DatabaseFailure(e.toString()));
+    }
+  }
+
+  @override
   Future<Either<Failure, void>> addSetToExercise({
     required int workoutId,
     required int exerciseId,
@@ -229,7 +314,8 @@ class TrainingRepositoryImpl implements TrainingRepository {
     try {
       if (reps < 0 || weight < 0) {
         return const Left(
-            DatabaseFailure('Negative weight or reps are invalid.'),);
+          DatabaseFailure('Negative weight or reps are invalid.'),
+        );
       }
 
       await database.insertSet(
@@ -253,11 +339,8 @@ class TrainingRepositoryImpl implements TrainingRepository {
     return database.watchLatestWeightEntries().map((logs) {
       return logs
           .map(
-            (l) => BodyWeightLogEntity(
-              id: l.id,
-              weight: l.weight,
-              date: l.date,
-            ),
+            (l) =>
+                BodyWeightLogEntity(id: l.id, weight: l.weight, date: l.date),
           )
           .toList();
     });
@@ -266,11 +349,14 @@ class TrainingRepositoryImpl implements TrainingRepository {
   @override
   Future<Either<Failure, int>> addBodyWeightLogEntry(double weight) async {
     try {
+      if (!_isValidBodyWeight(weight)) {
+        return const Left(
+          DatabaseFailure('Il peso deve essere maggiore di 0 e realistico.'),
+        );
+      }
+
       final id = await database.insertWeightLog(
-        WeightLogsCompanion(
-          weight: Value(weight),
-          date: Value(DateTime.now()),
-        ),
+        WeightLogsCompanion(weight: Value(weight), date: Value(DateTime.now())),
       );
       return Right(id);
     } catch (e) {
@@ -290,8 +376,16 @@ class TrainingRepositoryImpl implements TrainingRepository {
 
   @override
   Future<Either<Failure, void>> updateBodyWeightLogEntry(
-      int id, double weight,) async {
+    int id,
+    double weight,
+  ) async {
     try {
+      if (!_isValidBodyWeight(weight)) {
+        return const Left(
+          DatabaseFailure('Il peso deve essere maggiore di 0 e realistico.'),
+        );
+      }
+
       await database.updateWeightLog(id, weight);
       return const Right(null);
     } catch (e) {
@@ -300,7 +394,7 @@ class TrainingRepositoryImpl implements TrainingRepository {
   }
 
   @override
-  Future<Either<Failure, void>> reseedWeightHistory() async {
+  Future<Either<Failure, double?>> reseedWeightHistory() async {
     try {
       await database.deleteAllWeightLogs();
 
@@ -319,20 +413,23 @@ class TrainingRepositoryImpl implements TrainingRepository {
         -0.1,
       ];
 
+      double? latestWeight;
       for (var i = 0; i < 10; i++) {
         final date = now.subtract(Duration(days: 9 - i));
         final weight = baseWeight + variations[i];
+        latestWeight = weight;
         await database.insertWeightLog(
-          WeightLogsCompanion(
-            weight: Value(weight),
-            date: Value(date),
-          ),
+          WeightLogsCompanion(weight: Value(weight), date: Value(date)),
         );
       }
-      return const Right(null);
+      return Right(latestWeight);
     } catch (e) {
       return Left(DatabaseFailure(e.toString()));
     }
+  }
+
+  bool _isValidBodyWeight(double weight) {
+    return weight.isFinite && weight > 0 && weight <= 500;
   }
 
   @override
@@ -353,7 +450,9 @@ class TrainingRepositoryImpl implements TrainingRepository {
 
   @override
   Future<Either<Failure, int>> addBodyMeasurement(
-      String part, double value,) async {
+    String part,
+    double value,
+  ) async {
     try {
       final id = await database.insertMeasurement(
         BodyMeasurementsCompanion(
@@ -380,7 +479,9 @@ class TrainingRepositoryImpl implements TrainingRepository {
 
   @override
   Future<Either<Failure, void>> updateBodyMeasurement(
-      int id, double value,) async {
+    int id,
+    double value,
+  ) async {
     try {
       await database.updateMeasurement(id, value);
       return const Right(null);
@@ -403,7 +504,9 @@ class TrainingRepositoryImpl implements TrainingRepository {
 
   @override
   Future<Either<Failure, void>> updatePreference(
-      String key, String value,) async {
+    String key,
+    String value,
+  ) async {
     try {
       await database.updateSetting(key, value);
       return const Right(null);
@@ -427,6 +530,7 @@ class TrainingRepositoryImpl implements TrainingRepository {
               pace: s.pace,
               calories: s.calories,
               routeJson: s.routeJson,
+              steps: s.steps,
               date: s.date,
             ),
           )
@@ -442,6 +546,7 @@ class TrainingRepositoryImpl implements TrainingRepository {
     required double avgSpeed,
     required String pace,
     required int calories,
+    int? steps,
     String? routeJson,
   }) async {
     try {
@@ -453,6 +558,7 @@ class TrainingRepositoryImpl implements TrainingRepository {
           avgSpeed: Value(avgSpeed),
           pace: Value(pace),
           calories: Value(calories),
+          steps: Value(steps),
           routeJson: Value(routeJson),
           date: Value(DateTime.now()),
         ),

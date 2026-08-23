@@ -2,7 +2,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'auth_event.freezed.dart';
 
-@freezed
+@Freezed(toStringOverride: false)
 class AuthEvent with _$AuthEvent {
   const factory AuthEvent.checkSessionRequested() = _CheckSessionRequested;
   const factory AuthEvent.loginRequested({
@@ -12,17 +12,37 @@ class AuthEvent with _$AuthEvent {
   const factory AuthEvent.signUpRequested({
     required String email,
     required String password,
+    required String firstName,
+    required String lastName,
+    required String username,
+    required DateTime birthDate,
+    required String gender,
+    required bool acceptedTerms,
+    required bool acceptedPrivacy,
+    required bool marketingConsent,
+    required bool profilingConsent,
   }) = _SignUpRequested;
-  const factory AuthEvent.forgotPasswordRequested({
-    required String email,
-  }) = _ForgotPasswordRequested;
+  const factory AuthEvent.forgotPasswordRequested({required String email}) =
+      _ForgotPasswordRequested;
 
-  const factory AuthEvent.googleSignInRequested() = _GoogleSignInRequested;
+  const factory AuthEvent.googleSignInRequested({
+    @Default(false) bool acceptedTerms,
+    @Default(false) bool acceptedPrivacy,
+    @Default(false) bool marketingConsent,
+    @Default(false) bool profilingConsent,
+  }) = _GoogleSignInRequested;
 
-  const factory AuthEvent.appleSignInRequested() = _AppleSignInRequested;
+  const factory AuthEvent.appleSignInRequested({
+    @Default(false) bool acceptedTerms,
+    @Default(false) bool acceptedPrivacy,
+    @Default(false) bool marketingConsent,
+    @Default(false) bool profilingConsent,
+  }) = _AppleSignInRequested;
 
   const factory AuthEvent.logoutRequested() = _LogoutRequested;
-  const factory AuthEvent.updateProfileImageRequested({required String filePath}) = _UpdateProfileImageRequested;
+  const factory AuthEvent.updateProfileImageRequested({
+    required String filePath,
+  }) = _UpdateProfileImageRequested;
 
   const factory AuthEvent.updateProfileRequested({
     String? firstName,
@@ -40,5 +60,8 @@ class AuthEvent with _$AuthEvent {
     required String newPassword,
   }) = _ChangePasswordRequested;
 
-  const factory AuthEvent.deleteAccountRequested() = _DeleteAccountRequested;
+  // Non esiste un evento per l'eliminazione account: richiede la password
+  // corrente per la ri-autenticazione e passa direttamente dal repository in
+  // SecurityScreen. Un evento senza password fallirebbe sempre la re-auth per
+  // gli account con provider password.
 }

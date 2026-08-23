@@ -35,8 +35,9 @@ class ExerciseDetailScreen extends StatelessWidget {
           children: [
             Text(
               'GYM CORPUS',
-              style: theme.textTheme.labelSmall
-                  ?.copyWith(color: const Color(0xFF94AAFF)),
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: const Color(0xFF94AAFF),
+              ),
             ),
             Text(
               'Dettagli Esercizio',
@@ -71,7 +72,10 @@ class ExerciseDetailScreen extends StatelessWidget {
                     ),
                     onPressed: () {
                       context.read<TrainingBloc>().add(
-                        ToggleExerciseFavoriteEvent(exercise.id, isFavorite: !isFavorite),
+                        ToggleExerciseFavoriteEvent(
+                          exercise.id,
+                          isFavorite: !isFavorite,
+                        ),
                       );
                     },
                   ),
@@ -95,13 +99,27 @@ class ExerciseDetailScreen extends StatelessWidget {
                     color: theme.colorScheme.surfaceContainerHigh,
                   ),
                   child: exercise.imageUrl != null
-                      ? Image.network(exercise.imageUrl!, fit: BoxFit.cover)
-                      : Center(
-                          child: Icon(Icons.fitness_center,
-                              size: 80,
-                              color: theme.colorScheme.primary.withValues(
-                                alpha: 0.2,
-                              ),),
+                      ? Image.network(
+                          exercise.imageUrl!,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              ColoredBox(
+                                color:
+                                    theme.colorScheme.surfaceContainerHighest,
+                                child: Center(
+                                  child: Icon(
+                                    Icons.broken_image_rounded,
+                                    color: theme.colorScheme.outline.withValues(
+                                      alpha: 0.3,
+                                    ),
+                                    size: 48,
+                                  ),
+                                ),
+                              ),
+                        )
+                      : Image.asset(
+                          'assets/images/placeholder-image.png',
+                          fit: BoxFit.cover,
                         ),
                 ),
                 Positioned.fill(
@@ -130,9 +148,9 @@ class ExerciseDetailScreen extends StatelessWidget {
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 4,
-                          ),
+                          horizontal: 12,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: theme.colorScheme.tertiary,
                           borderRadius: BorderRadius.circular(20),
@@ -203,7 +221,8 @@ class ExerciseDetailScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   _NumberedList(
-                    content: exercise.preparation ??
+                    content:
+                        exercise.preparation ??
                         'Sdraiati sulla schiena con le ginocchia piegate e i piedi appoggiati a terra. Posiziona le mani dietro la testa o incrociate sul petto.',
                   ),
 
@@ -220,7 +239,8 @@ class ExerciseDetailScreen extends StatelessWidget {
                       Expanded(
                         child: _ExecutionCard(
                           title: 'La Salita',
-                          content: exercise.execution?.split('.').first ??
+                          content:
+                              exercise.execution?.split('.').first ??
                               'Solleva le spalle da terra contraendo gli addominali.',
                           label: 'UP',
                           color: theme.colorScheme.tertiary,
@@ -244,9 +264,15 @@ class ExerciseDetailScreen extends StatelessWidget {
 
                   // Tips
                   _ExpertTipsCard(
-                    tip: exercise.tips ??
+                    tip:
+                        exercise.tips ??
                         "Evita di tirare il collo con le mani. Concentrati sul movimento guidato dalla contrazione dell'addome.",
                   ),
+
+                  const SizedBox(height: 40),
+
+                  // User Notes
+                  _UserNotesCard(exercise: exercise),
 
                   const SizedBox(height: 140),
                 ],
@@ -281,9 +307,7 @@ class _BentoCard extends StatelessWidget {
         color: theme.colorScheme.surfaceContainer,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: theme.colorScheme.outline.withValues(
-            alpha: 0.05,
-          ),
+          color: theme.colorScheme.outline.withValues(alpha: 0.05),
         ),
       ),
       child: Column(
@@ -366,15 +390,14 @@ class _NumberedList extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: index == 0
-                  ? theme.colorScheme.surfaceContainerHigh
-                      .withValues(alpha: 0.3)
+                  ? theme.colorScheme.surfaceContainerHigh.withValues(
+                      alpha: 0.3,
+                    )
                   : null,
               border: index != steps.length - 1
                   ? Border(
                       bottom: BorderSide(
-                        color: theme.colorScheme.outline.withValues(
-                          alpha: 0.1,
-                        ),
+                        color: theme.colorScheme.outline.withValues(alpha: 0.1),
                       ),
                     )
                   : null,
@@ -393,8 +416,9 @@ class _NumberedList extends StatelessWidget {
                 Expanded(
                   child: Text(
                     steps[index].trim(),
-                    style: theme.textTheme.bodyMedium
-                        ?.copyWith(fontWeight: FontWeight.w500),
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
               ],
@@ -428,7 +452,7 @@ class _ExecutionCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(16),
-        border: Border(left: BorderSide(color: color, width: 4),),
+        border: Border(left: BorderSide(color: color, width: 4)),
       ),
       child: Stack(
         children: [
@@ -460,8 +484,9 @@ class _ExecutionCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   content,
-                  style: theme.textTheme.bodySmall
-                      ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
                   maxLines: 4,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -487,8 +512,9 @@ class _ExpertTipsCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: theme.colorScheme.primary.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(24),
-        border:
-            Border.all(color: theme.colorScheme.primary.withValues(alpha: 0.2),),
+        border: Border.all(
+          color: theme.colorScheme.primary.withValues(alpha: 0.2),
+        ),
       ),
       child: Stack(
         clipBehavior: Clip.none,
@@ -497,10 +523,7 @@ class _ExpertTipsCard extends StatelessWidget {
             top: -40,
             left: 0,
             child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 6,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
               decoration: BoxDecoration(
                 color: theme.colorScheme.primary,
                 borderRadius: BorderRadius.circular(20),
@@ -537,15 +560,169 @@ class _ExpertTipsCard extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 4),
-                        Text(
-                          tip,
-                          style: theme.textTheme.bodySmall,
-                        ),
+                        Text(tip, style: theme.textTheme.bodySmall),
                       ],
                     ),
                   ),
                 ],
               ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _UserNotesCard extends StatefulWidget {
+  const _UserNotesCard({required this.exercise});
+
+  final ExerciseEntity exercise;
+
+  @override
+  State<_UserNotesCard> createState() => _UserNotesCardState();
+}
+
+class _UserNotesCardState extends State<_UserNotesCard> {
+  late TextEditingController _controller;
+  bool _isEditing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.exercise.userNotes);
+  }
+
+  @override
+  void didUpdateWidget(covariant _UserNotesCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.exercise.userNotes != widget.exercise.userNotes &&
+        !_isEditing) {
+      _controller.text = widget.exercise.userNotes ?? '';
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _saveNotes() {
+    context.read<TrainingBloc>().add(
+      UpdateExerciseNotesEvent(widget.exercise.id, notes: _controller.text),
+    );
+    setState(() {
+      _isEditing = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.tertiary.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: theme.colorScheme.tertiary.withValues(alpha: 0.2),
+        ),
+      ),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Positioned(
+            top: -40,
+            left: 0,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.tertiary,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: const Text(
+                'LE TUE NOTE',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1.2,
+                ),
+              ),
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Appunti Esercizio',
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      _isEditing ? Icons.check : Icons.edit,
+                      color: theme.colorScheme.tertiary,
+                      size: 20,
+                    ),
+                    onPressed: () {
+                      if (_isEditing) {
+                        _saveNotes();
+                      } else {
+                        setState(() {
+                          _isEditing = true;
+                        });
+                      }
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              if (_isEditing)
+                TextField(
+                  controller: _controller,
+                  maxLines: 4,
+                  minLines: 2,
+                  style: theme.textTheme.bodySmall,
+                  decoration: InputDecoration(
+                    hintText: 'Scrivi qui le tue note...',
+                    hintStyle: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.outline.withValues(alpha: 0.5),
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: theme.colorScheme.tertiary.withValues(
+                          alpha: 0.5,
+                        ),
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: theme.colorScheme.tertiary),
+                    ),
+                    contentPadding: const EdgeInsets.all(12),
+                  ),
+                )
+              else
+                Text(
+                  (_controller.text.isEmpty)
+                      ? 'Nessuna nota presente. Tocca la matita per aggiungerne una.'
+                      : _controller.text,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: _controller.text.isEmpty
+                        ? theme.colorScheme.outline.withValues(alpha: 0.7)
+                        : theme.colorScheme.onSurface,
+                    fontStyle: _controller.text.isEmpty
+                        ? FontStyle.italic
+                        : FontStyle.normal,
+                  ),
+                ),
             ],
           ),
         ],

@@ -253,6 +253,7 @@ const legExercises = [
     name: Value('Sissy Squat'),
     targetMuscle: Value('Gambe'),
     equipment: Value('Corpo libero (with supporto) o Macchina specifica'),
+    isBodyweight: Value(true),
     focusArea: Value('Quadricipiti (isolamento, focus retto femorale)'),
     preparation: Value(
       "In piedi, afferra un supporto per l'equilibrio (se a corpo libero). Piedi vicini.",
@@ -298,9 +299,7 @@ const legExercises = [
     name: Value('Glute Ham Raise'),
     targetMuscle: Value('Gambe'),
     equipment: Value('Macchinario GHR (o panca apposita)'),
-    focusArea: Value(
-      'Ischiocrurali (entrambe le funzioni), Glutei, Polpacci',
-    ),
+    focusArea: Value('Ischiocrurali (entrambe le funzioni), Glutei, Polpacci'),
     preparation: Value(
       'Posizionati sulla macchina GHR, caviglie bloccate, ginocchia appoggiate sul cuscinetto, busto eretto.',
     ),

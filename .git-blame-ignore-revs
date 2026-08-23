@@ -1,0 +1,13 @@
+# Commit puramente cosmetici, da ignorare quando si ricostruisce la paternita'
+# delle righe con git blame.
+#
+# Attivalo una volta per il tuo clone:
+#   git config blame.ignoreRevsFile .git-blame-ignore-revs
+#
+# GitHub e GitLab leggono questo file automaticamente nelle loro viste blame.
+#
+# Aggiungi qui solo commit che non cambiano il comportamento del codice:
+# riformattazioni, rinomine massive, riordino di import.
+
+# style: adotta il formattatore tall e azzera i rilievi dell'analyzer
+6ee58fc2b65adf1dba329394f73b9e8d3047d3f6

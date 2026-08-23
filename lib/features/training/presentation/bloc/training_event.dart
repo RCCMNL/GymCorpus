@@ -4,6 +4,7 @@ import 'package:gym_corpus/features/training/domain/entities/body_weight.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_session.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
+import 'package:gym_corpus/features/training/domain/entities/workout_session.dart';
 
 abstract class TrainingEvent extends Equatable {
   const TrainingEvent();
@@ -18,11 +19,20 @@ class LoadRoutinesEvent extends TrainingEvent {}
 
 class LoadWeightLogsEvent extends TrainingEvent {}
 
+class LoadWorkoutSessionsEvent extends TrainingEvent {}
+
 class LoadBodyWeightLogsEvent extends TrainingEvent {}
 
 class LoadSettingsEvent extends TrainingEvent {}
 
 class LoadCardioSessionsEvent extends TrainingEvent {}
+
+/// Azzera l'errore transitorio in `TrainingLoaded.actionError` dopo che la UI
+/// lo ha mostrato, cosi' un secondo fallimento identico torna a essere un
+/// cambio di stato osservabile.
+class ClearActionErrorEvent extends TrainingEvent {
+  const ClearActionErrorEvent();
+}
 
 class AddRoutineEvent extends TrainingEvent {
   const AddRoutineEvent({
@@ -63,6 +73,34 @@ class DeleteRoutineEvent extends TrainingEvent {
 
   @override
   List<Object?> get props => [id];
+}
+
+class StartWorkoutSessionEvent extends TrainingEvent {
+  const StartWorkoutSessionEvent({
+    required this.id,
+    required this.name,
+    this.routineId,
+  });
+
+  final int id;
+  final String name;
+  final int? routineId;
+
+  @override
+  List<Object?> get props => [id, name, routineId];
+}
+
+class CompleteWorkoutSessionEvent extends TrainingEvent {
+  const CompleteWorkoutSessionEvent({
+    required this.workoutId,
+    required this.durationSeconds,
+  });
+
+  final int workoutId;
+  final int durationSeconds;
+
+  @override
+  List<Object?> get props => [workoutId, durationSeconds];
 }
 
 class AddSetToExercise extends TrainingEvent {
@@ -126,6 +164,15 @@ class AddBodyMeasurementEvent extends TrainingEvent {
   List<Object?> get props => [part, value];
 }
 
+class AddMultipleBodyMeasurementsEvent extends TrainingEvent {
+  const AddMultipleBodyMeasurementsEvent(this.measurements);
+
+  final Map<String, double> measurements;
+
+  @override
+  List<Object?> get props => [measurements];
+}
+
 class DeleteBodyMeasurementEvent extends TrainingEvent {
   const DeleteBodyMeasurementEvent(this.id);
 
@@ -153,6 +200,7 @@ class SaveCardioSessionEvent extends TrainingEvent {
     required this.avgSpeed,
     required this.pace,
     required this.calories,
+    this.steps,
     this.routeJson,
   });
 
@@ -162,11 +210,20 @@ class SaveCardioSessionEvent extends TrainingEvent {
   final double avgSpeed;
   final String pace;
   final int calories;
+  final int? steps;
   final String? routeJson;
 
   @override
-  List<Object?> get props =>
-      [type, distance, duration, avgSpeed, pace, calories, routeJson];
+  List<Object?> get props => [
+    type,
+    distance,
+    duration,
+    avgSpeed,
+    pace,
+    calories,
+    steps,
+    routeJson,
+  ];
 }
 
 class DeleteCardioSessionEvent extends TrainingEvent {
@@ -189,14 +246,26 @@ class UpdatePreferenceEvent extends TrainingEvent {
 }
 
 class ToggleExerciseFavoriteEvent extends TrainingEvent {
-  const ToggleExerciseFavoriteEvent(this.exerciseId,
-      {required this.isFavorite,});
+  const ToggleExerciseFavoriteEvent(
+    this.exerciseId, {
+    required this.isFavorite,
+  });
 
   final int exerciseId;
   final bool isFavorite;
 
   @override
   List<Object?> get props => [exerciseId, isFavorite];
+}
+
+class UpdateExerciseNotesEvent extends TrainingEvent {
+  const UpdateExerciseNotesEvent(this.exerciseId, {required this.notes});
+
+  final int exerciseId;
+  final String notes;
+
+  @override
+  List<Object?> get props => [exerciseId, notes];
 }
 
 // Update events (Internal, but public for visibility)
@@ -225,6 +294,15 @@ class UpdateWeightLogsList extends TrainingEvent {
 
   @override
   List<Object?> get props => [weightLogs];
+}
+
+class UpdateWorkoutSessionsList extends TrainingEvent {
+  const UpdateWorkoutSessionsList(this.workoutSessions);
+
+  final List<WorkoutSessionEntity> workoutSessions;
+
+  @override
+  List<Object?> get props => [workoutSessions];
 }
 
 class UpdateBodyWeightLogsList extends TrainingEvent {
