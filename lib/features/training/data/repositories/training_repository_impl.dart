@@ -37,6 +37,8 @@ class TrainingRepositoryImpl implements TrainingRepository {
               isBodyweight: e.isBodyweight,
               isVector: e.isVector,
               isFavorite: e.isFavorite,
+              difficulty: e.difficulty,
+              isCustom: e.isCustom,
             ),
           )
           .toList();
@@ -67,6 +69,168 @@ class TrainingRepositoryImpl implements TrainingRepository {
     } catch (e) {
       return Left(DatabaseFailure(e.toString()));
     }
+  }
+
+  @override
+  Future<Either<Failure, int>> addCustomExercise({
+    required String name,
+    required String targetMuscle,
+    required String difficulty,
+    String? equipment,
+    String? focusArea,
+    String? preparation,
+    String? execution,
+    String? tips,
+    bool isBodyweight = false,
+  }) async {
+    try {
+      if (await _nameExistsInMuscleGroup(name, targetMuscle)) {
+        return Left(
+          DatabaseFailure(
+            'Esiste già un esercizio chiamato "$name" in $targetMuscle.',
+          ),
+        );
+      }
+
+      final id = await database
+          .into(database.exercises)
+          .insert(
+            ExercisesCompanion(
+              name: Value(name),
+              targetMuscle: Value(targetMuscle),
+              difficulty: Value(difficulty),
+              equipment: Value(equipment),
+              focusArea: Value(focusArea),
+              preparation: Value(preparation),
+              execution: Value(execution),
+              tips: Value(tips),
+              isBodyweight: Value(isBodyweight),
+              isCustom: const Value(true),
+            ),
+          );
+      return Right(id);
+    } catch (e) {
+      return Left(DatabaseFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> updateCustomExercise({
+    required int id,
+    required String name,
+    required String targetMuscle,
+    required String difficulty,
+    String? equipment,
+    String? focusArea,
+    String? preparation,
+    String? execution,
+    String? tips,
+    bool isBodyweight = false,
+  }) async {
+    try {
+      final guardFailure = await _requireCustomExercise(
+        id,
+        action: 'modificare',
+      );
+      if (guardFailure != null) return Left(guardFailure);
+
+      if (await _nameExistsInMuscleGroup(name, targetMuscle, excludeId: id)) {
+        return Left(
+          DatabaseFailure(
+            'Esiste già un esercizio chiamato "$name" in $targetMuscle.',
+          ),
+        );
+      }
+
+      await (database.update(
+        database.exercises,
+      )..where((e) => e.id.equals(id))).write(
+        ExercisesCompanion(
+          name: Value(name),
+          targetMuscle: Value(targetMuscle),
+          difficulty: Value(difficulty),
+          equipment: Value(equipment),
+          focusArea: Value(focusArea),
+          preparation: Value(preparation),
+          execution: Value(execution),
+          tips: Value(tips),
+          isBodyweight: Value(isBodyweight),
+        ),
+      );
+      return const Right(null);
+    } catch (e) {
+      return Left(DatabaseFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> deleteCustomExercise(int id) async {
+    try {
+      final guardFailure = await _requireCustomExercise(
+        id,
+        action: 'eliminare',
+      );
+      if (guardFailure != null) return Left(guardFailure);
+
+      final inRoutine = await (database.select(
+        database.routineExercises,
+      )..where((t) => t.exerciseId.equals(id))).get();
+      final inHistory = await (database.select(
+        database.workoutSets,
+      )..where((t) => t.exerciseId.equals(id))).get();
+      if (inRoutine.isNotEmpty || inHistory.isNotEmpty) {
+        return const Left(
+          DatabaseFailure(
+            'Questo esercizio è usato in una routine o in un allenamento '
+            'registrato. Rimuovilo da lì prima di eliminarlo.',
+          ),
+        );
+      }
+
+      await (database.delete(
+        database.exercises,
+      )..where((e) => e.id.equals(id))).go();
+      return const Right(null);
+    } catch (e) {
+      return Left(DatabaseFailure(e.toString()));
+    }
+  }
+
+  /// Controlla se un altro esercizio (predefinito o custom) ha già lo
+  /// stesso nome nello stesso gruppo muscolare. Nomi uguali in gruppi
+  /// diversi sono ammessi (succede anche nella libreria predefinita, es.
+  /// "Face Pull" compare sia in Dorso che in Spalle come esercizio
+  /// diverso), qui si evita solo la confusione di due voci identiche
+  /// nella stessa sezione della lista esercizi.
+  Future<bool> _nameExistsInMuscleGroup(
+    String name,
+    String targetMuscle, {
+    int? excludeId,
+  }) async {
+    final normalized = name.trim().toLowerCase();
+    final sameGroup = await (database.select(
+      database.exercises,
+    )..where((e) => e.targetMuscle.equals(targetMuscle))).get();
+    return sameGroup.any(
+      (e) => e.id != excludeId && e.name.trim().toLowerCase() == normalized,
+    );
+  }
+
+  /// Verifica che l'esercizio [id] esista e sia stato creato dall'utente:
+  /// gli esercizi della libreria predefinita non sono mai modificabili o
+  /// eliminabili. Ritorna il fallimento da restituire, oppure `null` se il
+  /// controllo passa.
+  Future<DatabaseFailure?> _requireCustomExercise(
+    int id, {
+    required String action,
+  }) async {
+    final existing = await (database.select(
+      database.exercises,
+    )..where((e) => e.id.equals(id))).getSingleOrNull();
+    if (existing == null || !existing.isCustom) {
+      return DatabaseFailure('Impossibile $action un esercizio predefinito.');
+    }
+    return null;
   }
 
   @override
@@ -116,6 +280,8 @@ class TrainingRepositoryImpl implements TrainingRepository {
               isBodyweight: exData.isBodyweight,
               isVector: exData.isVector,
               isFavorite: exData.isFavorite,
+              difficulty: exData.difficulty,
+              isCustom: exData.isCustom,
             ),
           );
         }).toList();

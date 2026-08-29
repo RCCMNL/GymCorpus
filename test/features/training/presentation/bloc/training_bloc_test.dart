@@ -150,6 +150,145 @@ void main() {
       );
     });
 
+    group('esercizi custom', () {
+      blocTest<TrainingBloc, TrainingState>(
+        'AddCustomExerciseEvent chiama il repository con i campi corretti',
+        build: () {
+          when(
+            () => mockRepository.addCustomExercise(
+              name: 'Curl con elastici corti',
+              targetMuscle: 'Bicipiti',
+              difficulty: 'Principiante',
+              equipment: 'Elastici',
+            ),
+          ).thenAnswer((_) async => const Right(999));
+          return bloc;
+        },
+        seed: () => TrainingLoaded(exercises: tExercises),
+        act: (bloc) => bloc.add(
+          const AddCustomExerciseEvent(
+            name: 'Curl con elastici corti',
+            targetMuscle: 'Bicipiti',
+            difficulty: 'Principiante',
+            equipment: 'Elastici',
+          ),
+        ),
+        verify: (_) {
+          verify(
+            () => mockRepository.addCustomExercise(
+              name: 'Curl con elastici corti',
+              targetMuscle: 'Bicipiti',
+              difficulty: 'Principiante',
+              equipment: 'Elastici',
+            ),
+          ).called(1);
+        },
+      );
+
+      blocTest<TrainingBloc, TrainingState>(
+        'AddCustomExerciseEvent fallito mostra actionError senza perdere i dati',
+        build: () {
+          when(
+            () => mockRepository.addCustomExercise(
+              name: any(named: 'name'),
+              targetMuscle: any(named: 'targetMuscle'),
+              difficulty: any(named: 'difficulty'),
+              equipment: any(named: 'equipment'),
+              focusArea: any(named: 'focusArea'),
+              preparation: any(named: 'preparation'),
+              execution: any(named: 'execution'),
+              tips: any(named: 'tips'),
+              isBodyweight: any(named: 'isBodyweight'),
+            ),
+          ).thenAnswer((_) async => const Left(DatabaseFailure('errore db')));
+          return bloc;
+        },
+        seed: () => TrainingLoaded(exercises: tExercises),
+        act: (bloc) => bloc.add(
+          const AddCustomExerciseEvent(
+            name: 'Nuovo',
+            targetMuscle: 'Petto',
+            difficulty: 'Intermedio',
+          ),
+        ),
+        expect: () => [
+          TrainingLoaded(exercises: tExercises, actionError: 'errore db'),
+        ],
+      );
+
+      blocTest<TrainingBloc, TrainingState>(
+        'UpdateCustomExerciseEvent chiama il repository con id e campi corretti',
+        build: () {
+          when(
+            () => mockRepository.updateCustomExercise(
+              id: 5,
+              name: 'Curl aggiornato',
+              targetMuscle: 'Bicipiti',
+              difficulty: 'Avanzato',
+            ),
+          ).thenAnswer((_) async => const Right(null));
+          return bloc;
+        },
+        seed: () => TrainingLoaded(exercises: tExercises),
+        act: (bloc) => bloc.add(
+          const UpdateCustomExerciseEvent(
+            id: 5,
+            name: 'Curl aggiornato',
+            targetMuscle: 'Bicipiti',
+            difficulty: 'Avanzato',
+          ),
+        ),
+        verify: (_) {
+          verify(
+            () => mockRepository.updateCustomExercise(
+              id: 5,
+              name: 'Curl aggiornato',
+              targetMuscle: 'Bicipiti',
+              difficulty: 'Avanzato',
+            ),
+          ).called(1);
+        },
+      );
+
+      blocTest<TrainingBloc, TrainingState>(
+        'DeleteCustomExerciseEvent chiama il repository con l id corretto',
+        build: () {
+          when(
+            () => mockRepository.deleteCustomExercise(5),
+          ).thenAnswer((_) async => const Right(null));
+          return bloc;
+        },
+        seed: () => TrainingLoaded(exercises: tExercises),
+        act: (bloc) => bloc.add(const DeleteCustomExerciseEvent(5)),
+        verify: (_) {
+          verify(() => mockRepository.deleteCustomExercise(5)).called(1);
+        },
+      );
+
+      blocTest<TrainingBloc, TrainingState>(
+        'DeleteCustomExerciseEvent bloccato mostra il messaggio del repository',
+        build: () {
+          when(() => mockRepository.deleteCustomExercise(5)).thenAnswer(
+            (_) async => const Left(
+              DatabaseFailure(
+                'Questo esercizio è usato in una routine o in un allenamento registrato.',
+              ),
+            ),
+          );
+          return bloc;
+        },
+        seed: () => TrainingLoaded(exercises: tExercises),
+        act: (bloc) => bloc.add(const DeleteCustomExerciseEvent(5)),
+        expect: () => [
+          TrainingLoaded(
+            exercises: tExercises,
+            actionError:
+                'Questo esercizio è usato in una routine o in un allenamento registrato.',
+          ),
+        ],
+      );
+    });
+
     blocTest<TrainingBloc, TrainingState>(
       'emette [TrainingLoaded] quando load event ha successo',
       build: () {

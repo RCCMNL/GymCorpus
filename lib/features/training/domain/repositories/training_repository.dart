@@ -16,6 +16,32 @@ abstract class TrainingRepository {
 
   Future<Either<Failure, void>> updateExerciseNotes(int id, String notes);
 
+  // Custom exercises CRUD (restricted to user-created exercises)
+  Future<Either<Failure, int>> addCustomExercise({
+    required String name,
+    required String targetMuscle,
+    required String difficulty,
+    String? equipment,
+    String? focusArea,
+    String? preparation,
+    String? execution,
+    String? tips,
+    bool isBodyweight = false,
+  });
+  Future<Either<Failure, void>> updateCustomExercise({
+    required int id,
+    required String name,
+    required String targetMuscle,
+    required String difficulty,
+    String? equipment,
+    String? focusArea,
+    String? preparation,
+    String? execution,
+    String? tips,
+    bool isBodyweight = false,
+  });
+  Future<Either<Failure, void>> deleteCustomExercise(int id);
+
   // Routines CRUD
   Stream<List<RoutineEntity>> watchRoutines();
   Future<Either<Failure, int>> addRoutine(

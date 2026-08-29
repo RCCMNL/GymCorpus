@@ -268,6 +268,92 @@ class UpdateExerciseNotesEvent extends TrainingEvent {
   List<Object?> get props => [exerciseId, notes];
 }
 
+class AddCustomExerciseEvent extends TrainingEvent {
+  const AddCustomExerciseEvent({
+    required this.name,
+    required this.targetMuscle,
+    required this.difficulty,
+    this.equipment,
+    this.focusArea,
+    this.preparation,
+    this.execution,
+    this.tips,
+    this.isBodyweight = false,
+  });
+
+  final String name;
+  final String targetMuscle;
+  final String difficulty;
+  final String? equipment;
+  final String? focusArea;
+  final String? preparation;
+  final String? execution;
+  final String? tips;
+  final bool isBodyweight;
+
+  @override
+  List<Object?> get props => [
+    name,
+    targetMuscle,
+    difficulty,
+    equipment,
+    focusArea,
+    preparation,
+    execution,
+    tips,
+    isBodyweight,
+  ];
+}
+
+class UpdateCustomExerciseEvent extends TrainingEvent {
+  const UpdateCustomExerciseEvent({
+    required this.id,
+    required this.name,
+    required this.targetMuscle,
+    required this.difficulty,
+    this.equipment,
+    this.focusArea,
+    this.preparation,
+    this.execution,
+    this.tips,
+    this.isBodyweight = false,
+  });
+
+  final int id;
+  final String name;
+  final String targetMuscle;
+  final String difficulty;
+  final String? equipment;
+  final String? focusArea;
+  final String? preparation;
+  final String? execution;
+  final String? tips;
+  final bool isBodyweight;
+
+  @override
+  List<Object?> get props => [
+    id,
+    name,
+    targetMuscle,
+    difficulty,
+    equipment,
+    focusArea,
+    preparation,
+    execution,
+    tips,
+    isBodyweight,
+  ];
+}
+
+class DeleteCustomExerciseEvent extends TrainingEvent {
+  const DeleteCustomExerciseEvent(this.id);
+
+  final int id;
+
+  @override
+  List<Object?> get props => [id];
+}
+
 // Update events (Internal, but public for visibility)
 class UpdateExercisesList extends TrainingEvent {
   const UpdateExercisesList(this.exercises);

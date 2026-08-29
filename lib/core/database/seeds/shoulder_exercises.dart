@@ -5,6 +5,7 @@ import 'package:gym_corpus/core/database/database.dart';
 const shoulderExercises = [
   ExercisesCompanion(
     name: Value('Overhead Press con bilanciere'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Spalle'),
     equipment: Value('Bilanciere, Rack (opzionale)'),
     focusArea: Value('Deltoidi (anteriori, mediali), Tricipiti, Trapezio'),
@@ -20,6 +21,7 @@ const shoulderExercises = [
   ),
   ExercisesCompanion(
     name: Value('Overhead Press con manubri'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Spalle'),
     equipment: Value('Manubri, Panca (se seduto)'),
     focusArea: Value(
@@ -37,6 +39,7 @@ const shoulderExercises = [
   ),
   ExercisesCompanion(
     name: Value('Arnold Press'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Spalle'),
     equipment: Value('Manubri, Panca (consigliata)'),
     focusArea: Value('Deltoidi (tutti i capi, focus anteriore e mediale)'),
@@ -52,6 +55,7 @@ const shoulderExercises = [
   ),
   ExercisesCompanion(
     name: Value('Alzate laterali(Manubri)'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Spalle'),
     equipment: Value('Manubri'),
     focusArea: Value('Deltoidi (mediali/laterali)'),
@@ -67,6 +71,7 @@ const shoulderExercises = [
   ),
   ExercisesCompanion(
     name: Value('Alzate laterali ai cavi'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Spalle'),
     equipment: Value('Cavo (Ercolina), Maniglia'),
     focusArea: Value('Deltoidi (mediali, tensione costante)'),
@@ -82,6 +87,7 @@ const shoulderExercises = [
   ),
   ExercisesCompanion(
     name: Value('Alzate frontali'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Spalle'),
     equipment: Value('Manubri'),
     focusArea: Value('Deltoidi (anteriori)'),
@@ -97,6 +103,7 @@ const shoulderExercises = [
   ),
   ExercisesCompanion(
     name: Value('Alzate frontali'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Spalle'),
     equipment: Value('Disco (bumper/ghisa) o Bilanciere (dritto o EZ)'),
     focusArea: Value('Deltoidi (anteriori)'),
@@ -112,6 +119,7 @@ const shoulderExercises = [
   ),
   ExercisesCompanion(
     name: Value('Alzate posteriori a 90'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Spalle'),
     equipment: Value('Manubri, Panca (opzionale)'),
     focusArea: Value('Deltoidi (posteriori), Romboidi, Trapezio (medio)'),
@@ -127,6 +135,7 @@ const shoulderExercises = [
   ),
   ExercisesCompanion(
     name: Value('Alzate posteriori ai cavi'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Spalle'),
     equipment: Value('Cavi (Ercolina)'),
     focusArea: Value('Deltoidi (posteriori), Romboidi'),
@@ -142,6 +151,7 @@ const shoulderExercises = [
   ),
   ExercisesCompanion(
     name: Value('Face Pull'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Spalle'),
     equipment: Value('Cavo (Ercolina), Corda'),
     focusArea: Value(
@@ -159,6 +169,7 @@ const shoulderExercises = [
   ),
   ExercisesCompanion(
     name: Value('Tirate al mento con bilanciere'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Spalle'),
     equipment: Value('Bilanciere'),
     focusArea: Value('Deltoidi (mediali), Trapezio'),
@@ -174,6 +185,7 @@ const shoulderExercises = [
   ),
   ExercisesCompanion(
     name: Value('Tirate al mento (Manubri)'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Spalle'),
     equipment: Value('Manubri'),
     focusArea: Value('Deltoidi (mediali), Trapezio'),
@@ -187,6 +199,7 @@ const shoulderExercises = [
   ),
   ExercisesCompanion(
     name: Value('Neck Press)'),
+    difficulty: Value('Avanzato'),
     targetMuscle: Value('Spalle'),
     equipment: Value('Bilanciere, Rack'),
     focusArea: Value('Deltoidi (mediali, anteriori), Tricipiti'),
@@ -202,6 +215,7 @@ const shoulderExercises = [
   ),
   ExercisesCompanion(
     name: Value('Push Press'),
+    difficulty: Value('Avanzato'),
     targetMuscle: Value('Spalle'),
     equipment: Value('Bilanciere, Rack'),
     focusArea: Value('Spalle (potenza), Deltoidi, Tricipiti, Gambe (spinta)'),
@@ -217,6 +231,7 @@ const shoulderExercises = [
   ),
   ExercisesCompanion(
     name: Value('Reverse Pec Deck'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Spalle'),
     equipment: Value('Macchinario (Pec Deck / Rear Delt)'),
     focusArea: Value('Deltoidi (posteriori)'),
@@ -232,6 +247,7 @@ const shoulderExercises = [
   ),
   ExercisesCompanion(
     name: Value('Landmine Press'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Spalle'),
     equipment: Value('Bilanciere, Supporto Landmine'),
     focusArea: Value(
@@ -249,6 +265,7 @@ const shoulderExercises = [
   ),
   ExercisesCompanion(
     name: Value('Pike Push-up'),
+    difficulty: Value('Avanzato'),
     targetMuscle: Value('Spalle'),
     equipment: Value('Corpo libero'),
     isBodyweight: Value(true),
@@ -265,6 +282,7 @@ const shoulderExercises = [
   ),
   ExercisesCompanion(
     name: Value('Handstand Push-up'),
+    difficulty: Value('Avanzato'),
     targetMuscle: Value('Spalle'),
     equipment: Value('Corpo libero, Muro (per supporto)'),
     isBodyweight: Value(true),
@@ -281,6 +299,7 @@ const shoulderExercises = [
   ),
   ExercisesCompanion(
     name: Value('Cuban Press'),
+    difficulty: Value('Avanzato'),
     targetMuscle: Value('Spalle'),
     equipment: Value('Manubri (molto leggeri)'),
     focusArea: Value('Cuffia dei rotatori, Deltoidi (posteriori, mediali)'),
@@ -296,6 +315,7 @@ const shoulderExercises = [
   ),
   ExercisesCompanion(
     name: Value('Scrollate con manubri'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Spalle'),
     equipment: Value('Manubri (pesanti)'),
     focusArea: Value('Trapezio (superiore)'),

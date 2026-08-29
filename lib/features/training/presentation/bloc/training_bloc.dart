@@ -398,6 +398,42 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
       result.fold((f) => _emitFailure(f.message, emit), (_) => null);
     });
 
+    on<AddCustomExerciseEvent>((event, emit) async {
+      final result = await repository.addCustomExercise(
+        name: event.name,
+        targetMuscle: event.targetMuscle,
+        difficulty: event.difficulty,
+        equipment: event.equipment,
+        focusArea: event.focusArea,
+        preparation: event.preparation,
+        execution: event.execution,
+        tips: event.tips,
+        isBodyweight: event.isBodyweight,
+      );
+      result.fold((f) => _emitFailure(f.message, emit), (_) => null);
+    });
+
+    on<UpdateCustomExerciseEvent>((event, emit) async {
+      final result = await repository.updateCustomExercise(
+        id: event.id,
+        name: event.name,
+        targetMuscle: event.targetMuscle,
+        difficulty: event.difficulty,
+        equipment: event.equipment,
+        focusArea: event.focusArea,
+        preparation: event.preparation,
+        execution: event.execution,
+        tips: event.tips,
+        isBodyweight: event.isBodyweight,
+      );
+      result.fold((f) => _emitFailure(f.message, emit), (_) => null);
+    });
+
+    on<DeleteCustomExerciseEvent>((event, emit) async {
+      final result = await repository.deleteCustomExercise(event.id);
+      result.fold((f) => _emitFailure(f.message, emit), (_) => null);
+    });
+
     on<StreamErrorEvent>((event, emit) {
       _emitFailure(event.message, emit);
     });

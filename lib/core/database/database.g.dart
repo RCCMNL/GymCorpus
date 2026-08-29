@@ -895,6 +895,32 @@ class $ExercisesTable extends Exercises
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _difficultyMeta = const VerificationMeta(
+    'difficulty',
+  );
+  @override
+  late final GeneratedColumn<String> difficulty = GeneratedColumn<String>(
+    'difficulty',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _isCustomMeta = const VerificationMeta(
+    'isCustom',
+  );
+  @override
+  late final GeneratedColumn<bool> isCustom = GeneratedColumn<bool>(
+    'is_custom',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_custom" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -911,6 +937,8 @@ class $ExercisesTable extends Exercises
     isBodyweight,
     isVector,
     isFavorite,
+    difficulty,
+    isCustom,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1021,6 +1049,18 @@ class $ExercisesTable extends Exercises
         isFavorite.isAcceptableOrUnknown(data['is_favorite']!, _isFavoriteMeta),
       );
     }
+    if (data.containsKey('difficulty')) {
+      context.handle(
+        _difficultyMeta,
+        difficulty.isAcceptableOrUnknown(data['difficulty']!, _difficultyMeta),
+      );
+    }
+    if (data.containsKey('is_custom')) {
+      context.handle(
+        _isCustomMeta,
+        isCustom.isAcceptableOrUnknown(data['is_custom']!, _isCustomMeta),
+      );
+    }
     return context;
   }
 
@@ -1086,6 +1126,14 @@ class $ExercisesTable extends Exercises
         DriftSqlType.bool,
         data['${effectivePrefix}is_favorite'],
       )!,
+      difficulty: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}difficulty'],
+      ),
+      isCustom: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_custom'],
+      )!,
     );
   }
 
@@ -1110,6 +1158,8 @@ class Exercise extends DataClass implements Insertable<Exercise> {
   final bool isBodyweight;
   final bool isVector;
   final bool isFavorite;
+  final String? difficulty;
+  final bool isCustom;
   const Exercise({
     required this.id,
     required this.name,
@@ -1125,6 +1175,8 @@ class Exercise extends DataClass implements Insertable<Exercise> {
     required this.isBodyweight,
     required this.isVector,
     required this.isFavorite,
+    this.difficulty,
+    required this.isCustom,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1159,6 +1211,10 @@ class Exercise extends DataClass implements Insertable<Exercise> {
     map['is_bodyweight'] = Variable<bool>(isBodyweight);
     map['is_vector'] = Variable<bool>(isVector);
     map['is_favorite'] = Variable<bool>(isFavorite);
+    if (!nullToAbsent || difficulty != null) {
+      map['difficulty'] = Variable<String>(difficulty);
+    }
+    map['is_custom'] = Variable<bool>(isCustom);
     return map;
   }
 
@@ -1192,6 +1248,10 @@ class Exercise extends DataClass implements Insertable<Exercise> {
       isBodyweight: Value(isBodyweight),
       isVector: Value(isVector),
       isFavorite: Value(isFavorite),
+      difficulty: difficulty == null && nullToAbsent
+          ? const Value.absent()
+          : Value(difficulty),
+      isCustom: Value(isCustom),
     );
   }
 
@@ -1217,6 +1277,8 @@ class Exercise extends DataClass implements Insertable<Exercise> {
       isBodyweight: serializer.fromJson<bool>(json['isBodyweight']),
       isVector: serializer.fromJson<bool>(json['isVector']),
       isFavorite: serializer.fromJson<bool>(json['isFavorite']),
+      difficulty: serializer.fromJson<String?>(json['difficulty']),
+      isCustom: serializer.fromJson<bool>(json['isCustom']),
     );
   }
   @override
@@ -1237,6 +1299,8 @@ class Exercise extends DataClass implements Insertable<Exercise> {
       'isBodyweight': serializer.toJson<bool>(isBodyweight),
       'isVector': serializer.toJson<bool>(isVector),
       'isFavorite': serializer.toJson<bool>(isFavorite),
+      'difficulty': serializer.toJson<String?>(difficulty),
+      'isCustom': serializer.toJson<bool>(isCustom),
     };
   }
 
@@ -1255,6 +1319,8 @@ class Exercise extends DataClass implements Insertable<Exercise> {
     bool? isBodyweight,
     bool? isVector,
     bool? isFavorite,
+    Value<String?> difficulty = const Value.absent(),
+    bool? isCustom,
   }) => Exercise(
     id: id ?? this.id,
     name: name ?? this.name,
@@ -1272,6 +1338,8 @@ class Exercise extends DataClass implements Insertable<Exercise> {
     isBodyweight: isBodyweight ?? this.isBodyweight,
     isVector: isVector ?? this.isVector,
     isFavorite: isFavorite ?? this.isFavorite,
+    difficulty: difficulty.present ? difficulty.value : this.difficulty,
+    isCustom: isCustom ?? this.isCustom,
   );
   Exercise copyWithCompanion(ExercisesCompanion data) {
     return Exercise(
@@ -1299,6 +1367,10 @@ class Exercise extends DataClass implements Insertable<Exercise> {
       isFavorite: data.isFavorite.present
           ? data.isFavorite.value
           : this.isFavorite,
+      difficulty: data.difficulty.present
+          ? data.difficulty.value
+          : this.difficulty,
+      isCustom: data.isCustom.present ? data.isCustom.value : this.isCustom,
     );
   }
 
@@ -1318,7 +1390,9 @@ class Exercise extends DataClass implements Insertable<Exercise> {
           ..write('userNotes: $userNotes, ')
           ..write('isBodyweight: $isBodyweight, ')
           ..write('isVector: $isVector, ')
-          ..write('isFavorite: $isFavorite')
+          ..write('isFavorite: $isFavorite, ')
+          ..write('difficulty: $difficulty, ')
+          ..write('isCustom: $isCustom')
           ..write(')'))
         .toString();
   }
@@ -1339,6 +1413,8 @@ class Exercise extends DataClass implements Insertable<Exercise> {
     isBodyweight,
     isVector,
     isFavorite,
+    difficulty,
+    isCustom,
   );
   @override
   bool operator ==(Object other) =>
@@ -1357,7 +1433,9 @@ class Exercise extends DataClass implements Insertable<Exercise> {
           other.userNotes == this.userNotes &&
           other.isBodyweight == this.isBodyweight &&
           other.isVector == this.isVector &&
-          other.isFavorite == this.isFavorite);
+          other.isFavorite == this.isFavorite &&
+          other.difficulty == this.difficulty &&
+          other.isCustom == this.isCustom);
 }
 
 class ExercisesCompanion extends UpdateCompanion<Exercise> {
@@ -1375,6 +1453,8 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
   final Value<bool> isBodyweight;
   final Value<bool> isVector;
   final Value<bool> isFavorite;
+  final Value<String?> difficulty;
+  final Value<bool> isCustom;
   const ExercisesCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
@@ -1390,6 +1470,8 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
     this.isBodyweight = const Value.absent(),
     this.isVector = const Value.absent(),
     this.isFavorite = const Value.absent(),
+    this.difficulty = const Value.absent(),
+    this.isCustom = const Value.absent(),
   });
   ExercisesCompanion.insert({
     this.id = const Value.absent(),
@@ -1406,6 +1488,8 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
     this.isBodyweight = const Value.absent(),
     this.isVector = const Value.absent(),
     this.isFavorite = const Value.absent(),
+    this.difficulty = const Value.absent(),
+    this.isCustom = const Value.absent(),
   }) : name = Value(name),
        targetMuscle = Value(targetMuscle);
   static Insertable<Exercise> custom({
@@ -1423,6 +1507,8 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
     Expression<bool>? isBodyweight,
     Expression<bool>? isVector,
     Expression<bool>? isFavorite,
+    Expression<String>? difficulty,
+    Expression<bool>? isCustom,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1439,6 +1525,8 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
       if (isBodyweight != null) 'is_bodyweight': isBodyweight,
       if (isVector != null) 'is_vector': isVector,
       if (isFavorite != null) 'is_favorite': isFavorite,
+      if (difficulty != null) 'difficulty': difficulty,
+      if (isCustom != null) 'is_custom': isCustom,
     });
   }
 
@@ -1457,6 +1545,8 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
     Value<bool>? isBodyweight,
     Value<bool>? isVector,
     Value<bool>? isFavorite,
+    Value<String?>? difficulty,
+    Value<bool>? isCustom,
   }) {
     return ExercisesCompanion(
       id: id ?? this.id,
@@ -1473,6 +1563,8 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
       isBodyweight: isBodyweight ?? this.isBodyweight,
       isVector: isVector ?? this.isVector,
       isFavorite: isFavorite ?? this.isFavorite,
+      difficulty: difficulty ?? this.difficulty,
+      isCustom: isCustom ?? this.isCustom,
     );
   }
 
@@ -1521,6 +1613,12 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
     if (isFavorite.present) {
       map['is_favorite'] = Variable<bool>(isFavorite.value);
     }
+    if (difficulty.present) {
+      map['difficulty'] = Variable<String>(difficulty.value);
+    }
+    if (isCustom.present) {
+      map['is_custom'] = Variable<bool>(isCustom.value);
+    }
     return map;
   }
 
@@ -1540,7 +1638,9 @@ class ExercisesCompanion extends UpdateCompanion<Exercise> {
           ..write('userNotes: $userNotes, ')
           ..write('isBodyweight: $isBodyweight, ')
           ..write('isVector: $isVector, ')
-          ..write('isFavorite: $isFavorite')
+          ..write('isFavorite: $isFavorite, ')
+          ..write('difficulty: $difficulty, ')
+          ..write('isCustom: $isCustom')
           ..write(')'))
         .toString();
   }
@@ -5074,6 +5174,8 @@ typedef $$ExercisesTableCreateCompanionBuilder =
       Value<bool> isBodyweight,
       Value<bool> isVector,
       Value<bool> isFavorite,
+      Value<String?> difficulty,
+      Value<bool> isCustom,
     });
 typedef $$ExercisesTableUpdateCompanionBuilder =
     ExercisesCompanion Function({
@@ -5091,6 +5193,8 @@ typedef $$ExercisesTableUpdateCompanionBuilder =
       Value<bool> isBodyweight,
       Value<bool> isVector,
       Value<bool> isFavorite,
+      Value<String?> difficulty,
+      Value<bool> isCustom,
     });
 
 final class $$ExercisesTableReferences
@@ -5215,6 +5319,16 @@ class $$ExercisesTableFilterComposer
 
   ColumnFilters<bool> get isFavorite => $composableBuilder(
     column: $table.isFavorite,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get difficulty => $composableBuilder(
+    column: $table.difficulty,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isCustom => $composableBuilder(
+    column: $table.isCustom,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -5347,6 +5461,16 @@ class $$ExercisesTableOrderingComposer
     column: $table.isFavorite,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get difficulty => $composableBuilder(
+    column: $table.difficulty,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isCustom => $composableBuilder(
+    column: $table.isCustom,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$ExercisesTableAnnotationComposer
@@ -5409,6 +5533,14 @@ class $$ExercisesTableAnnotationComposer
     column: $table.isFavorite,
     builder: (column) => column,
   );
+
+  GeneratedColumn<String> get difficulty => $composableBuilder(
+    column: $table.difficulty,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get isCustom =>
+      $composableBuilder(column: $table.isCustom, builder: (column) => column);
 
   Expression<T> workoutSetsRefs<T extends Object>(
     Expression<T> Function($$WorkoutSetsTableAnnotationComposer a) f,
@@ -5506,6 +5638,8 @@ class $$ExercisesTableTableManager
                 Value<bool> isBodyweight = const Value.absent(),
                 Value<bool> isVector = const Value.absent(),
                 Value<bool> isFavorite = const Value.absent(),
+                Value<String?> difficulty = const Value.absent(),
+                Value<bool> isCustom = const Value.absent(),
               }) => ExercisesCompanion(
                 id: id,
                 name: name,
@@ -5521,6 +5655,8 @@ class $$ExercisesTableTableManager
                 isBodyweight: isBodyweight,
                 isVector: isVector,
                 isFavorite: isFavorite,
+                difficulty: difficulty,
+                isCustom: isCustom,
               ),
           createCompanionCallback:
               ({
@@ -5538,6 +5674,8 @@ class $$ExercisesTableTableManager
                 Value<bool> isBodyweight = const Value.absent(),
                 Value<bool> isVector = const Value.absent(),
                 Value<bool> isFavorite = const Value.absent(),
+                Value<String?> difficulty = const Value.absent(),
+                Value<bool> isCustom = const Value.absent(),
               }) => ExercisesCompanion.insert(
                 id: id,
                 name: name,
@@ -5553,6 +5691,8 @@ class $$ExercisesTableTableManager
                 isBodyweight: isBodyweight,
                 isVector: isVector,
                 isFavorite: isFavorite,
+                difficulty: difficulty,
+                isCustom: isCustom,
               ),
           withReferenceMapper: (p0) => p0
               .map(

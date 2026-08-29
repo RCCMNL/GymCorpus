@@ -5,6 +5,7 @@ import 'package:gym_corpus/core/database/database.dart';
 const calfExercises = [
   ExercisesCompanion(
     name: Value('Calf Raises in piedi (Alla macchina)'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Polpacci'),
     equipment: Value('Macchina (Standing Calf Raise)'),
     focusArea: Value('Gastrocnemio (gemelli)'),
@@ -20,6 +21,7 @@ const calfExercises = [
   ),
   ExercisesCompanion(
     name: Value('Calf Raises in piedi (Con bilanciere)'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Polpacci'),
     equipment: Value('Bilanciere, Rialzo (step o disco robusto)'),
     focusArea: Value('Gastrocnemio, Stabilizzatori (Core, Caviglie)'),
@@ -35,6 +37,7 @@ const calfExercises = [
   ),
   ExercisesCompanion(
     name: Value('Calf Raises in piedi (Smith Machine)'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Polpacci'),
     equipment: Value('Smith Machine (Multipower), Rialzo'),
     focusArea: Value('Gastrocnemio'),
@@ -50,6 +53,7 @@ const calfExercises = [
   ),
   ExercisesCompanion(
     name: Value('Calf Raises in piedi (Manubrio)'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Polpacci'),
     equipment: Value('Manubrio, Rialzo, Supporto (per equilibrio)'),
     focusArea: Value('Gastrocnemio (lavoro unilaterale)'),
@@ -65,6 +69,7 @@ const calfExercises = [
   ),
   ExercisesCompanion(
     name: Value('Calf Raises seduto (Macchina)'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Polpacci'),
     equipment: Value('Macchina (Seated Calf Raise)'),
     focusArea: Value('Soleo'),
@@ -80,6 +85,7 @@ const calfExercises = [
   ),
   ExercisesCompanion(
     name: Value('Calf Raises alla Pressa 45°'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Polpacci'),
     equipment: Value('Leg Press (Pressa a 45°)'),
     focusArea: Value('Gastrocnemio, Soleo'),
@@ -95,6 +101,7 @@ const calfExercises = [
   ),
   ExercisesCompanion(
     name: Value('Calf Raises su scalino, 2 gambe)'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Polpacci'),
     equipment: Value('Scalino (o rialzo), Corpo libero'),
     isBodyweight: Value(true),
@@ -111,6 +118,7 @@ const calfExercises = [
   ),
   ExercisesCompanion(
     name: Value('Calf Raises su scalino, 1 gamba)'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Polpacci'),
     equipment: Value('Scalino (o rialzo), Corpo libero'),
     isBodyweight: Value(true),
@@ -127,6 +135,7 @@ const calfExercises = [
   ),
   ExercisesCompanion(
     name: Value('Salti su box pliometrici'),
+    difficulty: Value('Avanzato'),
     targetMuscle: Value('Polpacci'),
     equipment: Value('Box pliometrico (Plywood box)'),
     focusArea: Value('Polpacci (potenza esplosiva), Quadricipiti, Glutei'),

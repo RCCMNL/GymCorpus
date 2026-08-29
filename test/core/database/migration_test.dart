@@ -80,6 +80,68 @@ void main() {
   );
 
   test(
+    'la riapertura ripristina la difficolta mancante per nome, senza toccare gli esercizi custom',
+    () async {
+      // 1. Primo avvio: seeding iniziale, ogni esercizio predefinito ha una
+      //    difficolta assegnata.
+      final firstRun = AppDatabase(NativeDatabase(dbFile));
+      final crunch = await (firstRun.select(
+        firstRun.exercises,
+      )..where((e) => e.name.equals('Crunch'))).getSingle();
+      expect(crunch.difficulty, 'Principiante');
+
+      // Esercizio custom dell'utente, con lo stesso nome di uno predefinito
+      // (caso limite): la difficolta e' lasciata volutamente nulla per
+      // verificare che il backfill non la sovrascriva per errore.
+      await firstRun
+          .into(firstRun.exercises)
+          .insert(
+            ExercisesCompanion.insert(
+              name: 'Crunch',
+              targetMuscle: 'Addominali',
+              isCustom: const Value(true),
+            ),
+          );
+
+      // 2. Simula un'installazione precedente a questa funzionalita: la
+      //    colonna esiste ma i valori non sono mai stati popolati.
+      await firstRun.customStatement('UPDATE exercises SET difficulty = NULL');
+      final wiped =
+          await (firstRun.select(firstRun.exercises)..where(
+                (e) => e.name.equals('Crunch') & e.isCustom.equals(false),
+              ))
+              .getSingle();
+      expect(wiped.difficulty, null);
+      await firstRun.close();
+
+      // 3. Riapertura: il backfill deve ripristinare la difficolta sugli
+      //    esercizi predefiniti cercandoli per nome nei dati seed...
+      final secondRun = AppDatabase(NativeDatabase(dbFile));
+      addTearDown(secondRun.close);
+
+      final restored =
+          await (secondRun.select(secondRun.exercises)..where(
+                (e) => e.name.equals('Crunch') & e.isCustom.equals(false),
+              ))
+              .getSingle();
+      expect(restored.difficulty, 'Principiante');
+
+      final noMissing = await (secondRun.select(
+        secondRun.exercises,
+      )..where((e) => e.isCustom.equals(false))).get();
+      expect(noMissing.any((e) => e.difficulty == null), isFalse);
+
+      // ...ma non deve mai toccare un esercizio custom, anche se omonimo.
+      final customExercise =
+          await (secondRun.select(secondRun.exercises)..where(
+                (e) => e.name.equals('Crunch') & e.isCustom.equals(true),
+              ))
+              .getSingle();
+      expect(customExercise.difficulty, null);
+    },
+  );
+
+  test(
     'ogni colonna dello schema corrente sopravvive a una riapertura',
     () async {
       final firstRun = AppDatabase(NativeDatabase(dbFile));

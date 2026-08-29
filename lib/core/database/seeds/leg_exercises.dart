@@ -5,6 +5,7 @@ import 'package:gym_corpus/core/database/database.dart';
 const legExercises = [
   ExercisesCompanion(
     name: Value('Back Squat'),
+    difficulty: Value('Avanzato'),
     targetMuscle: Value('Gambe'),
     equipment: Value('Bilanciere, Rack (Squat rack), Pesi'),
     focusArea: Value('Quadricipiti, Glutei, Ischiocrurali, Core'),
@@ -20,6 +21,7 @@ const legExercises = [
   ),
   ExercisesCompanion(
     name: Value('Front Squat'),
+    difficulty: Value('Avanzato'),
     targetMuscle: Value('Gambe'),
     equipment: Value('Bilanciere, Rack, Pesi'),
     focusArea: Value(
@@ -37,6 +39,7 @@ const legExercises = [
   ),
   ExercisesCompanion(
     name: Value('Stacco da terra (Deadlift)'),
+    difficulty: Value('Avanzato'),
     targetMuscle: Value('Gambe'),
     equipment: Value('Bilanciere, Pesi'),
     focusArea: Value(
@@ -54,6 +57,7 @@ const legExercises = [
   ),
   ExercisesCompanion(
     name: Value('Stacco da terra (Sumo)'),
+    difficulty: Value('Avanzato'),
     targetMuscle: Value('Gambe'),
     equipment: Value('Bilanciere, Pesi'),
     focusArea: Value('Glutei, Ischiocrurali, Quadricipiti, Adduttori'),
@@ -69,6 +73,7 @@ const legExercises = [
   ),
   ExercisesCompanion(
     name: Value('Stacco Romeno'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Gambe'),
     equipment: Value('Bilanciere o Manubri'),
     focusArea: Value('Ischiocrurali (focus primario), Glutei'),
@@ -84,6 +89,7 @@ const legExercises = [
   ),
   ExercisesCompanion(
     name: Value('Leg Press (Pressa a 45°)'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Gambe'),
     equipment: Value('Macchinario (Leg Press)'),
     focusArea: Value(
@@ -101,6 +107,7 @@ const legExercises = [
   ),
   ExercisesCompanion(
     name: Value('Affondi con manubri'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Gambe'),
     equipment: Value('Manubri'),
     focusArea: Value('Quadricipiti, Glutei (lavoro unilaterale)'),
@@ -114,6 +121,7 @@ const legExercises = [
   ),
   ExercisesCompanion(
     name: Value('Affondi con bilanciere'),
+    difficulty: Value('Avanzato'),
     targetMuscle: Value('Gambe'),
     equipment: Value('Bilanciere, Rack'),
     focusArea: Value(
@@ -131,6 +139,7 @@ const legExercises = [
   ),
   ExercisesCompanion(
     name: Value('Affondi Bulgari'),
+    difficulty: Value('Avanzato'),
     targetMuscle: Value('Gambe'),
     equipment: Value('Manubri (o Bilanciere), Panca (o rialzo)'),
     focusArea: Value('Glutei (focus primario), Quadricipiti'),
@@ -146,6 +155,7 @@ const legExercises = [
   ),
   ExercisesCompanion(
     name: Value('Leg Extension'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Gambe'),
     equipment: Value('Macchinario (Leg Extension)'),
     focusArea: Value('Quadricipiti (isolamento puro)'),
@@ -161,6 +171,7 @@ const legExercises = [
   ),
   ExercisesCompanion(
     name: Value('Leg Curl (sdraiato)'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Gambe'),
     equipment: Value('Macchinario (Lying Leg Curl)'),
     focusArea: Value('Ischiocrurali (isolamento)'),
@@ -176,6 +187,7 @@ const legExercises = [
   ),
   ExercisesCompanion(
     name: Value('Leg Curl (seduto)'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Gambe'),
     equipment: Value('Macchinario (Seated Leg Curl)'),
     focusArea: Value("Ischiocrurali (isolamento, focus sull'allungamento)"),
@@ -191,6 +203,7 @@ const legExercises = [
   ),
   ExercisesCompanion(
     name: Value('Goblet Squat'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Gambe'),
     equipment: Value('Manubrio (o Kettlebell)'),
     focusArea: Value('Quadricipiti, Glutei, Core'),
@@ -206,6 +219,7 @@ const legExercises = [
   ),
   ExercisesCompanion(
     name: Value('Hip Thrust (Bilanciere)'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Gambe'),
     equipment: Value('Panca piana, Bilanciere, Pesi, (Pad per bilanciere)'),
     focusArea: Value('Glutei (focus primario), Ischiocrurali'),
@@ -221,6 +235,7 @@ const legExercises = [
   ),
   ExercisesCompanion(
     name: Value('Good Morning (Bilanciere)'),
+    difficulty: Value('Avanzato'),
     targetMuscle: Value('Gambe'),
     equipment: Value('Bilanciere, Rack'),
     focusArea: Value('Ischiocrurali, Glutei, Erettori spinali'),
@@ -236,6 +251,7 @@ const legExercises = [
   ),
   ExercisesCompanion(
     name: Value('Hack Squat (Macchinario)'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Gambe'),
     equipment: Value('Macchinario (Hack Squat)'),
     focusArea: Value('Quadricipiti (focus intenso)'),
@@ -251,6 +267,7 @@ const legExercises = [
   ),
   ExercisesCompanion(
     name: Value('Sissy Squat'),
+    difficulty: Value('Avanzato'),
     targetMuscle: Value('Gambe'),
     equipment: Value('Corpo libero (con supporto) o Macchina specifica'),
     isBodyweight: Value(true),
@@ -267,6 +284,7 @@ const legExercises = [
   ),
   ExercisesCompanion(
     name: Value('Step-Up (Manubri)'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Gambe'),
     equipment: Value('Panca (o Box pliometrico), Manubri'),
     focusArea: Value('Quadricipiti, Glutei (lavoro unilaterale)'),
@@ -282,6 +300,7 @@ const legExercises = [
   ),
   ExercisesCompanion(
     name: Value('Stacco a gambe tese'),
+    difficulty: Value('Avanzato'),
     targetMuscle: Value('Gambe'),
     equipment: Value('Bilanciere (o Manubri)'),
     focusArea: Value("Ischiocrurali (focus sull'allungamento), Glutei"),
@@ -297,6 +316,7 @@ const legExercises = [
   ),
   ExercisesCompanion(
     name: Value('Glute Ham Raise'),
+    difficulty: Value('Avanzato'),
     targetMuscle: Value('Gambe'),
     equipment: Value('Macchinario GHR (o panca apposita)'),
     focusArea: Value('Ischiocrurali (entrambe le funzioni), Glutei, Polpacci'),

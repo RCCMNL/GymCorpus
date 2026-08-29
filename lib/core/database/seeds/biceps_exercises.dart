@@ -5,6 +5,7 @@ import 'package:gym_corpus/core/database/database.dart';
 const bicepsExercises = [
   ExercisesCompanion(
     name: Value('Curl con bilanciere'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Bicipiti'),
     equipment: Value('Bilanciere (dritto o EZ)'),
     focusArea: Value('Bicipite brachiale (entrambi i capi), Brachiale'),
@@ -20,6 +21,7 @@ const bicepsExercises = [
   ),
   ExercisesCompanion(
     name: Value('Curl con manubri (In piedi, alternato)'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Bicipiti'),
     equipment: Value('Manubri'),
     focusArea: Value('Bicipite brachiale (enfasi supinazione), Brachiale'),
@@ -35,6 +37,7 @@ const bicepsExercises = [
   ),
   ExercisesCompanion(
     name: Value('Curl con manubri (Seduto, simultaneo)'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Bicipiti'),
     equipment: Value('Manubri, Panca'),
     focusArea: Value('Bicipite brachiale'),
@@ -50,6 +53,7 @@ const bicepsExercises = [
   ),
   ExercisesCompanion(
     name: Value('Curl su Panca Scott'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Bicipiti'),
     equipment: Value('Panca Scott (Preacher bench), Bilanciere EZ'),
     focusArea: Value('Bicipite brachiale (focus capo corto, isolamento)'),
@@ -65,6 +69,7 @@ const bicepsExercises = [
   ),
   ExercisesCompanion(
     name: Value('Curl su Panca Scott'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Bicipiti'),
     equipment: Value('Panca Scott, Manubrio'),
     focusArea: Value('Bicipite brachiale (isolamento unilaterale)'),
@@ -78,6 +83,7 @@ const bicepsExercises = [
   ),
   ExercisesCompanion(
     name: Value('Curl Hammer'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Bicipiti'),
     equipment: Value('Manubri'),
     focusArea: Value('Brachioradiale (avambraccio), Brachiale, Bicipite'),
@@ -93,6 +99,7 @@ const bicepsExercises = [
   ),
   ExercisesCompanion(
     name: Value('Curl Hammer'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Bicipiti'),
     equipment: Value('Cavo (Ercolina), Corda'),
     focusArea: Value('Brachioradiale, Brachiale (tensione costante)'),
@@ -106,6 +113,7 @@ const bicepsExercises = [
   ),
   ExercisesCompanion(
     name: Value('Curl di concentrazione'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Bicipiti'),
     equipment: Value('Manubrio, Panca'),
     focusArea: Value('Bicipite brachiale (focus contrazione di picco)'),
@@ -121,6 +129,7 @@ const bicepsExercises = [
   ),
   ExercisesCompanion(
     name: Value('Curl su panca inclinata'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Bicipiti'),
     equipment: Value('Manubri, Panca inclinata (45-60°)'),
     focusArea: Value('Bicipite brachiale (focus capo lungo, allungamento)'),
@@ -136,14 +145,13 @@ const bicepsExercises = [
   ),
   ExercisesCompanion(
     name: Value('Zottman Curl'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Bicipiti'),
     equipment: Value('Manubri'),
     focusArea: Value(
       'Bicipite (fase concentrica), Avambracci (fase eccentrica)',
     ),
-    preparation: Value(
-      'In piedi o seduto. Parti con presa supina (palmi su).',
-    ),
+    preparation: Value('In piedi o seduto. Parti con presa supina (palmi su).'),
     execution: Value(
       'Esegui un normale curl (fase concentrica). In cima, ruota i polsi in presa prona (palmi giù). Scendi lentamente (fase eccentrica) in presa prona. Ruota di nuovo in supinazione in basso.',
     ),
@@ -153,6 +161,7 @@ const bicepsExercises = [
   ),
   ExercisesCompanion(
     name: Value('Curl ai cavi bassi'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Bicipiti'),
     equipment: Value('Cavo (Ercolina), Barra (dritto o EZ)'),
     focusArea: Value('Bicipite brachiale (tensione costante)'),
@@ -168,6 +177,7 @@ const bicepsExercises = [
   ),
   ExercisesCompanion(
     name: Value('Curl ai cavi alti'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Bicipiti'),
     equipment: Value('Cavi (Ercolina, stazione doppia), Maniglie'),
     focusArea: Value('Bicipite brachiale (contrazione di picco)'),
@@ -181,6 +191,7 @@ const bicepsExercises = [
   ),
   ExercisesCompanion(
     name: Value('Reverse Curl con bilanciere'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Bicipiti'),
     equipment: Value('Bilanciere (dritto o EZ)'),
     focusArea: Value('Avambracci (Brachioradiale, Estensori polso), Brachiale'),
@@ -196,6 +207,7 @@ const bicepsExercises = [
   ),
   ExercisesCompanion(
     name: Value('Spider Curl'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Bicipiti'),
     equipment: Value('Panca inclinata (30-45°), Manubri (o Bilanciere EZ)'),
     focusArea: Value('Bicipite brachiale (focus capo corto)'),
@@ -211,6 +223,7 @@ const bicepsExercises = [
   ),
   ExercisesCompanion(
     name: Value('Drag Curl con bilanciere'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Bicipiti'),
     equipment: Value('Bilanciere'),
     focusArea: Value('Bicipite brachiale'),
@@ -224,6 +237,7 @@ const bicepsExercises = [
   ),
   ExercisesCompanion(
     name: Value('Chin-up'),
+    difficulty: Value('Avanzato'),
     targetMuscle: Value('Bicipiti'),
     equipment: Value('Sbarra per trazioni'),
     focusArea: Value('Dorsali, Bicipite brachiale, Romboidi'),
@@ -239,6 +253,7 @@ const bicepsExercises = [
   ),
   ExercisesCompanion(
     name: Value('Preacher Curl (Macchina)'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Bicipiti'),
     equipment: Value('Macchinario (Preacher Curl Machine)'),
     focusArea: Value('Bicipite brachiale (isolamento)'),
@@ -254,6 +269,7 @@ const bicepsExercises = [
   ),
   ExercisesCompanion(
     name: Value('Curl con elastici'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Bicipiti'),
     equipment: Value('Elastici (Resistance bands)'),
     focusArea: Value('Bicipite brachiale (resistenza progressiva)'),
@@ -267,6 +283,7 @@ const bicepsExercises = [
   ),
   ExercisesCompanion(
     name: Value('Waiter Curl'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Bicipiti'),
     equipment: Value('Manubrio (singolo)'),
     focusArea: Value('Bicipite (Brachiale, Capo lungo)'),

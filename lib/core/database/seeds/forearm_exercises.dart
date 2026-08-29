@@ -5,6 +5,7 @@ import 'package:gym_corpus/core/database/database.dart';
 const forearmExercises = [
   ExercisesCompanion(
     name: Value('Wrist Curls con manubrio'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Avambracci'),
     equipment: Value('Manubrio, Panca (o coscia)'),
     focusArea: Value("Flessori dell'avambraccio"),
@@ -18,6 +19,7 @@ const forearmExercises = [
   ),
   ExercisesCompanion(
     name: Value('Wrist Curls con bilanciere'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Avambracci'),
     equipment: Value('Bilanciere (dritto o EZ), Panca'),
     focusArea: Value("Flessori dell'avambraccio"),
@@ -33,6 +35,7 @@ const forearmExercises = [
   ),
   ExercisesCompanion(
     name: Value('Reverse Wrist Curls'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Avambracci'),
     equipment: Value('Manubrio o Bilanciere, Panca'),
     focusArea: Value("Estensori dell'avambraccio (parte superiore)"),
@@ -48,6 +51,7 @@ const forearmExercises = [
   ),
   ExercisesCompanion(
     name: Value('Curl Hammer'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Avambracci'),
     equipment: Value('Manubri'),
     focusArea: Value('Brachioradiale (avambraccio), Brachiale, Bicipite'),
@@ -63,6 +67,7 @@ const forearmExercises = [
   ),
   ExercisesCompanion(
     name: Value('Reverse Barbell Curl'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Avambracci'),
     equipment: Value('Bilanciere (dritto o EZ)'),
     focusArea: Value('Brachioradiale, Estensori del polso, Brachiale'),
@@ -78,6 +83,7 @@ const forearmExercises = [
   ),
   ExercisesCompanion(
     name: Value("Farmer's Walk"),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Avambracci'),
     equipment: Value("Manubri pesanti, Kettlebell, o Farmer's Walk handles"),
     focusArea: Value(
@@ -95,6 +101,7 @@ const forearmExercises = [
   ),
   ExercisesCompanion(
     name: Value('Hand Grippers'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Avambracci'),
     equipment: Value('Hand Grippers (pinze a molla)'),
     focusArea: Value('Forza della presa (schiacciamento, crushing grip)'),
@@ -110,6 +117,7 @@ const forearmExercises = [
   ),
   ExercisesCompanion(
     name: Value('Plate Pinch'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Avambracci'),
     equipment: Value('Dischi (preferibilmente lisci)'),
     focusArea: Value('Forza della presa (dita, pinza, pinch grip)'),
@@ -125,6 +133,7 @@ const forearmExercises = [
   ),
   ExercisesCompanion(
     name: Value('Sospensioni alla sbarra (Dead Hang)'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Avambracci'),
     equipment: Value('Sbarra per trazioni'),
     focusArea: Value('Resistenza della presa, Decompressione spinale'),
@@ -140,6 +149,7 @@ const forearmExercises = [
   ),
   ExercisesCompanion(
     name: Value('Avvolgimento del polso (Wrist Roller)'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Avambracci'),
     equipment: Value('Wrist roller (rullo per polsi) e peso'),
     focusArea: Value('Flessori ed Estensori (resistenza, ipertrofia)'),

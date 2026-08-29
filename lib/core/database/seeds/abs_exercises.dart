@@ -5,6 +5,7 @@ import 'package:gym_corpus/core/database/database.dart';
 const absExercises = [
   ExercisesCompanion(
     name: Value('Crunch'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Addominali'),
     equipment: Value('Corpo libero, Tappetino'),
     isBodyweight: Value(true),
@@ -21,6 +22,7 @@ const absExercises = [
   ),
   ExercisesCompanion(
     name: Value('Crunch inverso'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Addominali'),
     equipment: Value('Corpo libero, Tappetino'),
     isBodyweight: Value(true),
@@ -37,6 +39,7 @@ const absExercises = [
   ),
   ExercisesCompanion(
     name: Value('Plank'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Addominali'),
     equipment: Value('Corpo libero, Tappetino'),
     isBodyweight: Value(true),
@@ -53,6 +56,7 @@ const absExercises = [
   ),
   ExercisesCompanion(
     name: Value('Side Plank'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Addominali'),
     equipment: Value('Corpo libero, Tappetino'),
     isBodyweight: Value(true),
@@ -69,6 +73,7 @@ const absExercises = [
   ),
   ExercisesCompanion(
     name: Value('Sollevamento gambe'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Addominali'),
     equipment: Value("Sbarra per trazioni (o apposita 'Captain's Chair')"),
     focusArea: Value("Retto dell'addome (parte bassa), Flessori dell'anca"),
@@ -82,6 +87,7 @@ const absExercises = [
   ),
   ExercisesCompanion(
     name: Value('Sollevamento ginocchia'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Addominali'),
     equipment: Value("Sbarra per trazioni (o 'Captain's Chair')"),
     focusArea: Value("Retto dell'addome (parte bassa), Flessori dell'anca"),
@@ -93,6 +99,7 @@ const absExercises = [
   ),
   ExercisesCompanion(
     name: Value('Sollevamento gambe a terra'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Addominali'),
     equipment: Value('Corpo libero, Tappetino'),
     isBodyweight: Value(true),
@@ -109,6 +116,7 @@ const absExercises = [
   ),
   ExercisesCompanion(
     name: Value('Russian Twist'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Addominali'),
     equipment: Value('Disco, Manubrio, Kettlebell (opzionale)'),
     focusArea: Value("Obliqui, Retto dell'addome (rotazione)"),
@@ -124,6 +132,7 @@ const absExercises = [
   ),
   ExercisesCompanion(
     name: Value('Bicycle Crunch'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Addominali'),
     equipment: Value('Corpo libero, Tappetino'),
     isBodyweight: Value(true),
@@ -140,6 +149,7 @@ const absExercises = [
   ),
   ExercisesCompanion(
     name: Value('Crunch ai cavi in ginocchio'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Addominali'),
     equipment: Value('Cavo (Ercolina), Corda'),
     focusArea: Value("Retto dell'addome (con sovraccarico)"),
@@ -155,6 +165,7 @@ const absExercises = [
   ),
   ExercisesCompanion(
     name: Value('Ab Rollout'),
+    difficulty: Value('Avanzato'),
     targetMuscle: Value('Addominali'),
     equipment: Value('Ruota addominale (Ab Wheel)'),
     focusArea: Value("Core (anti-estensione), Retto dell'addome, Dorsali"),
@@ -168,6 +179,7 @@ const absExercises = [
   ),
   ExercisesCompanion(
     name: Value('Toes to Bar'),
+    difficulty: Value('Avanzato'),
     targetMuscle: Value('Addominali'),
     equipment: Value('Sbarra per trazioni'),
     focusArea: Value("Retto dell'addome, Flessori anca (avanzato)"),
@@ -181,6 +193,7 @@ const absExercises = [
   ),
   ExercisesCompanion(
     name: Value('V-Ups'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Addominali'),
     equipment: Value('Corpo libero, Tappetino'),
     isBodyweight: Value(true),
@@ -195,6 +208,7 @@ const absExercises = [
   ),
   ExercisesCompanion(
     name: Value('Hollow Body Hold'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Addominali'),
     equipment: Value('Corpo libero, Tappetino'),
     isBodyweight: Value(true),
@@ -211,6 +225,7 @@ const absExercises = [
   ),
   ExercisesCompanion(
     name: Value('Woodchopper ai cavi'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Addominali'),
     equipment: Value('Cavo (Ercolina), Maniglia o Corda'),
     focusArea: Value('Obliqui, Core (potenza rotazionale)'),
@@ -226,6 +241,7 @@ const absExercises = [
   ),
   ExercisesCompanion(
     name: Value('Pall of Press ai cavi'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Addominali'),
     equipment: Value('Cavo (Ercolina), Maniglia'),
     focusArea: Value('Obliqui, Core (anti-rotazione)'),
@@ -241,6 +257,7 @@ const absExercises = [
   ),
   ExercisesCompanion(
     name: Value('Sit-up'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Addominali'),
     equipment: Value('Corpo libero, Tappetino (o panca GHD)'),
     isBodyweight: Value(true),
@@ -257,6 +274,7 @@ const absExercises = [
   ),
   ExercisesCompanion(
     name: Value('Dragon Flag'),
+    difficulty: Value('Avanzato'),
     targetMuscle: Value('Addominali'),
     equipment: Value('Panca (o supporto stabile)'),
     focusArea: Value("Core (eccentrica), Retto dell'addome (avanzatissimo)"),
@@ -272,6 +290,7 @@ const absExercises = [
   ),
   ExercisesCompanion(
     name: Value('Flessioni laterali con manubrio'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Addominali'),
     equipment: Value('Manubrio (o Kettlebell)'),
     focusArea: Value('Obliqui, Quadrato dei lombi'),
@@ -287,6 +306,7 @@ const absExercises = [
   ),
   ExercisesCompanion(
     name: Value('Mountain Climbers'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Addominali'),
     equipment: Value('Corpo libero, Tappetino'),
     isBodyweight: Value(true),

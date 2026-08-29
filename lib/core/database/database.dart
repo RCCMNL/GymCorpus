@@ -28,6 +28,8 @@ class Exercises extends Table {
   BoolColumn get isBodyweight => boolean().withDefault(const Constant(false))();
   BoolColumn get isVector => boolean().withDefault(const Constant(false))();
   BoolColumn get isFavorite => boolean().withDefault(const Constant(false))();
+  TextColumn get difficulty => text().nullable()();
+  BoolColumn get isCustom => boolean().withDefault(const Constant(false))();
 }
 
 class Routines extends Table {
@@ -121,7 +123,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 16;
+  int get schemaVersion => 17;
 
   @override
   MigrationStrategy get migration {
@@ -136,6 +138,7 @@ class AppDatabase extends _$AppDatabase {
         final m = createMigrator();
         await _ensureCurrentTables(m);
         await _ensureCurrentColumns(m);
+        await _backfillExerciseDifficulty();
 
         final exercisesExist = await select(exercises).get();
 
@@ -197,6 +200,8 @@ class AppDatabase extends _$AppDatabase {
     await _ensureColumn(m, exercises, exercises.isBodyweight, 'is_bodyweight');
     await _ensureColumn(m, exercises, exercises.isVector, 'is_vector');
     await _ensureColumn(m, exercises, exercises.isFavorite, 'is_favorite');
+    await _ensureColumn(m, exercises, exercises.difficulty, 'difficulty');
+    await _ensureColumn(m, exercises, exercises.isCustom, 'is_custom');
 
     await customStatement("""
       UPDATE ${exercises.actualTableName}
@@ -266,6 +271,33 @@ class AppDatabase extends _$AppDatabase {
       'is_read',
     );
     await _ensureColumn(m, notificationLogs, notificationLogs.type, 'type');
+  }
+
+  /// Ripara le installazioni esistenti: il seeding iniziale in
+  /// [_seedInitialData] inserisce i valori di `difficulty` solo per un
+  /// database vuoto (primo avvio), quindi chi ha già dati salvati non
+  /// riceve la colonna appena aggiunta con `_ensureColumn`. Qui associamo
+  /// per nome ogni riga senza difficoltà a quella del catalogo seed (unica
+  /// fonte del dato, niente mappa duplicata da mantenere). Le righe
+  /// custom dell'utente restano intenzionalmente escluse: la difficoltà
+  /// per quelle è sempre richiesta esplicitamente nel form di creazione.
+  Future<void> _backfillExerciseDifficulty() async {
+    final missing = await (select(
+      exercises,
+    )..where((e) => e.difficulty.isNull() & e.isCustom.equals(false))).get();
+    if (missing.isEmpty) return;
+
+    final seedDifficultyByName = <String, String?>{
+      for (final s in getSeedExercises()) s.name.value: s.difficulty.value,
+    };
+
+    for (final row in missing) {
+      final difficulty = seedDifficultyByName[row.name];
+      if (difficulty == null) continue;
+      await (update(exercises)..where((e) => e.id.equals(row.id))).write(
+        ExercisesCompanion(difficulty: Value(difficulty)),
+      );
+    }
   }
 
   Future<void> _ensureTable(Migrator m, TableInfo<Table, dynamic> table) async {

@@ -5,6 +5,7 @@ import 'package:gym_corpus/core/database/database.dart';
 const tricepsExercises = [
   ExercisesCompanion(
     name: Value('Dip alle parallele'),
+    difficulty: Value('Avanzato'),
     targetMuscle: Value('Tricipiti'),
     equipment: Value('Parallele (o Dip station)'),
     focusArea: Value(
@@ -22,6 +23,7 @@ const tricepsExercises = [
   ),
   ExercisesCompanion(
     name: Value('Panca piana presa stretta'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Tricipiti'),
     equipment: Value('Bilanciere, Panca piana, Rack'),
     focusArea: Value(
@@ -39,6 +41,7 @@ const tricepsExercises = [
   ),
   ExercisesCompanion(
     name: Value('French Press con bilanciere'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Tricipiti'),
     equipment: Value('Bilanciere EZ (o dritto), Panca piana'),
     focusArea: Value('Tricipite (capo lungo e mediale)'),
@@ -54,6 +57,7 @@ const tricepsExercises = [
   ),
   ExercisesCompanion(
     name: Value('French Press con manubri'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Tricipiti'),
     equipment: Value('Manubri, Panca piana'),
     focusArea: Value('Tricipite (tutti i capi, specialmente capo lungo)'),
@@ -69,6 +73,7 @@ const tricepsExercises = [
   ),
   ExercisesCompanion(
     name: Value('Overhead Extension con manubrio singolo'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Tricipiti'),
     equipment: Value('Manubrio (singolo), Panca (con schienale)'),
     focusArea: Value('Tricipite (focus capo lungo, allungamento)'),
@@ -84,6 +89,7 @@ const tricepsExercises = [
   ),
   ExercisesCompanion(
     name: Value('Overhead Extension con bilanciere'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Tricipiti'),
     equipment: Value('Bilanciere (EZ consigliato), Panca (seduto)'),
     focusArea: Value('Tricipite (focus capo lungo)'),
@@ -97,6 +103,7 @@ const tricepsExercises = [
   ),
   ExercisesCompanion(
     name: Value('Overhead Extension ai cavi'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Tricipiti'),
     equipment: Value('Cavo (Ercolina), Corda'),
     focusArea: Value('Tricipite (capo lungo, tensione costante)'),
@@ -112,6 +119,7 @@ const tricepsExercises = [
   ),
   ExercisesCompanion(
     name: Value('Pushdown ai cavi (Con barra dritta)'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Tricipiti'),
     equipment: Value('Cavo (Ercolina), Barra (dritto o V-bar)'),
     focusArea: Value('Tricipite (focus capo laterale e mediale)'),
@@ -127,6 +135,7 @@ const tricepsExercises = [
   ),
   ExercisesCompanion(
     name: Value('Pushdown ai cavi (Con corda)'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Tricipiti'),
     equipment: Value('Cavo (Ercolina), Corda'),
     focusArea: Value('Tricipite (capo laterale, ROM completo)'),
@@ -142,6 +151,7 @@ const tricepsExercises = [
   ),
   ExercisesCompanion(
     name: Value('Pushdown ai cavi (Presa inversa)'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Tricipiti'),
     equipment: Value('Cavo (Ercolina), Maniglia (singola)'),
     focusArea: Value('Tricipite (focus capo mediale)'),
@@ -157,6 +167,7 @@ const tricepsExercises = [
   ),
   ExercisesCompanion(
     name: Value('Kickback con manubri'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Tricipiti'),
     equipment: Value('Manubri, Panca (per appoggio)'),
     focusArea: Value('Tricipite (isolamento, contrazione di picco)'),
@@ -172,6 +183,7 @@ const tricepsExercises = [
   ),
   ExercisesCompanion(
     name: Value('Kickback ai cavi '),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Tricipiti'),
     equipment: Value('Cavo (Ercolina), Maniglia (o senza)'),
     focusArea: Value('Tricipite (tensione costante, contrazione picco)'),
@@ -185,6 +197,7 @@ const tricepsExercises = [
   ),
   ExercisesCompanion(
     name: Value('Diamond Push-ups'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Tricipiti'),
     equipment: Value('Corpo libero, Tappetino'),
     isBodyweight: Value(true),
@@ -201,6 +214,7 @@ const tricepsExercises = [
   ),
   ExercisesCompanion(
     name: Value('Dip tra panche '),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Tricipiti'),
     equipment: Value('Due Panche (o una panca e un rialzo)'),
     focusArea: Value('Tricipiti'),
@@ -216,6 +230,7 @@ const tricepsExercises = [
   ),
   ExercisesCompanion(
     name: Value('Triceps Extension (Macchina)'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Tricipiti'),
     equipment: Value('Macchinario (Triceps Extension Machine)'),
     focusArea: Value('Tricipiti (isolamento)'),
@@ -229,6 +244,7 @@ const tricepsExercises = [
   ),
   ExercisesCompanion(
     name: Value('Tate Press'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Tricipiti'),
     equipment: Value('Manubri, Panca piana'),
     focusArea: Value('Tricipiti, Petto'),
@@ -244,6 +260,7 @@ const tricepsExercises = [
   ),
   ExercisesCompanion(
     name: Value('JM Press'),
+    difficulty: Value('Avanzato'),
     targetMuscle: Value('Tricipiti'),
     equipment: Value('Bilanciere (dritto o EZ), Panca piana'),
     focusArea: Value('Tricipiti (massa), Gomiti'),
@@ -259,6 +276,7 @@ const tricepsExercises = [
   ),
   ExercisesCompanion(
     name: Value('Floor Press'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Tricipiti'),
     equipment: Value('Bilanciere (o Manubri), Pavimento'),
     focusArea: Value('Tricipiti (lockout), Petto'),
@@ -272,6 +290,7 @@ const tricepsExercises = [
   ),
   ExercisesCompanion(
     name: Value('Estensioni su panca '),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Tricipiti'),
     equipment: Value('Panca, Corpo libero'),
     isBodyweight: Value(true),
@@ -288,6 +307,7 @@ const tricepsExercises = [
   ),
   ExercisesCompanion(
     name: Value('Piegamenti esplosivi'),
+    difficulty: Value('Avanzato'),
     targetMuscle: Value('Tricipiti'),
     equipment: Value('Corpo libero'),
     isBodyweight: Value(true),
