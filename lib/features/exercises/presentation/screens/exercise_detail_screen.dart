@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:gym_corpus/features/exercises/presentation/widgets/difficulty_badge.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
@@ -51,35 +53,75 @@ class ExerciseDetailScreen extends StatelessWidget {
         actions: [
           BlocBuilder<TrainingBloc, TrainingState>(
             builder: (context, state) {
-              var isFavorite = exercise.isFavorite;
+              var currentExercise = exercise;
               if (state is TrainingLoaded) {
-                final currentExercise = state.exercises.firstWhere(
+                currentExercise = state.exercises.firstWhere(
                   (e) => e.id == exercise.id,
                   orElse: () => exercise,
                 );
-                isFavorite = currentExercise.isFavorite;
               }
+              final isFavorite = currentExercise.isFavorite;
 
-              return Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: CircleAvatar(
-                  backgroundColor: Colors.white.withValues(alpha: 0.1),
-                  child: IconButton(
-                    icon: Icon(
-                      isFavorite ? Icons.favorite : Icons.favorite_outline,
-                      color: const Color(0xFF94AAFF),
-                      size: 18,
-                    ),
-                    onPressed: () {
-                      context.read<TrainingBloc>().add(
-                        ToggleExerciseFavoriteEvent(
-                          exercise.id,
-                          isFavorite: !isFavorite,
+              return Row(
+                children: [
+                  if (currentExercise.isCustom) ...[
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: CircleAvatar(
+                        backgroundColor: Colors.white.withValues(alpha: 0.1),
+                        child: IconButton(
+                          icon: const Icon(
+                            Icons.edit_outlined,
+                            color: Color(0xFF94AAFF),
+                            size: 18,
+                          ),
+                          onPressed: () => context.push(
+                            '/exercises/edit',
+                            extra: currentExercise,
+                          ),
                         ),
-                      );
-                    },
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: CircleAvatar(
+                        backgroundColor: Colors.white.withValues(alpha: 0.1),
+                        child: IconButton(
+                          icon: const Icon(
+                            Icons.delete_outline,
+                            color: Color(0xFF94AAFF),
+                            size: 18,
+                          ),
+                          onPressed: () => _showDeleteExerciseDialog(
+                            context,
+                            currentExercise,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: CircleAvatar(
+                      backgroundColor: Colors.white.withValues(alpha: 0.1),
+                      child: IconButton(
+                        icon: Icon(
+                          isFavorite ? Icons.favorite : Icons.favorite_outline,
+                          color: const Color(0xFF94AAFF),
+                          size: 18,
+                        ),
+                        onPressed: () {
+                          context.read<TrainingBloc>().add(
+                            ToggleExerciseFavoriteEvent(
+                              exercise.id,
+                              isFavorite: !isFavorite,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
                   ),
-                ),
+                ],
               );
             },
           ),
@@ -146,24 +188,32 @@ class ExerciseDetailScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.tertiary,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          exercise.targetMuscle.toUpperCase(),
-                          style: TextStyle(
-                            color: theme.colorScheme.onTertiary,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 1.5,
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.tertiary,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              exercise.targetMuscle.toUpperCase(),
+                              style: TextStyle(
+                                color: theme.colorScheme.onTertiary,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 1.5,
+                              ),
+                            ),
                           ),
-                        ),
+                          if (exercise.difficulty != null) ...[
+                            const SizedBox(width: 8),
+                            DifficultyBadge(difficulty: exercise.difficulty!),
+                          ],
+                        ],
                       ),
                       const SizedBox(height: 8),
                       Text(
@@ -283,6 +333,49 @@ class ExerciseDetailScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+void _showDeleteExerciseDialog(BuildContext context, ExerciseEntity exercise) {
+  final theme = Theme.of(context);
+  final bloc = context.read<TrainingBloc>();
+  showDialog<void>(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      backgroundColor: theme.colorScheme.surface,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      title: Text(
+        'Elimina esercizio?',
+        style: theme.textTheme.titleLarge?.copyWith(
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      content: Text(
+        'Sei sicuro di voler eliminare "${exercise.name}"? Se è usato in una '
+        'routine o in uno storico allenamento non potrà essere eliminato.',
+        style: theme.textTheme.bodyMedium,
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(dialogContext),
+          child: Text(
+            'ANNULLA',
+            style: TextStyle(color: theme.colorScheme.outline),
+          ),
+        ),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: theme.colorScheme.error,
+          ),
+          onPressed: () {
+            bloc.add(DeleteCustomExerciseEvent(exercise.id));
+            Navigator.pop(dialogContext);
+            Navigator.of(context).pop();
+          },
+          child: const Text('ELIMINA'),
+        ),
+      ],
+    ),
+  );
 }
 
 class _BentoCard extends StatelessWidget {

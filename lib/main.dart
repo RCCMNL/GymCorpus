@@ -25,6 +25,7 @@ import 'package:gym_corpus/features/auth/presentation/screens/lock_screen.dart';
 import 'package:gym_corpus/features/auth/presentation/screens/login_screen.dart';
 import 'package:gym_corpus/features/auth/presentation/screens/sign_up_screen.dart';
 import 'package:gym_corpus/features/auth/presentation/screens/splash_screen.dart';
+import 'package:gym_corpus/features/exercises/presentation/screens/custom_exercise_form_screen.dart';
 import 'package:gym_corpus/features/exercises/presentation/screens/exercise_detail_screen.dart';
 import 'package:gym_corpus/features/exercises/presentation/screens/exercises_screen.dart';
 import 'package:gym_corpus/features/exercises/presentation/screens/favorite_exercises_screen.dart';
@@ -324,6 +325,25 @@ class _GymAppState extends State<GymApp> with WidgetsBindingObserver {
                   );
                 }
                 return ExerciseDetailScreen(exercise: exercise);
+              },
+            ),
+            GoRoute(
+              path: '/exercises/new',
+              builder: (context, state) => const CustomExerciseFormScreen(),
+            ),
+            GoRoute(
+              path: '/exercises/edit',
+              builder: (context, state) {
+                final exercise = _extraOf<ExerciseEntity>(state);
+                if (exercise == null) {
+                  return const _MissingRouteDataScreen(
+                    title: 'Esercizio non disponibile',
+                    message:
+                        'Apri questa schermata dal dettaglio esercizio per modificarlo.',
+                    fallbackRoute: '/exercises',
+                  );
+                }
+                return CustomExerciseFormScreen(exerciseToEdit: exercise);
               },
             ),
             GoRoute(

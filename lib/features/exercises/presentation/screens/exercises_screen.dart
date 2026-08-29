@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/features/exercises/domain/exercise_catalog_view.dart';
+import 'package:gym_corpus/features/exercises/presentation/widgets/difficulty_badge.dart';
+import 'package:gym_corpus/features/exercises/presentation/widgets/exercise_filters_sheet.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
@@ -18,7 +20,13 @@ class ExercisesScreen extends StatefulWidget {
 class _ExercisesScreenState extends State<ExercisesScreen> {
   String _searchQuery = '';
   String _selectedMuscle = kAllMusclesFilter;
+  String _selectedDifficulty = kAllDifficultiesFilter;
+  Set<String> _selectedEquipment = {};
   final Set<String> _expandedCategories = {};
+
+  bool get _hasActiveFilters =>
+      _selectedDifficulty != kAllDifficultiesFilter ||
+      _selectedEquipment.isNotEmpty;
 
   void _toggleCategory(String category) {
     setState(() {
@@ -28,6 +36,20 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
         _expandedCategories.add(category);
       }
     });
+  }
+
+  Future<void> _openFilters() async {
+    final result = await showExerciseFiltersSheet(
+      context,
+      initialDifficulty: _selectedDifficulty,
+      initialEquipment: _selectedEquipment,
+    );
+    if (result != null) {
+      setState(() {
+        _selectedDifficulty = result.difficulty;
+        _selectedEquipment = result.equipment;
+      });
+    }
   }
 
   @override
@@ -45,6 +67,8 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
                 exercises: state.exercises,
                 searchQuery: _searchQuery,
                 selectedMuscle: _selectedMuscle,
+                selectedDifficulty: _selectedDifficulty,
+                selectedEquipment: _selectedEquipment,
               );
               final sections = catalog.sections;
               final grouped = catalog.exercisesBySection;
@@ -57,33 +81,78 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.surfaceContainerHigh
-                              .withValues(alpha: 0.8),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: TextField(
-                          onChanged: (val) =>
-                              setState(() => _searchQuery = val),
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                          decoration: InputDecoration(
-                            hintText: 'Cerca esercizio...',
-                            hintStyle: TextStyle(
-                              color: theme.colorScheme.outline.withValues(
-                                alpha: 0.6,
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: theme.colorScheme.surfaceContainerHigh
+                                    .withValues(alpha: 0.8),
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: TextField(
+                                onChanged: (val) =>
+                                    setState(() => _searchQuery = val),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                decoration: InputDecoration(
+                                  hintText: 'Cerca esercizio...',
+                                  hintStyle: TextStyle(
+                                    color: theme.colorScheme.outline.withValues(
+                                      alpha: 0.6,
+                                    ),
+                                  ),
+                                  prefixIcon: Icon(
+                                    Icons.search,
+                                    color: theme.colorScheme.primary,
+                                  ),
+                                  border: InputBorder.none,
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    vertical: 14,
+                                  ),
+                                ),
                               ),
                             ),
-                            prefixIcon: Icon(
-                              Icons.search,
-                              color: theme.colorScheme.primary,
-                            ),
-                            border: InputBorder.none,
-                            contentPadding: const EdgeInsets.symmetric(
-                              vertical: 14,
+                          ),
+                          const SizedBox(width: 12),
+                          Material(
+                            color: theme.colorScheme.surfaceContainerHigh,
+                            borderRadius: BorderRadius.circular(16),
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(16),
+                              onTap: _openFilters,
+                              child: Padding(
+                                padding: const EdgeInsets.all(14),
+                                child: Badge(
+                                  isLabelVisible: _hasActiveFilters,
+                                  smallSize: 8,
+                                  backgroundColor: theme.colorScheme.primary,
+                                  child: Icon(
+                                    Icons.tune_rounded,
+                                    color: theme.colorScheme.onSurface,
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
-                        ),
+                          const SizedBox(width: 12),
+                          Material(
+                            color: theme.colorScheme.primary,
+                            borderRadius: BorderRadius.circular(16),
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(16),
+                              onTap: () => context.push('/exercises/new'),
+                              child: Padding(
+                                padding: const EdgeInsets.all(14),
+                                child: Icon(
+                                  Icons.add_rounded,
+                                  color: theme.colorScheme.onPrimary,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -133,11 +202,20 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
                   // Exercise List (Flattened)
                   ...sections.expand((section) {
                     final exercises = grouped[section] ?? [];
-                    final isExpanded = _expandedCategories.contains(section);
+                    // Con un muscolo specifico selezionato la sezione e'
+                    // l'unica in vista: mostra subito tutti gli esercizi
+                    // invece di richiedere un tap su "TUTTI".
+                    final isExpanded =
+                        _expandedCategories.contains(section) ||
+                        _selectedMuscle == section;
                     final displayedExercises = isExpanded
                         ? exercises
                         : exercises.take(3).toList();
-                    final hasMore = exercises.length > 3;
+                    // Con il muscolo selezionato la sezione e' gia' sempre
+                    // espansa (vedi sopra): il toggle non avrebbe nulla da
+                    // fare, quindi non ha senso mostrarlo.
+                    final hasMore =
+                        exercises.length > 3 && _selectedMuscle != section;
 
                     return [
                       // Section Header
@@ -359,6 +437,10 @@ class _ExerciseTile extends StatelessWidget {
                         ),
                       ],
                     ),
+                    if (exercise.difficulty != null) ...[
+                      const SizedBox(height: 6),
+                      DifficultyBadge(difficulty: exercise.difficulty!),
+                    ],
                   ],
                 ),
               ),
