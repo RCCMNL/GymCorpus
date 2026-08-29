@@ -116,4 +116,84 @@ void main() {
       },
     );
   });
+
+  // Le routine di sistema sono seedate automaticamente all'apertura del DB
+  // (vedi database.dart _seedDefaultRoutines), quindi ne basta una qualsiasi
+  // per verificare la guardia modifica/elimina e il flusso di copia.
+  group('routine di sistema', () {
+    test('non si possono modificare direttamente', () async {
+      final systemRoutine = (await (database.select(
+        database.routines,
+      )..where((r) => r.isSystem.equals(true))).get()).first;
+
+      final result = await repository.updateRoutine(
+        systemRoutine.id,
+        'Nome modificato',
+        const [],
+        null,
+      );
+
+      expect(result, isA<Left<Object?, void>>());
+      final unchanged = await (database.select(
+        database.routines,
+      )..where((r) => r.id.equals(systemRoutine.id))).getSingle();
+      expect(unchanged.title, systemRoutine.title);
+    });
+
+    test('non si possono eliminare direttamente', () async {
+      final systemRoutine = (await (database.select(
+        database.routines,
+      )..where((r) => r.isSystem.equals(true))).get()).first;
+
+      final result = await repository.deleteRoutine(systemRoutine.id);
+
+      expect(result, isA<Left<Object?, void>>());
+      final stillThere = await (database.select(
+        database.routines,
+      )..where((r) => r.id.equals(systemRoutine.id))).getSingleOrNull();
+      expect(stillThere, isNotNull);
+    });
+
+    test(
+      'la copia crea una routine utente indipendente con gli stessi esercizi',
+      () async {
+        final systemRoutine = (await (database.select(
+          database.routines,
+        )..where((r) => r.isSystem.equals(true))).get()).first;
+        final originalExercises = await (database.select(
+          database.routineExercises,
+        )..where((t) => t.routineId.equals(systemRoutine.id))).get();
+
+        final result = await repository.copyRoutine(systemRoutine.id);
+        expect(result, isA<Right<Object?, int>>());
+        final newId = (result as Right).value as int;
+
+        final copy = await (database.select(
+          database.routines,
+        )..where((r) => r.id.equals(newId))).getSingle();
+        expect(copy.isSystem, isFalse);
+        expect(copy.title, '${systemRoutine.title} (copia)');
+
+        final copiedExercises = await (database.select(
+          database.routineExercises,
+        )..where((t) => t.routineId.equals(newId))).get();
+        expect(copiedExercises.length, originalExercises.length);
+
+        // La copia e' una routine utente normale...
+        final updateResult = await repository.updateRoutine(
+          newId,
+          'Nome personalizzato',
+          const [],
+          null,
+        );
+        expect(updateResult, isA<Right<Object?, void>>());
+
+        // ...mentre l'originale di sistema resta intatto e bloccato.
+        final originalStillThere = await (database.select(
+          database.routines,
+        )..where((r) => r.id.equals(systemRoutine.id))).getSingle();
+        expect(originalStillThere.title, systemRoutine.title);
+      },
+    );
+  });
 }

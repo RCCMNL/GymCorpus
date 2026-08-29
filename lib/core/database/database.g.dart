@@ -53,12 +53,28 @@ class $RoutinesTable extends Routines with TableInfo<$RoutinesTable, Routine> {
     requiredDuringInsert: false,
     defaultValue: currentDateAndTime,
   );
+  static const VerificationMeta _isSystemMeta = const VerificationMeta(
+    'isSystem',
+  );
+  @override
+  late final GeneratedColumn<bool> isSystem = GeneratedColumn<bool>(
+    'is_system',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_system" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
     title,
     estimatedDuration,
     createdAt,
+    isSystem,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -98,6 +114,12 @@ class $RoutinesTable extends Routines with TableInfo<$RoutinesTable, Routine> {
         createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
       );
     }
+    if (data.containsKey('is_system')) {
+      context.handle(
+        _isSystemMeta,
+        isSystem.isAcceptableOrUnknown(data['is_system']!, _isSystemMeta),
+      );
+    }
     return context;
   }
 
@@ -123,6 +145,10 @@ class $RoutinesTable extends Routines with TableInfo<$RoutinesTable, Routine> {
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
       )!,
+      isSystem: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_system'],
+      )!,
     );
   }
 
@@ -137,11 +163,13 @@ class Routine extends DataClass implements Insertable<Routine> {
   final String title;
   final int? estimatedDuration;
   final DateTime createdAt;
+  final bool isSystem;
   const Routine({
     required this.id,
     required this.title,
     this.estimatedDuration,
     required this.createdAt,
+    required this.isSystem,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -152,6 +180,7 @@ class Routine extends DataClass implements Insertable<Routine> {
       map['estimated_duration'] = Variable<int>(estimatedDuration);
     }
     map['created_at'] = Variable<DateTime>(createdAt);
+    map['is_system'] = Variable<bool>(isSystem);
     return map;
   }
 
@@ -163,6 +192,7 @@ class Routine extends DataClass implements Insertable<Routine> {
           ? const Value.absent()
           : Value(estimatedDuration),
       createdAt: Value(createdAt),
+      isSystem: Value(isSystem),
     );
   }
 
@@ -176,6 +206,7 @@ class Routine extends DataClass implements Insertable<Routine> {
       title: serializer.fromJson<String>(json['title']),
       estimatedDuration: serializer.fromJson<int?>(json['estimatedDuration']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      isSystem: serializer.fromJson<bool>(json['isSystem']),
     );
   }
   @override
@@ -186,6 +217,7 @@ class Routine extends DataClass implements Insertable<Routine> {
       'title': serializer.toJson<String>(title),
       'estimatedDuration': serializer.toJson<int?>(estimatedDuration),
       'createdAt': serializer.toJson<DateTime>(createdAt),
+      'isSystem': serializer.toJson<bool>(isSystem),
     };
   }
 
@@ -194,6 +226,7 @@ class Routine extends DataClass implements Insertable<Routine> {
     String? title,
     Value<int?> estimatedDuration = const Value.absent(),
     DateTime? createdAt,
+    bool? isSystem,
   }) => Routine(
     id: id ?? this.id,
     title: title ?? this.title,
@@ -201,6 +234,7 @@ class Routine extends DataClass implements Insertable<Routine> {
         ? estimatedDuration.value
         : this.estimatedDuration,
     createdAt: createdAt ?? this.createdAt,
+    isSystem: isSystem ?? this.isSystem,
   );
   Routine copyWithCompanion(RoutinesCompanion data) {
     return Routine(
@@ -210,6 +244,7 @@ class Routine extends DataClass implements Insertable<Routine> {
           ? data.estimatedDuration.value
           : this.estimatedDuration,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      isSystem: data.isSystem.present ? data.isSystem.value : this.isSystem,
     );
   }
 
@@ -219,13 +254,15 @@ class Routine extends DataClass implements Insertable<Routine> {
           ..write('id: $id, ')
           ..write('title: $title, ')
           ..write('estimatedDuration: $estimatedDuration, ')
-          ..write('createdAt: $createdAt')
+          ..write('createdAt: $createdAt, ')
+          ..write('isSystem: $isSystem')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, title, estimatedDuration, createdAt);
+  int get hashCode =>
+      Object.hash(id, title, estimatedDuration, createdAt, isSystem);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -233,7 +270,8 @@ class Routine extends DataClass implements Insertable<Routine> {
           other.id == this.id &&
           other.title == this.title &&
           other.estimatedDuration == this.estimatedDuration &&
-          other.createdAt == this.createdAt);
+          other.createdAt == this.createdAt &&
+          other.isSystem == this.isSystem);
 }
 
 class RoutinesCompanion extends UpdateCompanion<Routine> {
@@ -241,29 +279,34 @@ class RoutinesCompanion extends UpdateCompanion<Routine> {
   final Value<String> title;
   final Value<int?> estimatedDuration;
   final Value<DateTime> createdAt;
+  final Value<bool> isSystem;
   const RoutinesCompanion({
     this.id = const Value.absent(),
     this.title = const Value.absent(),
     this.estimatedDuration = const Value.absent(),
     this.createdAt = const Value.absent(),
+    this.isSystem = const Value.absent(),
   });
   RoutinesCompanion.insert({
     this.id = const Value.absent(),
     required String title,
     this.estimatedDuration = const Value.absent(),
     this.createdAt = const Value.absent(),
+    this.isSystem = const Value.absent(),
   }) : title = Value(title);
   static Insertable<Routine> custom({
     Expression<int>? id,
     Expression<String>? title,
     Expression<int>? estimatedDuration,
     Expression<DateTime>? createdAt,
+    Expression<bool>? isSystem,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (title != null) 'title': title,
       if (estimatedDuration != null) 'estimated_duration': estimatedDuration,
       if (createdAt != null) 'created_at': createdAt,
+      if (isSystem != null) 'is_system': isSystem,
     });
   }
 
@@ -272,12 +315,14 @@ class RoutinesCompanion extends UpdateCompanion<Routine> {
     Value<String>? title,
     Value<int?>? estimatedDuration,
     Value<DateTime>? createdAt,
+    Value<bool>? isSystem,
   }) {
     return RoutinesCompanion(
       id: id ?? this.id,
       title: title ?? this.title,
       estimatedDuration: estimatedDuration ?? this.estimatedDuration,
       createdAt: createdAt ?? this.createdAt,
+      isSystem: isSystem ?? this.isSystem,
     );
   }
 
@@ -296,6 +341,9 @@ class RoutinesCompanion extends UpdateCompanion<Routine> {
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
+    if (isSystem.present) {
+      map['is_system'] = Variable<bool>(isSystem.value);
+    }
     return map;
   }
 
@@ -305,7 +353,8 @@ class RoutinesCompanion extends UpdateCompanion<Routine> {
           ..write('id: $id, ')
           ..write('title: $title, ')
           ..write('estimatedDuration: $estimatedDuration, ')
-          ..write('createdAt: $createdAt')
+          ..write('createdAt: $createdAt, ')
+          ..write('isSystem: $isSystem')
           ..write(')'))
         .toString();
   }
@@ -4358,6 +4407,7 @@ typedef $$RoutinesTableCreateCompanionBuilder =
       required String title,
       Value<int?> estimatedDuration,
       Value<DateTime> createdAt,
+      Value<bool> isSystem,
     });
 typedef $$RoutinesTableUpdateCompanionBuilder =
     RoutinesCompanion Function({
@@ -4365,6 +4415,7 @@ typedef $$RoutinesTableUpdateCompanionBuilder =
       Value<String> title,
       Value<int?> estimatedDuration,
       Value<DateTime> createdAt,
+      Value<bool> isSystem,
     });
 
 final class $$RoutinesTableReferences
@@ -4440,6 +4491,11 @@ class $$RoutinesTableFilterComposer
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isSystem => $composableBuilder(
+    column: $table.isSystem,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -4522,6 +4578,11 @@ class $$RoutinesTableOrderingComposer
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<bool> get isSystem => $composableBuilder(
+    column: $table.isSystem,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$RoutinesTableAnnotationComposer
@@ -4546,6 +4607,9 @@ class $$RoutinesTableAnnotationComposer
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<bool> get isSystem =>
+      $composableBuilder(column: $table.isSystem, builder: (column) => column);
 
   Expression<T> workoutsRefs<T extends Object>(
     Expression<T> Function($$WorkoutsTableAnnotationComposer a) f,
@@ -4630,11 +4694,13 @@ class $$RoutinesTableTableManager
                 Value<String> title = const Value.absent(),
                 Value<int?> estimatedDuration = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
+                Value<bool> isSystem = const Value.absent(),
               }) => RoutinesCompanion(
                 id: id,
                 title: title,
                 estimatedDuration: estimatedDuration,
                 createdAt: createdAt,
+                isSystem: isSystem,
               ),
           createCompanionCallback:
               ({
@@ -4642,11 +4708,13 @@ class $$RoutinesTableTableManager
                 required String title,
                 Value<int?> estimatedDuration = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
+                Value<bool> isSystem = const Value.absent(),
               }) => RoutinesCompanion.insert(
                 id: id,
                 title: title,
                 estimatedDuration: estimatedDuration,
                 createdAt: createdAt,
+                isSystem: isSystem,
               ),
           withReferenceMapper: (p0) => p0
               .map(

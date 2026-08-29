@@ -4,6 +4,7 @@ import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gym_corpus/core/database/database.dart';
+import 'package:gym_corpus/core/database/seeds/default_routines.dart';
 import 'package:path/path.dart' as p;
 
 /// Verifica che la strategia di migrazione additiva riporti sul DB di un
@@ -138,6 +139,88 @@ void main() {
               ))
               .getSingle();
       expect(customExercise.difficulty, null);
+    },
+  );
+
+  test(
+    'il primo avvio semina le routine di sistema con gli esercizi giusti',
+    () async {
+      final db = AppDatabase(NativeDatabase(dbFile));
+      addTearDown(db.close);
+
+      for (final routineSeed in getDefaultRoutines()) {
+        final routine =
+            await (db.select(db.routines)..where(
+                  (r) =>
+                      r.title.equals(routineSeed.title) &
+                      r.isSystem.equals(true),
+                ))
+                .getSingle();
+
+        final exercisesRows =
+            await (db.select(db.routineExercises)
+                  ..where((t) => t.routineId.equals(routine.id)))
+                .get();
+        expect(
+          exercisesRows.length,
+          routineSeed.exercises.length,
+          reason: 'esercizi mancanti in "${routineSeed.title}"',
+        );
+
+        for (final exerciseSeed in routineSeed.exercises) {
+          final linkedExercise = await (db.select(db.exercises)..where(
+                (e) => e.name.equals(exerciseSeed.exerciseName),
+              ))
+              .getSingle();
+          final link = exercisesRows.firstWhere(
+            (row) => row.exerciseId == linkedExercise.id,
+            orElse: () => throw StateError(
+              '"${exerciseSeed.exerciseName}" non collegato a '
+              '"${routineSeed.title}"',
+            ),
+          );
+          expect(link.sets, exerciseSeed.sets);
+          expect(link.reps, exerciseSeed.reps);
+        }
+      }
+    },
+  );
+
+  test(
+    'il seeding delle routine di sistema e idempotente e non tocca quelle '
+    'dell utente',
+    () async {
+      final firstRun = AppDatabase(NativeDatabase(dbFile));
+      final systemCountBefore =
+          await (firstRun.select(
+            firstRun.routines,
+          )..where((r) => r.isSystem.equals(true))).get();
+      expect(systemCountBefore.length, getDefaultRoutines().length);
+
+      // Routine dell'utente, per verificare che il reseed non la tocchi.
+      final userRoutineId = await firstRun
+          .into(firstRun.routines)
+          .insert(RoutinesCompanion.insert(title: 'La mia routine'));
+      await firstRun.close();
+
+      final secondRun = AppDatabase(NativeDatabase(dbFile));
+      addTearDown(secondRun.close);
+
+      final systemCountAfter =
+          await (secondRun.select(
+            secondRun.routines,
+          )..where((r) => r.isSystem.equals(true))).get();
+      expect(
+        systemCountAfter.length,
+        getDefaultRoutines().length,
+        reason: 'le routine di sistema non devono duplicarsi al riavvio',
+      );
+
+      final userRoutine = await (secondRun.select(
+        secondRun.routines,
+      )..where((r) => r.id.equals(userRoutineId))).getSingle();
+      expect(userRoutine.title, 'La mia routine');
+      expect(userRoutine.isSystem, isFalse);
     },
   );
 

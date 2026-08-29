@@ -8,6 +8,7 @@ class RoutineEntity extends Equatable {
     required this.createdAt,
     this.estimatedDuration,
     this.exercises = const [],
+    this.isSystem = false,
   });
 
   final int id;
@@ -15,6 +16,7 @@ class RoutineEntity extends Equatable {
   final int? estimatedDuration;
   final DateTime createdAt;
   final List<RoutineExerciseEntity> exercises;
+  final bool isSystem;
 
   @override
   List<Object?> get props => [
@@ -23,6 +25,7 @@ class RoutineEntity extends Equatable {
     estimatedDuration,
     createdAt,
     exercises,
+    isSystem,
   ];
 }
 

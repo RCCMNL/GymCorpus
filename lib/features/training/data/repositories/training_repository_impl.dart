@@ -293,6 +293,7 @@ class TrainingRepositoryImpl implements TrainingRepository {
             estimatedDuration: routineData.estimatedDuration,
             createdAt: routineData.createdAt,
             exercises: routineExercises,
+            isSystem: routineData.isSystem,
           ),
         );
       }
@@ -349,6 +350,12 @@ class TrainingRepositoryImpl implements TrainingRepository {
     int? estDuration,
   ) async {
     try {
+      final guardFailure = await _requireNonSystemRoutine(
+        id,
+        action: 'modificare',
+      );
+      if (guardFailure != null) return Left(guardFailure);
+
       await database.transaction(() async {
         // Update routine metadata
         await (database.update(
@@ -391,11 +398,83 @@ class TrainingRepositoryImpl implements TrainingRepository {
   @override
   Future<Either<Failure, void>> deleteRoutine(int id) async {
     try {
+      final guardFailure = await _requireNonSystemRoutine(
+        id,
+        action: 'eliminare',
+      );
+      if (guardFailure != null) return Left(guardFailure);
+
       await database.deleteRoutine(id);
       return const Right(null);
     } catch (e) {
       return Left(DatabaseFailure(e.toString()));
     }
+  }
+
+  @override
+  Future<Either<Failure, int>> copyRoutine(int id) async {
+    try {
+      final original = await (database.select(
+        database.routines,
+      )..where((r) => r.id.equals(id))).getSingleOrNull();
+      if (original == null) {
+        return const Left(DatabaseFailure('Routine non trovata.'));
+      }
+
+      final originalExercises = await (database.select(
+        database.routineExercises,
+      )..where((t) => t.routineId.equals(id))).get();
+
+      return await database.transaction(() async {
+        final newRoutineId = await database
+            .into(database.routines)
+            .insert(
+              RoutinesCompanion.insert(
+                title: '${original.title} (copia)',
+                estimatedDuration: Value(original.estimatedDuration),
+              ),
+            );
+
+        for (final re in originalExercises) {
+          await database
+              .into(database.routineExercises)
+              .insert(
+                RoutineExercisesCompanion.insert(
+                  routineId: newRoutineId,
+                  exerciseId: re.exerciseId,
+                  sets: Value(re.sets),
+                  reps: Value(re.reps),
+                  weight: Value(re.weight),
+                  orderIndex: Value(re.orderIndex),
+                  setsData: Value(re.setsData),
+                ),
+              );
+        }
+        return Right(newRoutineId);
+      });
+    } catch (e) {
+      return Left(DatabaseFailure(e.toString()));
+    }
+  }
+
+  /// Verifica che la routine [id] esista e non sia una routine di sistema:
+  /// quelle sono uguali per tutti e non si possono modificare/eliminare
+  /// direttamente, solo copiare. Ritorna il fallimento da restituire,
+  /// oppure `null` se il controllo passa.
+  Future<DatabaseFailure?> _requireNonSystemRoutine(
+    int id, {
+    required String action,
+  }) async {
+    final existing = await (database.select(
+      database.routines,
+    )..where((r) => r.id.equals(id))).getSingleOrNull();
+    if (existing != null && existing.isSystem) {
+      return DatabaseFailure(
+        'Impossibile $action una routine di sistema. Copiala per '
+        'personalizzarla.',
+      );
+    }
+    return null;
   }
 
   @override

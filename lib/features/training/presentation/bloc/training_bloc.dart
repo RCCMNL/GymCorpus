@@ -203,6 +203,11 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
       result.fold((f) => _emitFailure(f.message, emit), (_) => null);
     });
 
+    on<CopyRoutineEvent>((event, emit) async {
+      final result = await repository.copyRoutine(event.id);
+      result.fold((f) => _emitFailure(f.message, emit), (_) => null);
+    });
+
     on<StartWorkoutSessionEvent>((event, emit) async {
       final result = await repository.startWorkoutSession(
         id: event.id,

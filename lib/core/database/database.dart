@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:gym_corpus/core/database/seed_data.dart';
+import 'package:gym_corpus/core/database/seeds/default_routines.dart';
 
 // Dopo aver runnato build_runner questo file verrà generato
 part 'database.g.dart';
@@ -37,6 +38,7 @@ class Routines extends Table {
   TextColumn get title => text()();
   IntColumn get estimatedDuration => integer().nullable()();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+  BoolColumn get isSystem => boolean().withDefault(const Constant(false))();
 }
 
 class RoutineExercises extends Table {
@@ -123,7 +125,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 17;
+  int get schemaVersion => 18;
 
   @override
   MigrationStrategy get migration {
@@ -146,6 +148,8 @@ class AppDatabase extends _$AppDatabase {
           // Se la tabella è vuota, inseriamo il seeding iniziale
           await _seedInitialData();
         }
+
+        await _seedDefaultRoutines();
       },
     );
   }
@@ -216,6 +220,7 @@ class AppDatabase extends _$AppDatabase {
       'estimated_duration',
     );
     await _ensureColumn(m, routines, routines.createdAt, 'created_at');
+    await _ensureColumn(m, routines, routines.isSystem, 'is_system');
 
     await _ensureColumn(
       m,
@@ -297,6 +302,50 @@ class AppDatabase extends _$AppDatabase {
       await (update(exercises)..where((e) => e.id.equals(row.id))).write(
         ExercisesCompanion(difficulty: Value(difficulty)),
       );
+    }
+  }
+
+  /// Inserisce le routine di sistema (uguali per tutti, non modificabili,
+  /// vedi isSystem) se non sono già presenti. Confronta per titolo così
+  /// resta idempotente ad ogni apertura e permette di aggiungerne altre in
+  /// futuro senza toccare quelle già seedate. Gli esercizi sono risolti per
+  /// nome dal catalogo già seedato (getDefaultRoutines in
+  /// seeds/default_routines.dart).
+  Future<void> _seedDefaultRoutines() async {
+    for (final routineSeed in getDefaultRoutines()) {
+      final alreadySeeded =
+          await (select(routines)..where(
+                (r) =>
+                    r.title.equals(routineSeed.title) & r.isSystem.equals(true),
+              ))
+              .getSingleOrNull();
+      if (alreadySeeded != null) continue;
+
+      final routineId = await into(routines).insert(
+        RoutinesCompanion.insert(
+          title: routineSeed.title,
+          isSystem: const Value(true),
+        ),
+      );
+
+      for (var index = 0; index < routineSeed.exercises.length; index++) {
+        final exerciseSeed = routineSeed.exercises[index];
+        final exerciseRow =
+            await (select(exercises)
+                  ..where((e) => e.name.equals(exerciseSeed.exerciseName)))
+                .getSingleOrNull();
+        if (exerciseRow == null) continue;
+
+        await into(routineExercises).insert(
+          RoutineExercisesCompanion.insert(
+            routineId: routineId,
+            exerciseId: exerciseRow.id,
+            sets: Value(exerciseSeed.sets),
+            reps: Value(exerciseSeed.reps),
+            orderIndex: Value(index),
+          ),
+        );
+      }
     }
   }
 
@@ -582,8 +631,15 @@ class AppDatabase extends _$AppDatabase {
     await delete(weightLogs).go();
     await delete(workoutSets).go();
     await delete(workouts).go();
-    await delete(routineExercises).go();
-    await delete(routines).go();
+    // Le routine di sistema sono uguali per tutti e non appartengono
+    // all'utente: un logout/reset non deve farle sparire.
+    final userRoutineIds = await (select(
+      routines,
+    )..where((r) => r.isSystem.equals(false))).map((r) => r.id).get();
+    await (delete(
+      routineExercises,
+    )..where((t) => t.routineId.isIn(userRoutineIds))).go();
+    await (delete(routines)..where((t) => t.isSystem.equals(false))).go();
     await update(exercises).write(
       const ExercisesCompanion(
         userNotes: Value<String?>(null),

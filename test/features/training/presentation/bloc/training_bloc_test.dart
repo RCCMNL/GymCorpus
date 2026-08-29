@@ -289,6 +289,43 @@ void main() {
       );
     });
 
+    group('routine di sistema', () {
+      blocTest<TrainingBloc, TrainingState>(
+        'CopyRoutineEvent chiama il repository con l id corretto',
+        build: () {
+          when(
+            () => mockRepository.copyRoutine(3),
+          ).thenAnswer((_) async => const Right(42));
+          return bloc;
+        },
+        seed: () => TrainingLoaded(exercises: tExercises),
+        act: (bloc) => bloc.add(const CopyRoutineEvent(3)),
+        verify: (_) {
+          verify(() => mockRepository.copyRoutine(3)).called(1);
+        },
+      );
+
+      blocTest<TrainingBloc, TrainingState>(
+        'CopyRoutineEvent fallito mostra il messaggio del repository',
+        build: () {
+          when(() => mockRepository.copyRoutine(3)).thenAnswer(
+            (_) async => const Left(
+              DatabaseFailure('Impossibile copiare una routine di sistema.'),
+            ),
+          );
+          return bloc;
+        },
+        seed: () => TrainingLoaded(exercises: tExercises),
+        act: (bloc) => bloc.add(const CopyRoutineEvent(3)),
+        expect: () => [
+          TrainingLoaded(
+            exercises: tExercises,
+            actionError: 'Impossibile copiare una routine di sistema.',
+          ),
+        ],
+      );
+    });
+
     blocTest<TrainingBloc, TrainingState>(
       'emette [TrainingLoaded] quando load event ha successo',
       build: () {

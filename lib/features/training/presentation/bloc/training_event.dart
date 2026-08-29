@@ -75,6 +75,15 @@ class DeleteRoutineEvent extends TrainingEvent {
   List<Object?> get props => [id];
 }
 
+class CopyRoutineEvent extends TrainingEvent {
+  const CopyRoutineEvent(this.id);
+
+  final int id;
+
+  @override
+  List<Object?> get props => [id];
+}
+
 class StartWorkoutSessionEvent extends TrainingEvent {
   const StartWorkoutSessionEvent({
     required this.id,
