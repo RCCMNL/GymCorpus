@@ -12,17 +12,22 @@ class RoutineExerciseListItem extends StatelessWidget {
   const RoutineExerciseListItem({
     required this.exercise,
     required this.isImperial,
-    required this.onEdit,
-    required this.onRemove,
-    required this.onDeleteRoutine,
+    this.onEdit,
+    this.onRemove,
+    this.onDeleteRoutine,
+    this.isReadOnly = false,
     super.key,
   });
 
   final RoutineExerciseEntity exercise;
   final bool isImperial;
-  final VoidCallback onEdit;
-  final VoidCallback onRemove;
-  final VoidCallback onDeleteRoutine;
+  final VoidCallback? onEdit;
+  final VoidCallback? onRemove;
+  final VoidCallback? onDeleteRoutine;
+
+  /// Le routine di sistema non si possono modificare/eliminare: nasconde
+  /// il menu azioni, lasciando solo la nota informativa dell'esercizio.
+  final bool isReadOnly;
 
   @override
   Widget build(BuildContext context) {
@@ -152,108 +157,109 @@ class RoutineExerciseListItem extends StatelessWidget {
                   onPressed: () =>
                       _showNotesDialog(context, re.exercise, theme),
                 ),
-                PopupMenuButton<String>(
-                  onSelected: (val) {
-                    if (val == 'edit') {
-                      onEdit();
-                    } else if (val == 'remove_exercise') {
-                      onRemove();
-                    } else if (val == 'delete_routine') {
-                      onDeleteRoutine();
-                    }
-                  },
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+                if (!isReadOnly)
+                  PopupMenuButton<String>(
+                    onSelected: (val) {
+                      if (val == 'edit') {
+                        onEdit?.call();
+                      } else if (val == 'remove_exercise') {
+                        onRemove?.call();
+                      } else if (val == 'delete_routine') {
+                        onDeleteRoutine?.call();
+                      }
+                    },
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    color: theme.colorScheme.surfaceContainerHigh,
+                    elevation: 8,
+                    icon: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surfaceContainerHighest
+                            .withValues(alpha: 0.5),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.more_horiz_rounded,
+                        color: theme.colorScheme.primary,
+                      ),
+                    ),
+                    itemBuilder: (context) => [
+                      PopupMenuItem(
+                        value: 'edit',
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.edit_note_rounded,
+                              size: 20,
+                              color: theme.colorScheme.primary,
+                            ),
+                            const SizedBox(width: 12),
+                            const Flexible(
+                              child: Text(
+                                'Modifica serie',
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      PopupMenuItem(
+                        value: 'remove_exercise',
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.remove_circle_outline_rounded,
+                              size: 20,
+                              color: theme.colorScheme.error,
+                            ),
+                            const SizedBox(width: 12),
+                            Flexible(
+                              child: Text(
+                                'Rimuovi esercizio',
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: theme.colorScheme.error,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const PopupMenuDivider(),
+                      PopupMenuItem(
+                        value: 'delete_routine',
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.delete_forever_rounded,
+                              size: 20,
+                              color: theme.colorScheme.error,
+                            ),
+                            const SizedBox(width: 12),
+                            Flexible(
+                              child: Text(
+                                'Elimina routine',
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: theme.colorScheme.error,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                  color: theme.colorScheme.surfaceContainerHigh,
-                  elevation: 8,
-                  icon: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.surfaceContainerHighest
-                          .withValues(alpha: 0.5),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.more_horiz_rounded,
-                      color: theme.colorScheme.primary,
-                    ),
-                  ),
-                  itemBuilder: (context) => [
-                    PopupMenuItem(
-                      value: 'edit',
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.edit_note_rounded,
-                            size: 20,
-                            color: theme.colorScheme.primary,
-                          ),
-                          const SizedBox(width: 12),
-                          const Flexible(
-                            child: Text(
-                              'Modifica serie',
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    PopupMenuItem(
-                      value: 'remove_exercise',
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.remove_circle_outline_rounded,
-                            size: 20,
-                            color: theme.colorScheme.error,
-                          ),
-                          const SizedBox(width: 12),
-                          Flexible(
-                            child: Text(
-                              'Rimuovi esercizio',
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: theme.colorScheme.error,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const PopupMenuDivider(),
-                    PopupMenuItem(
-                      value: 'delete_routine',
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.delete_forever_rounded,
-                            size: 20,
-                            color: theme.colorScheme.error,
-                          ),
-                          const SizedBox(width: 12),
-                          Flexible(
-                            child: Text(
-                              'Elimina routine',
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: theme.colorScheme.error,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
               ],
             ),
           ),

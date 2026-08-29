@@ -8,12 +8,14 @@ class RoutineDetailHeader extends StatelessWidget {
     required this.title,
     required this.exerciseCount,
     required this.estimatedDuration,
+    this.isSystem = false,
     super.key,
   });
 
   final String title;
   final int exerciseCount;
   final int? estimatedDuration;
+  final bool isSystem;
 
   @override
   Widget build(BuildContext context) {
@@ -99,6 +101,15 @@ class RoutineDetailHeader extends StatelessWidget {
                 color: Colors.orangeAccent.withValues(alpha: 0.08),
                 textColor: Colors.orangeAccent,
               ),
+              if (isSystem) ...[
+                const SizedBox(width: 8),
+                HeaderTag(
+                  icon: Icons.verified_rounded,
+                  label: 'DI SISTEMA',
+                  color: theme.colorScheme.secondary.withValues(alpha: 0.08),
+                  textColor: theme.colorScheme.secondary,
+                ),
+              ],
             ],
           ),
         ],

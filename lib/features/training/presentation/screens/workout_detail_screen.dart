@@ -49,6 +49,14 @@ class WorkoutDetailScreen extends StatelessWidget {
     );
   }
 
+  void _copyRoutine(BuildContext context) {
+    context.read<TrainingBloc>().add(CopyRoutineEvent(routine.id));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Routine copiata in "I tuoi workout"')),
+    );
+    context.pop();
+  }
+
   void _showDeleteDialog(BuildContext context) {
     showDialog<void>(
       context: context,
@@ -122,7 +130,19 @@ class WorkoutDetailScreen extends StatelessWidget {
                   title: currentRoutine.title,
                   exerciseCount: exercises.length,
                   estimatedDuration: currentRoutine.estimatedDuration,
+                  isSystem: currentRoutine.isSystem,
                 ),
+                if (currentRoutine.isSystem) ...[
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton.tonalIcon(
+                      onPressed: () => _copyRoutine(context),
+                      icon: const Icon(Icons.content_copy_rounded),
+                      label: const Text('COPIA QUESTA ROUTINE'),
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 32),
                 // La riga degli esercizi è stata integrata nell'header sopra
                 if (exercises.isEmpty)
@@ -141,6 +161,7 @@ class WorkoutDetailScreen extends StatelessWidget {
                       return RoutineExerciseListItem(
                         exercise: re,
                         isImperial: isImperial,
+                        isReadOnly: currentRoutine.isSystem,
                         onEdit: () =>
                             _showEditExerciseSheet(context, re, currentRoutine),
                         onRemove: () =>

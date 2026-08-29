@@ -35,7 +35,12 @@ class _CustomWorkoutsScreenState extends State<CustomWorkoutsScreen> {
             }
 
             if (state is TrainingLoaded) {
-              final routines = state.routines;
+              final systemRoutines = state.routines
+                  .where((r) => r.isSystem)
+                  .toList();
+              final routines = state.routines
+                  .where((r) => !r.isSystem)
+                  .toList();
 
               return SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(
@@ -140,6 +145,36 @@ class _CustomWorkoutsScreenState extends State<CustomWorkoutsScreen> {
                       ],
                     ),
                     const SizedBox(height: 32),
+
+                    // Routine consigliate (di sistema): uguali per tutti,
+                    // avviabili subito, copiabili ma non modificabili.
+                    if (systemRoutines.isNotEmpty) ...[
+                      Text(
+                        'Routine consigliate',
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w900,
+                          fontFamily: 'Lexend',
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      ListView.separated(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: systemRoutines.length,
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(height: 16),
+                        itemBuilder: (context, index) {
+                          final routine = systemRoutines[index];
+                          return _SystemRoutineCard(
+                            routine: routine,
+                            color: index.isEven
+                                ? theme.colorScheme.primary
+                                : theme.colorScheme.tertiary,
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 32),
+                    ],
 
                     // Workouts List
                     if (routines.isEmpty)
@@ -512,6 +547,179 @@ class _WorkoutCard extends StatelessWidget {
                       ],
                     ),
                   ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SystemRoutineCard extends StatelessWidget {
+  const _SystemRoutineCard({required this.routine, required this.color});
+
+  final RoutineEntity routine;
+  final Color color;
+
+  void _copyRoutine(BuildContext context) {
+    final theme = Theme.of(context);
+    context.read<TrainingBloc>().add(CopyRoutineEvent(routine.id));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        behavior: SnackBarBehavior.floating,
+        content: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.primary,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: theme.colorScheme.primary.withValues(alpha: 0.3),
+                blurRadius: 15,
+                offset: const Offset(0, 5),
+              ),
+            ],
+          ),
+          child: const Row(
+            children: [
+              Icon(Icons.check_circle_rounded, color: Colors.white, size: 24),
+              SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Routine copiata in "I tuoi workout"',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w900,
+                    fontFamily: 'Lexend',
+                    fontSize: 13,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.6),
+            theme.colorScheme.surfaceContainer.withValues(alpha: 0.4),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: color.withValues(alpha: 0.15), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => context.push('/custom/detail', extra: routine),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.secondaryContainer
+                              .withValues(alpha: 0.5),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          'CONSIGLIATA',
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: theme.colorScheme.onSecondaryContainer,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 0.5,
+                            fontSize: 9,
+                            fontFamily: 'Lexend',
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        routine.title,
+                        style: theme.textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w900,
+                          fontFamily: 'Lexend',
+                          fontSize: 18,
+                          color: theme.colorScheme.onSurface,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: color.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.fitness_center_rounded,
+                                  size: 14,
+                                  color: color,
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  '${routine.exercises.length} ESERCIZI',
+                                  style: theme.textTheme.labelSmall?.copyWith(
+                                    color: color,
+                                    fontWeight: FontWeight.w900,
+                                    letterSpacing: 0.5,
+                                    fontSize: 9,
+                                    fontFamily: 'Lexend',
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                _ActionButton(
+                  icon: Icons.content_copy_rounded,
+                  color: theme.colorScheme.primary,
+                  onTap: () => _copyRoutine(context),
                 ),
               ],
             ),
