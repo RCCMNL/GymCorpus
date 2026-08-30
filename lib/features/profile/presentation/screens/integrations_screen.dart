@@ -2,13 +2,14 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/core/widgets/section_title.dart';
+import 'package:gym_corpus/features/profile/data/workout_report_pdf.dart';
+import 'package:gym_corpus/features/profile/domain/workout_report.dart';
 import 'package:gym_corpus/features/training/domain/repositories/training_repository.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:pdf/pdf.dart';
-import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -73,63 +74,29 @@ class _IntegrationsScreenState extends State<IntegrationsScreen> {
   Future<void> _exportAsPdf() async {
     setState(() => _isExporting = true);
     try {
-      final pdf = pw.Document();
       final repository = GetIt.I<TrainingRepository>();
-      final weightLogs = await repository.watchWeightLogs().first;
+      final sets = await repository.watchWeightLogs().first;
+      final sessions = await repository.watchWorkoutSessions().first;
+      final exercises = await repository.watchExercises().first;
+      final settings = await repository.watchAllSettings().first;
 
-      pdf.addPage(
-        pw.MultiPage(
-          build: (pw.Context context) {
-            return [
-              pw.Header(
-                level: 0,
-                child: pw.Text(
-                  'GymCorpus - Report Allenamenti',
-                  style: pw.TextStyle(
-                    fontSize: 24,
-                    fontWeight: pw.FontWeight.bold,
-                  ),
-                ),
-              ),
-              pw.Padding(
-                padding: const pw.EdgeInsets.symmetric(vertical: 4),
-                child: pw.Text('Report generato il ${DateTime.now()}'),
-              ),
-              pw.SizedBox(height: 20),
-              pw.Text(
-                'Riepilogo Recente',
-                style: pw.TextStyle(
-                  fontSize: 18,
-                  fontWeight: pw.FontWeight.bold,
-                ),
-              ),
-              pw.SizedBox(height: 10),
-              pw.TableHelper.fromTextArray(
-                context: context,
-                data: [
-                  ['Data', 'Peso (kg)', 'Ripetizioni'],
-                  for (final l in weightLogs.take(20))
-                    [
-                      l.timestamp.toIso8601String().split('T')[0],
-                      l.weight.toString(),
-                      l.reps.toString(),
-                    ],
-                ],
-              ),
-              pw.SizedBox(height: 40),
-              pw.Center(
-                child: pw.Text(
-                  'Fine del Report',
-                  style: const pw.TextStyle(color: PdfColors.grey),
-                ),
-              ),
-            ];
-          },
-        ),
+      final data = buildWorkoutReport(
+        sessions: sessions,
+        sets: sets,
+        exercises: exercises,
+        isImperial: settings['units'] == 'LB',
+        generatedAt: DateTime.now(),
+      );
+
+      final logo = await rootBundle.load(
+        'assets/images/splash_android12_icon.png',
       );
 
       await Printing.sharePdf(
-        bytes: await pdf.save(),
+        bytes: await buildWorkoutReportPdf(
+          data: data,
+          logoBytes: logo.buffer.asUint8List(),
+        ),
         filename: 'gym_corpus_report.pdf',
       );
     } catch (e) {
