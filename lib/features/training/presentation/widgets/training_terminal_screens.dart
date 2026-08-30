@@ -167,7 +167,9 @@ class EmptyRoutineScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 24),
-                TextButton(
+                // Unica via d'uscita da questa schermata: merita un
+                // bottone pieno, non un link di testo.
+                FilledButton(
                   onPressed: () => context.go('/training'),
                   child: const Text('TORNA INDIETRO'),
                 ),

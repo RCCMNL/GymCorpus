@@ -248,9 +248,9 @@ class _MiniMeasurementChip extends StatelessWidget {
                   fontSize: 10,
                 ),
               ),
-              const Text(
+              Text(
                 ' cm',
-                style: TextStyle(fontSize: 8, color: Colors.grey),
+                style: TextStyle(fontSize: 8, color: theme.colorScheme.outline),
               ),
               if (canEdit) ...[
                 const SizedBox(width: 4),

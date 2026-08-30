@@ -75,7 +75,7 @@ class NutritionScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 32),
-              _buildMacroSection(theme),
+              _buildMacroSection(context, theme),
               const SizedBox(height: 24),
               _buildWaterTracker(theme),
               const SizedBox(height: 32),
@@ -83,13 +83,25 @@ class NutritionScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const SectionTitle('PASTI DI OGGI'),
-                  TextButton(
-                    onPressed: () {},
+                  // Niente pulsante "Aggiungi": la sezione e' ancora in
+                  // sviluppo (vedi il banner in cima) e un controllo che
+                  // al tocco non fa nulla non si legge come "in arrivo",
+                  // si legge come app rotta. Meglio dichiararlo.
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.surfaceContainerHigh,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                     child: Text(
-                      'Aggiungi +',
-                      style: TextStyle(
-                        color: theme.colorScheme.primary,
-                        fontWeight: FontWeight.bold,
+                      'PRESTO DISPONIBILE',
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: theme.colorScheme.outline,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 9,
                       ),
                     ),
                   ),
@@ -134,7 +146,7 @@ class NutritionScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildMacroSection(ThemeData theme) {
+  Widget _buildMacroSection(BuildContext context, ThemeData theme) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -164,9 +176,19 @@ class NutritionScreen extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildMacroItem('Prot', '180g', Colors.redAccent),
-              _buildMacroItem('Carb', '250g', Colors.blueAccent),
-              _buildMacroItem('Grassi', '70g', Colors.yellowAccent),
+              _buildMacroItem(
+                context,
+                'Prot',
+                '180g',
+                theme.colorScheme.primary,
+              ),
+              _buildMacroItem(context, 'Carb', '250g', const Color(0xFF37CBFD)),
+              _buildMacroItem(
+                context,
+                'Grassi',
+                '70g',
+                const Color(0xFFFFC46B),
+              ),
             ],
           ),
         ],
@@ -174,7 +196,12 @@ class NutritionScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildMacroItem(String label, String value, Color color) {
+  Widget _buildMacroItem(
+    BuildContext context,
+    String label,
+    String value,
+    Color color,
+  ) {
     return Column(
       children: [
         Container(
@@ -194,7 +221,13 @@ class NutritionScreen extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
-        Text(label, style: const TextStyle(fontSize: 10, color: Colors.grey)),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 10,
+            color: Theme.of(context).colorScheme.outline,
+          ),
+        ),
       ],
     );
   }

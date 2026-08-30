@@ -8,16 +8,26 @@ class DifficultyBadge extends StatelessWidget {
 
   final String difficulty;
 
+  /// Scala semantica della difficolta', volutamente distinta dagli
+  /// accenti del brand: qui il colore deve dire "facile / medio /
+  /// difficile", non richiamare la palette. Sono comunque tarati sul
+  /// fondo navy dell'app invece di essere i Colors.green/orange/red di
+  /// Material, che su questo sfondo risultano spenti.
+  static const Color _beginner = Color(0xFF6FE39B);
+  static const Color _intermediate = Color(0xFFFFC46B);
+  static const Color _advanced = Color(0xFFFF7A73);
+  static const Color _unknown = Color(0xFF71729D);
+
   static Color colorFor(String difficulty) {
     switch (difficulty) {
       case ExerciseEntity.difficultyBeginner:
-        return Colors.green;
+        return _beginner;
       case ExerciseEntity.difficultyIntermediate:
-        return Colors.orange;
+        return _intermediate;
       case ExerciseEntity.difficultyAdvanced:
-        return Colors.redAccent;
+        return _advanced;
       default:
-        return Colors.grey;
+        return _unknown;
     }
   }
 

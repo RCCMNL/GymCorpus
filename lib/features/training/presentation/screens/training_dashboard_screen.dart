@@ -177,9 +177,12 @@ class TrainingDashboardScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          TextButton(
+          // Unica azione di questa schermata: un link testuale
+          // comunicherebbe "opzionale", qui serve un invito esplicito.
+          FilledButton.icon(
             onPressed: () => context.go('/custom/new'),
-            child: const Text('CREA LA TUA PRIMA ROUTINE'),
+            icon: const Icon(Icons.add_rounded, size: 20),
+            label: const Text('CREA LA TUA PRIMA ROUTINE'),
           ),
         ],
       ),

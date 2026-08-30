@@ -312,11 +312,17 @@ class _CycleCalendarScreenState extends State<CycleCalendarScreen>
                           fontSize: 14,
                         ),
                       ),
-                      const Row(
+                      Row(
                         children: [
-                          Icon(Icons.chevron_left, color: Colors.grey),
-                          SizedBox(width: 16),
-                          Icon(Icons.chevron_right, color: Colors.grey),
+                          Icon(
+                            Icons.chevron_left,
+                            color: theme.colorScheme.outline,
+                          ),
+                          const SizedBox(width: 16),
+                          Icon(
+                            Icons.chevron_right,
+                            color: theme.colorScheme.outline,
+                          ),
                         ],
                       ),
                     ],
