@@ -6,6 +6,7 @@ import 'package:gym_corpus/features/exercises/domain/equipment_tags.dart';
 import 'package:gym_corpus/features/exercises/domain/exercise_catalog_view.dart';
 import 'package:gym_corpus/features/exercises/presentation/widgets/difficulty_badge.dart';
 import 'package:gym_corpus/features/exercises/presentation/widgets/exercise_filters_sheet.dart';
+import 'package:gym_corpus/features/exercises/presentation/widgets/exercise_thumbnail.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
@@ -304,51 +305,7 @@ class _ExerciseTile extends StatelessWidget {
           ),
           child: Row(
             children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: Container(
-                  width: 60,
-                  height: 60,
-                  color: theme.colorScheme.surfaceContainerHigh,
-                  child: exercise.imageUrl != null
-                      ? Image.network(
-                          exercise.imageUrl!,
-                          fit: BoxFit.cover,
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) return child;
-                            return ColoredBox(
-                              color: theme.colorScheme.surfaceContainerHighest,
-                              child: Center(
-                                child: SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    value:
-                                        loadingProgress.expectedTotalBytes !=
-                                            null
-                                        ? loadingProgress
-                                                  .cumulativeBytesLoaded /
-                                              loadingProgress
-                                                  .expectedTotalBytes!
-                                        : null,
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                          errorBuilder: (context, error, stackTrace) =>
-                              Image.asset(
-                                'assets/images/placeholder-image.png',
-                                fit: BoxFit.cover,
-                              ),
-                        )
-                      : Image.asset(
-                          'assets/images/placeholder-image.png',
-                          fit: BoxFit.cover,
-                        ),
-                ),
-              ),
+              ExerciseThumbnail(exercise: exercise),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(

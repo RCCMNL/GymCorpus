@@ -4,6 +4,7 @@ import 'package:gym_corpus/features/exercises/domain/equipment_tags.dart';
 import 'package:gym_corpus/features/exercises/domain/exercise_catalog_view.dart';
 import 'package:gym_corpus/features/exercises/presentation/widgets/difficulty_badge.dart';
 import 'package:gym_corpus/features/exercises/presentation/widgets/exercise_filters_sheet.dart';
+import 'package:gym_corpus/features/exercises/presentation/widgets/exercise_thumbnail.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
@@ -168,7 +169,9 @@ class _ExercisePickerModalState extends State<ExercisePickerModal> {
                             e.difficulty == _selectedDifficulty;
                         final matchesEquipment =
                             _selectedEquipment.isEmpty ||
-                            equipmentTagsFor(e).any(_selectedEquipment.contains);
+                            equipmentTagsFor(
+                              e,
+                            ).any(_selectedEquipment.contains);
                         return matchesSearch &&
                             matchesDifficulty &&
                             matchesEquipment;
@@ -212,22 +215,9 @@ class _ExercisePickerModalState extends State<ExercisePickerModal> {
                               ),
                               child: Row(
                                 children: [
-                                  Container(
-                                    width: 60,
-                                    height: 60,
-                                    decoration: BoxDecoration(
-                                      color: theme
-                                          .colorScheme
-                                          .surfaceContainerHighest,
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Icon(
-                                      Icons.fitness_center,
-                                      size: 24,
-                                      color: isSelected
-                                          ? theme.colorScheme.primary
-                                          : const Color(0xFF94AAFF),
-                                    ),
+                                  ExerciseThumbnail(
+                                    exercise: ex,
+                                    borderRadius: 12,
                                   ),
                                   const SizedBox(width: 16),
                                   Expanded(

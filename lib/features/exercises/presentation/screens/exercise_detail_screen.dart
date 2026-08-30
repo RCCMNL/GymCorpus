@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/features/exercises/presentation/widgets/difficulty_badge.dart';
+import 'package:gym_corpus/features/exercises/presentation/widgets/exercise_thumbnail.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
@@ -134,35 +135,10 @@ class ExerciseDetailScreen extends StatelessWidget {
             // Hero Section
             Stack(
               children: [
-                Container(
+                SizedBox(
                   width: double.infinity,
                   height: 380,
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.surfaceContainerHigh,
-                  ),
-                  child: exercise.imageUrl != null
-                      ? Image.network(
-                          exercise.imageUrl!,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) =>
-                              ColoredBox(
-                                color:
-                                    theme.colorScheme.surfaceContainerHighest,
-                                child: Center(
-                                  child: Icon(
-                                    Icons.broken_image_rounded,
-                                    color: theme.colorScheme.outline.withValues(
-                                      alpha: 0.3,
-                                    ),
-                                    size: 48,
-                                  ),
-                                ),
-                              ),
-                        )
-                      : Image.asset(
-                          'assets/images/placeholder-image.png',
-                          fit: BoxFit.cover,
-                        ),
+                  child: ExerciseThumbnail.expand(exercise: exercise),
                 ),
                 Positioned.fill(
                   child: Container(

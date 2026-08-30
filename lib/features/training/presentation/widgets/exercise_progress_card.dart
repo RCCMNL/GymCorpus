@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gym_corpus/core/utils/unit_converter.dart';
+import 'package:gym_corpus/features/exercises/presentation/widgets/exercise_thumbnail.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 import 'package:gym_corpus/features/training/domain/set_specs.dart';
@@ -39,20 +40,7 @@ class ExerciseProgressCard extends StatelessWidget {
       child: Stack(
         children: [
           Positioned.fill(
-            child: exercise.exercise.imageUrl != null
-                ? Image.network(
-                    exercise.exercise.imageUrl!,
-                    fit: BoxFit.cover,
-                    alignment: Alignment.topCenter,
-                    errorBuilder: (context, error, stackTrace) => Image.asset(
-                      'assets/images/placeholder-image.png',
-                      fit: BoxFit.cover,
-                    ),
-                  )
-                : Image.asset(
-                    'assets/images/placeholder-image.png',
-                    fit: BoxFit.cover,
-                  ),
+            child: ExerciseThumbnail.expand(exercise: exercise.exercise),
           ),
           Positioned.fill(
             child: Container(

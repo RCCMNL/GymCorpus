@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gym_corpus/core/utils/unit_converter.dart';
+import 'package:gym_corpus/features/exercises/presentation/widgets/exercise_thumbnail.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 import 'package:gym_corpus/features/training/domain/set_specs.dart';
 
@@ -74,45 +75,21 @@ class NextUpCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(16),
-            child: Container(
-              width: 48,
-              height: 48,
-              color: accent.withValues(alpha: 0.1),
-              child: showImage
-                  ? (isLastSet
-                        ? (nextExercise!.exercise.imageUrl != null
-                              ? Image.network(
-                                  nextExercise!.exercise.imageUrl!,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) =>
-                                      Image.asset(
-                                        'assets/images/placeholder-image.png',
-                                        fit: BoxFit.cover,
-                                      ),
-                                )
-                              : Image.asset(
-                                  'assets/images/placeholder-image.png',
-                                  fit: BoxFit.cover,
-                                ))
-                        : (currentExercise.exercise.imageUrl != null
-                              ? Image.network(
-                                  currentExercise.exercise.imageUrl!,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) =>
-                                      Image.asset(
-                                        'assets/images/placeholder-image.png',
-                                        fit: BoxFit.cover,
-                                      ),
-                                )
-                              : Image.asset(
-                                  'assets/images/placeholder-image.png',
-                                  fit: BoxFit.cover,
-                                )))
-                  : Icon(nextIcon, color: accent, size: 22),
+          if (showImage)
+            ExerciseThumbnail(
+              exercise: (isLastSet ? nextExercise! : currentExercise).exercise,
+              size: 48,
+            )
+          else
+            ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: Container(
+                width: 48,
+                height: 48,
+                color: accent.withValues(alpha: 0.1),
+                child: Icon(nextIcon, color: accent, size: 22),
+              ),
             ),
-          ),
           const SizedBox(width: 14),
           Expanded(
             child: Column(

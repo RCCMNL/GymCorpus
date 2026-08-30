@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:gym_corpus/core/utils/unit_converter.dart';
+import 'package:gym_corpus/features/exercises/presentation/widgets/exercise_thumbnail.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 
@@ -66,31 +67,10 @@ class RoutineExerciseListItem extends StatelessWidget {
         children: [
           ListTile(
             contentPadding: const EdgeInsets.fromLTRB(16, 16, 8, 16),
-            leading: Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: theme.colorScheme.primary.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(14),
-                child: re.exercise.imageUrl != null
-                    ? Image.network(
-                        re.exercise.imageUrl!,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Icon(
-                          Icons.fitness_center_rounded,
-                          color: theme.colorScheme.primary,
-                          size: 22,
-                        ),
-                      )
-                    : Icon(
-                        Icons.fitness_center_rounded,
-                        color: theme.colorScheme.primary,
-                        size: 22,
-                      ),
-              ),
+            leading: ExerciseThumbnail(
+              exercise: re.exercise,
+              size: 48,
+              borderRadius: 14,
             ),
             title: Text(
               re.exercise.name,
