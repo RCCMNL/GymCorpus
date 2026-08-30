@@ -107,6 +107,8 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
                                     Icons.search,
                                     color: theme.colorScheme.primary,
                                   ),
+                                  // Il riempimento lo disegna il Container che avvolge il campo.
+                                  filled: false,
                                   border: InputBorder.none,
                                   contentPadding: const EdgeInsets.symmetric(
                                     vertical: 14,

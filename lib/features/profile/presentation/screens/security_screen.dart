@@ -884,6 +884,8 @@ class _ChangePasswordSheetState extends State<_ChangePasswordSheet> {
                 onPressed: onToggleObscure,
                 color: widget.theme.colorScheme.outline,
               ),
+              // Il riempimento lo disegna il Container che avvolge il campo.
+              filled: false,
               border: InputBorder.none,
               contentPadding: const EdgeInsets.symmetric(
                 vertical: 18,

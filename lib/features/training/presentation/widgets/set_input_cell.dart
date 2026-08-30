@@ -38,6 +38,8 @@ class SetInputCell extends StatelessWidget {
               ),
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
+                // Il riempimento lo disegna il Container che avvolge il campo.
+                filled: false,
                 border: InputBorder.none,
                 isDense: true,
                 hintText: '-',

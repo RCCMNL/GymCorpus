@@ -309,6 +309,8 @@ class _WorkoutPageState extends State<WorkoutPage> {
                               alpha: 0.4,
                             ),
                           ),
+                          // Il riempimento lo disegna il Container che avvolge il campo.
+                          filled: false,
                           border: InputBorder.none,
                           contentPadding: EdgeInsets.zero,
                           icon: Icon(

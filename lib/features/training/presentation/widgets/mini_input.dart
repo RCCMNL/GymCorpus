@@ -49,6 +49,8 @@ class MiniInput extends StatelessWidget {
             horizontal: 16,
             vertical: 14,
           ),
+          // Il riempimento lo disegna il Container che avvolge il campo.
+          filled: false,
           border: InputBorder.none,
           hintText: '0',
           hintStyle: TextStyle(
