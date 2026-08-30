@@ -143,6 +143,78 @@ void main() {
   );
 
   test(
+    'la riapertura riallinea i testi di catalogo modificati nei seed',
+    () async {
+      // Regressione: il refuso "with" al posto di "con" era stato
+      // corretto nei seed, ma chi aveva gia' il database popolato
+      // continuava a vederlo, perche' il seeding gira solo a tabella
+      // vuota.
+      final firstRun = AppDatabase(NativeDatabase(dbFile));
+      final seeded = await (firstRun.select(
+        firstRun.exercises,
+      )..where((e) => e.name.equals('Sissy Squat'))).getSingle();
+      // isA<String>() invece di isNotNull: quest'ultimo e' esportato sia
+      // da drift che da matcher e l'import risulterebbe ambiguo.
+      final realEquipment = seeded.equipment;
+      expect(realEquipment, isA<String>());
+
+      // Simula il testo vecchio rimasto in un'installazione esistente.
+      await (firstRun.update(
+        firstRun.exercises,
+      )..where((e) => e.id.equals(seeded.id))).write(
+        const ExercisesCompanion(equipment: Value('Corpo libero (with X)')),
+      );
+
+      // Nota personale e preferito: sono dell'utente, il riallineamento
+      // non deve toccarli.
+      await (firstRun.update(
+        firstRun.exercises,
+      )..where((e) => e.id.equals(seeded.id))).write(
+        const ExercisesCompanion(
+          userNotes: Value('la mia nota'),
+          isFavorite: Value(true),
+        ),
+      );
+      await firstRun.close();
+
+      final secondRun = AppDatabase(NativeDatabase(dbFile));
+      addTearDown(secondRun.close);
+
+      final repaired = await (secondRun.select(
+        secondRun.exercises,
+      )..where((e) => e.id.equals(seeded.id))).getSingle();
+      expect(repaired.equipment, realEquipment);
+      expect(repaired.userNotes, 'la mia nota');
+      expect(repaired.isFavorite, isTrue);
+    },
+  );
+
+  test('il riallineamento non tocca gli esercizi custom dell utente', () async {
+    final firstRun = AppDatabase(NativeDatabase(dbFile));
+    // Omonimo di un esercizio predefinito: il caso limite in cui una
+    // ricerca per nome potrebbe sovrascrivere dati dell'utente.
+    final customId = await firstRun
+        .into(firstRun.exercises)
+        .insert(
+          ExercisesCompanion.insert(
+            name: 'Sissy Squat',
+            targetMuscle: 'Gambe',
+            equipment: const Value('Il mio attrezzo'),
+            isCustom: const Value(true),
+          ),
+        );
+    await firstRun.close();
+
+    final secondRun = AppDatabase(NativeDatabase(dbFile));
+    addTearDown(secondRun.close);
+
+    final custom = await (secondRun.select(
+      secondRun.exercises,
+    )..where((e) => e.id.equals(customId))).getSingle();
+    expect(custom.equipment, 'Il mio attrezzo');
+  });
+
+  test(
     'il primo avvio semina le routine di sistema con gli esercizi giusti',
     () async {
       final db = AppDatabase(NativeDatabase(dbFile));
@@ -157,10 +229,9 @@ void main() {
                 ))
                 .getSingle();
 
-        final exercisesRows =
-            await (db.select(db.routineExercises)
-                  ..where((t) => t.routineId.equals(routine.id)))
-                .get();
+        final exercisesRows = await (db.select(
+          db.routineExercises,
+        )..where((t) => t.routineId.equals(routine.id))).get();
         expect(
           exercisesRows.length,
           routineSeed.exercises.length,
@@ -168,10 +239,10 @@ void main() {
         );
 
         for (final exerciseSeed in routineSeed.exercises) {
-          final linkedExercise = await (db.select(db.exercises)..where(
-                (e) => e.name.equals(exerciseSeed.exerciseName),
-              ))
-              .getSingle();
+          final linkedExercise =
+              await (db.select(db.exercises)
+                    ..where((e) => e.name.equals(exerciseSeed.exerciseName)))
+                  .getSingle();
           final link = exercisesRows.firstWhere(
             (row) => row.exerciseId == linkedExercise.id,
             orElse: () => throw StateError(
@@ -186,43 +257,38 @@ void main() {
     },
   );
 
-  test(
-    'il seeding delle routine di sistema e idempotente e non tocca quelle '
-    'dell utente',
-    () async {
-      final firstRun = AppDatabase(NativeDatabase(dbFile));
-      final systemCountBefore =
-          await (firstRun.select(
-            firstRun.routines,
-          )..where((r) => r.isSystem.equals(true))).get();
-      expect(systemCountBefore.length, getDefaultRoutines().length);
+  test('il seeding delle routine di sistema e idempotente e non tocca quelle '
+      'dell utente', () async {
+    final firstRun = AppDatabase(NativeDatabase(dbFile));
+    final systemCountBefore = await (firstRun.select(
+      firstRun.routines,
+    )..where((r) => r.isSystem.equals(true))).get();
+    expect(systemCountBefore.length, getDefaultRoutines().length);
 
-      // Routine dell'utente, per verificare che il reseed non la tocchi.
-      final userRoutineId = await firstRun
-          .into(firstRun.routines)
-          .insert(RoutinesCompanion.insert(title: 'La mia routine'));
-      await firstRun.close();
+    // Routine dell'utente, per verificare che il reseed non la tocchi.
+    final userRoutineId = await firstRun
+        .into(firstRun.routines)
+        .insert(RoutinesCompanion.insert(title: 'La mia routine'));
+    await firstRun.close();
 
-      final secondRun = AppDatabase(NativeDatabase(dbFile));
-      addTearDown(secondRun.close);
+    final secondRun = AppDatabase(NativeDatabase(dbFile));
+    addTearDown(secondRun.close);
 
-      final systemCountAfter =
-          await (secondRun.select(
-            secondRun.routines,
-          )..where((r) => r.isSystem.equals(true))).get();
-      expect(
-        systemCountAfter.length,
-        getDefaultRoutines().length,
-        reason: 'le routine di sistema non devono duplicarsi al riavvio',
-      );
+    final systemCountAfter = await (secondRun.select(
+      secondRun.routines,
+    )..where((r) => r.isSystem.equals(true))).get();
+    expect(
+      systemCountAfter.length,
+      getDefaultRoutines().length,
+      reason: 'le routine di sistema non devono duplicarsi al riavvio',
+    );
 
-      final userRoutine = await (secondRun.select(
-        secondRun.routines,
-      )..where((r) => r.id.equals(userRoutineId))).getSingle();
-      expect(userRoutine.title, 'La mia routine');
-      expect(userRoutine.isSystem, isFalse);
-    },
-  );
+    final userRoutine = await (secondRun.select(
+      secondRun.routines,
+    )..where((r) => r.id.equals(userRoutineId))).getSingle();
+    expect(userRoutine.title, 'La mia routine');
+    expect(userRoutine.isSystem, isFalse);
+  });
 
   test(
     'ogni colonna dello schema corrente sopravvive a una riapertura',

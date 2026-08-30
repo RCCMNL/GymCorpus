@@ -140,7 +140,7 @@ class AppDatabase extends _$AppDatabase {
         final m = createMigrator();
         await _ensureCurrentTables(m);
         await _ensureCurrentColumns(m);
-        await _backfillExerciseDifficulty();
+        await _syncSeedExerciseContent();
 
         final exercisesExist = await select(exercises).get();
 
@@ -278,32 +278,68 @@ class AppDatabase extends _$AppDatabase {
     await _ensureColumn(m, notificationLogs, notificationLogs.type, 'type');
   }
 
-  /// Ripara le installazioni esistenti: il seeding iniziale in
-  /// [_seedInitialData] inserisce i valori di `difficulty` solo per un
-  /// database vuoto (primo avvio), quindi chi ha già dati salvati non
-  /// riceve la colonna appena aggiunta con `_ensureColumn`. Qui associamo
-  /// per nome ogni riga senza difficoltà a quella del catalogo seed (unica
-  /// fonte del dato, niente mappa duplicata da mantenere). Le righe
-  /// custom dell'utente restano intenzionalmente escluse: la difficoltà
-  /// per quelle è sempre richiesta esplicitamente nel form di creazione.
-  Future<void> _backfillExerciseDifficulty() async {
-    final missing = await (select(
-      exercises,
-    )..where((e) => e.difficulty.isNull() & e.isCustom.equals(false))).get();
-    if (missing.isEmpty) return;
-
-    final seedDifficultyByName = <String, String?>{
-      for (final s in getSeedExercises()) s.name.value: s.difficulty.value,
+  /// Riallinea gli esercizi predefiniti al catalogo seed, che resta
+  /// l'unica fonte del dato.
+  ///
+  /// Il seeding iniziale in [_seedInitialData] gira solo a tabella vuota,
+  /// quindi chi ha già il database popolato non riceve nessuna correzione
+  /// successiva: è così che la difficoltà restava nulla dopo averla
+  /// introdotta, e che il refuso "with" al posto di "con" è rimasto
+  /// visibile nell'attrezzatura anche dopo averlo corretto nei seed.
+  ///
+  /// Scrive solo le righe che differiscono davvero, così un database già
+  /// allineato non paga nulla ad ogni apertura. Tocca esclusivamente i
+  /// campi di catalogo: note personali e preferiti sono dell'utente, e
+  /// gli esercizi custom non hanno una controparte nei seed.
+  Future<void> _syncSeedExerciseContent() async {
+    final seedByName = <String, ExercisesCompanion>{
+      for (final s in getSeedExercises()) s.name.value: s,
     };
 
-    for (final row in missing) {
-      final difficulty = seedDifficultyByName[row.name];
-      if (difficulty == null) continue;
+    final rows = await (select(
+      exercises,
+    )..where((e) => e.isCustom.equals(false))).get();
+
+    for (final row in rows) {
+      final seed = seedByName[row.name];
+      if (seed == null) continue;
+
+      final equipment = _seedText(seed.equipment);
+      final focusArea = _seedText(seed.focusArea);
+      final preparation = _seedText(seed.preparation);
+      final execution = _seedText(seed.execution);
+      final tips = _seedText(seed.tips);
+      final difficulty = _seedText(seed.difficulty);
+
+      final needsUpdate =
+          (equipment != null && equipment != row.equipment) ||
+          (focusArea != null && focusArea != row.focusArea) ||
+          (preparation != null && preparation != row.preparation) ||
+          (execution != null && execution != row.execution) ||
+          (tips != null && tips != row.tips) ||
+          (difficulty != null && difficulty != row.difficulty);
+      if (!needsUpdate) continue;
+
       await (update(exercises)..where((e) => e.id.equals(row.id))).write(
-        ExercisesCompanion(difficulty: Value(difficulty)),
+        ExercisesCompanion(
+          equipment: _valueOrAbsent(equipment),
+          focusArea: _valueOrAbsent(focusArea),
+          preparation: _valueOrAbsent(preparation),
+          execution: _valueOrAbsent(execution),
+          tips: _valueOrAbsent(tips),
+          difficulty: _valueOrAbsent(difficulty),
+        ),
       );
     }
   }
+
+  /// Testo dichiarato dal seed, oppure `null` se quel campo non è
+  /// specificato: in quel caso il valore già presente non va toccato.
+  static String? _seedText(Value<String?> field) =>
+      field.present ? field.value : null;
+
+  static Value<String?> _valueOrAbsent(String? text) =>
+      text == null ? const Value.absent() : Value(text);
 
   /// Inserisce le routine di sistema (uguali per tutti, non modificabili,
   /// vedi isSystem) se non sono già presenti. Confronta per titolo così
