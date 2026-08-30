@@ -244,7 +244,7 @@ class ExerciseDetailScreen extends StatelessWidget {
                         Expanded(
                           child: _BentoCard(
                             title: 'ATTREZZATURA',
-                            content: exercise.equipment ?? 'Tappetino',
+                            content: exercise.equipment ?? 'Non specificato',
                             icon: Icons.fitness_center,
                             iconColor: theme.colorScheme.primary,
                           ),
@@ -253,7 +253,7 @@ class ExerciseDetailScreen extends StatelessWidget {
                         Expanded(
                           child: _BentoCard(
                             title: 'AREA FOCUS',
-                            content: exercise.focusArea ?? 'Addominali',
+                            content: exercise.focusArea ?? 'Non specificato',
                             icon: Icons.track_changes,
                             iconColor: theme.colorScheme.tertiary,
                           ),
