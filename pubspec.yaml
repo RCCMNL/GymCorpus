@@ -71,6 +71,45 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/
+    # Solo i due file di licenza, non l'intera cartella fonts/: i .ttf
+    # sono gia' impacchettati dalla sezione fonts: qui sotto, e
+    # dichiararli anche come asset li includerebbe due volte.
+    - assets/fonts/Lexend-OFL.txt
+    - assets/fonts/Inter-OFL.txt
+
+  # Lexend e Inter erano usati in tutto il tema (fontFamily: 'Lexend' in
+  # 65 file) ma non erano mai stati dichiarati: Flutter ripiegava in
+  # silenzio sul font di sistema, quindi la tipografia progettata non si
+  # e' mai vista. Impacchettati invece di scaricarli a runtime, cosi'
+  # l'app resta identica anche senza rete.
+  #
+  # I pesi sono quelli davvero usati nel codice. Inter e' incluso solo a
+  # 400/600/700 perche' ogni suo file pesa ~318 KB (contro i 69 KB di
+  # Lexend): il 500 ricade sul peso piu' vicino, differenza impercettibile
+  # nel testo di lettura.
+  fonts:
+    - family: Lexend
+      fonts:
+        - asset: assets/fonts/Lexend-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Lexend-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Lexend-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Lexend-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Lexend-ExtraBold.ttf
+          weight: 800
+        - asset: assets/fonts/Lexend-Black.ttf
+          weight: 900
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Inter-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Inter-Bold.ttf
+          weight: 700
 
 flutter_launcher_icons:
   android: "launcher_icon"

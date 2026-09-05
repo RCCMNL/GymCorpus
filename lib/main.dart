@@ -58,9 +58,22 @@ import 'package:gym_corpus/features/training/presentation/screens/workout_page.d
 import 'package:gym_corpus/features/training/presentation/screens/yoga_screen.dart';
 import 'package:gym_corpus/firebase_options.dart';
 
+/// Lexend e Inter sono impacchettati nell'app sotto licenza OFL, che
+/// richiede di distribuire il testo della licenza insieme ai font.
+/// Registrandoli qui compaiono nella pagina delle licenze di Flutter.
+void _registerFontLicenses() {
+  LicenseRegistry.addLicense(() async* {
+    for (final font in ['Lexend', 'Inter']) {
+      final license = await rootBundle.loadString('assets/fonts/$font-OFL.txt');
+      yield LicenseEntryWithLineBreaks([font], license);
+    }
+  });
+}
+
 void main() async {
   final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  _registerFontLicenses();
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   // In debug usa il provider "debug" (token da registrare in console, vedi
