@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gym_corpus/core/widgets/section_title.dart';
+import 'package:share_plus/share_plus.dart';
 
 class ArticleDetailScreen extends StatelessWidget {
   const ArticleDetailScreen({required this.data, super.key});
@@ -42,7 +43,10 @@ class ArticleDetailScreen extends StatelessWidget {
             actions: [
               IconButton(
                 icon: const Icon(Icons.share_outlined),
-                onPressed: () {},
+                onPressed: () => SharePlus.instance.share(
+                  ShareParams(text: articleShareText(data)),
+                ),
+                tooltip: 'Condividi',
               ),
               const SizedBox(width: 8),
             ],
@@ -171,4 +175,26 @@ class ArticleDetailScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Testo condiviso di un articolo.
+///
+/// Vive fuori dal widget per poter essere verificato: e' la parte che puo'
+/// davvero sbagliare, mentre il foglio di condivisione lo apre il sistema.
+String articleShareText(Map<String, dynamic> data) {
+  final title = data['title'] as String? ?? 'Articolo';
+  final content = (data['content'] as String? ?? '').trim();
+
+  // Si condivide un assaggio, non l'articolo intero: alcune app rifiutano
+  // testi molto lunghi.
+  const maxContent = 400;
+  final excerpt = content.length > maxContent
+      ? '${content.substring(0, maxContent).trimRight()}...'
+      : content;
+
+  return [
+    title,
+    if (excerpt.isNotEmpty) excerpt,
+    'Letto su GymCorpus',
+  ].join('\n\n');
 }

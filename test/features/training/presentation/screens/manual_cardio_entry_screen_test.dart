@@ -39,9 +39,7 @@ void main() {
         UserEntity(id: '1', email: 'a@a.com', weight: 70),
       ),
     );
-    when(
-      () => notificationsBloc.state,
-    ).thenReturn(const NotificationsState());
+    when(() => notificationsBloc.state).thenReturn(const NotificationsState());
   });
 
   Future<void> pump(WidgetTester tester) async {

@@ -844,6 +844,22 @@ class AuthRepositoryImpl implements AuthRepository {
         ),
       );
     } on FirebaseAuthException catch (e) {
+      // La conferma fallisce quasi sempre per due motivi, e vanno detti in
+      // modo diverso: la password non corrisponde, oppure la sessione e'
+      // troppo vecchia e va rifatto l'accesso. Il messaggio di Firebase e'
+      // in inglese e non distingue le due cose per chi legge.
+      if (e.code == 'requires-recent-login') {
+        return const Left(
+          AuthFailure(
+            "Per procedere devi confermare di nuovo l'accesso: esci e rientra, "
+            'poi riprova.',
+          ),
+        );
+      }
+      if (e.code == 'wrong-password' || e.code == 'invalid-credential') {
+        return const Left(AuthFailure('La password inserita non e corretta.'));
+      }
+
       return Left(
         AuthFailure(e.message ?? 'Errore durante la conferma account'),
       );

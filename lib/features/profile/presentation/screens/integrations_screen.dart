@@ -56,10 +56,12 @@ class _IntegrationsScreenState extends State<IntegrationsScreen> {
       final file = File('${directory.path}/gym_corpus_export.json');
       await file.writeAsString(jsonString);
 
-      // ignore: deprecated_member_use
-      await Share.shareXFiles([
-        XFile(file.path),
-      ], text: 'Esportazione dati GymCorpus');
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(file.path)],
+          text: 'Esportazione dati GymCorpus',
+        ),
+      );
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
