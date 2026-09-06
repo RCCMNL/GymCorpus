@@ -28,12 +28,11 @@ void main() {
     endDate: DateTime(2026, 9, 5),
   );
 
-  CycleBloc buildBloc() =>
-      CycleBloc(
-        repository: repository,
-        notifications: notifications,
-        clock: () => today,
-      );
+  CycleBloc buildBloc() => CycleBloc(
+    repository: repository,
+    notifications: notifications,
+    clock: () => today,
+  );
 
   setUp(() {
     repository = _MockCycleRepository();
@@ -54,11 +53,18 @@ void main() {
         endDate: any(named: 'endDate'),
       ),
     ).thenAnswer((_) async => const Right(null));
-    when(() => repository.startPeriod(any())).thenAnswer((_) async => const Right(1));
     when(
-      () => repository.endPeriod(id: any(named: 'id'), date: any(named: 'date')),
+      () => repository.startPeriod(any()),
+    ).thenAnswer((_) async => const Right(1));
+    when(
+      () => repository.endPeriod(
+        id: any(named: 'id'),
+        date: any(named: 'date'),
+      ),
     ).thenAnswer((_) async => const Right(null));
-    when(() => repository.deleteCycleLog(any())).thenAnswer((_) async => const Right(null));
+    when(
+      () => repository.deleteCycleLog(any()),
+    ).thenAnswer((_) async => const Right(null));
     when(
       () => notifications.scheduleOneTimeReminder(
         notificationId: any(named: 'notificationId'),
@@ -145,7 +151,10 @@ void main() {
       bloc.add(EndPeriodEvent());
     },
     verify: (_) => verifyNever(
-      () => repository.endPeriod(id: any(named: 'id'), date: any(named: 'date')),
+      () => repository.endPeriod(
+        id: any(named: 'id'),
+        date: any(named: 'date'),
+      ),
     ),
   );
 
@@ -287,9 +296,8 @@ void main() {
       'la preferenza viene salvata quando si cambia',
       build: buildBloc,
       act: (bloc) => bloc.add(const SetCycleReminderEvent(enabled: true)),
-      verify: (_) => verify(
-        () => repository.setReminderEnabled(enabled: true),
-      ).called(1),
+      verify: (_) =>
+          verify(() => repository.setReminderEnabled(enabled: true)).called(1),
     );
   });
 

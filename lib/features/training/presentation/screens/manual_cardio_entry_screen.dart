@@ -118,7 +118,10 @@ class _ManualCardioEntryScreenState extends State<ManualCardioEntryScreen> {
     if (mounted) Navigator.of(context).maybePop();
   }
 
-  static String _formatPace({required double distanceKm, required int seconds}) {
+  static String _formatPace({
+    required double distanceKm,
+    required int seconds,
+  }) {
     if (distanceKm <= 0) return '--:--';
 
     final perKm = seconds / distanceKm;
@@ -197,7 +200,11 @@ class _ManualCardioEntryScreenState extends State<ManualCardioEntryScreen> {
             const SizedBox(height: 24),
             _Label(text: 'DURATA (MINUTI)', theme: theme),
             const SizedBox(height: 10),
-            _NumberField(key: const Key('manual-duration'), controller: _duration, hint: '45'),
+            _NumberField(
+              key: const Key('manual-duration'),
+              controller: _duration,
+              hint: '45',
+            ),
             if (_activity.tracksDistance) ...[
               const SizedBox(height: 24),
               _Label(text: 'DISTANZA (KM, FACOLTATIVA)', theme: theme),

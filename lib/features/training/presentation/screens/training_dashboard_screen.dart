@@ -37,7 +37,8 @@ class TrainingDashboardScreen extends StatelessWidget {
                     BlocBuilder<AuthBloc, AuthState>(
                       builder: (context, authState) {
                         final userName = authState.maybeWhen(
-                          authenticated: (user, _) => user.firstName ?? 'Atleta',
+                          authenticated: (user, _) =>
+                              user.firstName ?? 'Atleta',
                           orElse: () => 'Atleta',
                         );
                         return _buildHeader(theme, userName);

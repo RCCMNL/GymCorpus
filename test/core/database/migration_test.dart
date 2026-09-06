@@ -336,39 +336,44 @@ void main() {
     expect(saved.endDate, DateTime(2026, 9, 5));
   });
 
-  test('la riapertura riporta le colonne obiettivo sulle sessioni cardio', () async {
-    // L'obiettivo di sessione arriva dopo: chi aggiorna l'app ha la tabella
-    // senza quelle colonne, e senza il ripristino ogni salvataggio cardio
-    // fallirebbe con "no such column".
-    final firstRun = AppDatabase(NativeDatabase(dbFile));
-    await firstRun.customStatement(
-      'ALTER TABLE cardio_sessions DROP COLUMN goal_type',
-    );
-    await firstRun.customStatement(
-      'ALTER TABLE cardio_sessions DROP COLUMN goal_value',
-    );
-    await firstRun.close();
+  test(
+    'la riapertura riporta le colonne obiettivo sulle sessioni cardio',
+    () async {
+      // L'obiettivo di sessione arriva dopo: chi aggiorna l'app ha la tabella
+      // senza quelle colonne, e senza il ripristino ogni salvataggio cardio
+      // fallirebbe con "no such column".
+      final firstRun = AppDatabase(NativeDatabase(dbFile));
+      await firstRun.customStatement(
+        'ALTER TABLE cardio_sessions DROP COLUMN goal_type',
+      );
+      await firstRun.customStatement(
+        'ALTER TABLE cardio_sessions DROP COLUMN goal_value',
+      );
+      await firstRun.close();
 
-    final secondRun = AppDatabase(NativeDatabase(dbFile));
-    addTearDown(secondRun.close);
+      final secondRun = AppDatabase(NativeDatabase(dbFile));
+      addTearDown(secondRun.close);
 
-    await secondRun
-        .into(secondRun.cardioSessions)
-        .insert(
-          CardioSessionsCompanion.insert(
-            distance: 5,
-            duration: 1800,
-            avgSpeed: 10,
-            pace: '06:00',
-            calories: 300,
-            date: DateTime(2026, 9, 4),
-            goalType: const Value('distance'),
-            goalValue: const Value(5),
-          ),
-        );
+      await secondRun
+          .into(secondRun.cardioSessions)
+          .insert(
+            CardioSessionsCompanion.insert(
+              distance: 5,
+              duration: 1800,
+              avgSpeed: 10,
+              pace: '06:00',
+              calories: 300,
+              date: DateTime(2026, 9, 4),
+              goalType: const Value('distance'),
+              goalValue: const Value(5),
+            ),
+          );
 
-    final saved = await secondRun.select(secondRun.cardioSessions).getSingle();
-    expect(saved.goalType, 'distance');
-    expect(saved.goalValue, 5);
-  });
+      final saved = await secondRun
+          .select(secondRun.cardioSessions)
+          .getSingle();
+      expect(saved.goalType, 'distance');
+      expect(saved.goalValue, 5);
+    },
+  );
 }

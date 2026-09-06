@@ -27,7 +27,9 @@ class CycleActionButton extends StatelessWidget {
         backgroundColor: hasOpenLog
             ? theme.colorScheme.surfaceContainerHigh
             : CyclePalette.period,
-        foregroundColor: hasOpenLog ? theme.colorScheme.onSurface : Colors.white,
+        foregroundColor: hasOpenLog
+            ? theme.colorScheme.onSurface
+            : Colors.white,
         padding: const EdgeInsets.symmetric(vertical: 20),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),

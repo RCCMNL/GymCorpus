@@ -87,17 +87,11 @@ class _CardioSelectorSheetState extends State<CardioSelectorSheet> {
           const SizedBox(height: 24),
           _SectionLabel(text: "ALL'APERTO", theme: theme),
           const SizedBox(height: 12),
-          _ActivityRow(
-            activities: CardioActivity.outdoor,
-            onTap: _start,
-          ),
+          _ActivityRow(activities: CardioActivity.outdoor, onTap: _start),
           const SizedBox(height: 20),
           _SectionLabel(text: 'AL CHIUSO', theme: theme),
           const SizedBox(height: 12),
-          _ActivityRow(
-            activities: CardioActivity.indoor,
-            onTap: _start,
-          ),
+          _ActivityRow(activities: CardioActivity.indoor, onTap: _start),
           const SizedBox(height: 12),
           Center(
             child: TextButton.icon(

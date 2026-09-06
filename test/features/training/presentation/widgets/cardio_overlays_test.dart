@@ -74,7 +74,9 @@ void main() {
     testWidgets('senza dettaglio mostra solo il titolo', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(body: CardioMilestoneBanner(title: 'Obiettivo raggiunto')),
+          home: Scaffold(
+            body: CardioMilestoneBanner(title: 'Obiettivo raggiunto'),
+          ),
         ),
       );
 

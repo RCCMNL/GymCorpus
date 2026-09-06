@@ -20,17 +20,17 @@ void main() {
   setUp(() {
     authBloc = MockAuthBloc();
     trainingBloc = MockTrainingBloc();
-    when(() => trainingBloc.state).thenReturn(
-      const TrainingState.loaded(exercises: []),
-    );
+    when(
+      () => trainingBloc.state,
+    ).thenReturn(const TrainingState.loaded(exercises: []));
   });
 
   /// Le preferenze arrivano dallo stato di allenamento, dove vivono tutte
   /// le impostazioni dell'app.
   void withSettings(Map<String, String> settings) {
-    when(() => trainingBloc.state).thenReturn(
-      TrainingState.loaded(exercises: const [], settings: settings),
-    );
+    when(
+      () => trainingBloc.state,
+    ).thenReturn(TrainingState.loaded(exercises: const [], settings: settings));
   }
 
   /// Il calendario ciclo e' l'unica voce del menu legata al profilo: viene

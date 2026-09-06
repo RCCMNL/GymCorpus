@@ -25,9 +25,7 @@ class _OfflineTileOverrides extends HttpOverrides {
     final response = _MockHttpClientResponse();
     final headers = _MockHttpHeaders();
 
-    when(
-      () => client.openUrl(any(), any()),
-    ).thenAnswer((_) async => request);
+    when(() => client.openUrl(any(), any())).thenAnswer((_) async => request);
     when(() => request.headers).thenReturn(headers);
     // La richiesta viene "pipata": prima lo stream del corpo, poi la
     // chiusura. Senza questo stub addStream restituisce null dove il

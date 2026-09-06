@@ -138,7 +138,9 @@ void main() {
 
     testWidgets('mostra quanto manca all obiettivo scelto', (tester) async {
       await tester.pumpWidget(
-        buildWithGoal(const CardioGoal(type: CardioGoalType.distance, value: 5)),
+        buildWithGoal(
+          const CardioGoal(type: CardioGoalType.distance, value: 5),
+        ),
       );
 
       expect(find.text('Obiettivo 5 km'), findsOneWidget);
@@ -150,7 +152,9 @@ void main() {
 
     testWidgets('al traguardo la barra e piena e lo dichiara', (tester) async {
       await tester.pumpWidget(
-        buildWithGoal(const CardioGoal(type: CardioGoalType.duration, value: 15)),
+        buildWithGoal(
+          const CardioGoal(type: CardioGoalType.duration, value: 15),
+        ),
       );
 
       final bar = tester.widget<LinearProgressIndicator>(

@@ -319,7 +319,9 @@ void main() {
       seed: () => const AuthState.authenticated(user),
       act: (bloc) =>
           bloc.add(const AuthEvent.updateProfileRequested(gender: 'Donna')),
-      expect: () => [const AuthState.authenticated(user, actionError: 'rete assente')],
+      expect: () => [
+        const AuthState.authenticated(user, actionError: 'rete assente'),
+      ],
     );
 
     blocTest<AuthBloc, AuthState>(

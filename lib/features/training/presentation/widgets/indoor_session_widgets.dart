@@ -40,10 +40,7 @@ class IndoorSessionBackdrop extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [
-            accent.withValues(alpha: 0.16),
-            theme.colorScheme.surface,
-          ],
+          colors: [accent.withValues(alpha: 0.16), theme.colorScheme.surface],
         ),
       ),
       child: Center(

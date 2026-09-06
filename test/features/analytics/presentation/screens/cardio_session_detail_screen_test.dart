@@ -23,9 +23,7 @@ void main() {
 
   setUp(() {
     notificationsBloc = MockNotificationsBloc();
-    when(
-      () => notificationsBloc.state,
-    ).thenReturn(const NotificationsState());
+    when(() => notificationsBloc.state).thenReturn(const NotificationsState());
   });
 
   const geo = Distance();
@@ -95,7 +93,6 @@ void main() {
     useTallScreen(tester);
     await tester.pumpWidget(wrap(session(routeJson: timedRoute())));
 
-
     expect(find.text('KM 1'), findsOneWidget);
     expect(find.text('KM 2'), findsOneWidget);
   });
@@ -118,7 +115,6 @@ void main() {
 
     useTallScreen(tester);
     await tester.pumpWidget(wrap(session(routeJson: legacy)));
-
 
     expect(find.textContaining('Split non disponibili'), findsOneWidget);
   });

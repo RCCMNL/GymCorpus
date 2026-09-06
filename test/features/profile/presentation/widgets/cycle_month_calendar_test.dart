@@ -18,7 +18,11 @@ void main() {
   ];
   final summary = CycleForecast.calculate(logs: logs, today: today);
 
-  Widget wrap({DateTime? month, VoidCallback? onPrevious, VoidCallback? onNext}) {
+  Widget wrap({
+    DateTime? month,
+    VoidCallback? onPrevious,
+    VoidCallback? onNext,
+  }) {
     return MaterialApp(
       home: Scaffold(
         body: SingleChildScrollView(

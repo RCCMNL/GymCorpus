@@ -229,7 +229,9 @@ class _LogRow extends StatelessWidget {
             ),
           ),
           Text(
-            days == null ? 'In corso' : '$days ${days == 1 ? 'giorno' : 'giorni'}',
+            days == null
+                ? 'In corso'
+                : '$days ${days == 1 ? 'giorno' : 'giorni'}',
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.outline,
               fontWeight: FontWeight.bold,

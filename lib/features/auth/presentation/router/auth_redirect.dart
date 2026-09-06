@@ -5,7 +5,13 @@ const _publicLocations = {'/login', '/signup', '/splash'};
 
 /// Rotte da cui, una volta dentro con un profilo completo, si viene portati
 /// nell'app: sono passaggi, non destinazioni.
-const _entryLocations = {'/login', '/signup', '/splash', '/lock', '/onboarding'};
+const _entryLocations = {
+  '/login',
+  '/signup',
+  '/splash',
+  '/lock',
+  '/onboarding',
+};
 
 const onboardingLocation = '/onboarding';
 

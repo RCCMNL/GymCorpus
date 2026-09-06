@@ -28,7 +28,6 @@ class _CycleCalendarScreenState extends State<CycleCalendarScreen> {
   final DateTime _today = DateTime.now();
   late DateTime _visibleMonth = DateTime(_today.year, _today.month);
 
-
   /// Correzione di una registrazione: prima l'inizio, poi la fine.
   ///
   /// Annullare la seconda scelta significa "ancora in corso": e' l'unico
@@ -60,14 +59,15 @@ class _CycleCalendarScreenState extends State<CycleCalendarScreen> {
       locale: const Locale('it', 'IT'),
     );
 
-    bloc.add(
-      UpdateCycleLogEvent(id: log.id, startDate: start, endDate: end),
-    );
+    bloc.add(UpdateCycleLogEvent(id: log.id, startDate: start, endDate: end));
   }
 
   void _shiftMonth(int months) {
     setState(() {
-      _visibleMonth = DateTime(_visibleMonth.year, _visibleMonth.month + months);
+      _visibleMonth = DateTime(
+        _visibleMonth.year,
+        _visibleMonth.month + months,
+      );
     });
   }
 

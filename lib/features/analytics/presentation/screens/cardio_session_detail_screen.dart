@@ -46,10 +46,7 @@ class CardioSessionDetailScreen extends StatelessWidget {
                     color: accent.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(14),
                   ),
-                  child: Icon(
-                    _activity.icon,
-                    color: accent,
-                  ),
+                  child: Icon(_activity.icon, color: accent),
                 ),
                 const SizedBox(width: 14),
                 Expanded(

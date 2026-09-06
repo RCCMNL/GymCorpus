@@ -448,12 +448,10 @@ class _GymAppState extends State<GymApp> with WidgetsBindingObserver {
                   // Il bloc del ciclo vive quanto la schermata: chi non apre
                   // il calendario non mette mai in ascolto quei dati.
                   builder: (context, state) => BlocProvider(
-                    create: (_) =>
-                        CycleBloc(
-                          repository: di.sl<CycleRepository>(),
-                          notifications: di.sl<NotificationsRepository>(),
-                        )
-                          ..add(LoadCycleLogsEvent()),
+                    create: (_) => CycleBloc(
+                      repository: di.sl<CycleRepository>(),
+                      notifications: di.sl<NotificationsRepository>(),
+                    )..add(LoadCycleLogsEvent()),
                     child: const CycleCalendarScreen(),
                   ),
                 ),

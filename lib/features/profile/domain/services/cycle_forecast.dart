@@ -187,10 +187,7 @@ class CycleForecast {
     }
 
     final average = intervals.reduce((a, b) => a + b) / intervals.length;
-    return _AverageLength(
-      average.round().clamp(21, 35),
-      isEstimated: false,
-    );
+    return _AverageLength(average.round().clamp(21, 35), isEstimated: false);
   }
 
   static int _averagePeriodLength(List<CycleLogEntity> sorted) {

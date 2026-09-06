@@ -30,8 +30,7 @@ enum CardioActivity {
   }
 
   /// Le attivita' all'aperto registrano il percorso GPS.
-  bool get tracksLocation =>
-      this == run || this == walk || this == bike;
+  bool get tracksLocation => this == run || this == walk || this == bike;
 
   /// L'ellittica non produce una distanza confrontabile: si registrano solo
   /// tempo e intensita'.

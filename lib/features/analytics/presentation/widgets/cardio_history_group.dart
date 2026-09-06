@@ -169,10 +169,8 @@ class DismissibleCardioCard extends StatelessWidget {
       child: DetailedCardioCard(
         session: session,
         accentColor: accentColor,
-        onTap: () => context.push(
-          '/analytics/cardio-history/session',
-          extra: session,
-        ),
+        onTap: () =>
+            context.push('/analytics/cardio-history/session', extra: session),
       ),
     );
   }

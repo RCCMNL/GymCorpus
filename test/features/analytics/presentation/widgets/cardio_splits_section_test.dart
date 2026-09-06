@@ -29,7 +29,11 @@ void main() {
 
     expect(find.text('KM 1'), findsOneWidget);
     expect(find.text('KM 2'), findsOneWidget);
-    expect(find.text('05:00'), findsNWidgets(2), reason: 'il km 1 e il mezzo km finale hanno lo stesso passo');
+    expect(
+      find.text('05:00'),
+      findsNWidgets(2),
+      reason: 'il km 1 e il mezzo km finale hanno lo stesso passo',
+    );
     expect(find.text('04:40'), findsOneWidget);
   });
 

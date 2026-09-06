@@ -262,25 +262,20 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       trainingObjective: trainingObjective,
       syncWeightHistory: weight != null,
     );
-    result.fold(
-      (failure) {
-        debugPrint('AuthBloc._onUpdateProfile error: ${failure.message}');
+    result.fold((failure) {
+      debugPrint('AuthBloc._onUpdateProfile error: ${failure.message}');
 
-        // L'utente resta autenticato: cambiare stato lo farebbe sparire da
-        // mezza app. L'errore viaggia con lo stato buono, cosi' la
-        // schermata che ha chiesto il salvataggio puo' dirlo.
-        final currentUser = state.maybeWhen(
-          authenticated: (user, _) => user,
-          orElse: () => null,
-        );
-        if (currentUser == null) return;
+      // L'utente resta autenticato: cambiare stato lo farebbe sparire da
+      // mezza app. L'errore viaggia con lo stato buono, cosi' la
+      // schermata che ha chiesto il salvataggio puo' dirlo.
+      final currentUser = state.maybeWhen(
+        authenticated: (user, _) => user,
+        orElse: () => null,
+      );
+      if (currentUser == null) return;
 
-        emit(
-          AuthState.authenticated(currentUser, actionError: failure.message),
-        );
-      },
-      (user) => emit(AuthState.authenticated(user)),
-    );
+      emit(AuthState.authenticated(currentUser, actionError: failure.message));
+    }, (user) => emit(AuthState.authenticated(user)));
   }
 
   Future<void> _onChangePassword(

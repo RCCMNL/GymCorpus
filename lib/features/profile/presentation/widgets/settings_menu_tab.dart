@@ -33,8 +33,7 @@ class SettingsMenuTab extends StatelessWidget {
     // Acceso di default per i profili femminili, come la voce nel menu: da
     // qui si accende o si spegne a prescindere dal sesso indicato.
     final cyclePreference = settings[ProfileMenuTab.cycleCalendarSetting];
-    final isCycleCalendarEnabled =
-        cyclePreference != null
+    final isCycleCalendarEnabled = cyclePreference != null
         ? cyclePreference == 'true'
         : context.watch<AuthBloc>().state.maybeWhen(
             authenticated: (user, _) => user.gender == 'Donna',

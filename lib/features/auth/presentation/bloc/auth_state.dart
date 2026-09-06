@@ -14,6 +14,7 @@ part 'auth_state.freezed.dart';
 class AuthState with _$AuthState {
   const factory AuthState.initial() = _Initial;
   const factory AuthState.loading({UserEntity? previousUser}) = _Loading;
+
   /// Utente autenticato.
   ///
   /// `actionError` porta il messaggio di un'operazione fallita che non

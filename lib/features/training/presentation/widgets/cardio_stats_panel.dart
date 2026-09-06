@@ -46,17 +46,16 @@ class CardioStatsPanel extends StatelessWidget {
   final CardioGoal? goal;
 
   /// Stessa stima MET usata nella colonna calorie e al salvataggio.
-  int get _calories =>
-      activity
-          .caloriesFor(
-            speedKmh: CardioActivity.averageSpeed(
-              distanceKm: distanceKm,
-              seconds: elapsedSeconds,
-            ),
-            weightKg: userWeightKg,
-            seconds: elapsedSeconds,
-          )
-          .round();
+  int get _calories => activity
+      .caloriesFor(
+        speedKmh: CardioActivity.averageSpeed(
+          distanceKm: distanceKm,
+          seconds: elapsedSeconds,
+        ),
+        weightKg: userWeightKg,
+        seconds: elapsedSeconds,
+      )
+      .round();
 
   String _formatDuration(int seconds) {
     final h = seconds ~/ 3600;
@@ -191,9 +190,7 @@ class CardioStatsPanel extends StatelessWidget {
                   width: double.infinity,
                   child: ElevatedButton.icon(
                     onPressed: onStart,
-                    icon: Icon(
-                      activity.icon,
-                    ),
+                    icon: Icon(activity.icon),
                     label: Text(
                       activity.startLabel,
                       style: const TextStyle(

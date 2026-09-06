@@ -23,7 +23,6 @@ class _SignUpScreenState extends State<SignUpScreen>
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
-
   bool _obscurePassword = true;
   bool _obscureConfirm = true;
   bool _acceptedLegal = false;
@@ -680,9 +679,7 @@ class _SocialConsentSheetState extends State<_SocialConsentSheet> {
                 ? 'CONTINUA CON GOOGLE'
                 : 'CONTINUA CON APPLE',
             isLoading: false,
-            onPressed: _accepted
-                ? () => Navigator.of(context).pop(true)
-                : null,
+            onPressed: _accepted ? () => Navigator.of(context).pop(true) : null,
           ),
         ],
       ),

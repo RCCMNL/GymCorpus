@@ -59,10 +59,7 @@ class CycleBloc extends Bloc<CycleEvent, CycleState> {
   }
 
   void _onUpdated(CycleLogsUpdated event, Emitter<CycleState> emit) {
-    final summary = CycleForecast.calculate(
-      logs: event.logs,
-      today: _clock(),
-    );
+    final summary = CycleForecast.calculate(logs: event.logs, today: _clock());
 
     emit(
       CycleState(
@@ -77,7 +74,10 @@ class CycleBloc extends Bloc<CycleEvent, CycleState> {
     unawaited(_syncReminder(summary: summary, enabled: state.reminderEnabled));
   }
 
-  void _onReminderUpdated(CycleReminderUpdated event, Emitter<CycleState> emit) {
+  void _onReminderUpdated(
+    CycleReminderUpdated event,
+    Emitter<CycleState> emit,
+  ) {
     emit(state.copyWith(reminderEnabled: event.enabled));
 
     unawaited(_syncReminder(summary: state.summary, enabled: event.enabled));
@@ -171,9 +171,7 @@ class CycleBloc extends Bloc<CycleEvent, CycleState> {
     SetCycleReminderEvent event,
     Emitter<CycleState> emit,
   ) async {
-    final result = await repository.setReminderEnabled(
-      enabled: event.enabled,
-    );
+    final result = await repository.setReminderEnabled(enabled: event.enabled);
     result.fold(
       (failure) => emit(state.copyWith(errorMessage: failure.message)),
       (_) => _clearError(emit),

@@ -15,6 +15,7 @@ void main() {
     birthDate: DateTime(1990, 5, 12),
     gender: 'Uomo',
   );
+
   /// Il profilo tipico di chi entra con Google: manca il genere.
   final incompleteUser = UserEntity(
     id: '1',
@@ -25,11 +26,7 @@ void main() {
     birthDate: DateTime(1990, 5, 12),
   );
 
-  String? redirect(
-    AuthState state,
-    String location, {
-    bool isLocked = false,
-  }) {
+  String? redirect(AuthState state, String location, {bool isLocked = false}) {
     return resolveAuthRedirect(
       authState: state,
       location: location,
@@ -71,7 +68,10 @@ void main() {
     });
 
     test('le schermate dell app restano dove sono', () {
-      expect(redirect(AuthState.authenticated(completeUser), '/profile'), isNull);
+      expect(
+        redirect(AuthState.authenticated(completeUser), '/profile'),
+        isNull,
+      );
     });
 
     test('non si resta sull onboarding una volta compilato', () {
@@ -128,7 +128,10 @@ void main() {
     });
 
     test('un errore senza sessione riporta al login', () {
-      expect(redirect(const AuthState.error('credenziali'), '/training'), '/login');
+      expect(
+        redirect(const AuthState.error('credenziali'), '/training'),
+        '/login',
+      );
     });
   });
 }

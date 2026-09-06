@@ -181,11 +181,7 @@ class CompactCardioCard extends StatelessWidget {
               color: accentColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(
-              activity.icon,
-              color: accentColor,
-              size: 18,
-            ),
+            child: Icon(activity.icon, color: accentColor, size: 18),
           ),
           const SizedBox(width: 12),
           Expanded(
