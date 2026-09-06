@@ -3194,6 +3194,28 @@ class $CardioSessionsTable extends CardioSessions
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _goalTypeMeta = const VerificationMeta(
+    'goalType',
+  );
+  @override
+  late final GeneratedColumn<String> goalType = GeneratedColumn<String>(
+    'goal_type',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _goalValueMeta = const VerificationMeta(
+    'goalValue',
+  );
+  @override
+  late final GeneratedColumn<double> goalValue = GeneratedColumn<double>(
+    'goal_value',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _dateMeta = const VerificationMeta('date');
   @override
   late final GeneratedColumn<DateTime> date = GeneratedColumn<DateTime>(
@@ -3214,6 +3236,8 @@ class $CardioSessionsTable extends CardioSessions
     calories,
     steps,
     routeJson,
+    goalType,
+    goalValue,
     date,
   ];
   @override
@@ -3289,6 +3313,18 @@ class $CardioSessionsTable extends CardioSessions
         routeJson.isAcceptableOrUnknown(data['route_json']!, _routeJsonMeta),
       );
     }
+    if (data.containsKey('goal_type')) {
+      context.handle(
+        _goalTypeMeta,
+        goalType.isAcceptableOrUnknown(data['goal_type']!, _goalTypeMeta),
+      );
+    }
+    if (data.containsKey('goal_value')) {
+      context.handle(
+        _goalValueMeta,
+        goalValue.isAcceptableOrUnknown(data['goal_value']!, _goalValueMeta),
+      );
+    }
     if (data.containsKey('date')) {
       context.handle(
         _dateMeta,
@@ -3342,6 +3378,14 @@ class $CardioSessionsTable extends CardioSessions
         DriftSqlType.string,
         data['${effectivePrefix}route_json'],
       ),
+      goalType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}goal_type'],
+      ),
+      goalValue: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}goal_value'],
+      ),
       date: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}date'],
@@ -3365,6 +3409,11 @@ class CardioSession extends DataClass implements Insertable<CardioSession> {
   final int calories;
   final int? steps;
   final String? routeJson;
+
+  /// Obiettivo scelto prima di partire, se c'era: serve allo storico per
+  /// dire se e' stato raggiunto.
+  final String? goalType;
+  final double? goalValue;
   final DateTime date;
   const CardioSession({
     required this.id,
@@ -3376,6 +3425,8 @@ class CardioSession extends DataClass implements Insertable<CardioSession> {
     required this.calories,
     this.steps,
     this.routeJson,
+    this.goalType,
+    this.goalValue,
     required this.date,
   });
   @override
@@ -3393,6 +3444,12 @@ class CardioSession extends DataClass implements Insertable<CardioSession> {
     }
     if (!nullToAbsent || routeJson != null) {
       map['route_json'] = Variable<String>(routeJson);
+    }
+    if (!nullToAbsent || goalType != null) {
+      map['goal_type'] = Variable<String>(goalType);
+    }
+    if (!nullToAbsent || goalValue != null) {
+      map['goal_value'] = Variable<double>(goalValue);
     }
     map['date'] = Variable<DateTime>(date);
     return map;
@@ -3413,6 +3470,12 @@ class CardioSession extends DataClass implements Insertable<CardioSession> {
       routeJson: routeJson == null && nullToAbsent
           ? const Value.absent()
           : Value(routeJson),
+      goalType: goalType == null && nullToAbsent
+          ? const Value.absent()
+          : Value(goalType),
+      goalValue: goalValue == null && nullToAbsent
+          ? const Value.absent()
+          : Value(goalValue),
       date: Value(date),
     );
   }
@@ -3432,6 +3495,8 @@ class CardioSession extends DataClass implements Insertable<CardioSession> {
       calories: serializer.fromJson<int>(json['calories']),
       steps: serializer.fromJson<int?>(json['steps']),
       routeJson: serializer.fromJson<String?>(json['routeJson']),
+      goalType: serializer.fromJson<String?>(json['goalType']),
+      goalValue: serializer.fromJson<double?>(json['goalValue']),
       date: serializer.fromJson<DateTime>(json['date']),
     );
   }
@@ -3448,6 +3513,8 @@ class CardioSession extends DataClass implements Insertable<CardioSession> {
       'calories': serializer.toJson<int>(calories),
       'steps': serializer.toJson<int?>(steps),
       'routeJson': serializer.toJson<String?>(routeJson),
+      'goalType': serializer.toJson<String?>(goalType),
+      'goalValue': serializer.toJson<double?>(goalValue),
       'date': serializer.toJson<DateTime>(date),
     };
   }
@@ -3462,6 +3529,8 @@ class CardioSession extends DataClass implements Insertable<CardioSession> {
     int? calories,
     Value<int?> steps = const Value.absent(),
     Value<String?> routeJson = const Value.absent(),
+    Value<String?> goalType = const Value.absent(),
+    Value<double?> goalValue = const Value.absent(),
     DateTime? date,
   }) => CardioSession(
     id: id ?? this.id,
@@ -3473,6 +3542,8 @@ class CardioSession extends DataClass implements Insertable<CardioSession> {
     calories: calories ?? this.calories,
     steps: steps.present ? steps.value : this.steps,
     routeJson: routeJson.present ? routeJson.value : this.routeJson,
+    goalType: goalType.present ? goalType.value : this.goalType,
+    goalValue: goalValue.present ? goalValue.value : this.goalValue,
     date: date ?? this.date,
   );
   CardioSession copyWithCompanion(CardioSessionsCompanion data) {
@@ -3486,6 +3557,8 @@ class CardioSession extends DataClass implements Insertable<CardioSession> {
       calories: data.calories.present ? data.calories.value : this.calories,
       steps: data.steps.present ? data.steps.value : this.steps,
       routeJson: data.routeJson.present ? data.routeJson.value : this.routeJson,
+      goalType: data.goalType.present ? data.goalType.value : this.goalType,
+      goalValue: data.goalValue.present ? data.goalValue.value : this.goalValue,
       date: data.date.present ? data.date.value : this.date,
     );
   }
@@ -3502,6 +3575,8 @@ class CardioSession extends DataClass implements Insertable<CardioSession> {
           ..write('calories: $calories, ')
           ..write('steps: $steps, ')
           ..write('routeJson: $routeJson, ')
+          ..write('goalType: $goalType, ')
+          ..write('goalValue: $goalValue, ')
           ..write('date: $date')
           ..write(')'))
         .toString();
@@ -3518,6 +3593,8 @@ class CardioSession extends DataClass implements Insertable<CardioSession> {
     calories,
     steps,
     routeJson,
+    goalType,
+    goalValue,
     date,
   );
   @override
@@ -3533,6 +3610,8 @@ class CardioSession extends DataClass implements Insertable<CardioSession> {
           other.calories == this.calories &&
           other.steps == this.steps &&
           other.routeJson == this.routeJson &&
+          other.goalType == this.goalType &&
+          other.goalValue == this.goalValue &&
           other.date == this.date);
 }
 
@@ -3546,6 +3625,8 @@ class CardioSessionsCompanion extends UpdateCompanion<CardioSession> {
   final Value<int> calories;
   final Value<int?> steps;
   final Value<String?> routeJson;
+  final Value<String?> goalType;
+  final Value<double?> goalValue;
   final Value<DateTime> date;
   const CardioSessionsCompanion({
     this.id = const Value.absent(),
@@ -3557,6 +3638,8 @@ class CardioSessionsCompanion extends UpdateCompanion<CardioSession> {
     this.calories = const Value.absent(),
     this.steps = const Value.absent(),
     this.routeJson = const Value.absent(),
+    this.goalType = const Value.absent(),
+    this.goalValue = const Value.absent(),
     this.date = const Value.absent(),
   });
   CardioSessionsCompanion.insert({
@@ -3569,6 +3652,8 @@ class CardioSessionsCompanion extends UpdateCompanion<CardioSession> {
     required int calories,
     this.steps = const Value.absent(),
     this.routeJson = const Value.absent(),
+    this.goalType = const Value.absent(),
+    this.goalValue = const Value.absent(),
     required DateTime date,
   }) : distance = Value(distance),
        duration = Value(duration),
@@ -3586,6 +3671,8 @@ class CardioSessionsCompanion extends UpdateCompanion<CardioSession> {
     Expression<int>? calories,
     Expression<int>? steps,
     Expression<String>? routeJson,
+    Expression<String>? goalType,
+    Expression<double>? goalValue,
     Expression<DateTime>? date,
   }) {
     return RawValuesInsertable({
@@ -3598,6 +3685,8 @@ class CardioSessionsCompanion extends UpdateCompanion<CardioSession> {
       if (calories != null) 'calories': calories,
       if (steps != null) 'steps': steps,
       if (routeJson != null) 'route_json': routeJson,
+      if (goalType != null) 'goal_type': goalType,
+      if (goalValue != null) 'goal_value': goalValue,
       if (date != null) 'date': date,
     });
   }
@@ -3612,6 +3701,8 @@ class CardioSessionsCompanion extends UpdateCompanion<CardioSession> {
     Value<int>? calories,
     Value<int?>? steps,
     Value<String?>? routeJson,
+    Value<String?>? goalType,
+    Value<double?>? goalValue,
     Value<DateTime>? date,
   }) {
     return CardioSessionsCompanion(
@@ -3624,6 +3715,8 @@ class CardioSessionsCompanion extends UpdateCompanion<CardioSession> {
       calories: calories ?? this.calories,
       steps: steps ?? this.steps,
       routeJson: routeJson ?? this.routeJson,
+      goalType: goalType ?? this.goalType,
+      goalValue: goalValue ?? this.goalValue,
       date: date ?? this.date,
     );
   }
@@ -3658,6 +3751,12 @@ class CardioSessionsCompanion extends UpdateCompanion<CardioSession> {
     if (routeJson.present) {
       map['route_json'] = Variable<String>(routeJson.value);
     }
+    if (goalType.present) {
+      map['goal_type'] = Variable<String>(goalType.value);
+    }
+    if (goalValue.present) {
+      map['goal_value'] = Variable<double>(goalValue.value);
+    }
     if (date.present) {
       map['date'] = Variable<DateTime>(date.value);
     }
@@ -3676,6 +3775,8 @@ class CardioSessionsCompanion extends UpdateCompanion<CardioSession> {
           ..write('calories: $calories, ')
           ..write('steps: $steps, ')
           ..write('routeJson: $routeJson, ')
+          ..write('goalType: $goalType, ')
+          ..write('goalValue: $goalValue, ')
           ..write('date: $date')
           ..write(')'))
         .toString();
@@ -7311,6 +7412,8 @@ typedef $$CardioSessionsTableCreateCompanionBuilder =
       required int calories,
       Value<int?> steps,
       Value<String?> routeJson,
+      Value<String?> goalType,
+      Value<double?> goalValue,
       required DateTime date,
     });
 typedef $$CardioSessionsTableUpdateCompanionBuilder =
@@ -7324,6 +7427,8 @@ typedef $$CardioSessionsTableUpdateCompanionBuilder =
       Value<int> calories,
       Value<int?> steps,
       Value<String?> routeJson,
+      Value<String?> goalType,
+      Value<double?> goalValue,
       Value<DateTime> date,
     });
 
@@ -7378,6 +7483,16 @@ class $$CardioSessionsTableFilterComposer
 
   ColumnFilters<String> get routeJson => $composableBuilder(
     column: $table.routeJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get goalType => $composableBuilder(
+    column: $table.goalType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get goalValue => $composableBuilder(
+    column: $table.goalValue,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -7441,6 +7556,16 @@ class $$CardioSessionsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get goalType => $composableBuilder(
+    column: $table.goalType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get goalValue => $composableBuilder(
+    column: $table.goalValue,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get date => $composableBuilder(
     column: $table.date,
     builder: (column) => ColumnOrderings(column),
@@ -7482,6 +7607,12 @@ class $$CardioSessionsTableAnnotationComposer
 
   GeneratedColumn<String> get routeJson =>
       $composableBuilder(column: $table.routeJson, builder: (column) => column);
+
+  GeneratedColumn<String> get goalType =>
+      $composableBuilder(column: $table.goalType, builder: (column) => column);
+
+  GeneratedColumn<double> get goalValue =>
+      $composableBuilder(column: $table.goalValue, builder: (column) => column);
 
   GeneratedColumn<DateTime> get date =>
       $composableBuilder(column: $table.date, builder: (column) => column);
@@ -7529,6 +7660,8 @@ class $$CardioSessionsTableTableManager
                 Value<int> calories = const Value.absent(),
                 Value<int?> steps = const Value.absent(),
                 Value<String?> routeJson = const Value.absent(),
+                Value<String?> goalType = const Value.absent(),
+                Value<double?> goalValue = const Value.absent(),
                 Value<DateTime> date = const Value.absent(),
               }) => CardioSessionsCompanion(
                 id: id,
@@ -7540,6 +7673,8 @@ class $$CardioSessionsTableTableManager
                 calories: calories,
                 steps: steps,
                 routeJson: routeJson,
+                goalType: goalType,
+                goalValue: goalValue,
                 date: date,
               ),
           createCompanionCallback:
@@ -7553,6 +7688,8 @@ class $$CardioSessionsTableTableManager
                 required int calories,
                 Value<int?> steps = const Value.absent(),
                 Value<String?> routeJson = const Value.absent(),
+                Value<String?> goalType = const Value.absent(),
+                Value<double?> goalValue = const Value.absent(),
                 required DateTime date,
               }) => CardioSessionsCompanion.insert(
                 id: id,
@@ -7564,6 +7701,8 @@ class $$CardioSessionsTableTableManager
                 calories: calories,
                 steps: steps,
                 routeJson: routeJson,
+                goalType: goalType,
+                goalValue: goalValue,
                 date: date,
               ),
           withReferenceMapper: (p0) => p0

@@ -307,7 +307,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
     // Read the current user from the BLoC directly for history and providers
     final currentUser = context.select((AuthBloc bloc) {
       return bloc.state.maybeWhen(
-        authenticated: (user) => user,
+        authenticated: (user, _) => user,
         orElse: () => null,
       );
     });

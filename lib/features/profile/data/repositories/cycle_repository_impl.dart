@@ -60,4 +60,38 @@ class CycleRepositoryImpl implements CycleRepository {
       return Left(DatabaseFailure(e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, void>> updateCycleLog({
+    required int id,
+    required DateTime startDate,
+    DateTime? endDate,
+  }) async {
+    try {
+      await database.updateCycleLog(id, startDate, endDate);
+      return const Right(null);
+    } catch (e) {
+      return Left(DatabaseFailure(e.toString()));
+    }
+  }
+
+  /// Il promemoria vive tra le impostazioni locali come tutte le altre
+  /// preferenze: non ha bisogno di una tabella propria.
+  @override
+  Stream<bool> watchReminderEnabled() =>
+      database.watchSetting(_reminderKey).map((value) => value == 'true');
+
+  @override
+  Future<Either<Failure, void>> setReminderEnabled({
+    required bool enabled,
+  }) async {
+    try {
+      await database.updateSetting(_reminderKey, enabled.toString());
+      return const Right(null);
+    } catch (e) {
+      return Left(DatabaseFailure(e.toString()));
+    }
+  }
+
+  static const _reminderKey = 'cycle_reminder';
 }

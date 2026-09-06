@@ -156,6 +156,22 @@ class UserEntity extends Equatable {
 
   String get fullName => '${firstName ?? ''} ${lastName ?? ''}'.trim();
 
+  /// Il profilo ha le informazioni di base che l'app chiede a chiunque.
+  ///
+  /// Sono le stesse che la registrazione con email considera obbligatorie.
+  /// L'accesso con Google non le fornisce tutte, e una registrazione
+  /// interrotta puo' lasciarle a meta': finche' mancano, il router riporta
+  /// all'onboarding invece di far entrare con un profilo incompleto.
+  bool get isProfileComplete {
+    bool filled(String? value) => value != null && value.trim().isNotEmpty;
+
+    return filled(firstName) &&
+        filled(lastName) &&
+        filled(username) &&
+        filled(gender) &&
+        birthDate != null;
+  }
+
   UserEntity copyWith({
     String? id,
     String? firstName,

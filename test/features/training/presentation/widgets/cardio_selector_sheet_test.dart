@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:gym_corpus/features/training/domain/entities/cardio_activity.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_goal.dart';
 import 'package:gym_corpus/features/training/presentation/widgets/cardio_selector_sheet.dart';
 
@@ -8,7 +9,9 @@ import 'package:gym_corpus/features/training/presentation/widgets/cardio_selecto
 void main() {
   Widget wrap({required void Function(CardioLaunchArgs) onStart}) {
     return MaterialApp(
-      home: Scaffold(body: CardioSelectorSheet(onStart: onStart)),
+      home: Scaffold(
+        body: CardioSelectorSheet(onStart: onStart, onManualEntry: () {}),
+      ),
     );
   }
 
@@ -27,7 +30,7 @@ void main() {
 
     await tester.tap(find.text('Corsa'));
 
-    expect(started?.type, 'run');
+    expect(started?.activity, CardioActivity.run);
     expect(started?.goal, isNull);
   });
 
@@ -37,7 +40,7 @@ void main() {
 
     await tester.tap(find.text('Camminata'));
 
-    expect(started?.type, 'walk');
+    expect(started?.activity, CardioActivity.walk);
   });
 
   testWidgets('l obiettivo scelto viene passato alla sessione', (tester) async {
@@ -81,5 +84,31 @@ void main() {
       started?.goal,
       const CardioGoal(type: CardioGoalType.calories, value: 300),
     );
+  });
+
+  testWidgets('propone anche le attivita al chiuso', (tester) async {
+    await tester.pumpWidget(wrap(onStart: (_) {}));
+
+    expect(find.text('Tapis roulant'), findsOneWidget);
+    expect(find.text('Ellittica'), findsOneWidget);
+    expect(find.text('Vogatore'), findsOneWidget);
+  });
+
+  testWidgets('si puo registrare una sessione gia fatta', (tester) async {
+    var manual = 0;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: CardioSelectorSheet(
+            onStart: (_) {},
+            onManualEntry: () => manual++,
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Registra una sessione gia fatta'));
+
+    expect(manual, 1);
   });
 }

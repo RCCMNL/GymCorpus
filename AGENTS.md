@@ -49,7 +49,7 @@
 - Firebase viene inizializzato tramite `lib/firebase_options.dart`; il progetto al momento e' configurato per Android e iOS. Non assumere supporto web/desktop.
 - Il routing di autenticazione dipende dallo stato di `AuthBloc` e dai redirect GoRouter definiti in `lib/main.dart`.
 - Il database Drift locale vive nella directory documenti dell'app come `gym_db.sqlite` ed e' cifrato con SQLCipher. La chiave sta nel secure storage; `lib/core/database/connection.dart` gestisce apertura, generazione chiave e conversione dei database in chiaro creati da versioni precedenti. Non aggiungere `sqlite3_flutter_libs`: va in conflitto con SQLCipher.
-- `AppDatabase` usa attualmente `schemaVersion => 19` e fa seed dei dati iniziali quando la tabella esercizi e' vuota.
+- `AppDatabase` usa attualmente `schemaVersion => 20` e fa seed dei dati iniziali quando la tabella esercizi e' vuota.
 - La strategia di migrazione ricrea le tabelle quando si aggiorna da versioni precedenti alla 9. Tratta i cambiamenti database con attenzione e aggiorna le migration in modo esplicito.
 - La tabella `Workouts` rappresenta le sessioni di allenamento tracciabili: una sessione viene considerata completata solo quando `completedAt` e' valorizzato.
 - `WorkoutSet.workoutId` deve riferirsi a una riga `Workouts`; evita nuovi flussi che usano timestamp sciolti senza creare prima una sessione workout.
@@ -90,18 +90,33 @@ flutter pub run build_runner build --delete-conflicting-outputs
 - Per gamification, tieni le definizioni statiche dei badge in codice e salva/calcola solo lo stato utente necessario. Non creare tabelle di definizioni badge statiche salvo esigenza esplicita.
 - Rispetta il worktree sporco corrente. Non revertare modifiche dell'utente non correlate.
 
+## Profilo E Onboarding
+
+- Le informazioni di base del profilo (nome, cognome, username, data di nascita, genere) si chiedono a chiunque crei un account, da qualunque percorso: `UserEntity.isProfileComplete` e' l'unica definizione di "profilo completo".
+- Il cancello e' nel router: `resolveAuthRedirect` in `lib/features/auth/presentation/router/auth_redirect.dart` manda su `/onboarding` chi e' autenticato con un profilo incompleto, e ne esce da solo quando il profilo viene salvato. Modifica quella funzione, non la closure `redirect` di `main.dart`.
+- Il form dei campi base vive in un solo widget, `ProfileBasicsForm`, condiviso tra registrazione e onboarding: non duplicarlo per aggiungere un percorso nuovo.
+- Il genere non ha un valore predefinito e non si prosegue senza sceglierlo. Le opzioni sono Uomo, Donna e Altro, le stesse in registrazione, onboarding e modifica profilo.
+- Un salvataggio di profilo fallito viaggia in `AuthState.authenticated(user, actionError: ...)`: l'utente resta autenticato e la schermata che ha chiesto il salvataggio mostra il messaggio. Non trasformarlo in `AuthState.error`, che farebbe sparire l'utente da mezza app.
+- L'onboarding ha due passi: informazioni di base (obbligatorie) e peso/altezza (facoltativi, con "Lo faccio dopo"). Il profilo viene scritto una volta sola, alla fine.
+- Con un provider esterno i consensi legali si raccolgono prima di autenticare, in un foglio dedicato: il repository cancella l'utente appena creato se non sono stati accettati. Il profilo lo chiede poi l'onboarding.
+- Il pulsante Apple compare solo su iOS e macOS (linea guida App Store 4.8).
+
 ## Calendario Ciclo
 
 - I dati del ciclo vivono solo nel database locale cifrato, nella tabella `CycleLogs`: non passano da Firestore e non finiscono nel report PDF. Non aggiungerli a flussi di sync o di export senza una richiesta esplicita.
 - Giorno del ciclo, fase, medie e previsioni non sono mai salvati: li calcola `CycleForecast` dalle sole date registrate. Quando i dati non bastano lo stato lo dichiara (`CycleDataState`), invece di mostrare valori di comodo.
 - `CycleBloc` viene creato dalla rotta `/profile/cycle-calendar`, non dal `MultiBlocProvider` globale: chi non apre la schermata non mette mai in ascolto quei dati.
-- La voce di menu compare solo per i profili con `gender == 'Donna'`.
+- La voce di menu e' accesa di default per i profili con `gender == 'Donna'`, ma l'interruttore in Impostazioni la accende o spegne per chiunque: la preferenza `cycle_calendar_enabled` vince sempre sul sesso indicato.
+- Il promemoria del ciclo previsto e' una notifica locale una tantum con id riservato 9020, riprogrammata a ogni cambiamento delle registrazioni: la data prevista si sposta, quindi non basta accenderla una volta.
 
 ## Cardio
 
 - I punti del percorso (`CardioRoutePoint`) portano il tempo di passaggio: e' quello che rende possibili gli split al chilometro. I percorsi salvati senza tempo restano leggibili e mostrano "split non disponibili".
 - Split e passo non sono salvati a database: si ricalcolano da `routeJson` con `CardioSplits`.
-- L'obiettivo di sessione (`CardioGoal`) si sceglie prima di partire e non viene persistito: serve alla barra di avanzamento e all'avviso al traguardo.
+- L'obiettivo di sessione (`CardioGoal`) si sceglie prima di partire e viene salvato con la sessione (`goal_type`, `goal_value`): lo storico puo' dire se e' stato raggiunto.
+- I tipi di attivita' vivono in `CardioActivity`: l'identificativo e' quello salvato nella colonna `type`, e un valore sconosciuto ricade sulla corsa invece di far fallire la lettura. Le attivita' al chiuso non chiedono il permesso di localizzazione e non hanno pausa automatica.
+- Le calorie usano il MET interpolato sulla velocita' media, non un valore fisso per tipo: `CardioActivity.caloriesFor`. Passa sempre da li', cosi' tracker, pannello e inserimento manuale restano coerenti.
+- Una sessione puo' essere registrata a posteriori da `ManualCardioEntryScreen`: in quel caso la data la sceglie l'utente e non esiste alcun percorso.
 
 ## Gamification, Record E Livelli
 

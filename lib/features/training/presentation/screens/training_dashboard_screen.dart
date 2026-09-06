@@ -37,7 +37,7 @@ class TrainingDashboardScreen extends StatelessWidget {
                     BlocBuilder<AuthBloc, AuthState>(
                       builder: (context, authState) {
                         final userName = authState.maybeWhen(
-                          authenticated: (user) => user.firstName ?? 'Atleta',
+                          authenticated: (user, _) => user.firstName ?? 'Atleta',
                           orElse: () => 'Atleta',
                         );
                         return _buildHeader(theme, userName);
@@ -276,6 +276,10 @@ class TrainingDashboardScreen extends StatelessWidget {
       context: context,
       backgroundColor: Colors.transparent,
       builder: (ctx) => CardioSelectorSheet(
+        onManualEntry: () {
+          Navigator.pop(ctx);
+          context.push('/training/cardio-manual');
+        },
         onStart: (args) {
           Navigator.pop(ctx);
           context.go('/training/cardio', extra: args);

@@ -4,6 +4,7 @@ import 'package:gym_corpus/core/database/database.dart';
 import 'package:gym_corpus/core/error/failures.dart';
 import 'package:gym_corpus/features/training/domain/entities/body_measurement.dart';
 import 'package:gym_corpus/features/training/domain/entities/body_weight.dart';
+import 'package:gym_corpus/features/training/domain/entities/cardio_goal.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_session.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
@@ -775,6 +776,7 @@ class TrainingRepositoryImpl implements TrainingRepository {
               pace: s.pace,
               calories: s.calories,
               routeJson: s.routeJson,
+              goal: _goalFrom(s.goalType, s.goalValue),
               steps: s.steps,
               date: s.date,
             ),
@@ -793,6 +795,8 @@ class TrainingRepositoryImpl implements TrainingRepository {
     required int calories,
     int? steps,
     String? routeJson,
+    DateTime? date,
+    CardioGoal? goal,
   }) async {
     try {
       final id = await database.insertCardioSession(
@@ -805,7 +809,9 @@ class TrainingRepositoryImpl implements TrainingRepository {
           calories: Value(calories),
           steps: Value(steps),
           routeJson: Value(routeJson),
-          date: Value(DateTime.now()),
+          goalType: Value(goal?.type.name),
+          goalValue: Value(goal?.value),
+          date: Value(date ?? DateTime.now()),
         ),
       );
       return Right(id);
@@ -823,4 +829,19 @@ class TrainingRepositoryImpl implements TrainingRepository {
       return Left(DatabaseFailure(e.toString()));
     }
   }
+}
+
+/// Ricostruisce l'obiettivo salvato con una sessione cardio.
+///
+/// Un tipo sconosciuto, per esempio scritto da una versione piu' recente,
+/// viene ignorato: meglio nessun obiettivo che uno inventato.
+CardioGoal? _goalFrom(String? type, double? value) {
+  if (type == null || value == null) return null;
+
+  for (final candidate in CardioGoalType.values) {
+    if (candidate.name == type) {
+      return CardioGoal(type: candidate, value: value);
+    }
+  }
+  return null;
 }

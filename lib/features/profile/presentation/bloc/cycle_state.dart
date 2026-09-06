@@ -8,6 +8,7 @@ class CycleState extends Equatable {
     this.logs = const [],
     this.summary,
     this.errorMessage,
+    this.reminderEnabled = false,
   });
 
   final bool isLoading;
@@ -18,21 +19,32 @@ class CycleState extends Equatable {
 
   final String? errorMessage;
 
+  /// Promemoria del ciclo previsto, acceso o spento.
+  final bool reminderEnabled;
+
   CycleState copyWith({
     bool? isLoading,
     List<CycleLogEntity>? logs,
     CycleSummary? summary,
     String? errorMessage,
     bool clearError = false,
+    bool? reminderEnabled,
   }) {
     return CycleState(
       isLoading: isLoading ?? this.isLoading,
       logs: logs ?? this.logs,
       summary: summary ?? this.summary,
       errorMessage: clearError ? null : errorMessage ?? this.errorMessage,
+      reminderEnabled: reminderEnabled ?? this.reminderEnabled,
     );
   }
 
   @override
-  List<Object?> get props => [isLoading, logs, summary, errorMessage];
+  List<Object?> get props => [
+    isLoading,
+    logs,
+    summary,
+    errorMessage,
+    reminderEnabled,
+  ];
 }

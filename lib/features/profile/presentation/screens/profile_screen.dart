@@ -143,7 +143,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     child: BlocBuilder<AuthBloc, AuthState>(
                       builder: (context, state) {
                         final user = state.maybeWhen(
-                          authenticated: (user) => user,
+                          authenticated: (user, _) => user,
                           loading: (previousUser) => previousUser,
                           error: (message, previousUser) => previousUser,
                           orElse: () => null,

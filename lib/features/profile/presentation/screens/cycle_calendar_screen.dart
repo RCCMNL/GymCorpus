@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
+import 'package:gym_corpus/features/profile/domain/entities/cycle_log.dart';
 import 'package:gym_corpus/features/profile/domain/services/cycle_forecast.dart';
 import 'package:gym_corpus/features/profile/presentation/bloc/cycle_bloc.dart';
 import 'package:gym_corpus/features/profile/presentation/bloc/cycle_event.dart';
@@ -26,6 +27,43 @@ class CycleCalendarScreen extends StatefulWidget {
 class _CycleCalendarScreenState extends State<CycleCalendarScreen> {
   final DateTime _today = DateTime.now();
   late DateTime _visibleMonth = DateTime(_today.year, _today.month);
+
+
+  /// Correzione di una registrazione: prima l'inizio, poi la fine.
+  ///
+  /// Annullare la seconda scelta significa "ancora in corso": e' l'unico
+  /// modo di riaprire un ciclo chiuso per sbaglio.
+  Future<void> _editLog(
+    BuildContext context,
+    CycleBloc bloc,
+    CycleLogEntity log,
+  ) async {
+    final now = DateTime.now();
+
+    final start = await showDatePicker(
+      context: context,
+      initialDate: log.startDate,
+      firstDate: DateTime(now.year - 3),
+      lastDate: now,
+      helpText: 'Inizio del ciclo',
+      locale: const Locale('it', 'IT'),
+    );
+    if (start == null || !context.mounted) return;
+
+    final end = await showDatePicker(
+      context: context,
+      initialDate: log.endDate ?? start,
+      firstDate: start,
+      lastDate: now,
+      helpText: 'Fine del ciclo',
+      cancelText: 'ANCORA IN CORSO',
+      locale: const Locale('it', 'IT'),
+    );
+
+    bloc.add(
+      UpdateCycleLogEvent(id: log.id, startDate: start, endDate: end),
+    );
+  }
 
   void _shiftMonth(int months) {
     setState(() {
@@ -115,6 +153,21 @@ class _CycleCalendarScreenState extends State<CycleCalendarScreen> {
                   logs: state.logs,
                   summary: summary,
                   onDelete: (id) => bloc.add(DeleteCycleLogEvent(id)),
+                  onEdit: (log) => _editLog(context, bloc, log),
+                ),
+                const SizedBox(height: 16),
+                SwitchListTile.adaptive(
+                  value: state.reminderEnabled,
+                  onChanged: (enabled) =>
+                      bloc.add(SetCycleReminderEvent(enabled: enabled)),
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text('Promemoria del prossimo ciclo'),
+                  subtitle: Text(
+                    'Un avviso due giorni prima della data prevista.',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.outline,
+                    ),
+                  ),
                 ),
               ],
             );

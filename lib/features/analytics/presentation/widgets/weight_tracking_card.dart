@@ -31,7 +31,7 @@ class _WeightTrackingCardState extends State<WeightTrackingCard> {
         var min = '--';
         var trendPoints = <double>[];
         final profileWeight = context.read<AuthBloc>().state.maybeWhen(
-          authenticated: (user) => user.weight,
+          authenticated: (user, _) => user.weight,
           orElse: () => null,
         );
 

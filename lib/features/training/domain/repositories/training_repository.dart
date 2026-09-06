@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:gym_corpus/core/error/failures.dart';
 import 'package:gym_corpus/features/training/domain/entities/body_measurement.dart';
 import 'package:gym_corpus/features/training/domain/entities/body_weight.dart';
+import 'package:gym_corpus/features/training/domain/entities/cardio_goal.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_session.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
@@ -104,6 +105,8 @@ abstract class TrainingRepository {
     required int calories,
     int? steps,
     String? routeJson,
+    DateTime? date,
+    CardioGoal? goal,
   });
   Future<Either<Failure, void>> deleteCardioSession(int id);
 

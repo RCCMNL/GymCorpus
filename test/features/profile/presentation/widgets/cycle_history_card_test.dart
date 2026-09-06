@@ -31,6 +31,7 @@ void main() {
             logs: logs,
             summary: CycleForecast.calculate(logs: logs, today: today),
             onDelete: onDelete ?? (_) {},
+            onEdit: (_) {},
           ),
         ),
       ),
@@ -121,5 +122,30 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(deleted, [2]);
+  });
+
+  testWidgets('una data sbagliata si corregge senza cancellare tutto', (
+    tester,
+  ) async {
+    CycleLogEntity? edited;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: CycleHistoryCard(
+              logs: closed,
+              summary: CycleForecast.calculate(logs: closed, today: today),
+              onDelete: (_) {},
+              onEdit: (log) => edited = log,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('2 - 6 settembre 2026'));
+    await tester.pump();
+
+    expect(edited?.id, 2);
   });
 }

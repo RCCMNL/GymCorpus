@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/features/analytics/presentation/widgets/cardio_splits_section.dart';
+import 'package:gym_corpus/features/training/domain/entities/cardio_activity.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_route_point.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_session.dart';
 import 'package:gym_corpus/features/training/domain/services/cardio_splits.dart';
+import 'package:gym_corpus/features/training/presentation/widgets/cardio_activity_style.dart';
 import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -19,12 +21,12 @@ class CardioSessionDetailScreen extends StatelessWidget {
 
   final CardioSessionEntity session;
 
-  bool get _isRun => session.type == 'run';
+  CardioActivity get _activity => CardioActivity.fromId(session.type);
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final accent = _isRun ? theme.colorScheme.primary : Colors.orangeAccent;
+    final accent = _activity.accent(theme);
     final points = CardioRoutePoint.decode(session.routeJson ?? '');
     final splits = CardioSplits.fromRoute(points);
 
@@ -45,9 +47,7 @@ class CardioSessionDetailScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: Icon(
-                    _isRun
-                        ? Icons.directions_run_rounded
-                        : Icons.directions_walk_rounded,
+                    _activity.icon,
                     color: accent,
                   ),
                 ),
@@ -57,7 +57,7 @@ class CardioSessionDetailScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        _isRun ? 'Corsa' : 'Camminata',
+                        _activity.label,
                         style: theme.textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.w900,
                           fontFamily: 'Lexend',
@@ -77,6 +77,10 @@ class CardioSessionDetailScreen extends StatelessWidget {
                 ),
               ],
             ),
+            if (session.goal != null) ...[
+              const SizedBox(height: 16),
+              _GoalOutcome(session: session, accent: accent),
+            ],
             const SizedBox(height: 20),
             if (points.length > 1) ...[
               _RouteMap(points: points, accent: accent),
@@ -338,6 +342,59 @@ class _PaceChart extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Esito dell'obiettivo scelto prima della sessione.
+class _GoalOutcome extends StatelessWidget {
+  const _GoalOutcome({required this.session, required this.accent});
+
+  final CardioSessionEntity session;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final goal = session.goal!;
+    final reached = goal.isReached(
+      distanceKm: session.distance,
+      seconds: session.duration,
+      calories: session.calories,
+    );
+    final color = reached ? accent : theme.colorScheme.outline;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            reached ? Icons.emoji_events_rounded : Icons.flag_outlined,
+            size: 18,
+            color: color,
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              'Obiettivo ${goal.label}',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+          Text(
+            reached ? 'Raggiunto' : 'Non raggiunto',
+            style: theme.textTheme.labelMedium?.copyWith(
+              fontWeight: FontWeight.w900,
+              color: color,
+            ),
+          ),
+        ],
       ),
     );
   }

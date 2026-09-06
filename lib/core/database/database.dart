@@ -95,6 +95,11 @@ class CardioSessions extends Table {
   IntColumn get steps => integer().nullable()(); // Passi tracciati
   TextColumn get routeJson =>
       text().nullable()(); // JSON string of latlng coordinates
+
+  /// Obiettivo scelto prima di partire, se c'era: serve allo storico per
+  /// dire se e' stato raggiunto.
+  TextColumn get goalType => text().nullable()();
+  RealColumn get goalValue => real().nullable()();
   DateTimeColumn get date => dateTime()();
 }
 
@@ -136,7 +141,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 19;
+  int get schemaVersion => 20;
 
   @override
   MigrationStrategy get migration {
@@ -261,6 +266,18 @@ class AppDatabase extends _$AppDatabase {
     await _ensureColumn(m, cardioSessions, cardioSessions.pace, 'pace');
     await _ensureColumn(m, cardioSessions, cardioSessions.calories, 'calories');
     await _ensureColumn(m, cardioSessions, cardioSessions.steps, 'steps');
+    await _ensureColumn(
+      m,
+      cardioSessions,
+      cardioSessions.goalType,
+      'goal_type',
+    );
+    await _ensureColumn(
+      m,
+      cardioSessions,
+      cardioSessions.goalValue,
+      'goal_value',
+    );
     await _ensureColumn(
       m,
       cardioSessions,
@@ -661,6 +678,14 @@ class AppDatabase extends _$AppDatabase {
   Future<void> closeCycleLog(int id, DateTime endDate) =>
       (update(cycleLogs)..where((t) => t.id.equals(id))).write(
         CycleLogsCompanion(endDate: Value(endDate)),
+      );
+
+  Future<void> updateCycleLog(int id, DateTime startDate, DateTime? endDate) =>
+      (update(cycleLogs)..where((t) => t.id.equals(id))).write(
+        CycleLogsCompanion(
+          startDate: Value(startDate),
+          endDate: Value(endDate),
+        ),
       );
 
   Future<void> deleteCycleLog(int id) =>

@@ -214,7 +214,56 @@ class NotificationService {
     );
   }
 
-  /// Schedule a daily notification at the given [hour]:[minute].
+  /// Programma una notifica per una data precisa, una volta sola.
+  ///
+  /// Serve ai promemoria che non si ripetono a cadenza fissa, come il ciclo
+  /// previsto: la data cambia a ogni registrazione.
+  Future<void> scheduleOneTimeNotification({
+    required int id,
+    required String title,
+    required String body,
+    required DateTime date,
+    NotificationPayloadData? payload,
+  }) async {
+    const androidDetails = AndroidNotificationDetails(
+      'gym_corpus_scheduled',
+      'Promemoria',
+      channelDescription: 'Promemoria giornalieri per allenamento e stretching',
+      icon: '@mipmap/launcher_icon',
+      importance: Importance.high,
+      priority: Priority.high,
+    );
+
+    const platformDetails = NotificationDetails(
+      android: androidDetails,
+      iOS: DarwinNotificationDetails(),
+    );
+
+    final scheduledDate = tz.TZDateTime.from(date, tz.local);
+
+    // Una data gia' passata non va programmata: il plugin la farebbe
+    // scattare subito, trasformando un promemoria in un avviso a sorpresa.
+    if (!scheduledDate.isAfter(tz.TZDateTime.now(tz.local))) {
+      await cancelNotification(id);
+      return;
+    }
+
+    await _notificationsPlugin.zonedSchedule(
+      id,
+      title,
+      body,
+      scheduledDate,
+      platformDetails,
+      payload: payload?.encode(),
+      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+    );
+
+    debugPrint('Scheduled one-time notification $id at $scheduledDate');
+  }
+
+  /// Programma una notifica giornaliera all'orario indicato.
   Future<void> scheduleDailyNotification({
     required int id,
     required String title,

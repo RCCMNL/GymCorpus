@@ -1,7 +1,9 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/features/training/domain/entities/cardio_activity.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_goal.dart';
+import 'package:gym_corpus/features/training/presentation/widgets/cardio_activity_style.dart';
 import 'package:gym_corpus/features/training/presentation/widgets/stat_column.dart';
 
 /// Pannello inferiore semi-trasparente del CardioTrackerScreen: statistiche
@@ -9,7 +11,7 @@ import 'package:gym_corpus/features/training/presentation/widgets/stat_column.da
 /// avvio/pausa/fine sessione.
 class CardioStatsPanel extends StatelessWidget {
   const CardioStatsPanel({
-    required this.isRun,
+    required this.activity,
     required this.distanceKm,
     required this.elapsedSeconds,
     required this.currentSpeedKmh,
@@ -26,7 +28,7 @@ class CardioStatsPanel extends StatelessWidget {
     super.key,
   });
 
-  final bool isRun;
+  final CardioActivity activity;
   final double distanceKm;
   final int elapsedSeconds;
   final double currentSpeedKmh;
@@ -45,7 +47,16 @@ class CardioStatsPanel extends StatelessWidget {
 
   /// Stessa stima MET usata nella colonna calorie e al salvataggio.
   int get _calories =>
-      (userWeightKg * (isRun ? 9.8 : 3.8) * (elapsedSeconds / 3600)).round();
+      activity
+          .caloriesFor(
+            speedKmh: CardioActivity.averageSpeed(
+              distanceKm: distanceKm,
+              seconds: elapsedSeconds,
+            ),
+            weightKg: userWeightKg,
+            seconds: elapsedSeconds,
+          )
+          .round();
 
   String _formatDuration(int seconds) {
     final h = seconds ~/ 3600;
@@ -91,7 +102,7 @@ class CardioStatsPanel extends StatelessWidget {
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
-                        colors: isRun
+                        colors: activity == CardioActivity.run
                             ? [
                                 theme.colorScheme.primary,
                                 theme.colorScheme.tertiary,
@@ -103,12 +114,12 @@ class CardioStatsPanel extends StatelessWidget {
                   ),
                   const SizedBox(width: 12),
                   Text(
-                    isRun ? 'CORSA' : 'CAMMINATA',
+                    activity.label.toUpperCase(),
                     style: theme.textTheme.labelSmall?.copyWith(
                       fontWeight: FontWeight.w900,
                       letterSpacing: 2,
                       fontSize: 10,
-                      color: isRun
+                      color: activity == CardioActivity.run
                           ? theme.colorScheme.primary
                           : Colors.orangeAccent,
                     ),
@@ -155,8 +166,7 @@ class CardioStatsPanel extends StatelessWidget {
                   ),
                   StatColumn(
                     label: 'CALORIE',
-                    value:
-                        '${(userWeightKg * (isRun ? 9.8 : 3.8) * (elapsedSeconds / 3600)).round()} kcal',
+                    value: '$_calories kcal',
                     theme: theme,
                   ),
                 ],
@@ -168,7 +178,7 @@ class CardioStatsPanel extends StatelessWidget {
                   distanceKm: distanceKm,
                   elapsedSeconds: elapsedSeconds,
                   calories: _calories,
-                  accentColor: isRun
+                  accentColor: activity == CardioActivity.run
                       ? theme.colorScheme.primary
                       : Colors.orangeAccent,
                 ),
@@ -182,10 +192,10 @@ class CardioStatsPanel extends StatelessWidget {
                   child: ElevatedButton.icon(
                     onPressed: onStart,
                     icon: Icon(
-                      isRun ? Icons.directions_run : Icons.directions_walk,
+                      activity.icon,
                     ),
                     label: Text(
-                      'INIZIA ${isRun ? "CORSA" : "CAMMINATA"}',
+                      activity.startLabel,
                       style: const TextStyle(
                         fontWeight: FontWeight.w900,
                         letterSpacing: 1.5,
@@ -193,7 +203,7 @@ class CardioStatsPanel extends StatelessWidget {
                       ),
                     ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: isRun
+                      backgroundColor: activity == CardioActivity.run
                           ? theme.colorScheme.primary
                           : Colors.orangeAccent,
                       foregroundColor: Colors.white,

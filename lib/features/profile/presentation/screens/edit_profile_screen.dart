@@ -63,7 +63,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
         );
 
     final user = context.read<AuthBloc>().state.maybeWhen(
-      authenticated: (u) => u,
+      authenticated: (u, _) => u,
       orElse: () => null,
     );
     final trainingState = context.read<TrainingBloc>().state;

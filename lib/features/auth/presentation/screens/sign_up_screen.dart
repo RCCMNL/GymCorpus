@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -6,7 +7,8 @@ import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_event.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
 import 'package:gym_corpus/features/auth/presentation/widgets/auth_shared_widgets.dart';
-import 'package:intl/intl.dart';
+import 'package:gym_corpus/features/auth/presentation/widgets/legal_consent_field.dart';
+import 'package:gym_corpus/features/auth/presentation/widgets/profile_basics_form.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -20,19 +22,14 @@ class _SignUpScreenState extends State<SignUpScreen>
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  final _firstNameController = TextEditingController();
-  final _lastNameController = TextEditingController();
-  final _usernameController = TextEditingController();
 
-  DateTime? _birthDate;
-  String _gender = 'Uomo';
+
   bool _obscurePassword = true;
   bool _obscureConfirm = true;
   bool _acceptedLegal = false;
   final bool _marketingConsent = false;
   final bool _profilingConsent = false;
   int _currentStep = 0;
-  bool _isGoogleSignUpFlow = false;
 
   late AnimationController _animController;
   late Animation<double> _fadeIn;
@@ -66,9 +63,6 @@ class _SignUpScreenState extends State<SignUpScreen>
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
-    _firstNameController.dispose();
-    _lastNameController.dispose();
-    _usernameController.dispose();
     _pageController.dispose();
     super.dispose();
   }
@@ -112,7 +106,6 @@ class _SignUpScreenState extends State<SignUpScreen>
 
     setState(() {
       _currentStep = 1;
-      _isGoogleSignUpFlow = false;
     });
     _pageController.animateToPage(
       1,
@@ -121,15 +114,41 @@ class _SignUpScreenState extends State<SignUpScreen>
     );
   }
 
-  void _startGoogleSignUp() {
-    setState(() {
-      _currentStep = 1;
-      _isGoogleSignUpFlow = true;
-    });
-    _pageController.animateToPage(
-      1,
-      duration: const Duration(milliseconds: 400),
-      curve: Curves.easeInOutCubic,
+  /// Su iOS l'accesso con Apple e' richiesto quando se ne offre un altro di
+  /// terze parti: e' la linea guida 4.8 dell'App Store.
+  static bool get _showsAppleSignIn =>
+      defaultTargetPlatform == TargetPlatform.iOS ||
+      defaultTargetPlatform == TargetPlatform.macOS;
+
+  /// Con un provider esterno il profilo non si chiede qui: dopo
+  /// l'autenticazione ci pensa l'onboarding, che copre anche chi interrompe
+  /// a meta'. Restano i consensi, che vanno raccolti prima di creare
+  /// l'account: il repository cancella l'utente appena creato se non sono
+  /// stati accettati.
+  Future<void> _startSocialSignUp(SocialProvider provider) async {
+    final accepted = await showModalBottomSheet<bool>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) => _SocialConsentSheet(provider: provider),
+    );
+
+    if (accepted != true || !mounted) return;
+
+    context.read<AuthBloc>().add(
+      provider == SocialProvider.google
+          ? AuthEvent.googleSignInRequested(
+              acceptedTerms: true,
+              acceptedPrivacy: true,
+              marketingConsent: _marketingConsent,
+              profilingConsent: _profilingConsent,
+            )
+          : AuthEvent.appleSignInRequested(
+              acceptedTerms: true,
+              acceptedPrivacy: true,
+              marketingConsent: _marketingConsent,
+              profilingConsent: _profilingConsent,
+            ),
     );
   }
 
@@ -142,19 +161,7 @@ class _SignUpScreenState extends State<SignUpScreen>
     );
   }
 
-  void _onSignUpPressed() {
-    final firstName = _firstNameController.text.trim();
-    final lastName = _lastNameController.text.trim();
-    final username = _usernameController.text.trim();
-
-    if (firstName.isEmpty || lastName.isEmpty || username.isEmpty) {
-      _showSnack('Compila tutti i campi obbligatori.');
-      return;
-    }
-    if (_birthDate == null) {
-      _showSnack('Seleziona la tua data di nascita.');
-      return;
-    }
+  void _onSubmit(ProfileBasics basics) {
     if (!_acceptedLegal) {
       _showSnack(
         'Accetta Termini e Privacy Policy per creare l account.',
@@ -163,137 +170,23 @@ class _SignUpScreenState extends State<SignUpScreen>
       return;
     }
 
+    // Il form garantisce che i campi ci siano tutti: qui resta da verificare
+    // solo il consenso, che vive nel footer di questa schermata.
     context.read<AuthBloc>().add(
       AuthEvent.signUpRequested(
         email: _emailController.text.trim(),
         password: _passwordController.text,
-        firstName: firstName,
-        lastName: lastName,
-        username: username,
-        birthDate: _birthDate!,
-        gender: _gender,
+        firstName: basics.firstName,
+        lastName: basics.lastName,
+        username: basics.username,
+        birthDate: basics.birthDate!,
+        gender: basics.gender!,
         acceptedTerms: _acceptedLegal,
         acceptedPrivacy: _acceptedLegal,
         marketingConsent: _marketingConsent,
         profilingConsent: _profilingConsent,
       ),
     );
-  }
-
-  void _onGoogleSignUpPressed() {
-    final firstName = _firstNameController.text.trim();
-    final lastName = _lastNameController.text.trim();
-    final username = _usernameController.text.trim();
-
-    if (firstName.isEmpty || lastName.isEmpty || username.isEmpty) {
-      _showSnack('Compila tutti i campi obbligatori.');
-      return;
-    }
-    if (_birthDate == null) {
-      _showSnack('Seleziona la tua data di nascita.');
-      return;
-    }
-    if (!_acceptedLegal) {
-      _showSnack(
-        'Accetta Termini e Privacy Policy per creare l account.',
-        isError: true,
-      );
-      return;
-    }
-
-    context.read<AuthBloc>().add(
-      AuthEvent.googleSignInRequested(
-        acceptedTerms: _acceptedLegal,
-        acceptedPrivacy: _acceptedLegal,
-        marketingConsent: _marketingConsent,
-        profilingConsent: _profilingConsent,
-      ),
-    );
-  }
-
-  Future<void> _selectDate() async {
-    final now = DateTime.now();
-    final initialDate = _birthDate ?? DateTime(now.year - 20);
-    final picked = await showModalBottomSheet<DateTime>(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (sheetContext) {
-        var tempDate = initialDate;
-        return StatefulBuilder(
-          builder: (context, setModalState) {
-            final theme = Theme.of(context);
-            return SafeArea(
-              child: Container(
-                margin: const EdgeInsets.all(16),
-                padding: const EdgeInsets.fromLTRB(18, 14, 18, 18),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.surfaceContainer,
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(
-                    color: theme.colorScheme.primary.withValues(alpha: 0.12),
-                  ),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 40,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.outline.withValues(
-                          alpha: 0.25,
-                        ),
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      'Data di nascita',
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    SizedBox(
-                      height: 320,
-                      child: CalendarDatePicker(
-                        initialDate: tempDate,
-                        firstDate: DateTime(1900),
-                        lastDate: now,
-                        onDateChanged: (value) {
-                          setModalState(() => tempDate = value);
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextButton(
-                            onPressed: () => Navigator.of(sheetContext).pop(),
-                            child: const Text('Annulla'),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: FilledButton(
-                            onPressed: () =>
-                                Navigator.of(sheetContext).pop(tempDate),
-                            child: const Text('Conferma'),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-    if (picked != null && mounted) setState(() => _birthDate = picked);
   }
 
   @override
@@ -304,21 +197,9 @@ class _SignUpScreenState extends State<SignUpScreen>
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           state.mapOrNull(
-            authenticated: (_) {
-              if (_isGoogleSignUpFlow) {
-                setState(() => _isGoogleSignUpFlow = false);
-                context.read<AuthBloc>().add(
-                  AuthEvent.updateProfileRequested(
-                    firstName: _firstNameController.text.trim(),
-                    lastName: _lastNameController.text.trim(),
-                    username: _usernameController.text.trim(),
-                    birthDate: _birthDate,
-                    gender: _gender,
-                  ),
-                );
-              }
-              context.go('/training');
-            },
+            // Con un profilo incompleto, per esempio dopo l'accesso con
+            // Google, e' il cancello del router a dirottare sull'onboarding.
+            authenticated: (_) => context.go('/training'),
             error: (e) => _showSnack(e.message, isError: true),
           );
         },
@@ -614,8 +495,16 @@ class _SignUpScreenState extends State<SignUpScreen>
                 AuthSocialButton(
                   logo: const GoogleLogo(size: 20),
                   label: 'Registrati con Google',
-                  onTap: _startGoogleSignUp,
+                  onTap: () => _startSocialSignUp(SocialProvider.google),
                 ),
+                if (_showsAppleSignIn) ...[
+                  const SizedBox(height: 12),
+                  AuthSocialButton(
+                    logo: const AppleLogo(size: 20),
+                    label: 'Registrati con Apple',
+                    onTap: () => _startSocialSignUp(SocialProvider.apple),
+                  ),
+                ],
               ],
             ),
           ),
@@ -697,80 +586,15 @@ class _SignUpScreenState extends State<SignUpScreen>
           ),
           const SizedBox(height: 28),
           GlassCard(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          authLabel(theme, 'Nome'),
-                          const SizedBox(height: 8),
-                          AuthTextField(
-                            controller: _firstNameController,
-                            hint: 'nome',
-                            autofill: const [AutofillHints.givenName],
-                            action: TextInputAction.next,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          authLabel(theme, 'Cognome'),
-                          const SizedBox(height: 8),
-                          AuthTextField(
-                            controller: _lastNameController,
-                            hint: 'cognome',
-                            autofill: const [AutofillHints.familyName],
-                            action: TextInputAction.next,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                authLabel(theme, 'Username'),
-                const SizedBox(height: 8),
-                AuthTextField(
-                  controller: _usernameController,
-                  hint: 'username',
-                  icon: Icons.alternate_email_rounded,
-                  prefixIconConstraints: const BoxConstraints(
-                    minWidth: 30,
-                    minHeight: 18,
-                  ),
-                  autofill: const [AutofillHints.username],
-                  action: TextInputAction.done,
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(child: _buildDatePicker(theme)),
-                    const SizedBox(width: 12),
-                    Expanded(child: _buildGenderSelector(theme)),
-                  ],
-                ),
-                const SizedBox(height: 18),
-                _buildLegalConsents(theme),
-                const SizedBox(height: 22),
-                AuthPrimaryButton(
-                  label: _isGoogleSignUpFlow
-                      ? 'CONTINUA CON GOOGLE'
-                      : 'CREA ACCOUNT',
-                  isLoading: isLoading,
-                  onPressed: _isGoogleSignUpFlow
-                      ? _onGoogleSignUpPressed
-                      : _onSignUpPressed,
-                ),
-              ],
+            child: ProfileBasicsForm(
+              submitLabel: 'CREA ACCOUNT',
+              isLoading: isLoading,
+              footer: LegalConsentField(
+                value: _acceptedLegal,
+                onChanged: (value) => setState(() => _acceptedLegal = value),
+              ),
+              onValidationError: _showSnack,
+              onSubmit: _onSubmit,
             ),
           ),
           const SizedBox(height: 32),
@@ -778,139 +602,90 @@ class _SignUpScreenState extends State<SignUpScreen>
       ),
     );
   }
+}
 
-  Widget _buildDatePicker(ThemeData theme) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        authLabel(theme, 'Data di nascita'),
-        const SizedBox(height: 8),
-        InkWell(
-          onTap: _selectDate,
-          borderRadius: BorderRadius.circular(14),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.calendar_today_rounded,
-                  size: 18,
-                  color: theme.colorScheme.primary,
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    _birthDate == null
-                        ? 'Seleziona'
-                        : DateFormat('dd/MM/yyyy').format(_birthDate!),
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: _birthDate == null
-                          ? theme.colorScheme.outline
-                          : theme.colorScheme.onSurface,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
+/// Consenso legale richiesto prima di creare un account con un provider
+/// esterno.
+///
+/// Ha uno stato tutto suo perche' vive in un foglio modale: la spunta deve
+/// aggiornare il pulsante del foglio, non la schermata sotto.
+/// Provider esterno con cui si sta creando l'account.
+enum SocialProvider { google, apple }
 
-  Widget _buildGenderSelector(ThemeData theme) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        authLabel(theme, 'Genere'),
-        const SizedBox(height: 8),
-        Container(
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surfaceContainerHighest,
-            borderRadius: BorderRadius.circular(14),
-          ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              value: _gender,
-              isExpanded: true,
-              padding: const EdgeInsets.symmetric(horizontal: 14),
-              borderRadius: BorderRadius.circular(14),
-              dropdownColor: theme.colorScheme.surfaceContainerHigh,
-              items: const [
-                DropdownMenuItem(value: 'Uomo', child: Text('Uomo')),
-                DropdownMenuItem(value: 'Donna', child: Text('Donna')),
-                DropdownMenuItem(value: 'Altro', child: Text('Altro')),
-              ],
-              onChanged: (v) {
-                if (v != null) setState(() => _gender = v);
-              },
-            ),
-          ),
-        ),
-      ],
-    );
-  }
+class _SocialConsentSheet extends StatefulWidget {
+  const _SocialConsentSheet({required this.provider});
 
-  Widget _buildLegalConsents(ThemeData theme) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        authLabel(theme, 'Consensi e privacy'),
-        const SizedBox(height: 10),
-        Container(
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surfaceContainerHighest.withValues(
-              alpha: 0.7,
-            ),
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(
-              color: _acceptedLegal
-                  ? theme.colorScheme.primary.withValues(alpha: 0.35)
-                  : theme.colorScheme.outline.withValues(alpha: 0.12),
+  final SocialProvider provider;
+
+  @override
+  State<_SocialConsentSheet> createState() => _SocialConsentSheetState();
+}
+
+class _SocialConsentSheetState extends State<_SocialConsentSheet> {
+  bool _accepted = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Container(
+      padding: EdgeInsets.fromLTRB(
+        24,
+        20,
+        24,
+        MediaQuery.of(context).padding.bottom + 24,
+      ),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Center(
+            child: Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: theme.colorScheme.outline.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(2),
+              ),
             ),
           ),
-          child: Row(
-            children: [
-              Checkbox(
-                value: _acceptedLegal,
-                onChanged: (checked) =>
-                    setState(() => _acceptedLegal = checked ?? false),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(5),
-                ),
-              ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 10, bottom: 10),
-                  child: Text(
-                    // Il consenso copre entrambi i documenti, come dice il
-                    // messaggio di errore mostrato se non viene spuntato:
-                    // l'etichetta deve nominarli tutti e due.
-                    'Accetto Termini e Privacy Policy',
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                ),
-              ),
-              TextButton(
-                onPressed: () => context.push('/legal/consent'),
-                style: TextButton.styleFrom(
-                  padding: const EdgeInsets.only(right: 12),
-                  minimumSize: const Size(0, 32),
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-                child: const Text('Leggi i termini'),
-              ),
-            ],
+          const SizedBox(height: 20),
+          Text(
+            'Prima di continuare',
+            style: theme.textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.w900,
+              fontFamily: 'Lexend',
+            ),
           ),
-        ),
-      ],
+          const SizedBox(height: 6),
+          Text(
+            'Il resto del profilo te lo chiediamo subito dopo, una volta '
+            'entrato.',
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.outline,
+            ),
+          ),
+          const SizedBox(height: 20),
+          LegalConsentField(
+            value: _accepted,
+            onChanged: (value) => setState(() => _accepted = value),
+          ),
+          const SizedBox(height: 20),
+          AuthPrimaryButton(
+            label: widget.provider == SocialProvider.google
+                ? 'CONTINUA CON GOOGLE'
+                : 'CONTINUA CON APPLE',
+            isLoading: false,
+            onPressed: _accepted
+                ? () => Navigator.of(context).pop(true)
+                : null,
+          ),
+        ],
+      ),
     );
   }
 }

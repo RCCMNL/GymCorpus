@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/features/training/domain/entities/cardio_activity.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_route_point.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_session.dart';
+import 'package:gym_corpus/features/training/presentation/widgets/cardio_activity_style.dart';
 import 'package:intl/intl.dart';
 
 /// Riassunto di una sessione cardio nello storico.
@@ -39,9 +41,8 @@ class DetailedCardioCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final accent = session.type == 'run'
-        ? theme.colorScheme.primary
-        : Colors.orangeAccent;
+    final activity = CardioActivity.fromId(session.type);
+    final accent = activity.accent(theme);
     final hasRoute =
         CardioRoutePoint.decode(session.routeJson ?? '').length > 1;
 
@@ -74,9 +75,7 @@ class DetailedCardioCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(14),
                       ),
                       child: Icon(
-                        session.type == 'run'
-                            ? Icons.directions_run_rounded
-                            : Icons.directions_walk_rounded,
+                        activity.icon,
                         color: accent,
                         size: 22,
                       ),
@@ -87,7 +86,7 @@ class DetailedCardioCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            session.type == 'run' ? 'Corsa' : 'Camminata',
+                            activity.label,
                             style: theme.textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.w900,
                               fontFamily: 'Lexend',

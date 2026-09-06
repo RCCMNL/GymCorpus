@@ -153,7 +153,7 @@ void main() {
         isA<AuthState>()
             .having(
               (state) => state.maybeWhen(
-                authenticated: (user) => user.firstName,
+                authenticated: (user, _) => user.firstName,
                 orElse: () => null,
               ),
               'firstName',
@@ -161,7 +161,7 @@ void main() {
             )
             .having(
               (state) => state.maybeWhen(
-                authenticated: (user) => user.termsAcceptedAt,
+                authenticated: (user, _) => user.termsAcceptedAt,
                 orElse: () => null,
               ),
               'termsAcceptedAt',
@@ -169,7 +169,7 @@ void main() {
             )
             .having(
               (state) => state.maybeWhen(
-                authenticated: (user) => user.marketingConsent,
+                authenticated: (user, _) => user.marketingConsent,
                 orElse: () => null,
               ),
               'marketingConsent',
@@ -177,7 +177,7 @@ void main() {
             )
             .having(
               (state) => state.maybeWhen(
-                authenticated: (user) => user.profilingConsent,
+                authenticated: (user, _) => user.profilingConsent,
                 orElse: () => null,
               ),
               'profilingConsent',
@@ -253,6 +253,99 @@ void main() {
       verify: (_) {
         verifyNever(() => repository.signUp(any(), any()));
       },
+    );
+  });
+
+  group('aggiornamento profilo', () {
+    const user = UserEntity(id: 'u1', email: 'mario@example.com');
+
+    blocTest<AuthBloc, AuthState>(
+      'un salvataggio riuscito porta il profilo aggiornato',
+      build: () {
+        when(
+          () => repository.updateProfileDetails(
+            firstName: any(named: 'firstName'),
+            lastName: any(named: 'lastName'),
+            username: any(named: 'username'),
+            gender: any(named: 'gender'),
+            weight: any(named: 'weight'),
+            height: any(named: 'height'),
+            birthDate: any(named: 'birthDate'),
+            trainingObjective: any(named: 'trainingObjective'),
+            syncWeightHistory: any(named: 'syncWeightHistory'),
+          ),
+        ).thenAnswer(
+          (_) async => const Right(UserEntity(id: 'u1', email: 'm@e.com')),
+        );
+
+        return AuthBloc(repository);
+      },
+      act: (bloc) =>
+          bloc.add(const AuthEvent.updateProfileRequested(gender: 'Donna')),
+      expect: () => [
+        isA<AuthState>().having(
+          (s) => s.maybeWhen(
+            authenticated: (_, actionError) => actionError,
+            orElse: () => 'stato inatteso',
+          ),
+          'errore',
+          isNull,
+        ),
+      ],
+    );
+
+    blocTest<AuthBloc, AuthState>(
+      'un salvataggio fallito segnala l errore senza disconnettere',
+      // Dietro il cancello dell'onboarding un errore muto diventa un
+      // pulsante che non risponde: l'utente resta autenticato, ma deve
+      // sapere che il salvataggio non e' andato a buon fine.
+      build: () {
+        when(
+          () => repository.updateProfileDetails(
+            firstName: any(named: 'firstName'),
+            lastName: any(named: 'lastName'),
+            username: any(named: 'username'),
+            gender: any(named: 'gender'),
+            weight: any(named: 'weight'),
+            height: any(named: 'height'),
+            birthDate: any(named: 'birthDate'),
+            trainingObjective: any(named: 'trainingObjective'),
+            syncWeightHistory: any(named: 'syncWeightHistory'),
+          ),
+        ).thenAnswer((_) async => const Left(ServerFailure('rete assente')));
+
+        return AuthBloc(repository);
+      },
+      seed: () => const AuthState.authenticated(user),
+      act: (bloc) =>
+          bloc.add(const AuthEvent.updateProfileRequested(gender: 'Donna')),
+      expect: () => [const AuthState.authenticated(user, actionError: 'rete assente')],
+    );
+
+    blocTest<AuthBloc, AuthState>(
+      'l errore precedente non resta appiccicato al tentativo successivo',
+      build: () {
+        when(
+          () => repository.updateProfileDetails(
+            firstName: any(named: 'firstName'),
+            lastName: any(named: 'lastName'),
+            username: any(named: 'username'),
+            gender: any(named: 'gender'),
+            weight: any(named: 'weight'),
+            height: any(named: 'height'),
+            birthDate: any(named: 'birthDate'),
+            trainingObjective: any(named: 'trainingObjective'),
+            syncWeightHistory: any(named: 'syncWeightHistory'),
+          ),
+        ).thenAnswer((_) async => const Right(user));
+
+        return AuthBloc(repository);
+      },
+      seed: () =>
+          const AuthState.authenticated(user, actionError: 'rete assente'),
+      act: (bloc) =>
+          bloc.add(const AuthEvent.updateProfileRequested(gender: 'Donna')),
+      expect: () => [const AuthState.authenticated(user)],
     );
   });
 }

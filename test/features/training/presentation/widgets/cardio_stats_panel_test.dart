@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:gym_corpus/features/training/domain/entities/cardio_activity.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_goal.dart';
 import 'package:gym_corpus/features/training/presentation/widgets/cardio_stats_panel.dart';
 
 void main() {
   Widget buildPanel({
-    bool isRun = true,
+    CardioActivity activity = CardioActivity.run,
     bool isTracking = false,
     bool isLocating = false,
     bool isPaused = false,
@@ -17,7 +18,7 @@ void main() {
     return MaterialApp(
       home: Scaffold(
         body: CardioStatsPanel(
-          isRun: isRun,
+          activity: activity,
           distanceKm: 5.2,
           elapsedSeconds: 1830, // 30:30
           currentSpeedKmh: 10.4,
@@ -55,8 +56,8 @@ void main() {
     expect(started, isTrue);
   });
 
-  testWidgets('mostra INIZIA CAMMINATA quando isRun e false', (tester) async {
-    await tester.pumpWidget(buildPanel(isRun: false));
+  testWidgets('mostra INIZIA CAMMINATA per la camminata', (tester) async {
+    await tester.pumpWidget(buildPanel(activity: CardioActivity.walk));
     expect(find.text('INIZIA CAMMINATA'), findsOneWidget);
   });
 
@@ -110,7 +111,7 @@ void main() {
       return MaterialApp(
         home: Scaffold(
           body: CardioStatsPanel(
-            isRun: true,
+            activity: CardioActivity.run,
             distanceKm: 2.5,
             elapsedSeconds: 900,
             currentSpeedKmh: 10,
@@ -158,5 +159,47 @@ void main() {
       expect(bar.value, 1.0);
       expect(find.text('Obiettivo raggiunto'), findsOneWidget);
     });
+  });
+
+  testWidgets('le calorie tengono conto dell andatura, non solo del tempo', (
+    tester,
+  ) async {
+    // Prima la stima usava un MET fisso: mezz'ora di corsa lenta e mezz'ora
+    // di corsa veloce risultavano identiche.
+    Widget panel(double distanceKm) => MaterialApp(
+      home: Scaffold(
+        body: CardioStatsPanel(
+          activity: CardioActivity.run,
+          distanceKm: distanceKm,
+          elapsedSeconds: 1800,
+          currentSpeedKmh: 10,
+          currentSteps: 0,
+          userWeightKg: 70,
+          isTracking: true,
+          isLocating: false,
+          isPaused: false,
+          isSaving: false,
+          onStart: () {},
+          onPauseResume: () {},
+          onStop: () {},
+        ),
+      ),
+    );
+
+    int kcalOf(WidgetTester tester) {
+      final text = tester
+          .widgetList<Text>(find.textContaining('kcal'))
+          .first
+          .data!;
+      return int.parse(text.split(' ').first);
+    }
+
+    await tester.pumpWidget(panel(4));
+    final slow = kcalOf(tester);
+
+    await tester.pumpWidget(panel(7));
+    final fast = kcalOf(tester);
+
+    expect(fast, greaterThan(slow));
   });
 }

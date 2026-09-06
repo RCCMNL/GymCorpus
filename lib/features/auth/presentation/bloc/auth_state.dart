@@ -14,7 +14,16 @@ part 'auth_state.freezed.dart';
 class AuthState with _$AuthState {
   const factory AuthState.initial() = _Initial;
   const factory AuthState.loading({UserEntity? previousUser}) = _Loading;
-  const factory AuthState.authenticated(UserEntity user) = _Authenticated;
+  /// Utente autenticato.
+  ///
+  /// `actionError` porta il messaggio di un'operazione fallita che non
+  /// invalida la sessione, per esempio un salvataggio del profilo: senza,
+  /// l'unico modo di segnalarla sarebbe passare da uno stato di errore che
+  /// farebbe credere a tutta l'app di non avere piu' un utente.
+  const factory AuthState.authenticated(
+    UserEntity user, {
+    String? actionError,
+  }) = _Authenticated;
   const factory AuthState.unauthenticated() = _Unauthenticated;
   const factory AuthState.error(String message, {UserEntity? previousUser}) =
       _Error;

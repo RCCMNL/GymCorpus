@@ -52,7 +52,7 @@ class _FeedbackDialogState extends State<FeedbackDialog> {
     try {
       final authState = context.read<AuthBloc>().state;
       final user = authState.maybeWhen(
-        authenticated: (user) => user,
+        authenticated: (user, _) => user,
         orElse: () => null,
       );
 

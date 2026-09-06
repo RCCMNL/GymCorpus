@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:gym_corpus/features/training/domain/entities/body_measurement.dart';
 import 'package:gym_corpus/features/training/domain/entities/body_weight.dart';
+import 'package:gym_corpus/features/training/domain/entities/cardio_goal.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_session.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
@@ -211,6 +212,8 @@ class SaveCardioSessionEvent extends TrainingEvent {
     required this.calories,
     this.steps,
     this.routeJson,
+    this.date,
+    this.goal,
   });
 
   final String type;
@@ -221,6 +224,13 @@ class SaveCardioSessionEvent extends TrainingEvent {
   final int calories;
   final int? steps;
   final String? routeJson;
+
+  /// Data della sessione. Nulla per una sessione appena conclusa, valorizzata
+  /// quando si registra a posteriori un allenamento gia' fatto.
+  final DateTime? date;
+
+  /// Obiettivo scelto prima di partire, salvato con la sessione.
+  final CardioGoal? goal;
 
   @override
   List<Object?> get props => [

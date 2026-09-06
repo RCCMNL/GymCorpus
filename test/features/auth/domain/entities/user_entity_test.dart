@@ -102,4 +102,64 @@ void main() {
       expect(updated.weight, isNull);
     });
   });
+
+  group('isProfileComplete', () {
+    /// Le informazioni che l'app chiede a chiunque crei un profilo: senza
+    /// una di queste l'utente viene riportato all'onboarding, da qualunque
+    /// percorso sia entrato.
+    UserEntity complete({
+      String? firstName = 'Mario',
+      String? lastName = 'Rossi',
+      String? username = 'mario',
+      DateTime? birthDate,
+      String? gender = 'Uomo',
+    }) {
+      return UserEntity(
+        id: '1',
+        email: 'mario@example.com',
+        firstName: firstName,
+        lastName: lastName,
+        username: username,
+        birthDate: birthDate ?? DateTime(1990, 5, 12),
+        gender: gender,
+      );
+    }
+
+    test('un profilo con tutte le informazioni di base e completo', () {
+      expect(complete().isProfileComplete, isTrue);
+    });
+
+    test('senza genere il profilo non e completo', () {
+      // Il caso di chi entra con Google: Firebase non fornisce il sesso.
+      expect(complete(gender: null).isProfileComplete, isFalse);
+    });
+
+    test('senza data di nascita il profilo non e completo', () {
+      expect(
+        const UserEntity(
+          id: '1',
+          email: 'mario@example.com',
+          firstName: 'Mario',
+          lastName: 'Rossi',
+          username: 'mario',
+          gender: 'Uomo',
+        ).isProfileComplete,
+        isFalse,
+      );
+    });
+
+    test('senza nome, cognome o username il profilo non e completo', () {
+      expect(complete(firstName: null).isProfileComplete, isFalse);
+      expect(complete(lastName: null).isProfileComplete, isFalse);
+      expect(complete(username: null).isProfileComplete, isFalse);
+    });
+
+    test('i campi riempiti di soli spazi non contano come compilati', () {
+      // Un nome fatto di spazi passerebbe un controllo di sola nullita e
+      // lascerebbe entrare un profilo di fatto vuoto.
+      expect(complete(firstName: '   ').isProfileComplete, isFalse);
+      expect(complete(username: ' ').isProfileComplete, isFalse);
+      expect(complete(gender: '').isProfileComplete, isFalse);
+    });
+  });
 }

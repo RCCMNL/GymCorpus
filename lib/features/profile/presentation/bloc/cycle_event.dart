@@ -35,3 +35,39 @@ class DeleteCycleLogEvent extends CycleEvent {
   @override
   List<Object?> get props => [id];
 }
+
+/// Corregge le date di una registrazione esistente.
+class UpdateCycleLogEvent extends CycleEvent {
+  const UpdateCycleLogEvent({
+    required this.id,
+    required this.startDate,
+    this.endDate,
+  });
+
+  final int id;
+  final DateTime startDate;
+  final DateTime? endDate;
+
+  @override
+  List<Object?> get props => [id, startDate, endDate];
+}
+
+/// Accende o spegne il promemoria del ciclo previsto.
+class SetCycleReminderEvent extends CycleEvent {
+  const SetCycleReminderEvent({required this.enabled});
+
+  final bool enabled;
+
+  @override
+  List<Object?> get props => [enabled];
+}
+
+/// Arriva dallo stream della preferenza salvata.
+class CycleReminderUpdated extends CycleEvent {
+  const CycleReminderUpdated({required this.enabled});
+
+  final bool enabled;
+
+  @override
+  List<Object?> get props => [enabled];
+}

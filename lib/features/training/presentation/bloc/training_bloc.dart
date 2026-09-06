@@ -367,6 +367,8 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
         calories: event.calories,
         steps: event.steps,
         routeJson: event.routeJson,
+        date: event.date,
+        goal: event.goal,
       );
       result.fold(
         (f) => _emitFailure(f.message, emit),

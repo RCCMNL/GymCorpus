@@ -60,7 +60,7 @@ class _SplashScreenState extends State<SplashScreen>
         Future.delayed(const Duration(milliseconds: 1500), () {
           if (!mounted) return;
           state.maybeWhen(
-            authenticated: (_) => context.go('/training'),
+            authenticated: (_, __) => context.go('/training'),
             unauthenticated: () => context.go('/login'),
             error: (_, __) => context.go('/login'),
             orElse: () {},

@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:gym_corpus/features/training/domain/entities/cardio_activity.dart';
 
 /// Cosa si vuole raggiungere in una sessione cardio.
 enum CardioGoalType { distance, duration, calories }
@@ -86,11 +87,11 @@ class CardioGoal extends Equatable {
 /// formato resta leggibile, cosi' una navigazione salvata da una versione
 /// precedente continua ad aprire la schermata giusta.
 class CardioLaunchArgs extends Equatable {
-  const CardioLaunchArgs({required this.type, this.goal});
+  const CardioLaunchArgs({required this.activity, this.goal});
 
-  final String type;
+  final CardioActivity activity;
   final CardioGoal? goal;
 
   @override
-  List<Object?> get props => [type, goal];
+  List<Object?> get props => [activity, goal];
 }

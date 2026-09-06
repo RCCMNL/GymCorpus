@@ -19,4 +19,16 @@ abstract class CycleRepository {
   });
 
   Future<Either<Failure, void>> deleteCycleLog(int id);
+
+  /// Corregge le date di una registrazione esistente.
+  Future<Either<Failure, void>> updateCycleLog({
+    required int id,
+    required DateTime startDate,
+    DateTime? endDate,
+  });
+
+  /// Promemoria del ciclo previsto, acceso o spento.
+  Stream<bool> watchReminderEnabled();
+
+  Future<Either<Failure, void>> setReminderEnabled({required bool enabled});
 }

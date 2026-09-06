@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gym_corpus/features/training/domain/entities/cardio_activity.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_session.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
+import 'package:gym_corpus/features/training/presentation/widgets/cardio_activity_style.dart';
 
 /// Le tre sessioni cardio piu' recenti, con link alla cronologia
 /// completa.
@@ -160,8 +162,8 @@ class CompactCardioCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isRun = session.type == 'run';
-    final accentColor = isRun ? theme.colorScheme.primary : Colors.orangeAccent;
+    final activity = CardioActivity.fromId(session.type);
+    final accentColor = activity.accent(theme);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -180,7 +182,7 @@ class CompactCardioCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
-              isRun ? Icons.directions_run : Icons.directions_walk,
+              activity.icon,
               color: accentColor,
               size: 18,
             ),
@@ -191,7 +193,7 @@ class CompactCardioCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  isRun ? 'Corsa' : 'Camminata',
+                  activity.label,
                   style: theme.textTheme.labelLarge?.copyWith(
                     fontWeight: FontWeight.w900,
                     fontFamily: 'Lexend',

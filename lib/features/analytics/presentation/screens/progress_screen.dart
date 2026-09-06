@@ -62,7 +62,7 @@ class _ProgressScreenState extends State<ProgressScreen>
             }
 
             final profileWeight = context.read<AuthBloc>().state.maybeWhen(
-              authenticated: (user) => user.weight,
+              authenticated: (user, _) => user.weight,
               orElse: () => null,
             );
 

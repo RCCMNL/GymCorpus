@@ -95,6 +95,36 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
   }
 
   @override
+  Future<Either<Failure, void>> scheduleOneTimeReminder({
+    required int notificationId,
+    required String title,
+    required String body,
+    required DateTime date,
+    required String type,
+  }) async {
+    try {
+      await NotificationService.instance.scheduleOneTimeNotification(
+        id: notificationId,
+        title: title,
+        body: body,
+        date: date,
+        payload: NotificationPayloadData(
+          type: type,
+          title: title,
+          body: body,
+          source: 'scheduled',
+        ),
+      );
+      return const Right(null);
+    } catch (e) {
+      debugPrint('NotificationsRepository: scheduleOneTimeReminder error: $e');
+      return const Left(
+        DatabaseFailure('Impossibile programmare il promemoria'),
+      );
+    }
+  }
+
+  @override
   Future<Either<Failure, void>> scheduleDailyReminder({
     required int notificationId,
     required String title,

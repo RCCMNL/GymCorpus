@@ -4,19 +4,32 @@ import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
 import 'package:gym_corpus/features/profile/presentation/widgets/profile_list_widgets.dart';
+import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
+import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
 
 /// Tab "Profilo" della ProfileScreen: community, performance, allenamento
 /// e sezioni della palestra.
 class ProfileMenuTab extends StatelessWidget {
   const ProfileMenuTab({super.key});
 
-  /// Il calendario ciclo compare solo per i profili femminili.
+  /// Chiave della preferenza che accende o spegne il calendario ciclo.
+  static const cycleCalendarSetting = 'cycle_calendar_enabled';
+
+  /// Il calendario ciclo e' acceso di default per i profili femminili, ma
+  /// chiunque puo' accenderlo o spegnerlo dalle impostazioni.
   ///
-  /// Il sesso si cambia da "Modifica profilo": chi accede con Google o Apple
-  /// non ha il campo valorizzato e non vede la voce finche' non lo imposta.
+  /// Il sesso da solo non basta: chi indica "Altro" resterebbe tagliato
+  /// fuori per sempre da una funzione che potrebbe volere.
   static bool _showsCycleCalendar(BuildContext context) {
+    final state = context.watch<TrainingBloc>().state;
+    final preference = state is TrainingLoaded
+        ? state.settings[cycleCalendarSetting]
+        : null;
+
+    if (preference != null) return preference == 'true';
+
     return context.watch<AuthBloc>().state.maybeWhen(
-      authenticated: (user) => user.gender == 'Donna',
+      authenticated: (user, _) => user.gender == 'Donna',
       orElse: () => false,
     );
   }

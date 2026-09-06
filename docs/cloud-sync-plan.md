@@ -216,3 +216,10 @@ Partire da:
 Questo file descrive solo il piano tecnico e l'ordine dei passi.
 
 Non avvia alcuna implementazione.
+
+## Dati esclusi dalla sincronizzazione
+
+Le registrazioni del ciclo mestruale (`CycleLogs`) restano solo nel database
+locale cifrato: non entrano in questo piano, non vanno su Firestore e non
+compaiono nel report PDF. La conseguenza da conoscere e' che un cambio di
+dispositivo le perde: e' una scelta, non una dimenticanza.

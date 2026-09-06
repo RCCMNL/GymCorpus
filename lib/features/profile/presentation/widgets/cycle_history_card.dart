@@ -13,12 +13,17 @@ class CycleHistoryCard extends StatelessWidget {
     required this.logs,
     required this.summary,
     required this.onDelete,
+    required this.onEdit,
     super.key,
   });
 
   final List<CycleLogEntity> logs;
   final CycleSummary summary;
   final ValueChanged<int> onDelete;
+
+  /// Correzione di una registrazione: una data sbagliata si sistema, non
+  /// si cancella e riscrive.
+  final ValueChanged<CycleLogEntity> onEdit;
 
   /// Quante registrazioni mostrare: lo storico serve a controllare le ultime
   /// e a correggerle, non a scorrere anni di dati.
@@ -68,7 +73,11 @@ class CycleHistoryCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             for (final log in recent.take(_maxVisible))
-              _LogRow(log: log, onDelete: () => _confirmDelete(context, log)),
+              _LogRow(
+                log: log,
+                onDelete: () => _confirmDelete(context, log),
+                onEdit: () => onEdit(log),
+              ),
           ],
         ],
       ),
@@ -190,10 +199,15 @@ class _SummaryRow extends StatelessWidget {
 }
 
 class _LogRow extends StatelessWidget {
-  const _LogRow({required this.log, required this.onDelete});
+  const _LogRow({
+    required this.log,
+    required this.onDelete,
+    required this.onEdit,
+  });
 
   final CycleLogEntity log;
   final VoidCallback onDelete;
+  final VoidCallback onEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -206,9 +220,12 @@ class _LogRow extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            child: Text(
-              CycleHistoryCard._dateRange(log),
-              style: theme.textTheme.bodyMedium,
+            child: InkWell(
+              onTap: onEdit,
+              child: Text(
+                CycleHistoryCard._dateRange(log),
+                style: theme.textTheme.bodyMedium,
+              ),
             ),
           ),
           Text(

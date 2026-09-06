@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:gym_corpus/features/analytics/presentation/screens/cardio_session_detail_screen.dart';
 import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_bloc.dart';
 import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_state.dart';
+import 'package:gym_corpus/features/training/domain/entities/cardio_goal.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_route_point.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_session.dart';
 import 'package:latlong2/latlong.dart';
@@ -121,4 +122,56 @@ void main() {
 
     expect(find.textContaining('Split non disponibili'), findsOneWidget);
   });
+
+  group('obiettivo della sessione', () {
+    testWidgets('una sessione senza obiettivo non ne parla', (tester) async {
+      await tester.pumpWidget(wrap(session()));
+
+      expect(find.textContaining('Obiettivo'), findsNothing);
+    });
+
+    testWidgets('un obiettivo raggiunto viene dichiarato', (tester) async {
+      // 2 km percorsi su 2 km di obiettivo.
+      await tester.pumpWidget(
+        wrap(
+          session().copyWithGoal(
+            const CardioGoal(type: CardioGoalType.distance, value: 2),
+          ),
+        ),
+      );
+
+      expect(find.text('Obiettivo 2 km'), findsOneWidget);
+      expect(find.text('Raggiunto'), findsOneWidget);
+    });
+
+    testWidgets('un obiettivo mancato non viene spacciato per raggiunto', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        wrap(
+          session().copyWithGoal(
+            const CardioGoal(type: CardioGoalType.distance, value: 10),
+          ),
+        ),
+      );
+
+      expect(find.text('Non raggiunto'), findsOneWidget);
+    });
+  });
+}
+
+extension on CardioSessionEntity {
+  CardioSessionEntity copyWithGoal(CardioGoal goal) => CardioSessionEntity(
+    id: id,
+    type: type,
+    distance: distance,
+    duration: duration,
+    avgSpeed: avgSpeed,
+    pace: pace,
+    calories: calories,
+    date: date,
+    steps: steps,
+    routeJson: routeJson,
+    goal: goal,
+  );
 }

@@ -23,7 +23,7 @@ class BMICard extends StatelessWidget {
         var categoryColor = theme.colorScheme.outline;
 
         final user = state.maybeWhen(
-          authenticated: (u) => u,
+          authenticated: (u, _) => u,
           orElse: () => null,
         );
 

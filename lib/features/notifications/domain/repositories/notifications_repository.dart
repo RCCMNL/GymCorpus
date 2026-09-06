@@ -37,6 +37,18 @@ abstract class NotificationsRepository {
     required int minute,
   });
 
+  /// Programma un promemoria per una data precisa, una volta sola.
+  ///
+  /// A differenza di quelli giornalieri o settimanali, la data cambia a
+  /// ogni aggiornamento dei dati: e' il caso del ciclo previsto.
+  Future<Either<Failure, void>> scheduleOneTimeReminder({
+    required int notificationId,
+    required String title,
+    required String body,
+    required DateTime date,
+    required String type,
+  });
+
   /// Cancel a scheduled notification by its ID.
   Future<Either<Failure, void>> cancelScheduledReminder(int notificationId);
 }

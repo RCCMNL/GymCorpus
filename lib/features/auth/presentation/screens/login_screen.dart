@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -130,6 +131,16 @@ class _LoginScreenState extends State<LoginScreen>
     context.read<AuthBloc>().add(
       AuthEvent.loginRequested(email: email, password: password),
     );
+  }
+
+  /// Su iOS l'accesso con Apple e' richiesto quando se ne offre un altro di
+  /// terze parti: e' la linea guida 4.8 dell'App Store.
+  static bool get _showsAppleSignIn =>
+      defaultTargetPlatform == TargetPlatform.iOS ||
+      defaultTargetPlatform == TargetPlatform.macOS;
+
+  Future<void> _onApplePressed() async {
+    context.read<AuthBloc>().add(const AuthEvent.appleSignInRequested());
   }
 
   Future<void> _onGooglePressed() async {
@@ -472,6 +483,14 @@ class _LoginScreenState extends State<LoginScreen>
                                           logo: const GoogleLogo(size: 20),
                                           onTap: _onGooglePressed,
                                         ),
+                                        if (_showsAppleSignIn) ...[
+                                          const SizedBox(height: 12),
+                                          AuthSocialButton(
+                                            label: 'Accedi con Apple',
+                                            logo: const AppleLogo(size: 20),
+                                            onTap: _onApplePressed,
+                                          ),
+                                        ],
                                         const SizedBox(height: 12),
                                         Text(
                                           'Primo accesso? Se non hai ancora un account, usa "Registrati" qui sotto.',

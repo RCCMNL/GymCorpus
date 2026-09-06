@@ -22,14 +22,17 @@ import 'package:gym_corpus/features/auth/domain/repositories/auth_repository.dar
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_event.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
+import 'package:gym_corpus/features/auth/presentation/router/auth_redirect.dart';
 import 'package:gym_corpus/features/auth/presentation/screens/lock_screen.dart';
 import 'package:gym_corpus/features/auth/presentation/screens/login_screen.dart';
+import 'package:gym_corpus/features/auth/presentation/screens/profile_onboarding_screen.dart';
 import 'package:gym_corpus/features/auth/presentation/screens/sign_up_screen.dart';
 import 'package:gym_corpus/features/auth/presentation/screens/splash_screen.dart';
 import 'package:gym_corpus/features/exercises/presentation/screens/custom_exercise_form_screen.dart';
 import 'package:gym_corpus/features/exercises/presentation/screens/exercise_detail_screen.dart';
 import 'package:gym_corpus/features/exercises/presentation/screens/exercises_screen.dart';
 import 'package:gym_corpus/features/exercises/presentation/screens/favorite_exercises_screen.dart';
+import 'package:gym_corpus/features/notifications/domain/repositories/notifications_repository.dart';
 import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_bloc.dart';
 import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_event.dart';
 import 'package:gym_corpus/features/notifications/presentation/screens/notification_settings_screen.dart';
@@ -45,6 +48,7 @@ import 'package:gym_corpus/features/profile/presentation/screens/profile_screen.
 import 'package:gym_corpus/features/profile/presentation/screens/records_screen.dart';
 import 'package:gym_corpus/features/profile/presentation/screens/security_screen.dart';
 import 'package:gym_corpus/features/profile/presentation/screens/trophy_board_screen.dart';
+import 'package:gym_corpus/features/training/domain/entities/cardio_activity.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_goal.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_session.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
@@ -55,6 +59,7 @@ import 'package:gym_corpus/features/training/presentation/bloc/training_state.da
 import 'package:gym_corpus/features/training/presentation/screens/article_detail_screen.dart';
 import 'package:gym_corpus/features/training/presentation/screens/cardio_tracker_screen.dart';
 import 'package:gym_corpus/features/training/presentation/screens/custom_workouts_screen.dart';
+import 'package:gym_corpus/features/training/presentation/screens/manual_cardio_entry_screen.dart';
 import 'package:gym_corpus/features/training/presentation/screens/nutrition_screen.dart';
 import 'package:gym_corpus/features/training/presentation/screens/root_screen.dart';
 import 'package:gym_corpus/features/training/presentation/screens/training_dashboard_screen.dart';
@@ -174,51 +179,14 @@ class _GymAppState extends State<GymApp> with WidgetsBindingObserver {
       navigatorKey: _rootNavigatorKey,
       initialLocation: '/splash',
       refreshListenable: _routerListenable,
-      redirect: (context, state) {
-        final authState = _authBloc.state;
-
-        return authState.maybeWhen(
-          authenticated: (_) {
-            if (_appLock.isLocked) {
-              return state.matchedLocation == '/lock' ? null : '/lock';
-            }
-            if (state.matchedLocation == '/login' ||
-                state.matchedLocation == '/signup' ||
-                state.matchedLocation == '/splash' ||
-                state.matchedLocation == '/lock') {
-              return '/training';
-            }
-            return null;
-          },
-          unauthenticated: () {
-            if (state.matchedLocation != '/login' &&
-                state.matchedLocation != '/signup' &&
-                !state.matchedLocation.startsWith('/legal') &&
-                state.matchedLocation != '/splash') {
-              return '/login';
-            }
-            return null;
-          },
-          error: (_, previousUser) {
-            // If we have a previousUser, the user was authenticated
-            // before the error — don't redirect to login
-            if (previousUser != null) return null;
-
-            if (state.matchedLocation != '/login' &&
-                state.matchedLocation != '/signup' &&
-                !state.matchedLocation.startsWith('/legal') &&
-                state.matchedLocation != '/splash') {
-              return '/login';
-            }
-            return null;
-          },
-          loading: (previousUser) {
-            // During loading, don't redirect anywhere
-            return null;
-          },
-          orElse: () => null,
-        );
-      },
+      // La regola vive in auth_redirect.dart: le condizioni sono poche ma si
+      // intrecciano, e li' possono essere verificate caso per caso senza
+      // montare l'intera app.
+      redirect: (context, state) => resolveAuthRedirect(
+        authState: _authBloc.state,
+        location: state.matchedLocation,
+        isLocked: _appLock.isLocked,
+      ),
       routes: [
         GoRoute(
           path: '/splash',
@@ -231,6 +199,10 @@ class _GymAppState extends State<GymApp> with WidgetsBindingObserver {
         GoRoute(
           path: '/login',
           builder: (context, state) => const LoginScreen(),
+        ),
+        GoRoute(
+          path: onboardingLocation,
+          builder: (context, state) => const ProfileOnboardingScreen(),
         ),
         GoRoute(
           path: '/signup',
@@ -280,10 +252,17 @@ class _GymAppState extends State<GymApp> with WidgetsBindingObserver {
                     // continua ad aprire la schermata giusta.
                     final args = _extraOf<CardioLaunchArgs>(state);
                     return CardioTrackerScreen(
-                      type: args?.type ?? _extraOf<String>(state) ?? 'run',
+                      activity:
+                          args?.activity ??
+                          CardioActivity.fromId(_extraOf<String>(state)),
                       goal: args?.goal,
                     );
                   },
+                ),
+                GoRoute(
+                  path: 'cardio-manual',
+                  parentNavigatorKey: _rootNavigatorKey,
+                  builder: (context, state) => const ManualCardioEntryScreen(),
                 ),
                 GoRoute(
                   path: 'yoga',
@@ -470,7 +449,10 @@ class _GymAppState extends State<GymApp> with WidgetsBindingObserver {
                   // il calendario non mette mai in ascolto quei dati.
                   builder: (context, state) => BlocProvider(
                     create: (_) =>
-                        CycleBloc(repository: di.sl<CycleRepository>())
+                        CycleBloc(
+                          repository: di.sl<CycleRepository>(),
+                          notifications: di.sl<NotificationsRepository>(),
+                        )
                           ..add(LoadCycleLogsEvent()),
                     child: const CycleCalendarScreen(),
                   ),

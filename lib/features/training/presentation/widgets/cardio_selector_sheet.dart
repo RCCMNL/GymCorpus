@@ -1,14 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/features/training/domain/entities/cardio_activity.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_goal.dart';
+import 'package:gym_corpus/features/training/presentation/widgets/cardio_activity_style.dart';
 
 /// Foglio di avvio di una sessione cardio: attivita' e obiettivo.
 ///
 /// L'obiettivo si sceglie qui perche' durante la sessione le mani sono
 /// occupate e il telefono spesso in tasca.
 class CardioSelectorSheet extends StatefulWidget {
-  const CardioSelectorSheet({required this.onStart, super.key});
+  const CardioSelectorSheet({
+    required this.onStart,
+    required this.onManualEntry,
+    super.key,
+  });
 
   final void Function(CardioLaunchArgs args) onStart;
+
+  /// Registrazione di una sessione gia' fatta, senza cronometro.
+  final VoidCallback onManualEntry;
 
   @override
   State<CardioSelectorSheet> createState() => _CardioSelectorSheetState();
@@ -76,35 +85,62 @@ class _CardioSelectorSheetState extends State<CardioSelectorSheet> {
             ],
           ),
           const SizedBox(height: 24),
-          _SectionLabel(text: 'SCEGLI ATTIVITA', theme: theme),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: CardioOptionTile(
-                  icon: Icons.directions_run,
-                  label: 'Corsa',
-                  color: theme.colorScheme.primary,
-                  onTap: () => widget.onStart(
-                    CardioLaunchArgs(type: 'run', goal: _goal),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: CardioOptionTile(
-                  icon: Icons.directions_walk,
-                  label: 'Camminata',
-                  color: Colors.orangeAccent,
-                  onTap: () => widget.onStart(
-                    CardioLaunchArgs(type: 'walk', goal: _goal),
-                  ),
-                ),
-              ),
-            ],
+          _SectionLabel(text: "ALL'APERTO", theme: theme),
+          const SizedBox(height: 12),
+          _ActivityRow(
+            activities: CardioActivity.outdoor,
+            onTap: _start,
+          ),
+          const SizedBox(height: 20),
+          _SectionLabel(text: 'AL CHIUSO', theme: theme),
+          const SizedBox(height: 12),
+          _ActivityRow(
+            activities: CardioActivity.indoor,
+            onTap: _start,
+          ),
+          const SizedBox(height: 12),
+          Center(
+            child: TextButton.icon(
+              onPressed: widget.onManualEntry,
+              icon: const Icon(Icons.edit_calendar_rounded, size: 18),
+              label: const Text('Registra una sessione gia fatta'),
+            ),
           ),
         ],
       ),
+    );
+  }
+
+  void _start(CardioActivity activity) {
+    widget.onStart(CardioLaunchArgs(activity: activity, goal: _goal));
+  }
+}
+
+/// Riga di attivita' selezionabili.
+class _ActivityRow extends StatelessWidget {
+  const _ActivityRow({required this.activities, required this.onTap});
+
+  final List<CardioActivity> activities;
+  final void Function(CardioActivity activity) onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Row(
+      children: [
+        for (final activity in activities) ...[
+          if (activity != activities.first) const SizedBox(width: 12),
+          Expanded(
+            child: CardioOptionTile(
+              icon: activity.icon,
+              label: activity.label,
+              color: activity.accent(theme),
+              onTap: () => onTap(activity),
+            ),
+          ),
+        ],
+      ],
     );
   }
 }
