@@ -322,19 +322,29 @@ class _MeasurementTipsCard extends StatelessWidget {
 }
 
 Future<void> _showAddMeasurementSheet(BuildContext context) async {
-  final theme = Theme.of(context);
-  final trainingBloc = context.read<TrainingBloc>();
-  final state = trainingBloc.state;
+  await showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (_) => const _AddMeasurementSheet(),
+  );
+}
 
-  // Pre-fill with latest values if available
-  final latestValues = <String, double>{};
-  if (state is TrainingLoaded) {
-    for (final m in state.bodyMeasurements) {
-      latestValues.putIfAbsent(m.part, () => m.value);
-    }
-  }
+/// Foglio di registrazione delle misure.
+///
+/// Possiede i propri controller: creandoli nella funzione che apre il foglio
+/// restavano vivi per sempre, uno per parte del corpo a ogni apertura, e
+/// distruggerli dopo l'await arrivava troppo presto, mentre il foglio e'
+/// ancora in chiusura.
+class _AddMeasurementSheet extends StatefulWidget {
+  const _AddMeasurementSheet();
 
-  final parts = [
+  @override
+  State<_AddMeasurementSheet> createState() => _AddMeasurementSheetState();
+}
+
+class _AddMeasurementSheetState extends State<_AddMeasurementSheet> {
+  static const parts = [
     'Petto',
     'Vita',
     'Fianchi',
@@ -345,283 +355,316 @@ Future<void> _showAddMeasurementSheet(BuildContext context) async {
     'Polpaccio',
   ];
 
-  final controllers = {for (final part in parts) part: TextEditingController()};
+  late final Map<String, TextEditingController> controllers = {
+    for (final part in parts) part: TextEditingController(),
+  };
 
-  await showModalBottomSheet<void>(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor: Colors.transparent,
-    builder: (sheetContext) {
-      return DraggableScrollableSheet(
-        initialChildSize: 0.85,
-        maxChildSize: 0.95,
-        minChildSize: 0.5,
-        builder: (_, scrollController) {
-          return Container(
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surface,
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(32),
+  @override
+  void dispose() {
+    for (final controller in controllers.values) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final trainingBloc = context.read<TrainingBloc>();
+    final state = trainingBloc.state;
+
+    // Pre-fill with latest values if available
+    final latestValues = <String, double>{};
+    if (state is TrainingLoaded) {
+      for (final m in state.bodyMeasurements) {
+        latestValues.putIfAbsent(m.part, () => m.value);
+      }
+    }
+
+    return DraggableScrollableSheet(
+      initialChildSize: 0.85,
+      maxChildSize: 0.95,
+      minChildSize: 0.5,
+      builder: (_, scrollController) {
+        return Container(
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surface,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+          ),
+          child: Column(
+            children: [
+              const SizedBox(height: 12),
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.outlineVariant,
+                  borderRadius: BorderRadius.circular(2),
+                ),
               ),
-            ),
-            child: Column(
-              children: [
-                const SizedBox(height: 12),
-                Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.outlineVariant,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                Expanded(
-                  child: ListView(
-                    controller: scrollController,
-                    padding: const EdgeInsets.all(24),
-                    children: [
-                      Text(
-                        'Check-in Misure',
-                        style: theme.textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.w900,
-                          fontFamily: 'Lexend',
-                        ),
+              Expanded(
+                child: ListView(
+                  controller: scrollController,
+                  padding: const EdgeInsets.all(24),
+                  children: [
+                    Text(
+                      'Check-in Misure',
+                      style: theme.textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.w900,
+                        fontFamily: 'Lexend',
                       ),
-                      const SizedBox(height: 6),
-                      Text(
-                        'Inserisci le circonferenze attuali. Lascia vuoto per non aggiornare.',
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.outline,
-                        ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Inserisci le circonferenze attuali. Lascia vuoto per non aggiornare.',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.outline,
                       ),
-                      const SizedBox(height: 24),
-                      ...parts.map(
-                        (part) => Padding(
-                          padding: const EdgeInsets.only(bottom: 16),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                flex: 2,
-                                child: Text(
-                                  part,
-                                  style: theme.textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.w700,
-                                  ),
+                    ),
+                    const SizedBox(height: 24),
+                    ...parts.map(
+                      (part) => Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              flex: 2,
+                              child: Text(
+                                part,
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.w700,
                                 ),
                               ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                flex: 3,
-                                child: TextField(
-                                  controller: controllers[part],
-                                  keyboardType:
-                                      const TextInputType.numberWithOptions(
-                                        decimal: true,
-                                      ),
-                                  textInputAction: part == parts.last
-                                      ? TextInputAction.done
-                                      : TextInputAction.next,
-                                  decoration: InputDecoration(
-                                    hintText:
-                                        latestValues[part]?.toStringAsFixed(
-                                          1,
-                                        ) ??
-                                        '0.0',
-                                    suffixText: 'cm',
-                                    contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 16,
-                                      vertical: 12,
-                                    ),
-                                    filled: true,
-                                    fillColor: theme
-                                        .colorScheme
-                                        .surfaceContainerHigh
-                                        .withValues(alpha: 0.3),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                      borderSide: BorderSide.none,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: OutlinedButton(
-                              onPressed: () => Navigator.pop(sheetContext),
-                              style: OutlinedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 16,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                              ),
-                              child: const Text('Annulla'),
                             ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: FilledButton(
-                              onPressed: () {
-                                final measurements = <String, double>{};
-                                controllers.forEach((part, controller) {
-                                  final val = double.tryParse(
-                                    controller.text.replaceAll(',', '.'),
-                                  );
-                                  if (val != null) {
-                                    measurements[part] = val;
-                                  }
-                                });
-
-                                if (measurements.isNotEmpty) {
-                                  trainingBloc.add(
-                                    AddMultipleBodyMeasurementsEvent(
-                                      measurements,
+                            const SizedBox(width: 16),
+                            Expanded(
+                              flex: 3,
+                              child: TextField(
+                                controller: controllers[part],
+                                keyboardType:
+                                    const TextInputType.numberWithOptions(
+                                      decimal: true,
                                     ),
-                                  );
+                                textInputAction: part == parts.last
+                                    ? TextInputAction.done
+                                    : TextInputAction.next,
+                                decoration: InputDecoration(
+                                  hintText:
+                                      latestValues[part]?.toStringAsFixed(1) ??
+                                      '0.0',
+                                  suffixText: 'cm',
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 12,
+                                  ),
+                                  filled: true,
+                                  fillColor: theme
+                                      .colorScheme
+                                      .surfaceContainerHigh
+                                      .withValues(alpha: 0.3),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () => Navigator.pop(context),
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                            ),
+                            child: const Text('Annulla'),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: FilledButton(
+                            onPressed: () {
+                              final measurements = <String, double>{};
+                              controllers.forEach((part, controller) {
+                                final val = double.tryParse(
+                                  controller.text.replaceAll(',', '.'),
+                                );
+                                if (val != null) {
+                                  measurements[part] = val;
                                 }
-                                Navigator.pop(sheetContext);
-                              },
-                              style: FilledButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 16,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
+                              });
+
+                              if (measurements.isNotEmpty) {
+                                trainingBloc.add(
+                                  AddMultipleBodyMeasurementsEvent(
+                                    measurements,
+                                  ),
+                                );
+                              }
+                              Navigator.pop(context);
+                            },
+                            style: FilledButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
                               ),
-                              child: const Text('Salva Check-in'),
                             ),
+                            child: const Text('Salva Check-in'),
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: 32),
-                    ],
-                  ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 32),
+                  ],
                 ),
-              ],
-            ),
-          );
-        },
-      );
-    },
-  );
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 }
 
 Future<void> _showEditMeasurementSheet(
   BuildContext context,
   BodyMeasurementEntity measurement,
 ) async {
-  final controller = TextEditingController(
-    text: measurement.value.toStringAsFixed(1),
-  );
-  final theme = Theme.of(context);
-
   await showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
-    builder: (sheetContext) {
-      return Padding(
-        padding: EdgeInsets.only(
-          left: 16,
-          right: 16,
-          bottom: MediaQuery.of(sheetContext).viewInsets.bottom + 16,
-          top: 24,
-        ),
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surface,
-            borderRadius: BorderRadius.circular(28),
-            border: Border.all(
-              color: theme.colorScheme.outline.withValues(alpha: 0.08),
-            ),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Modifica ${measurement.part}',
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w900,
-                  fontFamily: 'Lexend',
-                ),
-              ),
-              const SizedBox(height: 18),
-              TextField(
-                controller: controller,
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
-                decoration: InputDecoration(
-                  labelText: 'Circonferenza',
-                  suffixText: 'cm',
-                  filled: true,
-                  fillColor: theme.colorScheme.surfaceContainerHigh.withValues(
-                    alpha: 0.35,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(18),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 18),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.pop(sheetContext),
-                      child: const Text('Annulla'),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: FilledButton(
-                      onPressed: () {
-                        final value = double.tryParse(
-                          controller.text.replaceAll(',', '.'),
-                        );
-                        if (value == null) return;
-                        context.read<TrainingBloc>().add(
-                          UpdateBodyMeasurementEvent(measurement.id!, value),
-                        );
-                        Navigator.pop(sheetContext);
-                      },
-                      child: const Text('Aggiorna'),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              // DeleteBodyMeasurementEvent esisteva in bloc e repository ma
-              // non veniva inviato da nessuna schermata: le misurazioni si
-              // potevano solo aggiungere.
-              TextButton.icon(
-                onPressed: () {
-                  context.read<TrainingBloc>().add(
-                    DeleteBodyMeasurementEvent(measurement.id!),
-                  );
-                  Navigator.pop(sheetContext);
-                },
-                icon: const Icon(Icons.delete_outline, size: 18),
-                style: TextButton.styleFrom(
-                  foregroundColor: theme.colorScheme.error,
-                ),
-                label: const Text('Elimina misurazione'),
-              ),
-            ],
-          ),
-        ),
-      );
-    },
+    builder: (_) => _EditMeasurementSheet(measurement: measurement),
   );
+}
+
+/// Foglio di modifica di una misura, con il controller che vive quanto lui.
+class _EditMeasurementSheet extends StatefulWidget {
+  const _EditMeasurementSheet({required this.measurement});
+
+  final BodyMeasurementEntity measurement;
+
+  @override
+  State<_EditMeasurementSheet> createState() => _EditMeasurementSheetState();
+}
+
+class _EditMeasurementSheetState extends State<_EditMeasurementSheet> {
+  late final TextEditingController controller = TextEditingController(
+    text: widget.measurement.value.toStringAsFixed(1),
+  );
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final measurement = widget.measurement;
+    final theme = Theme.of(context);
+
+    return Padding(
+      padding: EdgeInsets.only(
+        left: 16,
+        right: 16,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+        top: 24,
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface,
+          borderRadius: BorderRadius.circular(28),
+          border: Border.all(
+            color: theme.colorScheme.outline.withValues(alpha: 0.08),
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Modifica ${measurement.part}',
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w900,
+                fontFamily: 'Lexend',
+              ),
+            ),
+            const SizedBox(height: 18),
+            TextField(
+              controller: controller,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              decoration: InputDecoration(
+                labelText: 'Circonferenza',
+                suffixText: 'cm',
+                filled: true,
+                fillColor: theme.colorScheme.surfaceContainerHigh.withValues(
+                  alpha: 0.35,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(18),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+            const SizedBox(height: 18),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Annulla'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: FilledButton(
+                    onPressed: () {
+                      final value = double.tryParse(
+                        controller.text.replaceAll(',', '.'),
+                      );
+                      if (value == null) return;
+                      context.read<TrainingBloc>().add(
+                        UpdateBodyMeasurementEvent(measurement.id!, value),
+                      );
+                      Navigator.pop(context);
+                    },
+                    child: const Text('Aggiorna'),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            // DeleteBodyMeasurementEvent esisteva in bloc e repository ma
+            // non veniva inviato da nessuna schermata: le misurazioni si
+            // potevano solo aggiungere.
+            TextButton.icon(
+              onPressed: () {
+                context.read<TrainingBloc>().add(
+                  DeleteBodyMeasurementEvent(measurement.id!),
+                );
+                Navigator.pop(context);
+              },
+              icon: const Icon(Icons.delete_outline, size: 18),
+              style: TextButton.styleFrom(
+                foregroundColor: theme.colorScheme.error,
+              ),
+              label: const Text('Elimina misurazione'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

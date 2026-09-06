@@ -69,11 +69,6 @@ class AuthRepositoryImpl implements AuthRepository {
     }
   }
 
-  final _userStreamController = StreamController<UserEntity?>.broadcast();
-
-  @override
-  Stream<UserEntity?> get userStream => _userStreamController.stream;
-
   String get _effectiveGoogleServerClientId => _googleServerClientId.isNotEmpty
       ? _googleServerClientId
       : _defaultGoogleServerClientId;
@@ -242,7 +237,6 @@ class AuthRepositoryImpl implements AuthRepository {
         );
 
         final finalUser = await _updateLoginHistory(user);
-        _userStreamController.add(finalUser);
         return Right(finalUser);
       }
       return const Left(
@@ -270,7 +264,6 @@ class AuthRepositoryImpl implements AuthRepository {
         final user = _mapFirebaseUser(credential.user!);
         await _prepareLocalData(user.id);
         final finalUser = await _updateLoginHistory(user);
-        _userStreamController.add(finalUser);
         return Right(finalUser);
       }
       return const Left(
@@ -287,7 +280,6 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, void>> logout() async {
     await _firebaseAuth.signOut();
     await _localDataSource.clearSession();
-    _userStreamController.add(null);
     return const Right(null);
   }
 
@@ -349,7 +341,6 @@ class AuthRepositoryImpl implements AuthRepository {
         authProviders: baseUser.authProviders,
       );
       final finalSessionUser = await _updateLoginHistory(updatedSessionUser);
-      _userStreamController.add(finalSessionUser);
       return Right(finalSessionUser);
     }
 
@@ -455,7 +446,6 @@ class AuthRepositoryImpl implements AuthRepository {
         }
 
         final finalUser = await _updateLoginHistory(user);
-        _userStreamController.add(finalUser);
         return Right(finalUser);
       }
       return const Left(AuthFailure('Impossibile accedere con Google'));
@@ -537,7 +527,6 @@ class AuthRepositoryImpl implements AuthRepository {
         }
 
         final finalUser = await _updateLoginHistory(user);
-        _userStreamController.add(finalUser);
         return Right(finalUser);
       }
       return const Left(AuthFailure('Impossibile accedere con Apple'));
@@ -645,7 +634,6 @@ class AuthRepositoryImpl implements AuthRepository {
         await _weightHistory.record(updatedUser.weight!);
       }
 
-      _userStreamController.add(updatedUser);
       return Right(updatedUser);
     } catch (e) {
       return Left(AuthFailure('Errore durante aggiornamento: $e'));
@@ -705,7 +693,6 @@ class AuthRepositoryImpl implements AuthRepository {
       }
       await _localDataSource.clearSession();
       await _localDataGuard.clearOwner();
-      _userStreamController.add(null);
 
       return const Right(null);
     } on FirebaseAuthException catch (e) {

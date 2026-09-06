@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:gym_corpus/features/analytics/domain/analytics_formatters.dart';
 import 'package:gym_corpus/features/analytics/domain/workout_stats_summary.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
+import 'package:gym_corpus/features/training/domain/entities/workout_session.dart';
 
 WorkoutSetEntity _set({
   required int id,
@@ -200,6 +201,75 @@ void main() {
 
     test('da 1000 lb in su mostra le migliaia con un decimale', () {
       expect(formatVolumeLb(1000), '2.2k lb');
+    });
+  });
+
+  group('durata reale della sessione', () {
+    /// La durata delle sessioni completate sta nella colonna dedicata da
+    /// quando esiste: leggerla dal campo rpe era un ripiego dei tempi in cui
+    /// quella colonna non c'era, e costringeva a scriverci dentro un numero
+    /// di secondi al posto di uno sforzo da 1 a 10.
+    WorkoutSessionEntity session(int id, {int? durationSeconds}) =>
+        WorkoutSessionEntity(
+          id: id,
+          date: DateTime(2026, 4, 26),
+          name: 'Sessione',
+          completedAt: DateTime(2026, 4, 26),
+          durationSeconds: durationSeconds,
+        );
+
+    test('usa la durata salvata con la sessione', () {
+      final logs = [
+        _set(id: 1, workoutId: 7, timestamp: DateTime(2026, 4, 26)),
+        _set(id: 2, workoutId: 7, timestamp: DateTime(2026, 4, 26)),
+      ];
+
+      final summary = WorkoutStatsSummary.fromLogs(
+        logs,
+        sessions: [session(7, durationSeconds: 1800)],
+      );
+
+      expect(summary.totalMinutes, 30);
+    });
+
+    test('somma le durate di piu sessioni', () {
+      final logs = [
+        _set(id: 1, workoutId: 7, timestamp: DateTime(2026, 4, 26)),
+        _set(id: 2, workoutId: 8, timestamp: DateTime(2026, 4, 27)),
+      ];
+
+      final summary = WorkoutStatsSummary.fromLogs(
+        logs,
+        sessions: [
+          session(7, durationSeconds: 1800),
+          session(8, durationSeconds: 600),
+        ],
+      );
+
+      expect(summary.totalMinutes, 40);
+    });
+
+    test('senza durata salvata ricade sulla stima, per i dati vecchi', () {
+      // Le sessioni registrate prima della colonna durata portano i secondi
+      // nel campo rpe: continuano a contare.
+      final logs = [
+        _set(id: 1, workoutId: 7, timestamp: DateTime(2026, 4, 26), rpe: 1200),
+      ];
+
+      final summary = WorkoutStatsSummary.fromLogs(
+        logs,
+        sessions: [session(7)],
+      );
+
+      expect(summary.totalMinutes, 20);
+    });
+
+    test('senza sessioni note resta la stima', () {
+      final logs = [
+        _set(id: 1, workoutId: 7, timestamp: DateTime(2026, 4, 26), rpe: 600),
+      ];
+
+      expect(WorkoutStatsSummary.fromLogs(logs).totalMinutes, 10);
     });
   });
 }

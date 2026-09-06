@@ -121,99 +121,128 @@ class WeightHistoryTab extends StatelessWidget {
 }
 
 Future<void> _showAddWeightSheet(BuildContext context, bool isImperial) async {
-  final controller = TextEditingController();
-  final theme = Theme.of(context);
-
   await showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
-    builder: (sheetContext) {
-      return Padding(
-        padding: EdgeInsets.only(
-          left: 16,
-          right: 16,
-          bottom: MediaQuery.of(sheetContext).viewInsets.bottom + 16,
-          top: 24,
-        ),
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surface,
-            borderRadius: BorderRadius.circular(28),
-            border: Border.all(
-              color: theme.colorScheme.outline.withValues(alpha: 0.08),
-            ),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Registra peso',
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w900,
-                  fontFamily: 'Lexend',
-                ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                'Salva il valore attuale per aggiornare la tua cronologia.',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.outline,
-                ),
-              ),
-              const SizedBox(height: 20),
-              TextField(
-                controller: controller,
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
-                autofocus: true,
-                decoration: InputDecoration(
-                  labelText: 'Peso',
-                  suffixText: isImperial ? 'lb' : 'kg',
-                  filled: true,
-                  fillColor: theme.colorScheme.surfaceContainerHigh.withValues(
-                    alpha: 0.35,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(18),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 18),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.pop(sheetContext),
-                      child: const Text('Annulla'),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: FilledButton(
-                      onPressed: () {
-                        final valStr = controller.text.replaceAll(',', '.');
-                        var value = double.tryParse(valStr);
-                        if (value == null) return;
-                        if (isImperial) value = UnitConverter.lbToKg(value);
-                        context.read<TrainingBloc>().add(
-                          AddBodyWeightLogEvent(value),
-                        );
-                        Navigator.pop(sheetContext);
-                      },
-                      child: const Text('Salva'),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      );
-    },
+    builder: (_) => _AddWeightSheet(isImperial: isImperial),
   );
+}
+
+/// Foglio di registrazione del peso.
+///
+/// Possiede il proprio controller: creandolo nella funzione che apre il
+/// foglio restava vivo per sempre, e distruggerlo dopo l'await arrivava
+/// troppo presto, mentre il foglio e' ancora in chiusura.
+class _AddWeightSheet extends StatefulWidget {
+  const _AddWeightSheet({required this.isImperial});
+
+  final bool isImperial;
+
+  @override
+  State<_AddWeightSheet> createState() => _AddWeightSheetState();
+}
+
+class _AddWeightSheetState extends State<_AddWeightSheet> {
+  final _controller = TextEditingController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _save() {
+    final value = double.tryParse(_controller.text.replaceAll(',', '.'));
+    if (value == null) return;
+
+    context.read<TrainingBloc>().add(
+      AddBodyWeightLogEvent(
+        widget.isImperial ? UnitConverter.lbToKg(value) : value,
+      ),
+    );
+    Navigator.pop(context);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Padding(
+      padding: EdgeInsets.only(
+        left: 16,
+        right: 16,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+        top: 24,
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface,
+          borderRadius: BorderRadius.circular(28),
+          border: Border.all(
+            color: theme.colorScheme.outline.withValues(alpha: 0.08),
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Registra peso',
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w900,
+                fontFamily: 'Lexend',
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Salva il valore attuale per aggiornare la tua cronologia.',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.outline,
+              ),
+            ),
+            const SizedBox(height: 20),
+            TextField(
+              controller: _controller,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              autofocus: true,
+              decoration: InputDecoration(
+                labelText: 'Peso',
+                suffixText: widget.isImperial ? 'lb' : 'kg',
+                filled: true,
+                fillColor: theme.colorScheme.surfaceContainerHigh.withValues(
+                  alpha: 0.35,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(18),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+            const SizedBox(height: 18),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Annulla'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: FilledButton(
+                    onPressed: _save,
+                    child: const Text('Salva'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

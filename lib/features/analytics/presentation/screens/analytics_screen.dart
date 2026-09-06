@@ -47,7 +47,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             if (state is TrainingLoaded) {
               currentUnit = state.settings['units'] ?? 'KG';
               final logs = state.weightLogs;
-              stats = WorkoutStatsSummary.fromLogs(logs);
+              stats = WorkoutStatsSummary.fromLogs(
+                logs,
+                sessions: state.workoutSessions,
+              );
 
               final now = DateTime.now();
               final monthLogs = logs
@@ -57,7 +60,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                         e.timestamp.year == now.year,
                   )
                   .toList();
-              monthStats = WorkoutStatsSummary.fromLogs(monthLogs);
+              monthStats = WorkoutStatsSummary.fromLogs(
+                monthLogs,
+                sessions: state.workoutSessions,
+              );
             }
             final isImperial = currentUnit == 'LB';
 
