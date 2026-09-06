@@ -120,7 +120,13 @@ flutter pub run build_runner build --delete-conflicting-outputs
 
 ## Gamification, Record E Livelli
 
-- La logica di XP, livelli, trofei e record vive in `lib/features/profile/domain/services/athlete_progress_service.dart`.
+- La logica di XP, livelli, trofei e record vive in `lib/features/profile/domain/services/`, divisa in quattro pezzi indipendenti:
+  - `athlete_metrics.dart` scorre una volta sola sessioni, set e cardio e ne ricava i numeri (`AthleteMetrics`);
+  - `achievement_catalog.dart` e' l'elenco dei trofei: ognuno dichiara con `metric` quale numero guarda;
+  - `athlete_level.dart` trasforma metriche e trofei sbloccati in XP e livello;
+  - `personal_records.dart` traduce le metriche nelle schede dei primati.
+  `athlete_progress_service.dart` li mette in fila e basta.
+- Per aggiungere un trofeo aggiungi una voce al catalogo. Se misura qualcosa che non esiste ancora, aggiungi prima il valore ad `AthleteMetric`: il `switch` di `valueOf` non compila finche' non lo gestisci, quindi non puo' restare a zero per sbaglio.
 - Le schermate dedicate sono `TrophyBoardScreen` e `RecordsScreen`, raggiungibili dal menu profilo.
 - `TrainingState.loaded` espone `workoutSessions`, `weightLogs`, `cardioSessions` ed `exercises`; usa questi dati come input per `AthleteProgressService.calculate`.
 - `TrainingScreen` deve creare una sessione con `StartWorkoutSessionEvent` all'avvio e completarla con `CompleteWorkoutSessionEvent` quando l'ultimo set viene concluso.
@@ -162,7 +168,7 @@ Note:
 - Per cambiamenti di routing, verifica sia il flusso autenticato sia quello non autenticato, perche' i redirect sono centralizzati in `lib/main.dart`.
 - Per cambiamenti auth, controlla sia lo stato Firebase sia la gestione sessione locale in `auth_repository_impl.dart`.
 - Per cambiamenti training, ispeziona insieme `TrainingBloc`, `TrainingRepository` e l'accesso Drift prima di modificare il comportamento, perche' molti flussi sono guidati da stream.
-- Per cambiamenti a trofei, livelli o record, aggiorna `AthleteProgressService` e il test mirato `test/features/profile/domain/services/athlete_progress_service_test.dart`.
+- Per cambiamenti a trofei, livelli o record, tocca il file che riguarda quel pezzo (catalogo, metriche, livello o record) e il suo test mirato in `test/features/profile/domain/services/`.
 - Per cambiamenti database, aggiorna schema, comportamento di migrazione e qualsiasi seed data toccato dalla feature.
 - Per cambiamenti alla dependency injection, rigenera l'output Injectable prima di chiudere il lavoro.
 
