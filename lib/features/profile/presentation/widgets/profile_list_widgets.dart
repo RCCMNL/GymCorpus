@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/features/profile/presentation/widgets/cycle_phase_info.dart';
 
 /// Sezione della lista profilo/impostazioni: titolo con accento colorato e
 /// una card contenente le sue [ProfileItem].
@@ -99,7 +100,7 @@ class ProfileItem extends StatelessWidget {
     final iconColor = isComingSoon
         ? theme.colorScheme.outline
         : label == 'Calendario ciclo'
-        ? const Color(0xFFFF4B72)
+        ? CyclePalette.period
         : (label == 'Sicurezza' || label == 'Esercizi Preferiti'
               ? theme.colorScheme.tertiary
               : (label == 'Valuta GymCorpus'
@@ -116,7 +117,7 @@ class ProfileItem extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
             color: label == 'Calendario ciclo'
-                ? const Color(0xFFFF4B72).withValues(alpha: 0.05)
+                ? CyclePalette.period.withValues(alpha: 0.05)
                 : null,
             borderRadius: BorderRadius.circular(20),
           ),

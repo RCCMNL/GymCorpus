@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/features/analytics/presentation/widgets/detailed_cardio_card.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_session.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
@@ -165,7 +166,14 @@ class DismissibleCardioCard extends StatelessWidget {
           color: Colors.redAccent,
         ),
       ),
-      child: DetailedCardioCard(session: session, accentColor: accentColor),
+      child: DetailedCardioCard(
+        session: session,
+        accentColor: accentColor,
+        onTap: () => context.push(
+          '/analytics/cardio-history/session',
+          extra: session,
+        ),
+      ),
     );
   }
 }

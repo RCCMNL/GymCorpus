@@ -107,6 +107,16 @@ class NotificationLogs extends Table {
   TextColumn get type => text().withDefault(const Constant('general'))();
 }
 
+class CycleLogs extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  DateTimeColumn get startDate => dateTime()();
+
+  /// Nullo finche' la mestruazione e' in corso: e' l'unico dato che
+  /// distingue un ciclo aperto da uno concluso, quindi non va riempito
+  /// con una data di comodo quando manca.
+  DateTimeColumn get endDate => dateTime().nullable()();
+}
+
 @DriftDatabase(
   tables: [
     Workouts,
@@ -119,13 +129,14 @@ class NotificationLogs extends Table {
     CardioSessions,
     BodyMeasurements,
     NotificationLogs,
+    CycleLogs,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 18;
+  int get schemaVersion => 19;
 
   @override
   MigrationStrategy get migration {
@@ -176,6 +187,7 @@ class AppDatabase extends _$AppDatabase {
     await _ensureTable(m, cardioSessions);
     await _ensureTable(m, bodyMeasurements);
     await _ensureTable(m, notificationLogs);
+    await _ensureTable(m, cycleLogs);
   }
 
   Future<void> _ensureCurrentColumns(Migrator m) async {
@@ -634,6 +646,25 @@ class AppDatabase extends _$AppDatabase {
       into(cardioSessions).insert(session);
   Future<void> deleteCardioSession(int id) =>
       (delete(cardioSessions)..where((t) => t.id.equals(id))).go();
+
+  // Cycle logs
+  Stream<List<CycleLog>> watchAllCycleLogs() =>
+      (select(cycleLogs)..orderBy([
+            (t) =>
+                OrderingTerm(expression: t.startDate, mode: OrderingMode.desc),
+          ]))
+          .watch();
+
+  Future<int> insertCycleLog(CycleLogsCompanion log) =>
+      into(cycleLogs).insert(log);
+
+  Future<void> closeCycleLog(int id, DateTime endDate) =>
+      (update(cycleLogs)..where((t) => t.id.equals(id))).write(
+        CycleLogsCompanion(endDate: Value(endDate)),
+      );
+
+  Future<void> deleteCycleLog(int id) =>
+      (delete(cycleLogs)..where((t) => t.id.equals(id))).go();
 
   // Notification logs
   Stream<List<NotificationLog>> watchAllNotificationLogs() =>

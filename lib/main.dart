@@ -15,6 +15,7 @@ import 'package:gym_corpus/core/services/notification_service.dart';
 import 'package:gym_corpus/core/theme/app_theme.dart';
 import 'package:gym_corpus/features/analytics/presentation/screens/analytics_screen.dart';
 import 'package:gym_corpus/features/analytics/presentation/screens/cardio_history_screen.dart';
+import 'package:gym_corpus/features/analytics/presentation/screens/cardio_session_detail_screen.dart';
 import 'package:gym_corpus/features/analytics/presentation/screens/daily_activity_screen.dart';
 import 'package:gym_corpus/features/analytics/presentation/screens/progress_screen.dart';
 import 'package:gym_corpus/features/auth/domain/repositories/auth_repository.dart';
@@ -33,6 +34,9 @@ import 'package:gym_corpus/features/notifications/presentation/bloc/notification
 import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_event.dart';
 import 'package:gym_corpus/features/notifications/presentation/screens/notification_settings_screen.dart';
 import 'package:gym_corpus/features/notifications/presentation/screens/notifications_screen.dart';
+import 'package:gym_corpus/features/profile/domain/repositories/cycle_repository.dart';
+import 'package:gym_corpus/features/profile/presentation/bloc/cycle_bloc.dart';
+import 'package:gym_corpus/features/profile/presentation/bloc/cycle_event.dart';
 import 'package:gym_corpus/features/profile/presentation/screens/cycle_calendar_screen.dart';
 import 'package:gym_corpus/features/profile/presentation/screens/edit_profile_screen.dart';
 import 'package:gym_corpus/features/profile/presentation/screens/integrations_screen.dart';
@@ -41,6 +45,8 @@ import 'package:gym_corpus/features/profile/presentation/screens/profile_screen.
 import 'package:gym_corpus/features/profile/presentation/screens/records_screen.dart';
 import 'package:gym_corpus/features/profile/presentation/screens/security_screen.dart';
 import 'package:gym_corpus/features/profile/presentation/screens/trophy_board_screen.dart';
+import 'package:gym_corpus/features/training/domain/entities/cardio_goal.dart';
+import 'package:gym_corpus/features/training/domain/entities/cardio_session.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
@@ -267,9 +273,17 @@ class _GymAppState extends State<GymApp> with WidgetsBindingObserver {
                 GoRoute(
                   path: 'cardio',
                   parentNavigatorKey: _rootNavigatorKey,
-                  builder: (context, state) => CardioTrackerScreen(
-                    type: _extraOf<String>(state) ?? 'run',
-                  ),
+                  builder: (context, state) {
+                    // La rotta accettava una semplice stringa con il tipo di
+                    // attivita': quel formato resta leggibile, cosi' una
+                    // navigazione ripristinata da una versione precedente
+                    // continua ad aprire la schermata giusta.
+                    final args = _extraOf<CardioLaunchArgs>(state);
+                    return CardioTrackerScreen(
+                      type: args?.type ?? _extraOf<String>(state) ?? 'run',
+                      goal: args?.goal,
+                    );
+                  },
                 ),
                 GoRoute(
                   path: 'yoga',
@@ -367,6 +381,17 @@ class _GymAppState extends State<GymApp> with WidgetsBindingObserver {
                   path: 'cardio-history',
                   parentNavigatorKey: _rootNavigatorKey,
                   builder: (context, state) => const CardioHistoryScreen(),
+                  routes: [
+                    GoRoute(
+                      path: 'session',
+                      parentNavigatorKey: _rootNavigatorKey,
+                      builder: (context, state) {
+                        final session = _extraOf<CardioSessionEntity>(state);
+                        if (session == null) return const CardioHistoryScreen();
+                        return CardioSessionDetailScreen(session: session);
+                      },
+                    ),
+                  ],
                 ),
                 GoRoute(
                   path: 'daily-activity',
@@ -441,7 +466,14 @@ class _GymAppState extends State<GymApp> with WidgetsBindingObserver {
                 ),
                 GoRoute(
                   path: 'cycle-calendar',
-                  builder: (context, state) => const CycleCalendarScreen(),
+                  // Il bloc del ciclo vive quanto la schermata: chi non apre
+                  // il calendario non mette mai in ascolto quei dati.
+                  builder: (context, state) => BlocProvider(
+                    create: (_) =>
+                        CycleBloc(repository: di.sl<CycleRepository>())
+                          ..add(LoadCycleLogsEvent()),
+                    child: const CycleCalendarScreen(),
+                  ),
                 ),
               ],
             ),

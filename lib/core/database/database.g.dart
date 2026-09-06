@@ -4364,6 +4364,261 @@ class NotificationLogsCompanion extends UpdateCompanion<NotificationLog> {
   }
 }
 
+class $CycleLogsTable extends CycleLogs
+    with TableInfo<$CycleLogsTable, CycleLog> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CycleLogsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _startDateMeta = const VerificationMeta(
+    'startDate',
+  );
+  @override
+  late final GeneratedColumn<DateTime> startDate = GeneratedColumn<DateTime>(
+    'start_date',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _endDateMeta = const VerificationMeta(
+    'endDate',
+  );
+  @override
+  late final GeneratedColumn<DateTime> endDate = GeneratedColumn<DateTime>(
+    'end_date',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, startDate, endDate];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'cycle_logs';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CycleLog> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('start_date')) {
+      context.handle(
+        _startDateMeta,
+        startDate.isAcceptableOrUnknown(data['start_date']!, _startDateMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_startDateMeta);
+    }
+    if (data.containsKey('end_date')) {
+      context.handle(
+        _endDateMeta,
+        endDate.isAcceptableOrUnknown(data['end_date']!, _endDateMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  CycleLog map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CycleLog(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      startDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}start_date'],
+      )!,
+      endDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}end_date'],
+      ),
+    );
+  }
+
+  @override
+  $CycleLogsTable createAlias(String alias) {
+    return $CycleLogsTable(attachedDatabase, alias);
+  }
+}
+
+class CycleLog extends DataClass implements Insertable<CycleLog> {
+  final int id;
+  final DateTime startDate;
+
+  /// Nullo finche' la mestruazione e' in corso: e' l'unico dato che
+  /// distingue un ciclo aperto da uno concluso, quindi non va riempito
+  /// con una data di comodo quando manca.
+  final DateTime? endDate;
+  const CycleLog({required this.id, required this.startDate, this.endDate});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['start_date'] = Variable<DateTime>(startDate);
+    if (!nullToAbsent || endDate != null) {
+      map['end_date'] = Variable<DateTime>(endDate);
+    }
+    return map;
+  }
+
+  CycleLogsCompanion toCompanion(bool nullToAbsent) {
+    return CycleLogsCompanion(
+      id: Value(id),
+      startDate: Value(startDate),
+      endDate: endDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(endDate),
+    );
+  }
+
+  factory CycleLog.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CycleLog(
+      id: serializer.fromJson<int>(json['id']),
+      startDate: serializer.fromJson<DateTime>(json['startDate']),
+      endDate: serializer.fromJson<DateTime?>(json['endDate']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'startDate': serializer.toJson<DateTime>(startDate),
+      'endDate': serializer.toJson<DateTime?>(endDate),
+    };
+  }
+
+  CycleLog copyWith({
+    int? id,
+    DateTime? startDate,
+    Value<DateTime?> endDate = const Value.absent(),
+  }) => CycleLog(
+    id: id ?? this.id,
+    startDate: startDate ?? this.startDate,
+    endDate: endDate.present ? endDate.value : this.endDate,
+  );
+  CycleLog copyWithCompanion(CycleLogsCompanion data) {
+    return CycleLog(
+      id: data.id.present ? data.id.value : this.id,
+      startDate: data.startDate.present ? data.startDate.value : this.startDate,
+      endDate: data.endDate.present ? data.endDate.value : this.endDate,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CycleLog(')
+          ..write('id: $id, ')
+          ..write('startDate: $startDate, ')
+          ..write('endDate: $endDate')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, startDate, endDate);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CycleLog &&
+          other.id == this.id &&
+          other.startDate == this.startDate &&
+          other.endDate == this.endDate);
+}
+
+class CycleLogsCompanion extends UpdateCompanion<CycleLog> {
+  final Value<int> id;
+  final Value<DateTime> startDate;
+  final Value<DateTime?> endDate;
+  const CycleLogsCompanion({
+    this.id = const Value.absent(),
+    this.startDate = const Value.absent(),
+    this.endDate = const Value.absent(),
+  });
+  CycleLogsCompanion.insert({
+    this.id = const Value.absent(),
+    required DateTime startDate,
+    this.endDate = const Value.absent(),
+  }) : startDate = Value(startDate);
+  static Insertable<CycleLog> custom({
+    Expression<int>? id,
+    Expression<DateTime>? startDate,
+    Expression<DateTime>? endDate,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (startDate != null) 'start_date': startDate,
+      if (endDate != null) 'end_date': endDate,
+    });
+  }
+
+  CycleLogsCompanion copyWith({
+    Value<int>? id,
+    Value<DateTime>? startDate,
+    Value<DateTime?>? endDate,
+  }) {
+    return CycleLogsCompanion(
+      id: id ?? this.id,
+      startDate: startDate ?? this.startDate,
+      endDate: endDate ?? this.endDate,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (startDate.present) {
+      map['start_date'] = Variable<DateTime>(startDate.value);
+    }
+    if (endDate.present) {
+      map['end_date'] = Variable<DateTime>(endDate.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CycleLogsCompanion(')
+          ..write('id: $id, ')
+          ..write('startDate: $startDate, ')
+          ..write('endDate: $endDate')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -4383,6 +4638,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $NotificationLogsTable notificationLogs = $NotificationLogsTable(
     this,
   );
+  late final $CycleLogsTable cycleLogs = $CycleLogsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -4398,6 +4654,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     cardioSessions,
     bodyMeasurements,
     notificationLogs,
+    cycleLogs,
   ];
 }
 
@@ -7734,6 +7991,156 @@ typedef $$NotificationLogsTableProcessedTableManager =
       NotificationLog,
       PrefetchHooks Function()
     >;
+typedef $$CycleLogsTableCreateCompanionBuilder =
+    CycleLogsCompanion Function({
+      Value<int> id,
+      required DateTime startDate,
+      Value<DateTime?> endDate,
+    });
+typedef $$CycleLogsTableUpdateCompanionBuilder =
+    CycleLogsCompanion Function({
+      Value<int> id,
+      Value<DateTime> startDate,
+      Value<DateTime?> endDate,
+    });
+
+class $$CycleLogsTableFilterComposer
+    extends Composer<_$AppDatabase, $CycleLogsTable> {
+  $$CycleLogsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get startDate => $composableBuilder(
+    column: $table.startDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get endDate => $composableBuilder(
+    column: $table.endDate,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$CycleLogsTableOrderingComposer
+    extends Composer<_$AppDatabase, $CycleLogsTable> {
+  $$CycleLogsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get startDate => $composableBuilder(
+    column: $table.startDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get endDate => $composableBuilder(
+    column: $table.endDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$CycleLogsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CycleLogsTable> {
+  $$CycleLogsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get startDate =>
+      $composableBuilder(column: $table.startDate, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get endDate =>
+      $composableBuilder(column: $table.endDate, builder: (column) => column);
+}
+
+class $$CycleLogsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CycleLogsTable,
+          CycleLog,
+          $$CycleLogsTableFilterComposer,
+          $$CycleLogsTableOrderingComposer,
+          $$CycleLogsTableAnnotationComposer,
+          $$CycleLogsTableCreateCompanionBuilder,
+          $$CycleLogsTableUpdateCompanionBuilder,
+          (CycleLog, BaseReferences<_$AppDatabase, $CycleLogsTable, CycleLog>),
+          CycleLog,
+          PrefetchHooks Function()
+        > {
+  $$CycleLogsTableTableManager(_$AppDatabase db, $CycleLogsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CycleLogsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CycleLogsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CycleLogsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<DateTime> startDate = const Value.absent(),
+                Value<DateTime?> endDate = const Value.absent(),
+              }) => CycleLogsCompanion(
+                id: id,
+                startDate: startDate,
+                endDate: endDate,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required DateTime startDate,
+                Value<DateTime?> endDate = const Value.absent(),
+              }) => CycleLogsCompanion.insert(
+                id: id,
+                startDate: startDate,
+                endDate: endDate,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$CycleLogsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CycleLogsTable,
+      CycleLog,
+      $$CycleLogsTableFilterComposer,
+      $$CycleLogsTableOrderingComposer,
+      $$CycleLogsTableAnnotationComposer,
+      $$CycleLogsTableCreateCompanionBuilder,
+      $$CycleLogsTableUpdateCompanionBuilder,
+      (CycleLog, BaseReferences<_$AppDatabase, $CycleLogsTable, CycleLog>),
+      CycleLog,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -7758,4 +8165,6 @@ class $AppDatabaseManager {
       $$BodyMeasurementsTableTableManager(_db, _db.bodyMeasurements);
   $$NotificationLogsTableTableManager get notificationLogs =>
       $$NotificationLogsTableTableManager(_db, _db.notificationLogs);
+  $$CycleLogsTableTableManager get cycleLogs =>
+      $$CycleLogsTableTableManager(_db, _db.cycleLogs);
 }

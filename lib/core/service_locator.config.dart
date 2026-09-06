@@ -31,6 +31,10 @@ import 'package:gym_corpus/features/notifications/domain/repositories/notificati
     as _i186;
 import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_bloc.dart'
     as _i939;
+import 'package:gym_corpus/features/profile/data/repositories/cycle_repository_impl.dart'
+    as _i831;
+import 'package:gym_corpus/features/profile/domain/repositories/cycle_repository.dart'
+    as _i1050;
 import 'package:gym_corpus/features/training/data/repositories/training_repository_impl.dart'
     as _i871;
 import 'package:gym_corpus/features/training/domain/repositories/training_repository.dart'
@@ -63,6 +67,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i949.TrainingRepository>(
       () => _i871.TrainingRepositoryImpl(database: gh<_i158.AppDatabase>()),
+    );
+    gh.lazySingleton<_i1050.CycleRepository>(
+      () => _i831.CycleRepositoryImpl(database: gh<_i158.AppDatabase>()),
     );
     gh.factory<_i186.NotificationsRepository>(
       () => _i1003.NotificationsRepositoryImpl(gh<_i158.AppDatabase>()),

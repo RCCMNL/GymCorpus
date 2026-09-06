@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_draft.dart';
+import 'package:gym_corpus/features/training/domain/entities/cardio_route_point.dart';
 import 'package:latlong2/latlong.dart';
 
 /// La bozza cardio decide se una sessione interrotta e' recuperabile.
@@ -18,8 +19,8 @@ void main() {
   "steps": 1500,
   "startTime": "2026-08-12T10:30:00.000",
   "route": [
-    {"lat": 45.1, "lng": 9.2},
-    {"lat": 45.2, "lng": 9.3}
+    {"lat": 45.1, "lng": 9.2, "t": 0},
+    {"lat": 45.2, "lng": 9.3, "t": 300}
   ]
 }
 ''';
@@ -33,7 +34,25 @@ void main() {
       expect(draft.elapsedSeconds, 600);
       expect(draft.steps, 1500);
       expect(draft.startTime, DateTime(2026, 8, 12, 10, 30));
-      expect(draft.route, [const LatLng(45.1, 9.2), const LatLng(45.2, 9.3)]);
+      expect(draft.route, const [
+        CardioRoutePoint(position: LatLng(45.1, 9.2), elapsedSeconds: 0),
+        CardioRoutePoint(position: LatLng(45.2, 9.3), elapsedSeconds: 300),
+      ]);
+    });
+
+    test('una bozza scritta prima dei tempi resta recuperabile', () {
+      // Le bozze salvate dalla versione precedente non hanno il campo "t":
+      // la sessione deve riprendere lo stesso, perdendo i soli split.
+      final draft = CardioDraft.tryParse(
+        jsonEncode({
+          'route': [
+            {'lat': 45.1, 'lng': 9.2},
+          ],
+        }),
+      )!;
+
+      expect(draft.route.single.position, const LatLng(45.1, 9.2));
+      expect(draft.route.single.elapsedSeconds, isNull);
     });
 
     test('restituisce null se il JSON e troncato a meta', () {
@@ -93,18 +112,18 @@ void main() {
       final draft = CardioDraft.tryParse(
         jsonEncode({
           'route': [
-            {'lat': 45.1, 'lng': 9.2},
+            {'lat': 45.1, 'lng': 9.2, 't': 0},
             {'lat': 'rotto', 'lng': 9.3},
             {'lat': 45.3},
             'non-un-oggetto',
-            {'lat': 45.4, 'lng': 9.5},
+            {'lat': 45.4, 'lng': 9.5, 't': 60},
           ],
         }),
       )!;
 
-      expect(draft.route, [
-        const LatLng(45.1, 9.2),
-        const LatLng(45.4, 9.5),
+      expect(draft.route, const [
+        CardioRoutePoint(position: LatLng(45.1, 9.2), elapsedSeconds: 0),
+        CardioRoutePoint(position: LatLng(45.4, 9.5), elapsedSeconds: 60),
       ], reason: 'un punto rotto non deve far perdere gli altri');
     });
 
@@ -125,7 +144,13 @@ void main() {
         distanceMeters: 2750.5,
         steps: 3120,
         startTime: DateTime(2026, 8, 12, 7, 15, 30),
-        route: const [LatLng(45.4642, 9.19), LatLng(45.4643, 9.1901)],
+        route: const [
+          CardioRoutePoint(position: LatLng(45.4642, 9.19), elapsedSeconds: 0),
+          CardioRoutePoint(
+            position: LatLng(45.4643, 9.1901),
+            elapsedSeconds: 930,
+          ),
+        ],
       );
 
       final restored = CardioDraft.tryParse(original.encode());

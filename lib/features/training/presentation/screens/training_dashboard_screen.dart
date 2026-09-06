@@ -12,6 +12,7 @@ import 'package:gym_corpus/features/training/presentation/bloc/training_state.da
 import 'package:gym_corpus/features/training/presentation/screens/nutrition_screen.dart';
 // ignore: unused_import
 import 'package:gym_corpus/features/training/presentation/screens/yoga_screen.dart';
+import 'package:gym_corpus/features/training/presentation/widgets/cardio_selector_sheet.dart';
 
 class TrainingDashboardScreen extends StatelessWidget {
   const TrainingDashboardScreen({super.key});
@@ -197,7 +198,7 @@ class TrainingDashboardScreen extends StatelessWidget {
           subtitle: 'Brucia calorie e potenzia il cuore',
           icon: Icons.directions_run,
           color: const Color(0xFFFF9494),
-          onTap: () => _showCardioSelector(context, theme),
+          onTap: () => _showCardioSelector(context),
         ),
         const SizedBox(height: 16),
         _DashboardCard(
@@ -270,72 +271,15 @@ class TrainingDashboardScreen extends StatelessWidget {
     );
   }
 
-  void _showCardioSelector(BuildContext context, ThemeData theme) {
+  void _showCardioSelector(BuildContext context) {
     showModalBottomSheet<void>(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (ctx) => Container(
-        padding: EdgeInsets.fromLTRB(
-          24,
-          28,
-          24,
-          MediaQuery.of(ctx).padding.bottom + 24,
-        ),
-        decoration: BoxDecoration(
-          color: theme.colorScheme.surface,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: theme.colorScheme.outline.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              'SCEGLI ATTIVITÀ',
-              style: theme.textTheme.labelSmall?.copyWith(
-                fontWeight: FontWeight.w900,
-                letterSpacing: 2,
-                fontSize: 10,
-                color: theme.colorScheme.outline,
-              ),
-            ),
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                Expanded(
-                  child: _CardioOptionTile(
-                    icon: Icons.directions_run,
-                    label: 'Corsa',
-                    color: theme.colorScheme.primary,
-                    onTap: () {
-                      Navigator.pop(ctx);
-                      context.go('/training/cardio', extra: 'run');
-                    },
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: _CardioOptionTile(
-                    icon: Icons.directions_walk,
-                    label: 'Camminata',
-                    color: Colors.orangeAccent,
-                    onTap: () {
-                      Navigator.pop(ctx);
-                      context.go('/training/cardio', extra: 'walk');
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
+      builder: (ctx) => CardioSelectorSheet(
+        onStart: (args) {
+          Navigator.pop(ctx);
+          context.go('/training/cardio', extra: args);
+        },
       ),
     );
   }
@@ -711,58 +655,6 @@ class _RoutineCard extends StatelessWidget {
                   ],
                 ),
               ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _CardioOptionTile extends StatelessWidget {
-  const _CardioOptionTile({
-    required this.icon,
-    required this.label,
-    required this.color,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String label;
-  final Color color;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 28),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: color.withValues(alpha: 0.2)),
-        ),
-        child: Column(
-          children: [
-            Container(
-              width: 56,
-              height: 56,
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.15),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, color: color, size: 28),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              label,
-              style: theme.textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w900,
-                fontFamily: 'Lexend',
-                color: color,
-              ),
             ),
           ],
         ),

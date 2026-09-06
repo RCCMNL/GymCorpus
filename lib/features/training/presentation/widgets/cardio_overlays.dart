@@ -234,3 +234,55 @@ class AutoPauseOverlay extends StatelessWidget {
     );
   }
 }
+
+/// Avviso comparso a meta' schermo quando si completa un chilometro o si
+/// raggiunge l'obiettivo di sessione.
+///
+/// Accompagna la vibrazione: durante una corsa il telefono e' spesso in
+/// tasca o al braccio, e il solo aggiornamento dei numeri passerebbe
+/// inosservato.
+class CardioMilestoneBanner extends StatelessWidget {
+  const CardioMilestoneBanner({required this.title, this.subtitle, super.key});
+
+  final String title;
+  final String? subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final detail = subtitle;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface.withValues(alpha: 0.94),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.18),
+            blurRadius: 20,
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            title,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w900,
+              fontFamily: 'Lexend',
+            ),
+          ),
+          if (detail != null)
+            Text(
+              detail,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.outline,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}

@@ -49,7 +49,7 @@
 - Firebase viene inizializzato tramite `lib/firebase_options.dart`; il progetto al momento e' configurato per Android e iOS. Non assumere supporto web/desktop.
 - Il routing di autenticazione dipende dallo stato di `AuthBloc` e dai redirect GoRouter definiti in `lib/main.dart`.
 - Il database Drift locale vive nella directory documenti dell'app come `gym_db.sqlite` ed e' cifrato con SQLCipher. La chiave sta nel secure storage; `lib/core/database/connection.dart` gestisce apertura, generazione chiave e conversione dei database in chiaro creati da versioni precedenti. Non aggiungere `sqlite3_flutter_libs`: va in conflitto con SQLCipher.
-- `AppDatabase` usa attualmente `schemaVersion => 15` e fa seed dei dati iniziali quando la tabella esercizi e' vuota.
+- `AppDatabase` usa attualmente `schemaVersion => 19` e fa seed dei dati iniziali quando la tabella esercizi e' vuota.
 - La strategia di migrazione ricrea le tabelle quando si aggiorna da versioni precedenti alla 9. Tratta i cambiamenti database con attenzione e aggiorna le migration in modo esplicito.
 - La tabella `Workouts` rappresenta le sessioni di allenamento tracciabili: una sessione viene considerata completata solo quando `completedAt` e' valorizzato.
 - `WorkoutSet.workoutId` deve riferirsi a una riga `Workouts`; evita nuovi flussi che usano timestamp sciolti senza creare prima una sessione workout.
@@ -89,6 +89,19 @@ flutter pub run build_runner build --delete-conflicting-outputs
 - L'app usa gia' in alcuni punti un comportamento local-first, soprattutto nei flussi auth/profile. Evita modifiche che rendano la UI dipendente da round-trip remoti lenti quando ci si aspetta un aggiornamento locale immediato.
 - Per gamification, tieni le definizioni statiche dei badge in codice e salva/calcola solo lo stato utente necessario. Non creare tabelle di definizioni badge statiche salvo esigenza esplicita.
 - Rispetta il worktree sporco corrente. Non revertare modifiche dell'utente non correlate.
+
+## Calendario Ciclo
+
+- I dati del ciclo vivono solo nel database locale cifrato, nella tabella `CycleLogs`: non passano da Firestore e non finiscono nel report PDF. Non aggiungerli a flussi di sync o di export senza una richiesta esplicita.
+- Giorno del ciclo, fase, medie e previsioni non sono mai salvati: li calcola `CycleForecast` dalle sole date registrate. Quando i dati non bastano lo stato lo dichiara (`CycleDataState`), invece di mostrare valori di comodo.
+- `CycleBloc` viene creato dalla rotta `/profile/cycle-calendar`, non dal `MultiBlocProvider` globale: chi non apre la schermata non mette mai in ascolto quei dati.
+- La voce di menu compare solo per i profili con `gender == 'Donna'`.
+
+## Cardio
+
+- I punti del percorso (`CardioRoutePoint`) portano il tempo di passaggio: e' quello che rende possibili gli split al chilometro. I percorsi salvati senza tempo restano leggibili e mostrano "split non disponibili".
+- Split e passo non sono salvati a database: si ricalcolano da `routeJson` con `CardioSplits`.
+- L'obiettivo di sessione (`CardioGoal`) si sceglie prima di partire e non viene persistito: serve alla barra di avanzamento e all'avviso al traguardo.
 
 ## Gamification, Record E Livelli
 

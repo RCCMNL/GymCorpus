@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:gym_corpus/features/training/domain/entities/cardio_goal.dart';
 import 'package:gym_corpus/features/training/presentation/widgets/cardio_stats_panel.dart';
 
 void main() {
@@ -102,5 +103,60 @@ void main() {
       ),
     );
     expect(button.onPressed, isNull);
+  });
+
+  group('obiettivo di sessione', () {
+    Widget buildWithGoal(CardioGoal? goal) {
+      return MaterialApp(
+        home: Scaffold(
+          body: CardioStatsPanel(
+            isRun: true,
+            distanceKm: 2.5,
+            elapsedSeconds: 900,
+            currentSpeedKmh: 10,
+            currentSteps: 3000,
+            userWeightKg: 70,
+            isTracking: true,
+            isLocating: false,
+            isPaused: false,
+            isSaving: false,
+            goal: goal,
+            onStart: () {},
+            onPauseResume: () {},
+            onStop: () {},
+          ),
+        ),
+      );
+    }
+
+    testWidgets('senza obiettivo non compare alcuna barra', (tester) async {
+      await tester.pumpWidget(buildWithGoal(null));
+
+      expect(find.byType(LinearProgressIndicator), findsNothing);
+    });
+
+    testWidgets('mostra quanto manca all obiettivo scelto', (tester) async {
+      await tester.pumpWidget(
+        buildWithGoal(const CardioGoal(type: CardioGoalType.distance, value: 5)),
+      );
+
+      expect(find.text('Obiettivo 5 km'), findsOneWidget);
+      final bar = tester.widget<LinearProgressIndicator>(
+        find.byType(LinearProgressIndicator),
+      );
+      expect(bar.value, closeTo(0.5, 0.001));
+    });
+
+    testWidgets('al traguardo la barra e piena e lo dichiara', (tester) async {
+      await tester.pumpWidget(
+        buildWithGoal(const CardioGoal(type: CardioGoalType.duration, value: 15)),
+      );
+
+      final bar = tester.widget<LinearProgressIndicator>(
+        find.byType(LinearProgressIndicator),
+      );
+      expect(bar.value, 1.0);
+      expect(find.text('Obiettivo raggiunto'), findsOneWidget);
+    });
   });
 }

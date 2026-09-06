@@ -314,4 +314,25 @@ void main() {
       }
     },
   );
+
+  test('la riapertura crea la tabella del ciclo se manca', () async {
+    // Il calendario ciclo arriva dopo: chi aggiorna l'app ha un database
+    // senza quella tabella, e la strategia additiva deve crearla senza
+    // toccare il resto dei dati.
+    final firstRun = AppDatabase(NativeDatabase(dbFile));
+    await firstRun.customStatement('DROP TABLE cycle_logs');
+    await firstRun.close();
+
+    final secondRun = AppDatabase(NativeDatabase(dbFile));
+    addTearDown(secondRun.close);
+
+    final id = await secondRun.insertCycleLog(
+      CycleLogsCompanion.insert(startDate: DateTime(2026, 9)),
+    );
+    await secondRun.closeCycleLog(id, DateTime(2026, 9, 5));
+
+    final saved = await secondRun.select(secondRun.cycleLogs).getSingle();
+    expect(saved.startDate, DateTime(2026, 9));
+    expect(saved.endDate, DateTime(2026, 9, 5));
+  });
 }

@@ -1,11 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
 import 'package:gym_corpus/features/profile/presentation/widgets/profile_list_widgets.dart';
 
 /// Tab "Profilo" della ProfileScreen: community, performance, allenamento
 /// e sezioni della palestra.
 class ProfileMenuTab extends StatelessWidget {
   const ProfileMenuTab({super.key});
+
+  /// Il calendario ciclo compare solo per i profili femminili.
+  ///
+  /// Il sesso si cambia da "Modifica profilo": chi accede con Google o Apple
+  /// non ha il campo valorizzato e non vede la voce finche' non lo imposta.
+  static bool _showsCycleCalendar(BuildContext context) {
+    return context.watch<AuthBloc>().state.maybeWhen(
+      authenticated: (user) => user.gender == 'Donna',
+      orElse: () => false,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,13 +84,12 @@ class ProfileMenuTab extends StatelessWidget {
               trailingText: 'Prossimamente',
               isBadge: true,
             ),
-            ProfileItem(
-              icon: Icons.auto_awesome_rounded,
-              label: 'Calendario ciclo',
-              trailingText: 'BETA',
-              isBadge: true,
-              onTap: () => context.push('/profile/cycle-calendar'),
-            ),
+            if (_showsCycleCalendar(context))
+              ProfileItem(
+                icon: Icons.auto_awesome_rounded,
+                label: 'Calendario ciclo',
+                onTap: () => context.push('/profile/cycle-calendar'),
+              ),
           ],
         ),
         const ProfileSection(
