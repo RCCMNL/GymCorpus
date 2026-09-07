@@ -7,9 +7,11 @@ import 'package:gym_corpus/core/widgets/social_icons.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_event.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
+import 'package:gym_corpus/features/auth/presentation/widgets/auth_header.dart';
 import 'package:gym_corpus/features/auth/presentation/widgets/auth_shared_widgets.dart';
 import 'package:gym_corpus/features/auth/presentation/widgets/legal_consent_field.dart';
 import 'package:gym_corpus/features/auth/presentation/widgets/profile_basics_form.dart';
+import 'package:gym_corpus/features/auth/presentation/widgets/sign_up_progress.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -211,8 +213,17 @@ class _SignUpScreenState extends State<SignUpScreen>
                     position: _slideUp,
                     child: Column(
                       children: [
-                        _buildTopBar(theme),
-                        _buildStepIndicator(theme),
+                        SignUpTopBar(
+                          currentStep: _currentStep,
+                          onBack: () {
+                            if (_currentStep == 1) {
+                              _goBackToStep1();
+                            } else {
+                              context.pop();
+                            }
+                          },
+                        ),
+                        SignUpStepIndicator(currentStep: _currentStep),
                         Expanded(
                           child: PageView(
                             controller: _pageController,
@@ -235,117 +246,6 @@ class _SignUpScreenState extends State<SignUpScreen>
     );
   }
 
-  Widget _buildTopBar(ThemeData theme) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      child: Row(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              color: theme.colorScheme.primary.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: theme.colorScheme.primary.withValues(alpha: 0.14),
-              ),
-            ),
-            child: IconButton(
-              icon: Icon(
-                Icons.arrow_back_rounded,
-                color: theme.colorScheme.primary,
-              ),
-              onPressed: () {
-                if (_currentStep == 1) {
-                  _goBackToStep1();
-                } else {
-                  context.pop();
-                }
-              },
-            ),
-          ),
-          const Spacer(),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  theme.colorScheme.primary.withValues(alpha: 0.18),
-                  theme.colorScheme.tertiary.withValues(alpha: 0.12),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(999),
-              border: Border.all(
-                color: theme.colorScheme.primary.withValues(alpha: 0.14),
-              ),
-            ),
-            child: Text(
-              'Passo ${_currentStep + 1} di 2',
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: theme.colorScheme.onSurface,
-                letterSpacing: 1,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStepIndicator(ThemeData theme) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 8),
-      child: Row(
-        children: [
-          _stepDot(theme, 0),
-          Expanded(child: _stepLine(theme, 0)),
-          _stepDot(theme, 1),
-        ],
-      ),
-    );
-  }
-
-  Widget _stepDot(ThemeData theme, int step) {
-    final isActive = _currentStep >= step;
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      width: isActive ? 12 : 10,
-      height: isActive ? 12 : 10,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: isActive
-            ? theme.colorScheme.primary
-            : theme.colorScheme.outline.withValues(alpha: 0.3),
-        boxShadow: isActive
-            ? [
-                BoxShadow(
-                  color: theme.colorScheme.primary.withValues(alpha: 0.4),
-                  blurRadius: 8,
-                ),
-              ]
-            : null,
-      ),
-    );
-  }
-
-  Widget _stepLine(ThemeData theme, int step) {
-    final isActive = _currentStep > step;
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      height: 4,
-      margin: const EdgeInsets.symmetric(horizontal: 4),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: isActive
-              ? [theme.colorScheme.primary, theme.colorScheme.tertiary]
-              : [
-                  theme.colorScheme.outline.withValues(alpha: 0.22),
-                  theme.colorScheme.outline.withValues(alpha: 0.08),
-                ],
-        ),
-        borderRadius: BorderRadius.circular(999),
-      ),
-    );
-  }
-
   Widget _buildStep1(ThemeData theme, bool isLoading) {
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -353,68 +253,11 @@ class _SignUpScreenState extends State<SignUpScreen>
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Crea il tuo account',
-                    style: theme.textTheme.headlineLarge?.copyWith(
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: -0.5,
-                      fontSize: 28,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'INIZIA IL TUO PERCORSO',
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      letterSpacing: 2,
-                      color: theme.colorScheme.primary.withValues(alpha: 0.7),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(width: 16),
-              Hero(
-                tag: 'app_logo',
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: theme.colorScheme.primary.withValues(alpha: 0.05),
-                    boxShadow: [
-                      BoxShadow(
-                        color: theme.colorScheme.primary.withValues(
-                          alpha: 0.15,
-                        ),
-                        blurRadius: 20,
-                        spreadRadius: 2,
-                      ),
-                    ],
-                  ),
-                  child: ShaderMask(
-                    shaderCallback: (bounds) => LinearGradient(
-                      colors: [
-                        theme.colorScheme.primary,
-                        theme.colorScheme.tertiary,
-                      ],
-                    ).createShader(bounds),
-                    child: ClipOval(
-                      child: Image.asset(
-                        'assets/images/logo.png',
-                        width: 48,
-                        height: 48,
-                        color: Colors.white,
-                        colorBlendMode: BlendMode.modulate,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
+          const AuthHeader(
+            title: 'Crea il tuo account',
+            subtitle: 'INIZIA IL TUO PERCORSO',
+            titleSize: 28,
+            logoSize: 48,
           ),
           const SizedBox(height: 28),
           GlassCard(
@@ -502,27 +345,10 @@ class _SignUpScreenState extends State<SignUpScreen>
             ),
           ),
           const SizedBox(height: 24),
-          Center(
-            child: GestureDetector(
-              onTap: () => context.pop(),
-              child: RichText(
-                text: TextSpan(
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                  children: [
-                    const TextSpan(text: 'Hai già un account? '),
-                    TextSpan(
-                      text: 'Accedi',
-                      style: TextStyle(
-                        color: theme.colorScheme.tertiary,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+          AuthFooterPrompt(
+            question: 'Hai già un account? ',
+            action: 'Accedi',
+            onTap: () => context.pop(),
           ),
           const SizedBox(height: 32),
         ],
