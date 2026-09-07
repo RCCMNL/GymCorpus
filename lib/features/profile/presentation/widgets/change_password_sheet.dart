@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/features/auth/domain/repositories/auth_repository.dart';
 
 /// Foglio per il cambio password.
@@ -46,67 +47,12 @@ class _ChangePasswordSheetState extends State<ChangePasswordSheet> {
     result.fold(
       (failure) {
         setState(() => _isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          _feedback(
-            backgroundColor: Colors.red.shade700,
-            icon: Icons.error_outline_rounded,
-            message: failure.message,
-          ),
-        );
+        AppSnackBar.showError(context, failure.message);
       },
       (_) {
         Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          _feedback(
-            backgroundColor: Colors.green.shade700,
-            icon: Icons.check_circle_outline_rounded,
-            message: 'Password aggiornata con successo',
-          ),
-        );
+        AppSnackBar.showSuccess(context, 'Password aggiornata con successo');
       },
-    );
-  }
-
-  SnackBar _feedback({
-    required Color backgroundColor,
-    required IconData icon,
-    required String message,
-  }) {
-    return SnackBar(
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      behavior: SnackBarBehavior.floating,
-      content: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          color: backgroundColor,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: backgroundColor.withValues(alpha: 0.3),
-              blurRadius: 15,
-              offset: const Offset(0, 5),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Icon(icon, color: Colors.white, size: 24),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                message,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w900,
-                  fontFamily: 'Lexend',
-                  fontSize: 13,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 

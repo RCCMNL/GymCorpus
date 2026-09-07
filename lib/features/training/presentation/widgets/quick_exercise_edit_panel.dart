@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gym_corpus/core/utils/unit_converter.dart';
+import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 import 'package:gym_corpus/features/training/domain/exercise_set.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
@@ -104,7 +105,6 @@ class _QuickExerciseEditPanelState extends State<QuickExerciseEditPanel> {
   }
 
   Future<void> _save() async {
-    final theme = Theme.of(context);
     setState(() => isSaving = true);
 
     final trainingState = context.read<TrainingBloc>().state;
@@ -148,53 +148,7 @@ class _QuickExerciseEditPanelState extends State<QuickExerciseEditPanel> {
     await Future<void>.delayed(const Duration(milliseconds: 300));
 
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          elevation: 0,
-          backgroundColor: Colors.transparent,
-          behavior: SnackBarBehavior.floating,
-          content: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  theme.colorScheme.tertiary,
-                  theme.colorScheme.tertiary.withValues(alpha: 0.8),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: theme.colorScheme.tertiary.withValues(alpha: 0.3),
-                  blurRadius: 15,
-                  offset: const Offset(0, 5),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.check_circle_rounded,
-                  color: theme.colorScheme.onTertiary,
-                  size: 24,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    'Salvataggio completato!',
-                    style: TextStyle(
-                      color: theme.colorScheme.onTertiary,
-                      fontWeight: FontWeight.w900,
-                      fontFamily: 'Lexend',
-                      fontSize: 13,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
+      AppSnackBar.showSuccess(context, 'Salvataggio completato!');
       Navigator.pop(context);
     }
   }

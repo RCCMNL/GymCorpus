@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/features/notifications/domain/entities/notification_log_entity.dart';
 import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_bloc.dart';
 import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_event.dart';
@@ -25,15 +26,7 @@ class NotificationsScreen extends StatelessWidget {
         context.read<NotificationsBloc>().add(
           const ClearNotificationActionErrorEvent(),
         );
-        ScaffoldMessenger.of(context)
-          ..hideCurrentSnackBar()
-          ..showSnackBar(
-            SnackBar(
-              content: Text(message),
-              behavior: SnackBarBehavior.floating,
-              backgroundColor: theme.colorScheme.error,
-            ),
-          );
+        AppSnackBar.showError(context, message);
       },
       child: Scaffold(
         backgroundColor: theme.colorScheme.surface,

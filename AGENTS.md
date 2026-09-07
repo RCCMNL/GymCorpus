@@ -89,6 +89,7 @@ flutter pub run build_runner build --delete-conflicting-outputs
 - L'app usa gia' in alcuni punti un comportamento local-first, soprattutto nei flussi auth/profile. Evita modifiche che rendano la UI dipendente da round-trip remoti lenti quando ci si aspetta un aggiornamento locale immediato.
 - Per gamification, tieni le definizioni statiche dei badge in codice e salva/calcola solo lo stato utente necessario. Non creare tabelle di definizioni badge statiche salvo esigenza esplicita.
 - Rispetta il worktree sporco corrente. Non revertare modifiche dell'utente non correlate.
+- Per i messaggi a comparsa usa sempre `AppSnackBar` (`lib/core/widgets/app_snack_bar.dart`): scegli il tono (`neutral`, `success`, `warning`, `error`) e lascia il colore al tema. Non costruire a mano una `SnackBar`, ne' usare `Colors.red`/`Colors.green`/`Colors.orange` diretti.
 
 ## Profilo E Onboarding
 

@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
+import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/core/widgets/section_title.dart';
 import 'package:gym_corpus/features/profile/data/workout_report_pdf.dart';
@@ -64,9 +65,7 @@ class _IntegrationsScreenState extends State<IntegrationsScreen> {
       );
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Errore durante l'esportazione: $e")),
-        );
+        AppSnackBar.showError(context, "Errore durante l'esportazione: $e");
       }
     } finally {
       if (mounted) setState(() => _isExporting = false);
@@ -103,9 +102,7 @@ class _IntegrationsScreenState extends State<IntegrationsScreen> {
       );
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Errore durante l'esportazione PDF: $e")),
-        );
+        AppSnackBar.showError(context, "Errore durante l'esportazione PDF: $e");
       }
     } finally {
       if (mounted) setState(() => _isExporting = false);

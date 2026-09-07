@@ -4,6 +4,7 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gym_corpus/core/constants/app_constants.dart';
+import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
 
@@ -41,9 +42,7 @@ class _FeedbackDialogState extends State<FeedbackDialog> {
     final description = _descriptionController.text.trim();
 
     if (subject.isEmpty || description.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Per favore, compila tutti i campi')),
-      );
+      AppSnackBar.showWarning(context, 'Per favore, compila tutti i campi');
       return;
     }
 
@@ -103,18 +102,11 @@ class _FeedbackDialogState extends State<FeedbackDialog> {
 
       if (mounted) {
         Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Segnalazione inviata con successo!'),
-            backgroundColor: Colors.green,
-          ),
-        );
+        AppSnackBar.showSuccess(context, 'Segnalazione inviata con successo!');
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text("Errore durante l'invio: $e")));
+        AppSnackBar.showError(context, "Errore durante l'invio: $e");
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);

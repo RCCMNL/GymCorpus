@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/service_locator.dart' as di;
 import 'package:gym_corpus/core/services/health_service.dart';
+import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 
 /// Card riepilogo attività giornaliera con passi, km, tempo, kcal
 /// e grafico a barre settimanale.
@@ -46,13 +47,9 @@ class _DailyStepsSectionState extends State<DailyStepsSection> {
               _isLoading = false;
               _permissionDenied = true;
             });
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text(
-                  'Permessi salute necessari per visualizzare i passi.',
-                ),
-                backgroundColor: Colors.orange,
-              ),
+            AppSnackBar.showWarning(
+              context,
+              'Permessi salute necessari per visualizzare i passi.',
             );
           }
           return;
@@ -77,12 +74,7 @@ class _DailyStepsSectionState extends State<DailyStepsSection> {
           _isLoading = false;
           _permissionDenied = true;
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Errore: $e'),
-            backgroundColor: Colors.redAccent,
-          ),
-        );
+        AppSnackBar.showError(context, 'Errore: $e');
       }
     }
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gym_corpus/core/services/notification_service.dart';
+import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_bloc.dart';
 import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_event.dart';
 import 'package:gym_corpus/features/notifications/presentation/widgets/notification_tiles.dart';
@@ -111,17 +112,13 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
 
   Future<void> _showPermissionDeniedMessage() async {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text(
-          'Le notifiche di sistema sono disattivate. Attivale nelle impostazioni del telefono.',
-        ),
-        duration: const Duration(seconds: 3),
-        action: SnackBarAction(
-          label: 'Impostazioni',
-          onPressed: _openSystemSettings,
-        ),
-      ),
+    AppSnackBar.show(
+      context,
+      'Le notifiche di sistema sono disattivate. '
+      'Attivale nelle impostazioni del telefono.',
+      tone: AppSnackBarTone.warning,
+      actionLabel: 'Impostazioni',
+      onAction: _openSystemSettings,
     );
   }
 

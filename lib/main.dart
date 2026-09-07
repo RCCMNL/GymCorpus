@@ -13,6 +13,7 @@ import 'package:gym_corpus/core/service_locator.dart' as di;
 import 'package:gym_corpus/core/services/app_lock_controller.dart';
 import 'package:gym_corpus/core/services/notification_service.dart';
 import 'package:gym_corpus/core/theme/app_theme.dart';
+import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/features/analytics/presentation/screens/analytics_screen.dart';
 import 'package:gym_corpus/features/analytics/presentation/screens/cardio_history_screen.dart';
 import 'package:gym_corpus/features/analytics/presentation/screens/cardio_session_detail_screen.dart';
@@ -515,15 +516,15 @@ class _GymAppState extends State<GymApp> with WidgetsBindingObserver {
           // Il messaggio viene consumato subito: cosi' un secondo fallimento
           // identico torna a essere un cambio di stato osservabile.
           context.read<TrainingBloc>().add(const ClearActionErrorEvent());
-          _scaffoldMessengerKey.currentState
-            ?..hideCurrentSnackBar()
-            ..showSnackBar(
-              SnackBar(
-                content: Text(message),
-                behavior: SnackBarBehavior.floating,
-                backgroundColor: AppTheme.darkTheme.colorScheme.error,
-              ),
+          final messenger = _scaffoldMessengerKey.currentState;
+          if (messenger != null) {
+            AppSnackBar.showOn(
+              messenger,
+              AppTheme.darkTheme,
+              message,
+              tone: AppSnackBarTone.error,
             );
+          }
         },
         child: MaterialApp.router(
           title: 'GYM 2.0',

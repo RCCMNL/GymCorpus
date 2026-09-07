@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
@@ -342,50 +343,11 @@ class _WorkoutCard extends StatelessWidget {
             onPressed: () {
               context.read<TrainingBloc>().add(DeleteRoutineEvent(routine.id));
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  backgroundColor: Colors.transparent,
-                  elevation: 0,
-                  behavior: SnackBarBehavior.floating,
-                  content: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.error,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: theme.colorScheme.error.withValues(alpha: 0.3),
-                          blurRadius: 15,
-                          offset: const Offset(0, 5),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.delete_forever_rounded,
-                          color: Colors.white,
-                          size: 24,
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            'Workout "${routine.title}" eliminata',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w900,
-                              fontFamily: 'Lexend',
-                              fontSize: 13,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+              AppSnackBar.show(
+                context,
+                'Workout "${routine.title}" eliminata',
+                tone: AppSnackBarTone.error,
+                icon: Icons.delete_forever_rounded,
               );
             },
             style: ElevatedButton.styleFrom(
@@ -564,46 +526,8 @@ class _SystemRoutineCard extends StatelessWidget {
   final Color color;
 
   void _copyRoutine(BuildContext context) {
-    final theme = Theme.of(context);
     context.read<TrainingBloc>().add(CopyRoutineEvent(routine.id));
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        behavior: SnackBarBehavior.floating,
-        content: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.primary,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: theme.colorScheme.primary.withValues(alpha: 0.3),
-                blurRadius: 15,
-                offset: const Offset(0, 5),
-              ),
-            ],
-          ),
-          child: const Row(
-            children: [
-              Icon(Icons.check_circle_rounded, color: Colors.white, size: 24),
-              SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  'Routine copiata in "I tuoi workout"',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w900,
-                    fontFamily: 'Lexend',
-                    fontSize: 13,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+    AppSnackBar.showSuccess(context, 'Routine copiata in "I tuoi workout"');
   }
 
   @override

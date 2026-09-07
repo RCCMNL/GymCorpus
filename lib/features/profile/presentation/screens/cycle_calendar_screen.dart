@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/features/profile/domain/entities/cycle_log.dart';
 import 'package:gym_corpus/features/profile/domain/services/cycle_forecast.dart';
@@ -84,13 +85,7 @@ class _CycleCalendarScreenState extends State<CycleCalendarScreen> {
               current.errorMessage != null &&
               previous.errorMessage != current.errorMessage,
           listener: (context, state) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.errorMessage!),
-                behavior: SnackBarBehavior.floating,
-                backgroundColor: theme.colorScheme.error,
-              ),
-            );
+            AppSnackBar.showError(context, state.errorMessage!);
           },
           builder: (context, state) {
             final summary = state.summary;

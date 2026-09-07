@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
@@ -51,9 +52,7 @@ class WorkoutDetailScreen extends StatelessWidget {
 
   void _copyRoutine(BuildContext context) {
     context.read<TrainingBloc>().add(CopyRoutineEvent(routine.id));
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Routine copiata in "I tuoi workout"')),
-    );
+    AppSnackBar.showSuccess(context, 'Routine copiata in "I tuoi workout"');
     context.pop();
   }
 

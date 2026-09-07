@@ -15,6 +15,10 @@ class AppTheme {
   static const Color _onPrimary = Color(0xFF00257B);
   static const Color _error = Color(0xFFFF8A80);
 
+  /// Ambra della palette: e' l'avviso, quello che non e' ancora un errore.
+  static const Color warning = Color(0xFFFFC46B);
+  static const Color onWarning = Color(0xFF3A2200);
+
   // Raggi condivisi: i valori sono quelli gia' usati a mano nei widget
   // curati, promossi a costanti cosi' che i widget lasciati al default
   // ereditino la stessa forma invece di quella di fabbrica di Material.

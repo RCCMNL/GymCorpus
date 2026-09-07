@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
@@ -77,38 +78,16 @@ class _CustomExerciseFormScreenState extends State<CustomExerciseFormScreen> {
     super.dispose();
   }
 
-  void _showWarning(String message) {
-    final theme = Theme.of(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        behavior: SnackBarBehavior.floating,
-        content: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            color: Colors.orange.shade700,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Text(
-            message,
-            style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white),
-          ),
-        ),
-      ),
-    );
-  }
-
   String? _blankToNull(String text) => text.trim().isEmpty ? null : text.trim();
 
   void _save() {
     if (!_formKey.currentState!.validate()) return;
     if (_selectedMuscle == null) {
-      _showWarning('Seleziona un gruppo muscolare.');
+      AppSnackBar.showWarning(context, 'Seleziona un gruppo muscolare.');
       return;
     }
     if (_selectedDifficulty == null) {
-      _showWarning('Seleziona una difficoltà.');
+      AppSnackBar.showWarning(context, 'Seleziona una difficoltà.');
       return;
     }
 
