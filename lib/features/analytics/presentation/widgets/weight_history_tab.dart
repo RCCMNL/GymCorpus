@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gym_corpus/core/utils/decimal_input.dart';
 import 'package:gym_corpus/core/utils/unit_converter.dart';
+import 'package:gym_corpus/core/widgets/compact_sheet.dart';
 import 'package:gym_corpus/features/analytics/domain/progress_formatters.dart';
 import 'package:gym_corpus/features/analytics/presentation/widgets/monthly_accordion.dart';
 import 'package:gym_corpus/features/analytics/presentation/widgets/progress_shared_widgets.dart';
@@ -153,7 +155,7 @@ class _AddWeightSheetState extends State<_AddWeightSheet> {
   }
 
   void _save() {
-    final value = double.tryParse(_controller.text.replaceAll(',', '.'));
+    final value = parseDecimalInput(_controller.text);
     if (value == null) return;
 
     context.read<TrainingBloc>().add(
@@ -166,83 +168,19 @@ class _AddWeightSheetState extends State<_AddWeightSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Padding(
-      padding: EdgeInsets.only(
-        left: 16,
-        right: 16,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 16,
-        top: 24,
-      ),
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: theme.colorScheme.surface,
-          borderRadius: BorderRadius.circular(28),
-          border: Border.all(
-            color: theme.colorScheme.outline.withValues(alpha: 0.08),
-          ),
+    return CompactSheet(
+      title: 'Registra peso',
+      subtitle: 'Salva il valore attuale per aggiornare la tua cronologia.',
+      children: [
+        DecimalField(
+          controller: _controller,
+          label: 'Peso',
+          suffix: widget.isImperial ? 'lb' : 'kg',
+          autofocus: true,
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Registra peso',
-              style: theme.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w900,
-                fontFamily: 'Lexend',
-              ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              'Salva il valore attuale per aggiornare la tua cronologia.',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.outline,
-              ),
-            ),
-            const SizedBox(height: 20),
-            TextField(
-              controller: _controller,
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-              ),
-              autofocus: true,
-              decoration: InputDecoration(
-                labelText: 'Peso',
-                suffixText: widget.isImperial ? 'lb' : 'kg',
-                filled: true,
-                fillColor: theme.colorScheme.surfaceContainerHigh.withValues(
-                  alpha: 0.35,
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(18),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-            ),
-            const SizedBox(height: 18),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('Annulla'),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: FilledButton(
-                    onPressed: _save,
-                    child: const Text('Salva'),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
+        const SizedBox(height: 18),
+        SheetActions(confirmLabel: 'Salva', onConfirm: _save),
+      ],
     );
   }
 }

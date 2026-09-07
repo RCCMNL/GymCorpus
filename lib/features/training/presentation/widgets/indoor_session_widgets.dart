@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:gym_corpus/core/utils/decimal_input.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_activity.dart';
 import 'package:gym_corpus/features/training/presentation/widgets/cardio_activity_style.dart';
 
@@ -102,8 +103,7 @@ class _IndoorDistanceDialogState extends State<IndoorDistanceDialog> {
   }
 
   void _save() {
-    // Sulla tastiera italiana il separatore decimale e' la virgola.
-    final value = double.tryParse(_controller.text.trim().replaceAll(',', '.'));
+    final value = parseDecimalInput(_controller.text);
     if (value == null || value < 0 || value > 500) {
       setState(() => _invalid = true);
       return;

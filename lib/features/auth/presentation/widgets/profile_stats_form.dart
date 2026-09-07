@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:gym_corpus/core/utils/decimal_input.dart';
 import 'package:gym_corpus/features/auth/presentation/widgets/auth_shared_widgets.dart';
 
 /// Misure corporee, entrambe facoltative.
@@ -64,12 +65,7 @@ class _ProfileStatsFormState extends State<ProfileStatsForm> {
     super.dispose();
   }
 
-  /// Sulla tastiera italiana il separatore decimale e' la virgola.
-  static double? _parse(String raw) {
-    final text = raw.trim().replaceAll(',', '.');
-    if (text.isEmpty) return null;
-    return double.tryParse(text);
-  }
+  static double? _parse(String raw) => parseDecimalInput(raw);
 
   void _submit() {
     final weightText = _weight.text.trim();

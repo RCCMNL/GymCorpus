@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gym_corpus/core/utils/decimal_input.dart';
+import 'package:gym_corpus/core/widgets/compact_sheet.dart';
 import 'package:gym_corpus/features/analytics/domain/progress_formatters.dart';
 import 'package:gym_corpus/features/analytics/presentation/widgets/monthly_accordion.dart';
 import 'package:gym_corpus/features/analytics/presentation/widgets/progress_shared_widgets.dart';
@@ -439,34 +441,17 @@ class _AddMeasurementSheetState extends State<_AddMeasurementSheet> {
                             const SizedBox(width: 16),
                             Expanded(
                               flex: 3,
-                              child: TextField(
-                                controller: controllers[part],
-                                keyboardType:
-                                    const TextInputType.numberWithOptions(
-                                      decimal: true,
-                                    ),
+                              child: DecimalField(
+                                controller: controllers[part]!,
+                                label: part,
+                                suffix: 'cm',
+                                dense: true,
+                                hint:
+                                    latestValues[part]?.toStringAsFixed(1) ??
+                                    '0.0',
                                 textInputAction: part == parts.last
                                     ? TextInputAction.done
                                     : TextInputAction.next,
-                                decoration: InputDecoration(
-                                  hintText:
-                                      latestValues[part]?.toStringAsFixed(1) ??
-                                      '0.0',
-                                  suffixText: 'cm',
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 12,
-                                  ),
-                                  filled: true,
-                                  fillColor: theme
-                                      .colorScheme
-                                      .surfaceContainerHigh
-                                      .withValues(alpha: 0.3),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                    borderSide: BorderSide.none,
-                                  ),
-                                ),
                               ),
                             ),
                           ],
@@ -494,12 +479,10 @@ class _AddMeasurementSheetState extends State<_AddMeasurementSheet> {
                             onPressed: () {
                               final measurements = <String, double>{};
                               controllers.forEach((part, controller) {
-                                final val = double.tryParse(
-                                  controller.text.replaceAll(',', '.'),
+                                final value = parseDecimalInput(
+                                  controller.text,
                                 );
-                                if (val != null) {
-                                  measurements[part] = val;
-                                }
+                                if (value != null) measurements[part] = value;
                               });
 
                               if (measurements.isNotEmpty) {
@@ -567,104 +550,48 @@ class _EditMeasurementSheetState extends State<_EditMeasurementSheet> {
     super.dispose();
   }
 
+  void _update() {
+    final value = parseDecimalInput(controller.text);
+    if (value == null) return;
+
+    context.read<TrainingBloc>().add(
+      UpdateBodyMeasurementEvent(widget.measurement.id!, value),
+    );
+    Navigator.pop(context);
+  }
+
+  void _delete() {
+    context.read<TrainingBloc>().add(
+      DeleteBodyMeasurementEvent(widget.measurement.id!),
+    );
+    Navigator.pop(context);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final measurement = widget.measurement;
     final theme = Theme.of(context);
 
-    return Padding(
-      padding: EdgeInsets.only(
-        left: 16,
-        right: 16,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 16,
-        top: 24,
-      ),
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: theme.colorScheme.surface,
-          borderRadius: BorderRadius.circular(28),
-          border: Border.all(
-            color: theme.colorScheme.outline.withValues(alpha: 0.08),
-          ),
+    return CompactSheet(
+      title: 'Modifica ${widget.measurement.part}',
+      children: [
+        DecimalField(
+          controller: controller,
+          label: 'Circonferenza',
+          suffix: 'cm',
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Modifica ${measurement.part}',
-              style: theme.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w900,
-                fontFamily: 'Lexend',
-              ),
-            ),
-            const SizedBox(height: 18),
-            TextField(
-              controller: controller,
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-              ),
-              decoration: InputDecoration(
-                labelText: 'Circonferenza',
-                suffixText: 'cm',
-                filled: true,
-                fillColor: theme.colorScheme.surfaceContainerHigh.withValues(
-                  alpha: 0.35,
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(18),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-            ),
-            const SizedBox(height: 18),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('Annulla'),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: FilledButton(
-                    onPressed: () {
-                      final value = double.tryParse(
-                        controller.text.replaceAll(',', '.'),
-                      );
-                      if (value == null) return;
-                      context.read<TrainingBloc>().add(
-                        UpdateBodyMeasurementEvent(measurement.id!, value),
-                      );
-                      Navigator.pop(context);
-                    },
-                    child: const Text('Aggiorna'),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 4),
-            // DeleteBodyMeasurementEvent esisteva in bloc e repository ma
-            // non veniva inviato da nessuna schermata: le misurazioni si
-            // potevano solo aggiungere.
-            TextButton.icon(
-              onPressed: () {
-                context.read<TrainingBloc>().add(
-                  DeleteBodyMeasurementEvent(measurement.id!),
-                );
-                Navigator.pop(context);
-              },
-              icon: const Icon(Icons.delete_outline, size: 18),
-              style: TextButton.styleFrom(
-                foregroundColor: theme.colorScheme.error,
-              ),
-              label: const Text('Elimina misurazione'),
-            ),
-          ],
+        const SizedBox(height: 18),
+        SheetActions(confirmLabel: 'Aggiorna', onConfirm: _update),
+        const SizedBox(height: 4),
+        // DeleteBodyMeasurementEvent esisteva in bloc e repository ma
+        // non veniva inviato da nessuna schermata: le misurazioni si
+        // potevano solo aggiungere.
+        TextButton.icon(
+          onPressed: _delete,
+          icon: const Icon(Icons.delete_outline, size: 18),
+          style: TextButton.styleFrom(foregroundColor: theme.colorScheme.error),
+          label: const Text('Elimina misurazione'),
         ),
-      ),
+      ],
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gym_corpus/core/utils/decimal_input.dart';
 import 'package:gym_corpus/core/utils/unit_converter.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
@@ -414,9 +415,7 @@ class _WeightTrackingCardState extends State<WeightTrackingCard> {
               foregroundColor: Colors.white,
             ),
             onPressed: () {
-              final weightValue = double.tryParse(
-                controller.text.replaceAll(',', '.'),
-              );
+              final weightValue = parseDecimalInput(controller.text);
               if (weightValue != null) {
                 var weight = weightValue;
                 if (isImperial) {

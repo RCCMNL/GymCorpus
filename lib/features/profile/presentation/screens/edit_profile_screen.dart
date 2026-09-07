@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gym_corpus/core/utils/decimal_input.dart';
 import 'package:gym_corpus/core/utils/unit_converter.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
@@ -136,15 +137,11 @@ class _EditProfileScreenState extends State<EditProfileScreen>
   Future<void> _saveProfile() async {
     if (_formKey.currentState!.validate()) {
       setState(() => _isSaving = true);
-      var finalWeight = double.tryParse(
-        _weightController.text.replaceAll(',', '.'),
-      );
+      var finalWeight = parseDecimalInput(_weightController.text);
       if (finalWeight != null && _isImperial) {
         finalWeight = UnitConverter.lbToKg(finalWeight);
       }
-      var finalHeight = double.tryParse(
-        _heightController.text.replaceAll(',', '.'),
-      );
+      var finalHeight = parseDecimalInput(_heightController.text);
       if (finalHeight != null && _isImperial) {
         finalHeight = UnitConverter.inchToCm(finalHeight);
       }

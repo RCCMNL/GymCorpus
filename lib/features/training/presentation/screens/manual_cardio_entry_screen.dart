@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gym_corpus/core/utils/decimal_input.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
@@ -39,12 +40,7 @@ class _ManualCardioEntryScreenState extends State<ManualCardioEntryScreen> {
     super.dispose();
   }
 
-  /// Sulla tastiera italiana il separatore decimale e' la virgola.
-  static double? _parse(String raw) {
-    final text = raw.trim().replaceAll(',', '.');
-    if (text.isEmpty) return null;
-    return double.tryParse(text);
-  }
+  static double? _parse(String raw) => parseDecimalInput(raw);
 
   double get _userWeight {
     final state = context.read<TrainingBloc>().state;

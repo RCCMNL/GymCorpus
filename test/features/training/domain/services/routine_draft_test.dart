@@ -117,9 +117,7 @@ void main() {
     });
 
     test('in chili gli esercizi vengono salvati come sono', () {
-      final original = _exercise(
-        setsData: '[{"weight":40,"reps":10}]',
-      );
+      final original = _exercise(setsData: '[{"weight":40,"reps":10}]');
 
       final saved = _draft(exercises: [original]).exercisesToSave().single;
 
