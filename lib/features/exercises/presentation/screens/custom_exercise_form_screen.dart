@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
+import 'package:gym_corpus/core/widgets/gradient_title.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
@@ -138,21 +139,8 @@ class _CustomExerciseFormScreenState extends State<CustomExerciseFormScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ShaderMask(
-                  shaderCallback: (b) => LinearGradient(
-                    colors: [
-                      theme.colorScheme.primary,
-                      theme.colorScheme.tertiary,
-                    ],
-                  ).createShader(b),
-                  child: Text(
-                    _isEditing ? 'Modifica Esercizio' : 'Nuovo Esercizio',
-                    style: theme.textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.w900,
-                      fontFamily: 'Lexend',
-                      color: Colors.white,
-                    ),
-                  ),
+                GradientTitle(
+                  _isEditing ? 'Modifica Esercizio' : 'Nuovo Esercizio',
                 ),
                 const SizedBox(height: 28),
 

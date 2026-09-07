@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/widgets/gradient_title.dart';
 
 /// L'intestazione delle schermate di accesso: titolo, occhiello e logo.
 ///
@@ -68,10 +69,7 @@ class AuthHeader extends StatelessWidget {
                 ),
               ],
             ),
-            child: ShaderMask(
-              shaderCallback: (bounds) => LinearGradient(
-                colors: [theme.colorScheme.primary, theme.colorScheme.tertiary],
-              ).createShader(bounds),
+            child: GradientMask(
               child: ClipOval(
                 child: Image.asset(
                   'assets/images/logo.png',

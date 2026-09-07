@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/widgets/gradient_title.dart';
 
 class LegalScreen extends StatefulWidget {
   const LegalScreen({
@@ -95,21 +96,9 @@ class _LegalScreenState extends State<LegalScreen>
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            ShaderMask(
-                              shaderCallback: (b) => LinearGradient(
-                                colors: [
-                                  theme.colorScheme.primary,
-                                  theme.colorScheme.tertiary,
-                                ],
-                              ).createShader(b),
-                              child: Text(
-                                widget.title,
-                                style: theme.textTheme.titleLarge?.copyWith(
-                                  fontWeight: FontWeight.w900,
-                                  fontFamily: 'Lexend',
-                                  color: Colors.white,
-                                ),
-                              ),
+                            GradientTitle(
+                              widget.title,
+                              scale: GradientTitleScale.compact,
                             ),
                             const SizedBox(height: 4),
                             Text(

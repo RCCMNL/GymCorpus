@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
+import 'package:gym_corpus/core/widgets/gradient_title.dart';
 import 'package:gym_corpus/features/notifications/domain/entities/notification_log_entity.dart';
 import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_bloc.dart';
 import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_event.dart';
@@ -41,19 +42,9 @@ class NotificationsScreen extends StatelessWidget {
             ),
             onPressed: () => Navigator.maybePop(context),
           ),
-          title: ShaderMask(
-            shaderCallback: (bounds) => LinearGradient(
-              colors: [theme.colorScheme.primary, theme.colorScheme.tertiary],
-            ).createShader(bounds),
-            child: Text(
-              'Notifiche',
-              style: theme.textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.w900,
-                fontFamily: 'Lexend',
-                fontSize: 22,
-                color: Colors.white,
-              ),
-            ),
+          title: const GradientTitle(
+            'Notifiche',
+            scale: GradientTitleScale.compact,
           ),
           centerTitle: false,
           actions: [

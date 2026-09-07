@@ -19,9 +19,7 @@ class ExecutionPhases {
 
     return ExecutionPhases(
       up: '${sentences.first}.',
-      down: sentences.length == 1
-          ? null
-          : '${sentences.skip(1).join('. ')}.',
+      down: sentences.length == 1 ? null : '${sentences.skip(1).join('. ')}.',
     );
   }
 

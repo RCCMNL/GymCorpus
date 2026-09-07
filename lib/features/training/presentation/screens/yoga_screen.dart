@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/widgets/gradient_title.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/core/widgets/section_title.dart';
 
@@ -47,23 +48,7 @@ class YogaScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 32),
-              ShaderMask(
-                shaderCallback: (bounds) => LinearGradient(
-                  colors: [
-                    theme.colorScheme.primary,
-                    theme.colorScheme.tertiary,
-                  ],
-                ).createShader(bounds),
-                child: Text(
-                  'Yoga & Mind',
-                  style: theme.textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.w900,
-                    fontFamily: 'Lexend',
-                    color: Colors.white,
-                    fontSize: 28,
-                  ),
-                ),
-              ),
+              const GradientTitle('Yoga & Mind'),
               const SizedBox(height: 8),
               Text(
                 'EQUILIBRIO E CONSAPEVOLEZZA',

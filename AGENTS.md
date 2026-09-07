@@ -90,6 +90,9 @@ flutter pub run build_runner build --delete-conflicting-outputs
 - Per gamification, tieni le definizioni statiche dei badge in codice e salva/calcola solo lo stato utente necessario. Non creare tabelle di definizioni badge statiche salvo esigenza esplicita.
 - Rispetta il worktree sporco corrente. Non revertare modifiche dell'utente non correlate.
 - Per i messaggi a comparsa usa sempre `AppSnackBar` (`lib/core/widgets/app_snack_bar.dart`): scegli il tono (`neutral`, `success`, `warning`, `error`) e lascia il colore al tema. Non costruire a mano una `SnackBar`, ne' usare `Colors.red`/`Colors.green`/`Colors.orange` diretti.
+- Per chiedere conferma prima di un'azione irreversibile usa `ConfirmDialog.ask` (`lib/core/widgets/confirm_dialog.dart`), che ritorna `true` solo se l'utente ha confermato.
+- Per il titolo sfumato di una schermata usa `GradientTitle` (`lib/core/widgets/gradient_title.dart`) con una delle tre misure (`compact` 22, `screen` 28, `hero` 32); per icone e logo usa `GradientMask`. Non riscrivere lo `ShaderMask` a mano.
+- Per i fogli modali che chiedono un valore usa `CompactSheet`, `DecimalField` e `SheetActions` (`lib/core/widgets/compact_sheet.dart`), e leggi i numeri con `parseDecimalInput`.
 
 ## Profilo E Onboarding
 

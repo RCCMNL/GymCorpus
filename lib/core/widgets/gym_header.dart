@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gym_corpus/core/widgets/gradient_title.dart';
 import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_bloc.dart';
 import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_state.dart';
 
@@ -26,33 +27,17 @@ class GymHeader extends StatelessWidget implements PreferredSizeWidget {
               ),
               onPressed: () => Navigator.maybePop(context),
             )
-          : Padding(
-              padding: const EdgeInsets.all(8),
-              child: ShaderMask(
-                shaderCallback: (bounds) => LinearGradient(
-                  colors: [
-                    theme.colorScheme.primary,
-                    theme.colorScheme.tertiary,
-                  ],
-                ).createShader(bounds),
-                child: const Icon(Icons.bolt, color: Colors.white, size: 28),
+          : const Padding(
+              padding: EdgeInsets.all(8),
+              child: GradientMask(
+                child: Icon(Icons.bolt, color: Colors.white, size: 28),
               ),
             ),
-      title: ShaderMask(
-        shaderCallback: (bounds) => LinearGradient(
-          colors: [theme.colorScheme.primary, theme.colorScheme.tertiary],
-        ).createShader(bounds),
-        child: Text(
-          'Gym Corpus',
-          style: theme.textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.w900,
-            letterSpacing: -0.5,
-            fontStyle: FontStyle.italic,
-            fontFamily: 'Lexend',
-            fontSize: 22,
-            color: Colors.white,
-          ),
-        ),
+      title: const GradientTitle(
+        'Gym Corpus',
+        scale: GradientTitleScale.compact,
+        // Il marchio ha il suo corsivo stretto, il resto dei titoli no.
+        style: TextStyle(letterSpacing: -0.5, fontStyle: FontStyle.italic),
       ),
       centerTitle: false,
       actions:

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/widgets/gradient_title.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
 
 /// Fino a tre osservazioni generate dai dati di allenamento recenti
@@ -39,18 +40,8 @@ class InsightsSection extends StatelessWidget {
         children: [
           Row(
             children: [
-              ShaderMask(
-                shaderCallback: (bounds) => LinearGradient(
-                  colors: [
-                    theme.colorScheme.primary,
-                    theme.colorScheme.tertiary,
-                  ],
-                ).createShader(bounds),
-                child: const Icon(
-                  Icons.auto_awesome,
-                  color: Colors.white,
-                  size: 20,
-                ),
+              const GradientMask(
+                child: Icon(Icons.auto_awesome, color: Colors.white, size: 20),
               ),
               const SizedBox(width: 10),
               Text(

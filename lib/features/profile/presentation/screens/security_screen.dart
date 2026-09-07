@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
+import 'package:gym_corpus/core/widgets/gradient_title.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/core/widgets/section_title.dart';
 import 'package:gym_corpus/core/widgets/social_icons.dart';
@@ -217,23 +218,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ShaderMask(
-                shaderCallback: (bounds) => LinearGradient(
-                  colors: [
-                    theme.colorScheme.primary,
-                    theme.colorScheme.tertiary,
-                  ],
-                ).createShader(bounds),
-                child: Text(
-                  'Sicurezza',
-                  style: theme.textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.w900,
-                    fontFamily: 'Lexend',
-                    color: Colors.white,
-                    fontSize: 28,
-                  ),
-                ),
-              ),
+              const GradientTitle('Sicurezza'),
               const SizedBox(height: 32),
               _SectionLabel('AUTENTICAZIONE', theme: theme),
               const SizedBox(height: 12),

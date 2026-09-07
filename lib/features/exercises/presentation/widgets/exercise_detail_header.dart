@@ -22,7 +22,11 @@ class CircleActionButton extends StatelessWidget {
     return CircleAvatar(
       backgroundColor: Colors.white.withValues(alpha: 0.1),
       child: IconButton(
-        icon: Icon(icon, color: Theme.of(context).colorScheme.primary, size: 18),
+        icon: Icon(
+          icon,
+          color: Theme.of(context).colorScheme.primary,
+          size: 18,
+        ),
         onPressed: onPressed,
       ),
     );

@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/utils/decimal_input.dart';
 import 'package:gym_corpus/core/utils/unit_converter.dart';
+import 'package:gym_corpus/core/widgets/gradient_title.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_event.dart';
@@ -184,22 +185,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Header
-                    ShaderMask(
-                      shaderCallback: (b) => LinearGradient(
-                        colors: [
-                          theme.colorScheme.primary,
-                          theme.colorScheme.tertiary,
-                        ],
-                      ).createShader(b),
-                      child: Text(
-                        'Modifica Profilo',
-                        style: theme.textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.w900,
-                          fontFamily: 'Lexend',
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
+                    const GradientTitle('Modifica Profilo'),
                     const SizedBox(height: 4),
                     Text(
                       'INFORMAZIONI PERSONALI',

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gym_corpus/core/widgets/gradient_title.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/features/exercises/domain/equipment_tags.dart';
 import 'package:gym_corpus/features/exercises/domain/exercise_catalog_view.dart';
@@ -97,22 +98,9 @@ class _FavoriteExercisesScreenState extends State<FavoriteExercisesScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              ShaderMask(
-                                shaderCallback: (bounds) => LinearGradient(
-                                  colors: [
-                                    theme.colorScheme.primary,
-                                    theme.colorScheme.tertiary,
-                                  ],
-                                ).createShader(bounds),
-                                child: Text(
-                                  'Preferiti',
-                                  style: theme.textTheme.headlineSmall
-                                      ?.copyWith(
-                                        fontWeight: FontWeight.w900,
-                                        color: Colors.white,
-                                        fontFamily: 'Lexend',
-                                      ),
-                                ),
+                              const GradientTitle(
+                                'Preferiti',
+                                scale: GradientTitleScale.compact,
                               ),
                               Text(
                                 'I TUOI ESERCIZI SALVATI',
