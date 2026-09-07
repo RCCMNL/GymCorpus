@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
+import 'package:gym_corpus/core/widgets/confirm_dialog.dart';
 import 'package:gym_corpus/features/analytics/presentation/widgets/detailed_cardio_card.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_session.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
@@ -100,47 +101,16 @@ class DismissibleCardioCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Dismissible(
       key: Key('cardio_${session.id}'),
       direction: DismissDirection.endToStart,
-      confirmDismiss: (direction) async {
-        final shouldDelete = await showDialog<bool>(
-          context: context,
-          builder: (dialogContext) => AlertDialog(
-            backgroundColor: theme.colorScheme.surface,
-            title: const Text(
-              'ELIMINA SESSIONE',
-              style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
-            ),
-            content: const Text(
-              'Sei sicuro di voler eliminare definitivamente questa sessione di cardio?',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(dialogContext, false),
-                child: Text(
-                  'ANNULLA',
-                  style: TextStyle(color: theme.colorScheme.outline),
-                ),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(dialogContext, true),
-                child: const Text(
-                  'ELIMINA',
-                  style: TextStyle(
-                    color: Colors.redAccent,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-
-        return shouldDelete ?? false;
-      },
+      confirmDismiss: (direction) => ConfirmDialog.ask(
+        context,
+        title: 'Elimina sessione',
+        message:
+            'Sei sicuro di voler eliminare definitivamente questa '
+            'sessione di cardio?',
+      ),
       onDismissed: (direction) {
         context.read<TrainingBloc>().add(DeleteCardioSessionEvent(session.id));
         AppSnackBar.show(

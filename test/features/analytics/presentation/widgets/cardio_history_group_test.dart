@@ -67,7 +67,7 @@ void main() {
       await tester.drag(find.byType(Dismissible), const Offset(-500, 0));
       await tester.pumpAndSettle();
 
-      expect(find.text('ELIMINA SESSIONE'), findsOneWidget);
+      expect(find.text('Elimina sessione'), findsOneWidget);
       await tester.tap(find.text('ANNULLA'));
       await tester.pumpAndSettle();
 

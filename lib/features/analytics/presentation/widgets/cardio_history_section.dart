@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
+import 'package:gym_corpus/core/widgets/confirm_dialog.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_activity.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_session.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
@@ -245,32 +246,13 @@ class CompactCardioCard extends StatelessWidget {
   }
 
   Future<void> _confirmDelete(BuildContext context) async {
-    final theme = Theme.of(context);
-    final shouldDelete = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Elimina sessione'),
-        content: const Text(
-          'Vuoi eliminare definitivamente questa sessione di cardio?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Annulla'),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: theme.colorScheme.error,
-              foregroundColor: theme.colorScheme.onError,
-            ),
-            onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text('Elimina'),
-          ),
-        ],
-      ),
+    final shouldDelete = await ConfirmDialog.ask(
+      context,
+      title: 'Elimina sessione',
+      message: 'Vuoi eliminare definitivamente questa sessione di cardio?',
     );
 
-    if (shouldDelete != true || !context.mounted) return;
+    if (!shouldDelete || !context.mounted) return;
 
     context.read<TrainingBloc>().add(DeleteCardioSessionEvent(session.id));
     AppSnackBar.show(

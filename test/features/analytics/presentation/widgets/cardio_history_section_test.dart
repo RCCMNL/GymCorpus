@@ -126,7 +126,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Elimina sessione'), findsOneWidget);
-    await tester.tap(find.text('Elimina'));
+    await tester.tap(find.text('ELIMINA'));
     await tester.pumpAndSettle();
 
     final captured = verify(() => bloc.add(captureAny())).captured;

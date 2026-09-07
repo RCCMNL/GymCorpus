@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/widgets/confirm_dialog.dart';
 import 'package:gym_corpus/features/profile/domain/entities/cycle_log.dart';
 import 'package:gym_corpus/features/profile/domain/services/cycle_forecast.dart';
 import 'package:gym_corpus/features/profile/presentation/widgets/cycle_phase_info.dart';
@@ -97,39 +98,15 @@ class CycleHistoryCard extends StatelessWidget {
   }
 
   Future<void> _confirmDelete(BuildContext context, CycleLogEntity log) async {
-    final theme = Theme.of(context);
-
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text(
-          'Eliminare la registrazione?',
-          style: TextStyle(fontWeight: FontWeight.w900, fontFamily: 'Lexend'),
-        ),
-        content: Text(
+    final confirmed = await ConfirmDialog.ask(
+      context,
+      title: 'Eliminare la registrazione?',
+      message:
           'Il ciclo ${_dateRange(log)} verra cancellato e non contera piu '
           'nelle medie.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('ANNULLA'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: Text(
-              'ELIMINA',
-              style: TextStyle(
-                color: theme.colorScheme.error,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ],
-      ),
     );
 
-    if (confirmed ?? false) onDelete(log.id);
+    if (confirmed) onDelete(log.id);
   }
 
   static String _dateRange(CycleLogEntity log) {

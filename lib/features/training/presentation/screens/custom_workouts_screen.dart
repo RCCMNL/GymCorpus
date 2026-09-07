@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
+import 'package:gym_corpus/core/widgets/confirm_dialog.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
@@ -315,53 +318,24 @@ class _WorkoutCard extends StatelessWidget {
   final RoutineEntity routine;
   final Color color;
 
-  void _showDeleteDialog(BuildContext context) {
-    final theme = Theme.of(context);
-    showDialog<void>(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: theme.colorScheme.surface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: Text(
-          'Elimina workout?',
-          style: theme.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        content: Text(
-          'Sei sicuro di voler eliminare "${routine.title}"? Questa azione non può essere annullata.',
-          style: theme.textTheme.bodyMedium,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              'ANNULLA',
-              style: TextStyle(color: theme.colorScheme.outline),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              context.read<TrainingBloc>().add(DeleteRoutineEvent(routine.id));
-              Navigator.pop(context);
-              AppSnackBar.show(
-                context,
-                'Workout "${routine.title}" eliminata',
-                tone: AppSnackBarTone.error,
-                icon: Icons.delete_forever_rounded,
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: theme.colorScheme.error,
-              foregroundColor: theme.colorScheme.onError,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            child: const Text('ELIMINA'),
-          ),
-        ],
-      ),
+  Future<void> _showDeleteDialog(BuildContext context) async {
+    final bloc = context.read<TrainingBloc>();
+    final confirmed = await ConfirmDialog.ask(
+      context,
+      title: 'Elimina workout?',
+      message:
+          'Sei sicuro di voler eliminare "${routine.title}"? '
+          'Questa azione non può essere annullata.',
+    );
+
+    if (!confirmed || !context.mounted) return;
+
+    bloc.add(DeleteRoutineEvent(routine.id));
+    AppSnackBar.show(
+      context,
+      'Workout "${routine.title}" eliminata',
+      tone: AppSnackBarTone.error,
+      icon: Icons.delete_forever_rounded,
     );
   }
 
@@ -412,7 +386,7 @@ class _WorkoutCard extends StatelessWidget {
               _ActionButton(
                 icon: Icons.delete_rounded,
                 color: Colors.redAccent,
-                onTap: () => _showDeleteDialog(context),
+                onTap: () => unawaited(_showDeleteDialog(context)),
               ),
             ],
           ),
