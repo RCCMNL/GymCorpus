@@ -159,3 +159,87 @@ class DecimalField extends StatelessWidget {
     );
   }
 }
+
+/// La presa in cima a un foglio che si trascina.
+///
+/// Era ricopiata in dodici schermate, e le copie si erano scostate: chi la
+/// smorzava al 20%, chi al 25, chi al 30. Adesso e' una sola.
+class SheetHandle extends StatelessWidget {
+  const SheetHandle({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Container(
+      width: 40,
+      height: 4,
+      decoration: BoxDecoration(
+        color: theme.colorScheme.outline.withValues(alpha: 0.2),
+        borderRadius: BorderRadius.circular(2),
+      ),
+    );
+  }
+}
+
+/// Il guscio di un foglio che sale dal basso: superficie, angoli tondi in
+/// cima, ombra verso l'alto e la [SheetHandle] gia' al suo posto.
+///
+/// Undici fogli se lo riscrivevano, e due avevano preso raggi diversi - 28
+/// e 40 - senza che nessuno lo avesse deciso.
+class SheetSurface extends StatelessWidget {
+  const SheetSurface({
+    required this.child,
+    this.padding,
+    this.constraints,
+    this.gap = 24,
+    super.key,
+  });
+
+  final Widget child;
+
+  /// Bordi interni del contenuto, maniglia esclusa: i fogli con un elenco
+  /// che scorre fin sotto il bordo lo lasciano vuoto.
+  final EdgeInsetsGeometry? padding;
+
+  /// Serve ai fogli che contengono un elenco: senza un tetto l'elenco
+  /// crescerebbe all'infinito.
+  final BoxConstraints? constraints;
+
+  /// Spazio fra la maniglia e il contenuto.
+  final double gap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final padding = this.padding;
+
+    return Container(
+      constraints: constraints,
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.2),
+            blurRadius: 20,
+            offset: const Offset(0, -5),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(height: 12),
+          const SheetHandle(),
+          SizedBox(height: gap),
+          Flexible(
+            child: padding == null
+                ? child
+                : Padding(padding: padding, child: child),
+          ),
+        ],
+      ),
+    );
+  }
+}

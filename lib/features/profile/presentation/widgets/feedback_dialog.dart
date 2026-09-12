@@ -1,10 +1,12 @@
 import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gym_corpus/core/constants/app_constants.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
+import 'package:gym_corpus/core/widgets/compact_sheet.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
 
@@ -119,36 +121,13 @@ class _FeedbackDialogState extends State<FeedbackDialog> {
     final bottomPadding = MediaQuery.of(context).padding.bottom;
     final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
-            blurRadius: 20,
-            offset: const Offset(0, -5),
-          ),
-        ],
-      ),
+    return SheetSurface(
       child: Padding(
         padding: EdgeInsets.only(bottom: keyboardHeight),
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const SizedBox(height: 12),
-              // Handle bar
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.outline.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(height: 24),
-
               // Header
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/widgets/compact_sheet.dart';
 import 'package:gym_corpus/features/exercises/domain/equipment_tags.dart';
 import 'package:gym_corpus/features/exercises/domain/exercise_catalog_view.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
@@ -55,16 +56,12 @@ class _ExerciseFiltersSheetState extends State<_ExerciseFiltersSheet> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return SafeArea(
-      child: Container(
+      child: SheetSurface(
+        gap: 20,
         padding: EdgeInsets.only(
           left: 24,
           right: 24,
-          top: 20,
           bottom: MediaQuery.of(context).viewInsets.bottom + 24,
-        ),
-        decoration: BoxDecoration(
-          color: theme.colorScheme.surface,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,

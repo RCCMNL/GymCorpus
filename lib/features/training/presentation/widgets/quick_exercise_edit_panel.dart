@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gym_corpus/core/utils/unit_converter.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
+import 'package:gym_corpus/core/widgets/compact_sheet.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 import 'package:gym_corpus/features/training/domain/exercise_set.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
@@ -156,40 +157,18 @@ class _QuickExerciseEditPanelState extends State<QuickExerciseEditPanel> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Container(
+    return SheetSurface(
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
       ),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
-            blurRadius: 20,
-            offset: const Offset(0, -10),
-          ),
-        ],
-      ),
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+          padding: const EdgeInsets.fromLTRB(24, 0, 24, 20),
           child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Center(
-                  child: Container(
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.outline.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
                 Row(
                   children: [
                     Container(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gym_corpus/core/widgets/compact_sheet.dart';
 import 'package:gym_corpus/features/exercises/domain/equipment_tags.dart';
 import 'package:gym_corpus/features/exercises/domain/exercise_catalog_view.dart';
 import 'package:gym_corpus/features/exercises/presentation/widgets/difficulty_badge.dart';
@@ -69,22 +70,10 @@ class _ExercisePickerModalState extends State<ExercisePickerModal> {
       maxChildSize: 0.95,
       builder: (context, controller) => Scaffold(
         backgroundColor: Colors.transparent,
-        body: Container(
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surface,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-          ),
+        body: SheetSurface(
+          gap: 0,
           child: Column(
             children: [
-              const SizedBox(height: 12),
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.outline.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
               Padding(
                 padding: const EdgeInsets.all(24),
                 child: Column(

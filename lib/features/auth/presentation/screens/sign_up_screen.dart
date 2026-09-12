@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
+import 'package:gym_corpus/core/widgets/compact_sheet.dart';
 import 'package:gym_corpus/core/widgets/social_icons.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_event.dart';
@@ -447,32 +448,18 @@ class _SocialConsentSheetState extends State<_SocialConsentSheet> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Container(
+    return SheetSurface(
+      gap: 20,
       padding: EdgeInsets.fromLTRB(
         24,
-        20,
+        0,
         24,
         MediaQuery.of(context).padding.bottom + 24,
-      ),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: theme.colorScheme.outline.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-          ),
-          const SizedBox(height: 20),
           Text(
             'Prima di continuare',
             style: theme.textTheme.titleLarge?.copyWith(

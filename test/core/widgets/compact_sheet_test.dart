@@ -123,4 +123,105 @@ void main() {
       expect(controller.text, '72,5');
     });
   });
+
+  group('SheetHandle', () {
+    testWidgets('e sempre della stessa misura', (tester) async {
+      await _pump(tester, const SheetHandle());
+
+      final size = tester.getSize(find.byType(SheetHandle));
+
+      expect(size.width, 40);
+      expect(size.height, 4);
+    });
+
+    testWidgets('e smorzata, non e una riga nera', (tester) async {
+      await _pump(tester, const SheetHandle());
+
+      final decoration =
+          tester
+                  .widget<Container>(
+                    find.descendant(
+                      of: find.byType(SheetHandle),
+                      matching: find.byType(Container),
+                    ),
+                  )
+                  .decoration!
+              as BoxDecoration;
+
+      expect(
+        decoration.color,
+        AppTheme.darkTheme.colorScheme.outline.withValues(alpha: 0.2),
+      );
+      expect(decoration.borderRadius, BorderRadius.circular(2));
+    });
+  });
+
+  group('SheetSurface', () {
+    testWidgets('mostra il contenuto', (tester) async {
+      await _pump(
+        tester,
+        const SheetSurface(child: Text('corpo del foglio')),
+      );
+
+      expect(find.text('corpo del foglio'), findsOneWidget);
+    });
+
+    testWidgets('la maniglia ce la mette lui', (tester) async {
+      await _pump(tester, const SheetSurface(child: Text('corpo')));
+
+      expect(find.byType(SheetHandle), findsOneWidget);
+    });
+
+    testWidgets('sale dal basso: angoli tondi solo in cima', (tester) async {
+      await _pump(tester, const SheetSurface(child: Text('corpo')));
+
+      final decoration = _surfaceDecoration(tester);
+
+      expect(
+        decoration.borderRadius,
+        const BorderRadius.vertical(top: Radius.circular(32)),
+      );
+      expect(decoration.color, AppTheme.darkTheme.colorScheme.surface);
+    });
+
+    testWidgets('il contenuto puo avere i suoi bordi interni', (tester) async {
+      await _pump(
+        tester,
+        const SheetSurface(
+          padding: EdgeInsets.symmetric(horizontal: 24),
+          child: Text('corpo'),
+        ),
+      );
+
+      final left = tester.getTopLeft(find.text('corpo')).dx;
+
+      expect(left, greaterThanOrEqualTo(24));
+    });
+
+    testWidgets('l altezza si puo limitare', (tester) async {
+      await _pump(
+        tester,
+        SheetSurface(
+          constraints: const BoxConstraints(maxHeight: 120),
+          child: ListView(children: const [Text('corpo')]),
+        ),
+      );
+
+      expect(tester.getSize(find.byType(SheetSurface)).height, 120);
+    });
+  });
+}
+
+BoxDecoration _surfaceDecoration(WidgetTester tester) {
+  return tester
+          .widget<Container>(
+            find
+                .descendant(
+                  of: find.byType(SheetSurface),
+                  matching: find.byType(Container),
+                )
+                .first,
+          )
+          .decoration!
+      as BoxDecoration;
 }

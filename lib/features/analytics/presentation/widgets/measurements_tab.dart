@@ -388,22 +388,10 @@ class _AddMeasurementSheetState extends State<_AddMeasurementSheet> {
       maxChildSize: 0.95,
       minChildSize: 0.5,
       builder: (_, scrollController) {
-        return Container(
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surface,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-          ),
+        return SheetSurface(
+          gap: 0,
           child: Column(
             children: [
-              const SizedBox(height: 12),
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.outlineVariant,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
               Expanded(
                 child: ListView(
                   controller: scrollController,

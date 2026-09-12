@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/widgets/compact_sheet.dart';
 import 'package:gym_corpus/features/auth/presentation/widgets/auth_shared_widgets.dart';
 import 'package:intl/intl.dart';
 
@@ -135,16 +136,7 @@ class ProfileBasicsFormState extends State<ProfileBasicsForm> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Container(
-                      width: 40,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.outline.withValues(
-                          alpha: 0.25,
-                        ),
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                    ),
+                    const SheetHandle(),
                     const SizedBox(height: 12),
                     Text(
                       'Data di nascita',

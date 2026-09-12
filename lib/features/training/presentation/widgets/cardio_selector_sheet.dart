@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/widgets/compact_sheet.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_activity.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_goal.dart';
 import 'package:gym_corpus/features/training/presentation/widgets/cardio_activity_style.dart';
@@ -46,29 +47,16 @@ class _CardioSelectorSheetState extends State<CardioSelectorSheet> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Container(
+    return SheetSurface(
       padding: EdgeInsets.fromLTRB(
         24,
-        28,
+        0,
         24,
         MediaQuery.of(context).padding.bottom + 24,
-      ),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: theme.colorScheme.outline.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-          const SizedBox(height: 24),
           _SectionLabel(text: 'OBIETTIVO (OPZIONALE)', theme: theme),
           const SizedBox(height: 12),
           Wrap(

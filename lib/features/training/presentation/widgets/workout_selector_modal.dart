@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gym_corpus/core/widgets/compact_sheet.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
 import 'package:gym_corpus/features/training/presentation/widgets/dashboard_sections.dart';
@@ -17,25 +18,11 @@ class WorkoutSelectorModal extends StatelessWidget {
       builder: (context, constraints) {
         final maxHeight = MediaQuery.of(context).size.height * 0.75;
 
-        return Container(
+        return SheetSurface(
           constraints: BoxConstraints(maxHeight: maxHeight),
-          padding: const EdgeInsets.only(top: 12),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surface,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.outline.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(height: 24),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Row(

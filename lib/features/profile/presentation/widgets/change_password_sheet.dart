@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
+import 'package:gym_corpus/core/widgets/compact_sheet.dart';
 import 'package:gym_corpus/features/auth/domain/repositories/auth_repository.dart';
 
 /// Foglio per il cambio password.
@@ -60,35 +61,14 @@ class _ChangePasswordSheetState extends State<ChangePasswordSheet> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Container(
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.3),
-            blurRadius: 30,
-            offset: const Offset(0, -10),
-          ),
-        ],
-      ),
+    return SheetSurface(
+      gap: 32,
       child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
+        padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.outline.withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            const SizedBox(height: 32),
             Row(
               children: [
                 Container(
