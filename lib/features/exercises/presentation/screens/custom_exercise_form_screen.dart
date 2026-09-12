@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/core/widgets/gradient_title.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
+import 'package:gym_corpus/core/widgets/section_title.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
@@ -144,7 +145,7 @@ class _CustomExerciseFormScreenState extends State<CustomExerciseFormScreen> {
                 ),
                 const SizedBox(height: 28),
 
-                _label('NOME*', theme),
+                const SectionTitle('NOME*', tone: SectionTitleTone.muted),
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _nameController,
@@ -157,7 +158,10 @@ class _CustomExerciseFormScreenState extends State<CustomExerciseFormScreen> {
                 ),
                 const SizedBox(height: 20),
 
-                _label('GRUPPO MUSCOLARE*', theme),
+                const SectionTitle(
+                  'GRUPPO MUSCOLARE*',
+                  tone: SectionTitleTone.muted,
+                ),
                 const SizedBox(height: 8),
                 Wrap(
                   spacing: 8,
@@ -185,7 +189,7 @@ class _CustomExerciseFormScreenState extends State<CustomExerciseFormScreen> {
                 ),
                 const SizedBox(height: 20),
 
-                _label('DIFFICOLTÀ*', theme),
+                const SectionTitle('DIFFICOLTÀ*', tone: SectionTitleTone.muted),
                 const SizedBox(height: 8),
                 Wrap(
                   spacing: 8,
@@ -224,7 +228,10 @@ class _CustomExerciseFormScreenState extends State<CustomExerciseFormScreen> {
                 ),
                 const SizedBox(height: 12),
 
-                _label('ATTREZZATURA', theme),
+                const SectionTitle(
+                  'ATTREZZATURA',
+                  tone: SectionTitleTone.muted,
+                ),
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _equipmentController,
@@ -234,7 +241,7 @@ class _CustomExerciseFormScreenState extends State<CustomExerciseFormScreen> {
                 ),
                 const SizedBox(height: 20),
 
-                _label('AREA FOCUS', theme),
+                const SectionTitle('AREA FOCUS', tone: SectionTitleTone.muted),
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _focusAreaController,
@@ -244,7 +251,10 @@ class _CustomExerciseFormScreenState extends State<CustomExerciseFormScreen> {
                 ),
                 const SizedBox(height: 20),
 
-                _label('PREPARAZIONE', theme),
+                const SectionTitle(
+                  'PREPARAZIONE',
+                  tone: SectionTitleTone.muted,
+                ),
                 const SizedBox(height: 4),
                 Text(
                   'Separa i passaggi con un punto per mostrarli come elenco numerato.',
@@ -260,7 +270,7 @@ class _CustomExerciseFormScreenState extends State<CustomExerciseFormScreen> {
                 ),
                 const SizedBox(height: 20),
 
-                _label('ESECUZIONE', theme),
+                const SectionTitle('ESECUZIONE', tone: SectionTitleTone.muted),
                 const SizedBox(height: 4),
                 Text(
                   'Due frasi separate da un punto: la prima è la salita, la seconda la discesa.',
@@ -276,7 +286,7 @@ class _CustomExerciseFormScreenState extends State<CustomExerciseFormScreen> {
                 ),
                 const SizedBox(height: 20),
 
-                _label('CONSIGLI', theme),
+                const SectionTitle('CONSIGLI', tone: SectionTitleTone.muted),
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _tipsController,
@@ -327,13 +337,4 @@ class _CustomExerciseFormScreenState extends State<CustomExerciseFormScreen> {
       ),
     );
   }
-
-  Widget _label(String text, ThemeData theme) => Text(
-    text,
-    style: theme.textTheme.labelSmall?.copyWith(
-      letterSpacing: 1.5,
-      fontWeight: FontWeight.w900,
-      color: theme.colorScheme.outline,
-    ),
-  );
 }

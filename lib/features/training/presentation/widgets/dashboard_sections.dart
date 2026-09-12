@@ -73,11 +73,9 @@ class YourRoutinesCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SectionTitle(
+          const SectionTitle(
             'I TUOI ALLENAMENTI',
-            color: theme.colorScheme.outline.withValues(alpha: 0.6),
-            letterSpacing: 2,
-            fontSize: 10,
+            tone: SectionTitleTone.muted,
           ),
           const SizedBox(height: 20),
           if (routines == null)

@@ -129,10 +129,9 @@ class _IntegrationsScreenState extends State<IntegrationsScreen> {
                 ),
               ),
               const SizedBox(height: 32),
-              SectionTitle(
+              const SectionTitle(
                 'SALUTE (IN SVILUPPO)',
-                color: theme.colorScheme.outline,
-                letterSpacing: 2,
+                tone: SectionTitleTone.muted,
               ),
               const SizedBox(height: 12),
               _buildIntegrationItem(
@@ -147,10 +146,9 @@ class _IntegrationsScreenState extends State<IntegrationsScreen> {
                 theme: theme,
               ),
               const SizedBox(height: 32),
-              SectionTitle(
+              const SectionTitle(
                 'ESPORTAZIONE DATI',
-                color: theme.colorScheme.outline,
-                letterSpacing: 2,
+                tone: SectionTitleTone.muted,
               ),
               const SizedBox(height: 12),
               _buildIntegrationItem(
@@ -179,10 +177,9 @@ class _IntegrationsScreenState extends State<IntegrationsScreen> {
                 ),
               ],
               const SizedBox(height: 48),
-              SectionTitle(
+              const SectionTitle(
                 'GDPR COMPLIANCE',
-                color: theme.colorScheme.outline,
-                letterSpacing: 2,
+                tone: SectionTitleTone.muted,
               ),
               const SizedBox(height: 12),
               Text(

@@ -197,8 +197,6 @@ class _SecurityScreenState extends State<SecurityScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     final currentUser = context.select((AuthBloc bloc) {
       return bloc.state.maybeWhen(
         authenticated: (user, _) => user,
@@ -220,7 +218,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
             children: [
               const GradientTitle('Sicurezza'),
               const SizedBox(height: 32),
-              _SectionLabel('AUTENTICAZIONE', theme: theme),
+              const SectionTitle('AUTENTICAZIONE', withAccentBar: true),
               const SizedBox(height: 12),
               SecurityItem(
                 icon: Icons.lock_outline,
@@ -237,7 +235,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
                   ),
                 ),
               const SizedBox(height: 32),
-              _SectionLabel('LOGIN SOCIAL', theme: theme),
+              const SectionTitle('LOGIN SOCIAL', withAccentBar: true),
               const SizedBox(height: 12),
               SecurityItem(
                 leading: const GoogleLogo(size: 20),
@@ -245,12 +243,12 @@ class _SecurityScreenState extends State<SecurityScreen> {
                 trailing: AuthProviderBadge(isLinked: hasGoogle),
               ),
               const SizedBox(height: 32),
-              _SectionLabel('CRONOLOGIA ACCESSI', theme: theme),
+              const SectionTitle('CRONOLOGIA ACCESSI', withAccentBar: true),
               const SizedBox(height: 12),
               for (final (index, login) in history.indexed)
                 LoginHistoryTile(login: login, isCurrent: index == 0),
               const SizedBox(height: 48),
-              _SectionLabel('ZONA PERICOLOSA', theme: theme),
+              const SectionTitle('ZONA PERICOLOSA', withAccentBar: true),
               const SizedBox(height: 12),
               SizedBox(
                 width: double.infinity,
@@ -283,21 +281,4 @@ class _SecurityScreenState extends State<SecurityScreen> {
       ),
     );
   }
-}
-
-/// Titolo di sezione, con lo stesso stile in tutta la schermata.
-class _SectionLabel extends StatelessWidget {
-  const _SectionLabel(this.text, {required this.theme});
-
-  final String text;
-  final ThemeData theme;
-
-  @override
-  Widget build(BuildContext context) => SectionTitle(
-    text,
-    color: theme.colorScheme.primary.withValues(alpha: 0.8),
-    letterSpacing: 2.5,
-    fontSize: 11,
-    withAccentBar: true,
-  );
 }

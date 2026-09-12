@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gym_corpus/core/widgets/compact_sheet.dart';
+import 'package:gym_corpus/core/widgets/section_title.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_activity.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_goal.dart';
 import 'package:gym_corpus/features/training/presentation/widgets/cardio_activity_style.dart';
@@ -45,8 +46,6 @@ class _CardioSelectorSheetState extends State<CardioSelectorSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return SheetSurface(
       padding: EdgeInsets.fromLTRB(
         24,
@@ -57,7 +56,10 @@ class _CardioSelectorSheetState extends State<CardioSelectorSheet> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _SectionLabel(text: 'OBIETTIVO (OPZIONALE)', theme: theme),
+          const SectionTitle(
+            'OBIETTIVO (OPZIONALE)',
+            tone: SectionTitleTone.muted,
+          ),
           const SizedBox(height: 12),
           Wrap(
             spacing: 8,
@@ -73,11 +75,11 @@ class _CardioSelectorSheetState extends State<CardioSelectorSheet> {
             ],
           ),
           const SizedBox(height: 24),
-          _SectionLabel(text: "ALL'APERTO", theme: theme),
+          const SectionTitle("ALL'APERTO", tone: SectionTitleTone.muted),
           const SizedBox(height: 12),
           _ActivityRow(activities: CardioActivity.outdoor, onTap: _start),
           const SizedBox(height: 20),
-          _SectionLabel(text: 'AL CHIUSO', theme: theme),
+          const SectionTitle('AL CHIUSO', tone: SectionTitleTone.muted),
           const SizedBox(height: 12),
           _ActivityRow(activities: CardioActivity.indoor, onTap: _start),
           const SizedBox(height: 12),
@@ -123,26 +125,6 @@ class _ActivityRow extends StatelessWidget {
           ),
         ],
       ],
-    );
-  }
-}
-
-class _SectionLabel extends StatelessWidget {
-  const _SectionLabel({required this.text, required this.theme});
-
-  final String text;
-  final ThemeData theme;
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      text,
-      style: theme.textTheme.labelSmall?.copyWith(
-        fontWeight: FontWeight.w900,
-        letterSpacing: 2,
-        fontSize: 10,
-        color: theme.colorScheme.outline,
-      ),
     );
   }
 }

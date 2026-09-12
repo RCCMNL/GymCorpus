@@ -55,11 +55,9 @@ class TrainingDashboardScreen extends StatelessWidget {
                       onStartWorkout: () => _showWorkoutSelector(context),
                     ),
                     const SizedBox(height: 40),
-                    SectionTitle(
+                    const SectionTitle(
                       'ATTIVITÀ RAPIDA',
-                      color: theme.colorScheme.outline.withValues(alpha: 0.6),
-                      letterSpacing: 2,
-                      fontSize: 10,
+                      tone: SectionTitleTone.muted,
                     ),
                     const SizedBox(height: 16),
                     QuickActivityGrid(
