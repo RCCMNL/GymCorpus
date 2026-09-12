@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gym_corpus/core/utils/decimal_input.dart';
+import 'package:gym_corpus/core/utils/time_format.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
@@ -95,7 +96,7 @@ class _ManualCardioEntryScreenState extends State<ManualCardioEntryScreen> {
         distance: double.parse(distance.toStringAsFixed(2)),
         duration: seconds,
         avgSpeed: double.parse(speed.toStringAsFixed(1)),
-        pace: _formatPace(distanceKm: distance, seconds: seconds),
+        pace: formatPace(seconds: seconds, distanceKm: distance),
         calories: _activity
             .caloriesFor(
               speedKmh: speed,
@@ -112,19 +113,6 @@ class _ManualCardioEntryScreenState extends State<ManualCardioEntryScreen> {
     // Navigator invece di GoRouter: la schermata puo' essere aperta anche
     // come foglio, e cosi' si chiude in entrambi i casi.
     if (mounted) Navigator.of(context).maybePop();
-  }
-
-  static String _formatPace({
-    required double distanceKm,
-    required int seconds,
-  }) {
-    if (distanceKm <= 0) return '--:--';
-
-    final perKm = seconds / distanceKm;
-    final minutes = perKm ~/ 60;
-    final secs = (perKm % 60).round();
-    return '${minutes.toString().padLeft(2, '0')}:'
-        '${secs.toString().padLeft(2, '0')}';
   }
 
   @override

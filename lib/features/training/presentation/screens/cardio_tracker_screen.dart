@@ -10,6 +10,7 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/database/database.dart';
 import 'package:gym_corpus/core/services/health_service.dart';
+import 'package:gym_corpus/core/utils/time_format.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_activity.dart';
@@ -528,16 +529,6 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
         ? (distKm / (_elapsedSeconds / 3600))
         : 0.0;
 
-    // Pace: minutes per km
-    var pace = '--:--';
-    if (distKm > 0) {
-      final paceMinutes = (_elapsedSeconds / 60) / distKm;
-      final pMins = paceMinutes.floor();
-      final pSecs = ((paceMinutes - pMins) * 60).round();
-      pace =
-          '${pMins.toString().padLeft(2, '0')}:${pSecs.toString().padLeft(2, '0')}';
-    }
-
     // Stima MET calibrata sull'andatura media: prima era un valore fisso per
     // tipo di attivita', e una corsa lenta valeva quanto una veloce.
     final calories = _estimatedCalories;
@@ -553,7 +544,7 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
           distance: double.parse(distKm.toStringAsFixed(2)),
           duration: _elapsedSeconds,
           avgSpeed: double.parse(avgSpeed.toStringAsFixed(1)),
-          pace: pace,
+          pace: formatPace(seconds: _elapsedSeconds, distanceKm: distKm),
           calories: calories,
           steps: _currentSteps,
           routeJson: routeJson,

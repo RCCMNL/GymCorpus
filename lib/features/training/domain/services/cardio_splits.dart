@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:gym_corpus/core/utils/time_format.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_route_point.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -24,15 +25,7 @@ class CardioSplit extends Equatable {
 
   /// Passo al chilometro in `mm:ss`, riportato al km pieno anche sui
   /// tratti parziali: mezzo chilometro in 2:30 resta un passo di 5:00.
-  String get pace {
-    if (distanceKm <= 0) return '--:--';
-
-    final perKm = (seconds / distanceKm).round();
-    final minutes = perKm ~/ 60;
-    final secs = perKm % 60;
-    return '${minutes.toString().padLeft(2, '0')}:'
-        '${secs.toString().padLeft(2, '0')}';
-  }
+  String get pace => formatPace(seconds: seconds, distanceKm: distanceKm);
 
   @override
   List<Object?> get props => [index, distanceKm, seconds, isPartial];
