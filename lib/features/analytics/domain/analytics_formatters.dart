@@ -1,12 +1,9 @@
+import 'package:gym_corpus/core/utils/time_format.dart';
 import 'package:gym_corpus/core/utils/unit_converter.dart';
 
-/// Formatta una durata in minuti in forma compatta, es. "45min", "1h30m".
-String formatWorkoutDuration(int minutes) {
-  if (minutes < 60) return '${minutes}min';
-  final h = minutes ~/ 60;
-  final m = minutes % 60;
-  return m == 0 ? '${h}h' : '${h}h${m}m';
-}
+/// Formatta un totale di minuti allenati, es. "45m", "1h 30m", "2h".
+String formatWorkoutDuration(int minutes) =>
+    formatCompactDuration(minutes * 60);
 
 /// Formatta un volume in kg in forma compatta, es. "850 kg", "12.3k kg".
 String formatVolumeKg(double kg) {

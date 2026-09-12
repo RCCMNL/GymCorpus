@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/utils/time_format.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_activity.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_goal.dart';
 import 'package:gym_corpus/features/training/presentation/widgets/cardio_activity_style.dart';
@@ -56,16 +57,6 @@ class CardioStatsPanel extends StatelessWidget {
         seconds: elapsedSeconds,
       )
       .round();
-
-  String _formatDuration(int seconds) {
-    final h = seconds ~/ 3600;
-    final m = (seconds % 3600) ~/ 60;
-    final s = seconds % 60;
-    if (h > 0) {
-      return '${h.toString().padLeft(2, '0')}:${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
-    }
-    return '${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -138,7 +129,7 @@ class CardioStatsPanel extends StatelessWidget {
                   ),
                   StatColumn(
                     label: 'DURATA',
-                    value: _formatDuration(elapsedSeconds),
+                    value: formatClock(elapsedSeconds),
                     theme: theme,
                   ),
                   StatColumn(

@@ -171,7 +171,7 @@ void main() {
 
   group('formatWorkoutDuration', () {
     test('minuti sotto l ora', () {
-      expect(formatWorkoutDuration(45), '45min');
+      expect(formatWorkoutDuration(45), '45m');
     });
 
     test('ore esatte senza minuti', () {
@@ -179,7 +179,7 @@ void main() {
     });
 
     test('ore e minuti', () {
-      expect(formatWorkoutDuration(90), '1h30m');
+      expect(formatWorkoutDuration(90), '1h 30m');
     });
   });
 

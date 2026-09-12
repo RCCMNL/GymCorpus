@@ -1,3 +1,4 @@
+import 'package:gym_corpus/core/utils/time_format.dart';
 import 'package:gym_corpus/features/profile/domain/services/achievement_catalog.dart';
 import 'package:gym_corpus/features/profile/domain/services/athlete_metrics.dart';
 
@@ -118,7 +119,7 @@ class PersonalRecords {
       ),
       PersonalRecord(
         title: 'Cardio Record (Tempo)',
-        value: formatDuration(metrics.longestCardioSeconds),
+        value: formatCompactDuration(metrics.longestCardioSeconds),
         subtitle: 'Sessione piu lunga',
         category: AchievementCategory.cardio,
       ),
@@ -135,14 +136,6 @@ class PersonalRecords {
   static String exerciseLabel(AthleteMetrics metrics, int? exerciseId) {
     if (exerciseId == null) return 'Nessun set registrato';
     return metrics.exerciseNames[exerciseId] ?? 'Esercizio registrato';
-  }
-
-  /// `1h 15m` oppure `45m`.
-  static String formatDuration(int seconds) {
-    final hours = seconds ~/ 3600;
-    final minutes = (seconds % 3600) ~/ 60;
-    if (hours > 0) return '${hours}h ${minutes}m';
-    return '${minutes}m';
   }
 
   /// Accorcia i numeri da vetrina: `20.0k`, `2.00M`.

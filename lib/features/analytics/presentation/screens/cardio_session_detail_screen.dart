@@ -1,6 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:gym_corpus/core/utils/time_format.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/features/analytics/presentation/widgets/cardio_splits_section.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_activity.dart';
@@ -181,15 +182,6 @@ class _MetricsGrid extends StatelessWidget {
   final CardioSessionEntity session;
   final Color accent;
 
-  static String formatDuration(int seconds) {
-    final h = seconds ~/ 3600;
-    final m = (seconds % 3600) ~/ 60;
-    final s = seconds % 60;
-    final base =
-        '${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
-    return h > 0 ? '${h.toString().padLeft(2, '0')}:$base' : base;
-  }
-
   @override
   Widget build(BuildContext context) {
     final steps = session.steps;
@@ -205,7 +197,7 @@ class _MetricsGrid extends StatelessWidget {
         ),
         _MetricTile(
           label: 'DURATA',
-          value: formatDuration(session.duration),
+          value: formatClock(session.duration),
           accent: accent,
         ),
         _MetricTile(

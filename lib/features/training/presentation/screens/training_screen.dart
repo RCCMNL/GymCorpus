@@ -1,8 +1,10 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/services/notification_service.dart';
+import 'package:gym_corpus/core/utils/time_format.dart';
 import 'package:gym_corpus/core/utils/unit_converter.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
@@ -78,17 +80,10 @@ class _TrainingScreenState extends State<TrainingScreen>
     _executionTimer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (!_isPaused && mounted) {
         setState(() {
-          _execTimeStr = _fmtFull(_elapsedSessionSeconds);
+          _execTimeStr = formatClock(_elapsedSessionSeconds, alwaysHours: true);
         });
       }
     });
-  }
-
-  String _fmtFull(int s) {
-    final h = (s ~/ 3600).toString().padLeft(2, '0');
-    final m = ((s % 3600) ~/ 60).toString().padLeft(2, '0');
-    final sc = (s % 60).toString().padLeft(2, '0');
-    return '$h:$m:$sc';
   }
 
   void _togglePause() {

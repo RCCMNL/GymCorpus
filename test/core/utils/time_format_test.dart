@@ -31,4 +31,42 @@ void main() {
       expect(formatPace(seconds: 7200, distanceKm: 1), '120:00');
     });
   });
+
+  group('formatClock', () {
+    test('sotto l ora restano minuti e secondi', () {
+      expect(formatClock(0), '00:00');
+      expect(formatClock(45), '00:45');
+      expect(formatClock(2712), '45:12');
+    });
+
+    test('oltre l ora compaiono le ore', () {
+      expect(formatClock(3661), '01:01:01');
+      expect(formatClock(3600), '01:00:00');
+    });
+
+    test('il cronometro dell allenamento mostra sempre le ore', () {
+      expect(formatClock(2712, alwaysHours: true), '00:45:12');
+      expect(formatClock(0, alwaysHours: true), '00:00:00');
+    });
+  });
+
+  group('formatCompactDuration', () {
+    test('sotto il minuto si contano i secondi', () {
+      expect(formatCompactDuration(45), '45s');
+      expect(formatCompactDuration(0), '0s');
+    });
+
+    test('sopra il minuto i secondi non interessano piu', () {
+      expect(formatCompactDuration(2712), '45m');
+      expect(formatCompactDuration(60), '1m');
+    });
+
+    test('oltre l ora si leggono ore e minuti', () {
+      expect(formatCompactDuration(4500), '1h 15m');
+    });
+
+    test('un ora tonda non si porta dietro uno zero', () {
+      expect(formatCompactDuration(7200), '2h');
+    });
+  });
 }

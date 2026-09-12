@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/utils/time_format.dart';
 import 'package:gym_corpus/features/training/presentation/widgets/training_session_widgets.dart';
 
 /// Overlay a tutto schermo mostrato durante il recupero tra le serie:
@@ -23,12 +24,6 @@ class RestTimerOverlay extends StatelessWidget {
   final VoidCallback onRestart;
   final VoidCallback onSkip;
   final VoidCallback onConfirmEnd;
-
-  String _fmt(int s) {
-    final m = (s ~/ 60).toString().padLeft(2, '0');
-    final sc = (s % 60).toString().padLeft(2, '0');
-    return '$m:$sc';
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -97,7 +92,7 @@ class RestTimerOverlay extends StatelessWidget {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            _fmt(secondsRemaining),
+                            formatClock(secondsRemaining),
                             style: theme.textTheme.headlineMedium?.copyWith(
                               fontWeight: FontWeight.w900,
                               fontFamily: 'Lexend',

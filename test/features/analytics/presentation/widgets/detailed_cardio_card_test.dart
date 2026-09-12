@@ -28,7 +28,7 @@ void main() {
     );
 
     expect(find.text('5.20 km'), findsOneWidget);
-    expect(find.text('30m 30s'), findsOneWidget);
+    expect(find.text('30m'), findsOneWidget);
     expect(find.text('10.4 km/h'), findsOneWidget);
     expect(find.text('05:45 /km'), findsOneWidget);
     expect(find.text('420 kcal'), findsOneWidget);

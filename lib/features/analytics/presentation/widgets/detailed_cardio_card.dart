@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/utils/time_format.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_activity.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_route_point.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_session.dart';
@@ -25,17 +26,6 @@ class DetailedCardioCard extends StatelessWidget {
 
   String _formatDate(DateTime date) {
     return DateFormat('dd MMM yyyy, HH:mm', 'it_IT').format(date);
-  }
-
-  String _formatDuration(int durationInSeconds) {
-    final durationMins = durationInSeconds ~/ 60;
-    final durationSecs = durationInSeconds % 60;
-
-    if (durationMins > 59) {
-      return '${durationMins ~/ 60}h ${durationMins % 60}m';
-    }
-
-    return '${durationMins}m ${durationSecs}s';
   }
 
   @override
@@ -136,7 +126,7 @@ class DetailedCardioCard extends StatelessWidget {
                     Expanded(
                       child: MetricTile(
                         label: 'Durata',
-                        value: _formatDuration(session.duration),
+                        value: formatCompactDuration(session.duration),
                         accentColor: accent,
                       ),
                     ),

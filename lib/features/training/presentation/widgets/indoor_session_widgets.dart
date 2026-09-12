@@ -1,19 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gym_corpus/core/utils/decimal_input.dart';
+import 'package:gym_corpus/core/utils/time_format.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_activity.dart';
 import 'package:gym_corpus/features/training/presentation/widgets/cardio_activity_style.dart';
-
-/// Formatta una durata come `mm:ss`, o `hh:mm:ss` oltre l'ora.
-String formatSessionDuration(int seconds) {
-  final hours = seconds ~/ 3600;
-  final minutes = (seconds % 3600) ~/ 60;
-  final secs = seconds % 60;
-  final base =
-      '${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
-
-  return hours > 0 ? '${hours.toString().padLeft(2, '0')}:$base' : base;
-}
 
 /// Sfondo delle sessioni al chiuso, al posto della mappa.
 ///
@@ -60,7 +50,7 @@ class IndoorSessionBackdrop extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              formatSessionDuration(elapsedSeconds),
+              formatClock(elapsedSeconds),
               style: theme.textTheme.displayMedium?.copyWith(
                 fontFamily: 'Lexend',
                 fontWeight: FontWeight.w900,
