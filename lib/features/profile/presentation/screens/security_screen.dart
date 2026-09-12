@@ -6,7 +6,7 @@ import 'package:get_it/get_it.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/core/widgets/gradient_title.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
-import 'package:gym_corpus/core/widgets/section_title.dart';
+import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:gym_corpus/core/widgets/social_icons.dart';
 import 'package:gym_corpus/features/auth/domain/entities/user_entity.dart';
 import 'package:gym_corpus/features/auth/domain/repositories/auth_repository.dart';

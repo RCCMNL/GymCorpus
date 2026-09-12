@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gym_corpus/core/widgets/compact_sheet.dart';
+import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:gym_corpus/features/exercises/domain/equipment_tags.dart';
 import 'package:gym_corpus/features/exercises/domain/exercise_catalog_view.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
@@ -87,14 +88,7 @@ class _ExerciseFiltersSheetState extends State<_ExerciseFiltersSheet> {
               ],
             ),
             const SizedBox(height: 8),
-            Text(
-              'DIFFICOLTÀ',
-              style: theme.textTheme.labelSmall?.copyWith(
-                letterSpacing: 1.5,
-                fontWeight: FontWeight.w900,
-                color: theme.colorScheme.outline,
-              ),
-            ),
+            const SectionTitle('DIFFICOLTÀ', tone: SectionTitleTone.muted),
             const SizedBox(height: 8),
             Wrap(
               spacing: 8,
@@ -125,14 +119,7 @@ class _ExerciseFiltersSheetState extends State<_ExerciseFiltersSheet> {
                   }).toList(),
             ),
             const SizedBox(height: 24),
-            Text(
-              'ATTREZZATURA',
-              style: theme.textTheme.labelSmall?.copyWith(
-                letterSpacing: 1.5,
-                fontWeight: FontWeight.w900,
-                color: theme.colorScheme.outline,
-              ),
-            ),
+            const SectionTitle('ATTREZZATURA', tone: SectionTitleTone.muted),
             const SizedBox(height: 4),
             Text(
               'Puoi selezionarne più di una.',

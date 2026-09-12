@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gym_corpus/core/widgets/compact_sheet.dart';
-import 'package:gym_corpus/core/widgets/section_title.dart';
+import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_activity.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_goal.dart';
 import 'package:gym_corpus/features/training/presentation/widgets/cardio_activity_style.dart';

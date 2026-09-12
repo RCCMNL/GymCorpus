@@ -1,64 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gym_corpus/core/utils/date_format.dart';
-
-/// Il titolo di una sezione del profilo, con la barretta sfumata a sinistra.
-class ProfileSectionLabel extends StatelessWidget {
-  const ProfileSectionLabel(this.text, {super.key});
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Row(
-      children: [
-        Container(
-          width: 4,
-          height: 16,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [theme.colorScheme.primary, theme.colorScheme.tertiary],
-            ),
-            borderRadius: BorderRadius.circular(2),
-          ),
-        ),
-        const SizedBox(width: 10),
-        Text(
-          text,
-          style: theme.textTheme.labelSmall?.copyWith(
-            letterSpacing: 1.8,
-            fontWeight: FontWeight.w900,
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-/// L'etichetta piccola sopra un campo.
-class ProfileFieldLabel extends StatelessWidget {
-  const ProfileFieldLabel(this.text, {super.key});
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Text(
-      text,
-      style: theme.textTheme.labelSmall?.copyWith(
-        letterSpacing: 1.5,
-        fontWeight: FontWeight.w900,
-        color: theme.colorScheme.outline,
-      ),
-    );
-  }
-}
+import 'package:gym_corpus/core/widgets/labels.dart';
 
 /// Un campo di testo del profilo: etichetta sopra, riquadro pieno sotto.
 class ProfileTextField extends StatelessWidget {
@@ -89,7 +31,7 @@ class ProfileTextField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ProfileFieldLabel(label),
+        SectionTitle(label, tone: SectionTitleTone.muted),
         const SizedBox(height: 8),
         TextFormField(
           controller: controller,
@@ -161,7 +103,7 @@ class ProfileDateField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ProfileFieldLabel(label),
+        SectionTitle(label, tone: SectionTitleTone.muted),
         const SizedBox(height: 8),
         InkWell(
           onTap: enabled ? onTap : null,

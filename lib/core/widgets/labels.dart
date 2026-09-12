@@ -76,3 +76,59 @@ class SectionTitle extends StatelessWidget {
     );
   }
 }
+
+/// L'occhiello: la riga piccola sopra il titolo di una scheda.
+///
+/// Non introduce una sezione della pagina - quello e' [SectionTitle] - ma
+/// dice che cos'e' la scheda sotto cui sta: "PROSSIMO", "RECUPERO",
+/// "ROUTINE ATTUALE".
+class Eyebrow extends StatelessWidget {
+  const Eyebrow(this.text, {this.color, super.key});
+
+  final String text;
+
+  /// L'accento della scheda a cui appartiene, quando ne ha uno: l'arancio
+  /// del riquadro consigli, il verde della schermata di fine allenamento.
+  /// Il resto - misura, peso, spaziatura - non si sceglie.
+  final Color? color;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Text(
+      text,
+      style: theme.textTheme.labelSmall?.copyWith(
+        letterSpacing: 2,
+        fontWeight: FontWeight.w900,
+        fontSize: 10,
+        color: color ?? theme.colorScheme.outline,
+      ),
+    );
+  }
+}
+
+/// L'etichetta che dice quale numero si sta guardando.
+///
+/// Sta accanto al valore che nomina - sopra, sotto o a fianco - e non ha
+/// niente da configurare: due statistiche vicine devono leggersi uguali.
+class StatLabel extends StatelessWidget {
+  const StatLabel(this.text, {super.key});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Text(
+      text,
+      style: theme.textTheme.labelSmall?.copyWith(
+        letterSpacing: 1.5,
+        fontWeight: FontWeight.w900,
+        fontSize: 10,
+        color: theme.colorScheme.outline,
+      ),
+    );
+  }
+}

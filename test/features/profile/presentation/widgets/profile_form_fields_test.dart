@@ -114,12 +114,4 @@ void main() {
       expect(premuto, isFalse);
     });
   });
-
-  group('ProfileSectionLabel', () {
-    testWidgets('scrive il titolo della sezione', (tester) async {
-      await _pump(tester, const ProfileSectionLabel('DATI ANAGRAFICI'));
-
-      expect(find.text('DATI ANAGRAFICI'), findsOneWidget);
-    });
-  });
 }

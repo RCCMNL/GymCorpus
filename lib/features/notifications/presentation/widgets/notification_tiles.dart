@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/widgets/labels.dart';
 
 /// Intestazione di una sezione delle impostazioni notifiche.
 class NotificationSectionHeader extends StatelessWidget {
@@ -15,8 +16,6 @@ class NotificationSectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Row(
       children: [
         Container(
@@ -29,15 +28,7 @@ class NotificationSectionHeader extends StatelessWidget {
           child: Icon(icon, color: color, size: 18),
         ),
         const SizedBox(width: 12),
-        Text(
-          title,
-          style: theme.textTheme.labelSmall?.copyWith(
-            letterSpacing: 2,
-            fontWeight: FontWeight.w900,
-            color: theme.colorScheme.outline.withValues(alpha: 0.7),
-            fontSize: 10,
-          ),
-        ),
+        SectionTitle(title, tone: SectionTitleTone.muted),
       ],
     );
   }

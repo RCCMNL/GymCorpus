@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/core/widgets/compact_sheet.dart';
+import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:gym_corpus/features/auth/domain/repositories/auth_repository.dart';
 
 /// Foglio per il cambio password.
@@ -198,15 +199,7 @@ class _PasswordField extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.only(left: 4, bottom: 8),
-          child: Text(
-            label,
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: theme.colorScheme.outline,
-              fontWeight: FontWeight.w900,
-              fontSize: 10,
-              letterSpacing: 1.2,
-            ),
-          ),
+          child: SectionTitle(label, tone: SectionTitleTone.muted),
         ),
         Container(
           decoration: BoxDecoration(

@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
-import 'package:gym_corpus/core/widgets/section_title.dart';
+import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:gym_corpus/features/profile/data/workout_report_pdf.dart';
 import 'package:gym_corpus/features/profile/domain/workout_report.dart';
 import 'package:gym_corpus/features/training/domain/repositories/training_repository.dart';

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/core/widgets/confirm_dialog.dart';
+import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_activity.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_session.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
@@ -60,13 +61,9 @@ class CardioHistorySection extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  Text(
+                  const SectionTitle(
                     'RECENTI CARDIO',
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 2,
-                      fontSize: 11,
-                    ),
+                    tone: SectionTitleTone.muted,
                   ),
                 ],
               ),

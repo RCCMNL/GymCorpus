@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
+import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:gym_corpus/features/profile/domain/entities/cycle_log.dart';
 import 'package:gym_corpus/features/profile/domain/services/cycle_forecast.dart';
 import 'package:gym_corpus/features/profile/presentation/bloc/cycle_bloc.dart';
@@ -126,13 +127,9 @@ class _CycleCalendarScreenState extends State<CycleCalendarScreen> {
                   _PhaseAdviceCard(phase: phase),
                 ],
                 const SizedBox(height: 32),
-                Text(
+                const SectionTitle(
                   'STORICO & PREVISIONI',
-                  style: theme.textTheme.labelSmall?.copyWith(
-                    letterSpacing: 2,
-                    fontWeight: FontWeight.w900,
-                    color: theme.colorScheme.outline,
-                  ),
+                  tone: SectionTitleTone.muted,
                 ),
                 const SizedBox(height: 12),
                 CycleMonthCalendar(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gym_corpus/core/widgets/gradient_title.dart';
+import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:gym_corpus/features/training/presentation/widgets/header_tag.dart';
 
 /// Card riassuntiva della routine in cima a WorkoutDetailScreen: titolo,
@@ -57,14 +58,9 @@ class RoutineDetailHeader extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              Text(
+              Eyebrow(
                 'ROUTINE ATTUALE',
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: theme.colorScheme.primary.withValues(alpha: 0.6),
-                  letterSpacing: 2,
-                  fontWeight: FontWeight.w900,
-                  fontSize: 10,
-                ),
+                color: theme.colorScheme.primary.withValues(alpha: 0.6),
               ),
             ],
           ),

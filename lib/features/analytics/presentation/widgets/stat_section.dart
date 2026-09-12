@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/widgets/labels.dart';
 
 /// Riquadro con un titolo di sezione e una riga di [StatItem].
 class StatSection extends StatelessWidget {
@@ -26,13 +27,7 @@ class StatSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title.toUpperCase(),
-            style: theme.textTheme.labelSmall?.copyWith(
-              letterSpacing: 1.5,
-              fontWeight: FontWeight.w900,
-            ),
-          ),
+          SectionTitle(title.toUpperCase(), tone: SectionTitleTone.muted),
           const SizedBox(height: 10),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,

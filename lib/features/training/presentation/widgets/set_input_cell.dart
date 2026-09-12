@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/widgets/labels.dart';
 
 /// Campo numerico compatto (peso o ripetizioni) con etichetta di unita' a
 /// destra, usato dentro SelectedExerciseTile.
@@ -51,14 +52,7 @@ class SetInputCell extends StatelessWidget {
               onChanged: onChanged,
             ),
           ),
-          Text(
-            label,
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: theme.colorScheme.primary.withValues(alpha: 0.5),
-              fontWeight: FontWeight.w900,
-              fontSize: 9,
-            ),
-          ),
+          StatLabel(label),
         ],
       ),
     );

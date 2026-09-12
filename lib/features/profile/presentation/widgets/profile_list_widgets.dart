@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:gym_corpus/features/profile/presentation/widgets/cycle_phase_info.dart';
 
 /// Sezione della lista profilo/impostazioni: titolo con accento colorato e
@@ -37,15 +38,7 @@ class ProfileSection extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 12),
-                Text(
-                  title.toUpperCase(),
-                  style: theme.textTheme.labelSmall?.copyWith(
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 1.5,
-                    fontSize: 11,
-                  ),
-                ),
+                SectionTitle(title.toUpperCase(), tone: SectionTitleTone.muted),
               ],
             ),
           ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gym_corpus/core/utils/unit_converter.dart';
+import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:gym_corpus/features/exercises/presentation/widgets/exercise_thumbnail.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
@@ -81,15 +82,7 @@ class ExerciseProgressCard extends StatelessWidget {
                               ),
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            child: Text(
-                              'ESERCIZIO CORRENTE',
-                              style: theme.textTheme.labelSmall?.copyWith(
-                                letterSpacing: 1.5,
-                                color: theme.colorScheme.onSurface,
-                                fontSize: 8,
-                                fontWeight: FontWeight.w900,
-                              ),
-                            ),
+                            child: const Eyebrow('ESERCIZIO CORRENTE'),
                           ),
                           const SizedBox(height: 8),
                           Text(

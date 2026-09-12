@@ -7,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gym_corpus/core/constants/app_constants.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/core/widgets/compact_sheet.dart';
+import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
 
@@ -210,14 +211,7 @@ class _FeedbackDialogState extends State<FeedbackDialog> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'OGGETTO',
-                      style: theme.textTheme.labelSmall?.copyWith(
-                        letterSpacing: 1.5,
-                        fontWeight: FontWeight.w900,
-                        color: theme.colorScheme.outline,
-                      ),
-                    ),
+                    const SectionTitle('OGGETTO', tone: SectionTitleTone.muted),
                     const SizedBox(height: 8),
                     TextField(
                       controller: _subjectController,
@@ -278,13 +272,9 @@ class _FeedbackDialogState extends State<FeedbackDialog> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const SectionTitle(
                       'DESCRIZIONE',
-                      style: theme.textTheme.labelSmall?.copyWith(
-                        letterSpacing: 1.5,
-                        fontWeight: FontWeight.w900,
-                        color: theme.colorScheme.outline,
-                      ),
+                      tone: SectionTitleTone.muted,
                     ),
                     const SizedBox(height: 8),
                     TextField(

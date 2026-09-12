@@ -5,6 +5,7 @@ import 'package:gym_corpus/core/utils/date_format.dart';
 import 'package:gym_corpus/core/utils/decimal_input.dart';
 import 'package:gym_corpus/core/utils/time_format.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
+import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_activity.dart';
@@ -135,7 +136,7 @@ class _ManualCardioEntryScreenState extends State<ManualCardioEntryScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            _Label(text: 'ATTIVITA', theme: theme),
+            const SectionTitle('ATTIVITA', tone: SectionTitleTone.muted),
             const SizedBox(height: 10),
             Wrap(
               spacing: 8,
@@ -150,7 +151,7 @@ class _ManualCardioEntryScreenState extends State<ManualCardioEntryScreen> {
               ],
             ),
             const SizedBox(height: 24),
-            _Label(text: 'QUANDO', theme: theme),
+            const SectionTitle('QUANDO', tone: SectionTitleTone.muted),
             const SizedBox(height: 10),
             InkWell(
               key: const Key('manual-date'),
@@ -182,7 +183,7 @@ class _ManualCardioEntryScreenState extends State<ManualCardioEntryScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            _Label(text: 'DURATA (MINUTI)', theme: theme),
+            const SectionTitle('DURATA (MINUTI)', tone: SectionTitleTone.muted),
             const SizedBox(height: 10),
             _NumberField(
               key: const Key('manual-duration'),
@@ -191,7 +192,10 @@ class _ManualCardioEntryScreenState extends State<ManualCardioEntryScreen> {
             ),
             if (_activity.tracksDistance) ...[
               const SizedBox(height: 24),
-              _Label(text: 'DISTANZA (KM, FACOLTATIVA)', theme: theme),
+              const SectionTitle(
+                'DISTANZA (KM, FACOLTATIVA)',
+                tone: SectionTitleTone.muted,
+              ),
               const SizedBox(height: 10),
               _NumberField(
                 key: const Key('manual-distance'),
@@ -231,23 +235,6 @@ class _ManualCardioEntryScreenState extends State<ManualCardioEntryScreen> {
       ),
     );
   }
-}
-
-class _Label extends StatelessWidget {
-  const _Label({required this.text, required this.theme});
-
-  final String text;
-  final ThemeData theme;
-
-  @override
-  Widget build(BuildContext context) => Text(
-    text,
-    style: theme.textTheme.labelSmall?.copyWith(
-      letterSpacing: 2,
-      fontWeight: FontWeight.w900,
-      color: theme.colorScheme.outline,
-    ),
-  );
 }
 
 class _NumberField extends StatelessWidget {

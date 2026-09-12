@@ -7,6 +7,7 @@ import 'package:gym_corpus/core/utils/decimal_input.dart';
 import 'package:gym_corpus/core/utils/unit_converter.dart';
 import 'package:gym_corpus/core/widgets/gradient_title.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
+import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_event.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
@@ -169,7 +170,6 @@ class _EditProfileScreenState extends State<EditProfileScreen>
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Scaffold(
       appBar: const GymHeader(),
       body: SafeArea(
@@ -187,16 +187,13 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                     // Header
                     const GradientTitle('Modifica Profilo'),
                     const SizedBox(height: 4),
-                    Text(
-                      'INFORMAZIONI PERSONALI',
-                      style: theme.textTheme.labelSmall?.copyWith(
-                        letterSpacing: 2.5,
-                        color: theme.colorScheme.primary.withValues(alpha: 0.5),
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
+                    const SectionTitle('INFORMAZIONI PERSONALI'),
                     const SizedBox(height: 28),
-                    const ProfileSectionLabel('DATI ANAGRAFICI'),
+                    const SectionTitle(
+                      'DATI ANAGRAFICI',
+                      tone: SectionTitleTone.muted,
+                      withAccentBar: true,
+                    ),
                     const SizedBox(height: 12),
                     Row(
                       children: [
@@ -227,7 +224,11 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                       icon: Icons.alternate_email_rounded,
                     ),
                     const SizedBox(height: 28),
-                    const ProfileSectionLabel('GENERE'),
+                    const SectionTitle(
+                      'GENERE',
+                      tone: SectionTitleTone.muted,
+                      withAccentBar: true,
+                    ),
                     const SizedBox(height: 12),
                     Row(
                       children: _genderOptions.map((opt) {
@@ -253,7 +254,11 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                       }).toList(),
                     ),
                     const SizedBox(height: 28),
-                    const ProfileSectionLabel('DATI FISICI'),
+                    const SectionTitle(
+                      'DATI FISICI',
+                      tone: SectionTitleTone.muted,
+                      withAccentBar: true,
+                    ),
                     const SizedBox(height: 12),
                     Row(
                       children: [
@@ -288,7 +293,11 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                       onTap: () => unawaited(_selectDate(context)),
                     ),
                     const SizedBox(height: 28),
-                    const ProfileSectionLabel('OBIETTIVO DI ALLENAMENTO'),
+                    const SectionTitle(
+                      'OBIETTIVO DI ALLENAMENTO',
+                      tone: SectionTitleTone.muted,
+                      withAccentBar: true,
+                    ),
                     const SizedBox(height: 12),
                     Wrap(
                       spacing: 8,

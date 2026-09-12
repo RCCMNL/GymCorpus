@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
+import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 import 'package:gym_corpus/features/training/domain/services/routine_draft.dart';
@@ -209,14 +210,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              'PIANO ESERCIZI',
-                              style: theme.textTheme.labelSmall?.copyWith(
-                                letterSpacing: 1.2,
-                                fontWeight: FontWeight.w900,
-                                color: theme.colorScheme.primary,
-                              ),
-                            ),
+                            const SectionTitle('PIANO ESERCIZI'),
                             const SizedBox(height: 4),
                             Container(
                               padding: const EdgeInsets.symmetric(

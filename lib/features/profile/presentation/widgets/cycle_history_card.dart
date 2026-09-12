@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gym_corpus/core/utils/date_format.dart';
 import 'package:gym_corpus/core/widgets/confirm_dialog.dart';
+import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:gym_corpus/features/profile/domain/entities/cycle_log.dart';
 import 'package:gym_corpus/features/profile/domain/services/cycle_forecast.dart';
 import 'package:gym_corpus/features/profile/presentation/widgets/cycle_phase_info.dart';
@@ -64,14 +65,7 @@ class CycleHistoryCard extends StatelessWidget {
           ),
           if (recent.isNotEmpty) ...[
             const SizedBox(height: 20),
-            Text(
-              'REGISTRAZIONI',
-              style: theme.textTheme.labelSmall?.copyWith(
-                letterSpacing: 2,
-                fontWeight: FontWeight.w900,
-                color: theme.colorScheme.outline,
-              ),
-            ),
+            const SectionTitle('REGISTRAZIONI', tone: SectionTitleTone.muted),
             const SizedBox(height: 8),
             for (final log in recent.take(_maxVisible))
               _LogRow(

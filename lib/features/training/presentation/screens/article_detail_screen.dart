@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gym_corpus/core/widgets/section_title.dart';
+import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:share_plus/share_plus.dart';
 
 class ArticleDetailScreen extends StatelessWidget {

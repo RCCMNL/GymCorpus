@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gym_corpus/core/theme/app_theme.dart';
-import 'package:gym_corpus/core/widgets/section_title.dart';
+import 'package:gym_corpus/core/widgets/labels.dart';
 
 void main() {
   Future<void> pump(WidgetTester tester, Widget child) {
@@ -96,6 +96,65 @@ void main() {
         expect(styleOf(tester, text).fontWeight, FontWeight.w900);
         expect(styleOf(tester, text).fontSize, 11);
       }
+    });
+  });
+
+  group('Eyebrow', () {
+    testWidgets('mostra la riga che riceve', (tester) async {
+      await pump(tester, const Eyebrow('PROSSIMO'));
+
+      expect(find.text('PROSSIMO'), findsOneWidget);
+    });
+
+    testWidgets('di suo e smorzato', (tester) async {
+      await pump(tester, const Eyebrow('RECUPERO'));
+
+      expect(
+        styleOf(tester, 'RECUPERO').color,
+        AppTheme.darkTheme.colorScheme.outline,
+      );
+    });
+
+    testWidgets('prende l accento della scheda quando ne ha uno', (
+      tester,
+    ) async {
+      await pump(tester, const Eyebrow('PRO TIP', color: Colors.orangeAccent));
+
+      expect(styleOf(tester, 'PRO TIP').color, Colors.orangeAccent);
+    });
+
+    testWidgets('la misura non si sceglie', (tester) async {
+      await pump(
+        tester,
+        const Eyebrow('ALLENAMENTO', color: Colors.orangeAccent),
+      );
+
+      final style = styleOf(tester, 'ALLENAMENTO');
+
+      expect(style.fontSize, 10);
+      expect(style.letterSpacing, 2);
+      expect(style.fontWeight, FontWeight.w900);
+    });
+  });
+
+  group('StatLabel', () {
+    testWidgets('mostra l etichetta che riceve', (tester) async {
+      await pump(tester, const StatLabel('DISTANZA'));
+
+      expect(find.text('DISTANZA'), findsOneWidget);
+    });
+
+    testWidgets('e sempre smorzata e sempre della stessa misura', (
+      tester,
+    ) async {
+      await pump(tester, const StatLabel('CALORIE'));
+
+      final style = styleOf(tester, 'CALORIE');
+
+      expect(style.color, AppTheme.darkTheme.colorScheme.outline);
+      expect(style.fontSize, 10);
+      expect(style.letterSpacing, 1.5);
+      expect(style.fontWeight, FontWeight.w900);
     });
   });
 }

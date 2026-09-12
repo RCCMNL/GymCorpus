@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gym_corpus/core/utils/date_format.dart';
+import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:gym_corpus/features/profile/domain/entities/cycle_log.dart';
 import 'package:gym_corpus/features/profile/domain/services/cycle_forecast.dart';
 import 'package:gym_corpus/features/profile/presentation/widgets/cycle_phase_info.dart';
@@ -86,17 +87,7 @@ class CycleMonthCalendar extends StatelessWidget {
           Row(
             children: [
               for (final label in _weekdays)
-                Expanded(
-                  child: Center(
-                    child: Text(
-                      label,
-                      style: theme.textTheme.labelSmall?.copyWith(
-                        color: theme.colorScheme.outline,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                  ),
-                ),
+                Expanded(child: Center(child: StatLabel(label))),
             ],
           ),
           const SizedBox(height: 12),

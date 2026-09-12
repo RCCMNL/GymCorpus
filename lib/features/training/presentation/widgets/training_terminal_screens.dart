@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
+import 'package:gym_corpus/core/widgets/labels.dart';
 
 /// Schermata mostrata al termine di una sessione di allenamento, con tutti
 /// gli esercizi completati.
@@ -48,15 +49,7 @@ class WorkoutCompletedScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 32),
-                Text(
-                  'ALLENAMENTO',
-                  style: theme.textTheme.labelSmall?.copyWith(
-                    letterSpacing: 3,
-                    fontWeight: FontWeight.w900,
-                    fontSize: 12,
-                    color: const Color(0xFF8DE8C7),
-                  ),
-                ),
+                const Eyebrow('ALLENAMENTO', color: Color(0xFF8DE8C7)),
                 const SizedBox(height: 4),
                 Text(
                   'COMPLETATO!',

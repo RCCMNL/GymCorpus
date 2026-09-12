@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gym_corpus/core/utils/unit_converter.dart';
+import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:gym_corpus/features/exercises/presentation/widgets/exercise_thumbnail.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 import 'package:gym_corpus/features/training/domain/set_specs.dart';
@@ -95,15 +96,7 @@ class NextUpCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'PROSSIMO',
-                  style: theme.textTheme.labelSmall?.copyWith(
-                    letterSpacing: 2,
-                    fontWeight: FontWeight.w900,
-                    fontSize: 8,
-                    color: theme.colorScheme.outline,
-                  ),
-                ),
+                const Eyebrow('PROSSIMO'),
                 const SizedBox(height: 4),
                 Text(
                   nextName,

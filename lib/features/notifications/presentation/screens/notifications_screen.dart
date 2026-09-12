@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gym_corpus/core/utils/date_format.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/core/widgets/gradient_title.dart';
+import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:gym_corpus/features/notifications/domain/entities/notification_log_entity.dart';
 import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_bloc.dart';
 import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_event.dart';
@@ -161,14 +162,9 @@ class NotificationsScreen extends StatelessWidget {
             // Section header
             Padding(
               padding: const EdgeInsets.only(bottom: 12, left: 4),
-              child: Text(
+              child: SectionTitle(
                 label.toUpperCase(),
-                style: theme.textTheme.labelSmall?.copyWith(
-                  letterSpacing: 2,
-                  fontWeight: FontWeight.w900,
-                  color: theme.colorScheme.outline.withValues(alpha: 0.6),
-                  fontSize: 10,
-                ),
+                tone: SectionTitleTone.muted,
               ),
             ),
             ...items.map(

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gym_corpus/core/widgets/section_title.dart';
+import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 
 /// Il saluto in cima al Training Hub.
@@ -15,14 +15,7 @@ class TrainingHubGreeting extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'TRAINING HUB',
-          style: theme.textTheme.labelSmall?.copyWith(
-            letterSpacing: 2,
-            fontWeight: FontWeight.w900,
-            color: theme.colorScheme.primary,
-          ),
-        ),
+        const SectionTitle('TRAINING HUB'),
         const SizedBox(height: 8),
         Text(
           'Bentornato, $userName',

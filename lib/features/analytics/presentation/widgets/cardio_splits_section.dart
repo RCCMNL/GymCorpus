@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:gym_corpus/features/training/domain/services/cardio_splits.dart';
 
 /// Passaggi al chilometro di una sessione cardio.
@@ -112,16 +113,7 @@ class CardioSplitRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         children: [
-          SizedBox(
-            width: 52,
-            child: Text(
-              'KM ${split.index}',
-              style: theme.textTheme.labelSmall?.copyWith(
-                fontWeight: FontWeight.w900,
-                color: theme.colorScheme.outline,
-              ),
-            ),
-          ),
+          SizedBox(width: 52, child: StatLabel('KM ${split.index}')),
           Expanded(
             child: LayoutBuilder(
               builder: (context, constraints) => Align(

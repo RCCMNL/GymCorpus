@@ -4,6 +4,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:gym_corpus/core/utils/date_format.dart';
 import 'package:gym_corpus/core/utils/time_format.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
+import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:gym_corpus/features/analytics/presentation/widgets/cardio_splits_section.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_activity.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_route_point.dart';
@@ -83,25 +84,17 @@ class CardioSessionDetailScreen extends StatelessWidget {
             ],
             _MetricsGrid(session: session, accent: accent),
             const SizedBox(height: 28),
-            Text(
+            const SectionTitle(
               'PASSAGGI AL CHILOMETRO',
-              style: theme.textTheme.labelSmall?.copyWith(
-                letterSpacing: 2,
-                fontWeight: FontWeight.w900,
-                color: theme.colorScheme.outline,
-              ),
+              tone: SectionTitleTone.muted,
             ),
             const SizedBox(height: 12),
             CardioSplitsSection(splits: splits),
             if (splits.length > 1) ...[
               const SizedBox(height: 28),
-              Text(
+              const SectionTitle(
                 'ANDAMENTO DEL PASSO',
-                style: theme.textTheme.labelSmall?.copyWith(
-                  letterSpacing: 2,
-                  fontWeight: FontWeight.w900,
-                  color: theme.colorScheme.outline,
-                ),
+                tone: SectionTitleTone.muted,
               ),
               const SizedBox(height: 12),
               _PaceChart(splits: splits, accent: accent),
@@ -240,14 +233,7 @@ class _MetricTile extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            label,
-            style: theme.textTheme.labelSmall?.copyWith(
-              letterSpacing: 1.5,
-              fontWeight: FontWeight.w900,
-              color: theme.colorScheme.outline,
-            ),
-          ),
+          StatLabel(label),
           const SizedBox(height: 6),
           Text(
             value,

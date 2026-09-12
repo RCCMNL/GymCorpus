@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/service_locator.dart' as di;
 import 'package:gym_corpus/core/services/health_service.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
+import 'package:gym_corpus/core/widgets/labels.dart';
 
 /// Card riepilogo attività giornaliera con passi, km, tempo, kcal
 /// e grafico a barre settimanale.
@@ -105,13 +106,9 @@ class _DailyStepsSectionState extends State<DailyStepsSection> {
               ),
             ),
             const SizedBox(width: 12),
-            Text(
+            const SectionTitle(
               'ATTIVITÀ GIORNALIERA',
-              style: theme.textTheme.labelSmall?.copyWith(
-                fontWeight: FontWeight.w900,
-                letterSpacing: 2,
-                fontSize: 11,
-              ),
+              tone: SectionTitleTone.muted,
             ),
             const Spacer(),
             if (!_isLoading && !_permissionDenied)
