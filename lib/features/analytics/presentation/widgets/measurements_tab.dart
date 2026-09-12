@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gym_corpus/core/utils/date_format.dart';
 import 'package:gym_corpus/core/utils/decimal_input.dart';
+import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/compact_sheet.dart';
 import 'package:gym_corpus/features/analytics/domain/progress_formatters.dart';
 import 'package:gym_corpus/features/analytics/presentation/widgets/monthly_accordion.dart';
@@ -130,15 +131,8 @@ class _MeasurementSessionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Container(
+    return AppCard(
       margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: theme.colorScheme.outline.withValues(alpha: 0.05),
-        ),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -221,15 +215,9 @@ class _MiniMeasurementChip extends StatelessWidget {
         onTap: canEdit
             ? () => _showEditMeasurementSheet(context, measurement)
             : null,
-        child: Container(
+        child: AppCard(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surface,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: theme.colorScheme.outline.withValues(alpha: 0.1),
-            ),
-          ),
+          size: AppCardSize.tight,
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -280,11 +268,9 @@ class _MeasurementTipsCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: theme.colorScheme.tertiary.withValues(alpha: 0.07),
+        color: theme.colorScheme.tertiary.tintedFill,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: theme.colorScheme.tertiary.withValues(alpha: 0.10),
-        ),
+        border: Border.all(color: theme.colorScheme.tertiary.tintedBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

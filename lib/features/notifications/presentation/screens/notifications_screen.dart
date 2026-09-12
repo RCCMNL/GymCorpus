@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gym_corpus/core/utils/date_format.dart';
+import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/core/widgets/gradient_title.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
@@ -362,11 +363,9 @@ class _NotificationTile extends StatelessWidget {
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: color.withValues(alpha: 0.12),
+                            color: color.tintedFill,
                             borderRadius: BorderRadius.circular(999),
-                            border: Border.all(
-                              color: color.withValues(alpha: 0.24),
-                            ),
+                            border: Border.all(color: color.tintedBorder),
                           ),
                           child: Text(
                             _labelForType(notification.type).toUpperCase(),

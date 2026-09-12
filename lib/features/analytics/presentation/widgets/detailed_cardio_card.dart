@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gym_corpus/core/utils/date_format.dart';
 import 'package:gym_corpus/core/utils/time_format.dart';
+import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_activity.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_route_point.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_session.dart';
@@ -36,15 +37,8 @@ class DetailedCardioCard extends StatelessWidget {
     final hasRoute =
         CardioRoutePoint.decode(session.routeJson ?? '').length > 1;
 
-    return Container(
+    return AppCard(
       margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(
-          color: theme.colorScheme.outline.withValues(alpha: 0.06),
-        ),
-      ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(

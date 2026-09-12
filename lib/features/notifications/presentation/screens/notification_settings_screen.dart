@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gym_corpus/core/services/notification_service.dart';
+import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/core/widgets/gradient_title.dart';
 import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_bloc.dart';
@@ -497,15 +498,8 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                 title: 'ALTRE NOTIFICHE',
               ),
               const SizedBox(height: 16),
-              Container(
+              AppCard(
                 padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.surfaceContainerHigh,
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(
-                    color: theme.colorScheme.outline.withValues(alpha: 0.08),
-                  ),
-                ),
                 child: Row(
                   children: [
                     Icon(

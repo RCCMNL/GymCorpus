@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/service_locator.dart' as di;
 import 'package:gym_corpus/core/services/health_service.dart';
+import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
 
@@ -137,16 +138,9 @@ class _DailyStepsSectionState extends State<DailyStepsSection> {
   }
 
   Widget _buildLoadingState(ThemeData theme) {
-    return Container(
+    return AppCard(
       width: double.infinity,
       padding: const EdgeInsets.all(40),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: theme.colorScheme.outline.withValues(alpha: 0.08),
-        ),
-      ),
       child: Column(
         children: [
           SizedBox(
@@ -248,16 +242,9 @@ class _DailyStepsSectionState extends State<DailyStepsSection> {
     return GestureDetector(
       onTap: () => context.push('/analytics/daily-activity'),
       behavior: HitTestBehavior.opaque,
-      child: Container(
+      child: AppCard(
         width: double.infinity,
         padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: theme.colorScheme.surfaceContainerHigh,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(
-            color: theme.colorScheme.outline.withValues(alpha: 0.08),
-          ),
-        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

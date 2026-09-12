@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/widgets/app_card.dart';
 
 /// Il foglio modale piccolo dell'app: quello che chiede un valore e si
 /// chiude.
@@ -32,15 +33,8 @@ class CompactSheet extends StatelessWidget {
         bottom: MediaQuery.of(context).viewInsets.bottom + 16,
         top: 24,
       ),
-      child: Container(
+      child: AppCard(
         padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: theme.colorScheme.surface,
-          borderRadius: BorderRadius.circular(28),
-          border: Border.all(
-            color: theme.colorScheme.outline.withValues(alpha: 0.08),
-          ),
-        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/core/widgets/compact_sheet.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
@@ -201,14 +202,7 @@ class _PasswordField extends StatelessWidget {
           padding: const EdgeInsets.only(left: 4, bottom: 8),
           child: SectionTitle(label, tone: SectionTitleTone.muted),
         ),
-        Container(
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surfaceContainerHigh,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: theme.colorScheme.outline.withValues(alpha: 0.1),
-            ),
-          ),
+        AppCard(
           child: TextField(
             controller: controller,
             obscureText: obscure,

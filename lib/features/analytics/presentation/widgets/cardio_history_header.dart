@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
 
 /// Barra superiore con pulsante indietro e titolo di CardioHistoryScreen.
@@ -168,16 +169,9 @@ class EmptyCardioHistoryView extends StatelessWidget {
         children: [
           CardioHistoryTopBar(theme: theme),
           const Spacer(),
-          Container(
+          AppCard(
             width: double.infinity,
             padding: const EdgeInsets.all(28),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceContainerHigh,
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(
-                color: theme.colorScheme.outline.withValues(alpha: 0.08),
-              ),
-            ),
             child: Column(
               children: [
                 Icon(

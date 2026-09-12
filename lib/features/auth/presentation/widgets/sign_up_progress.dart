@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/widgets/app_card.dart';
 
 /// La barra in cima alla registrazione: indietro e a che punto siamo.
 class SignUpTopBar extends StatelessWidget {
@@ -24,11 +25,9 @@ class SignUpTopBar extends StatelessWidget {
         children: [
           DecoratedBox(
             decoration: BoxDecoration(
-              color: theme.colorScheme.primary.withValues(alpha: 0.12),
+              color: theme.colorScheme.primary.tintedFill,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: theme.colorScheme.primary.withValues(alpha: 0.14),
-              ),
+              border: Border.all(color: theme.colorScheme.primary.tintedBorder),
             ),
             child: IconButton(
               icon: Icon(

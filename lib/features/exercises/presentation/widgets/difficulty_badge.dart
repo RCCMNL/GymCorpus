@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 
 /// Pillola colorata per il livello di difficoltà di un esercizio, usata
@@ -37,9 +38,9 @@ class DifficultyBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.15),
+        color: color.tintedFill,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withValues(alpha: 0.4)),
+        border: Border.all(color: color.tintedBorder),
       ),
       child: Text(
         difficulty.toUpperCase(),

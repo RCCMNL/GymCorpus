@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/compact_sheet.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_activity.dart';
@@ -201,9 +202,9 @@ class CardioOptionTile extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 24),
           decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.1),
+            color: color.tintedFill,
             borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: color.withValues(alpha: 0.2)),
+            border: Border.all(color: color.tintedBorder),
           ),
           child: Column(
             children: [
