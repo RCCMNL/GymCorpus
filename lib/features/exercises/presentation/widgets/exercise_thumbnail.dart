@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/features/exercises/domain/exercise_image.dart';
 import 'package:gym_corpus/features/exercises/domain/muscle_groups.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 
-/// Miniatura di un esercizio: la foto quando c'e', altrimenti un
+/// Miniatura di un esercizio: la figura quando c'e', altrimenti un
 /// segnaposto disegnato.
 ///
 /// Prima ogni schermata se la cavava da sola e lo stesso caso ("non ho
@@ -14,9 +15,15 @@ import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 ///
 /// Qui il segnaposto e' un riquadro tinto sulla regione muscolare
 /// dell'esercizio: si legge come una scelta di design, non come un
-/// errore. Quando arriveranno le foto vere questo resta comunque il
-/// fallback per gli esercizi custom dell'utente, che una foto non
-/// l'avranno mai.
+/// errore. Resta il ripiego per gli esercizi custom dell'utente, che una
+/// figura non l'avranno mai, e per i predefiniti che non ce l'hanno
+/// ancora - che oggi sono quasi tutti.
+///
+/// La figura e' un asset, non un URL: si ricava dal nome dell'esercizio
+/// con [exerciseImageAsset], e aggiungerne una e' solo copiare il file in
+/// `assets/exercises/`. Che l'asset ci sia davvero lo scopre qui
+/// `errorBuilder`, perche' chiederlo prima costerebbe una lettura del
+/// manifest per ogni riga di elenco.
 class ExerciseThumbnail extends StatelessWidget {
   const ExerciseThumbnail({
     required this.exercise,
@@ -64,17 +71,13 @@ class ExerciseThumbnail extends StatelessWidget {
       surface: theme.colorScheme.surfaceContainerHigh,
     );
 
-    final url = exercise.imageUrl;
-    final content = url == null
+    final asset = exerciseImageAsset(exercise.name);
+    final content = asset == null
         ? placeholder
-        : Image.network(
-            url,
+        : Image.asset(
+            asset,
             fit: BoxFit.cover,
             errorBuilder: (context, error, stackTrace) => placeholder,
-            loadingBuilder: (context, child, progress) {
-              if (progress == null) return child;
-              return placeholder;
-            },
           );
 
     if (_expand) return content;

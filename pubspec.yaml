@@ -52,7 +52,6 @@ dependencies:
   sqlite3: ^2.9.4
   timezone: ^0.9.4
   url_launcher: ^6.3.0
-  video_player: ^2.8.1
 
 dev_dependencies:
   alchemist: ^0.3.0
@@ -71,6 +70,9 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/
+    # Le figure degli esercizi, una per esercizio: il nome del file si
+    # ricava dal nome dell'esercizio, vedi assets/exercises/LEGGIMI.md.
+    - assets/exercises/
     # Solo i due file di licenza, non l'intera cartella fonts/: i .ttf
     # sono gia' impacchettati dalla sezione fonts: qui sotto, e
     # dichiararli anche come asset li includerebbe due volte.
