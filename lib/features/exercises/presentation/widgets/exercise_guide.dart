@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/features/exercises/domain/execution_phases.dart';
+import 'package:gym_corpus/features/exercises/presentation/widgets/exercise_video_link.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
@@ -55,6 +56,11 @@ class ExerciseGuide extends StatelessWidget {
               ],
             ),
           ),
+
+          if (exercise.referenceVideoUrl != null) ...[
+            const SizedBox(height: 24),
+            ExerciseVideoLink(exercise: exercise),
+          ],
 
           const SizedBox(height: 40),
 

@@ -339,6 +339,7 @@ class AppDatabase extends _$AppDatabase {
       final execution = _seedText(seed.execution);
       final tips = _seedText(seed.tips);
       final difficulty = _seedText(seed.difficulty);
+      final videoUrl = _seedText(seed.referenceVideoUrl);
 
       final needsUpdate =
           (equipment != null && equipment != row.equipment) ||
@@ -346,7 +347,8 @@ class AppDatabase extends _$AppDatabase {
           (preparation != null && preparation != row.preparation) ||
           (execution != null && execution != row.execution) ||
           (tips != null && tips != row.tips) ||
-          (difficulty != null && difficulty != row.difficulty);
+          (difficulty != null && difficulty != row.difficulty) ||
+          (videoUrl != null && videoUrl != row.referenceVideoUrl);
       if (!needsUpdate) continue;
 
       await (update(exercises)..where((e) => e.id.equals(row.id))).write(
@@ -357,6 +359,7 @@ class AppDatabase extends _$AppDatabase {
           execution: _valueOrAbsent(execution),
           tips: _valueOrAbsent(tips),
           difficulty: _valueOrAbsent(difficulty),
+          referenceVideoUrl: _valueOrAbsent(videoUrl),
         ),
       );
     }

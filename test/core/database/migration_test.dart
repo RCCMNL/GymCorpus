@@ -189,6 +189,36 @@ void main() {
     },
   );
 
+  test(
+    'il riallineamento non cancella un indirizzo video gia salvato',
+    () async {
+      // I seed non dichiarano ancora nessun video: finche' e' cosi', il
+      // riallineamento deve lasciare stare la colonna invece di azzerarla.
+      final firstRun = AppDatabase(NativeDatabase(dbFile));
+      final seeded = await (firstRun.select(
+        firstRun.exercises,
+      )..where((e) => e.name.equals('Sissy Squat'))).getSingle();
+
+      await (firstRun.update(
+        firstRun.exercises,
+      )..where((e) => e.id.equals(seeded.id))).write(
+        const ExercisesCompanion(
+          referenceVideoUrl: Value('https://video.example/sissy'),
+        ),
+      );
+      await firstRun.close();
+
+      final secondRun = AppDatabase(NativeDatabase(dbFile));
+      addTearDown(secondRun.close);
+
+      final dopo = await (secondRun.select(
+        secondRun.exercises,
+      )..where((e) => e.id.equals(seeded.id))).getSingle();
+
+      expect(dopo.referenceVideoUrl, 'https://video.example/sissy');
+    },
+  );
+
   test('il riallineamento non tocca gli esercizi custom dell utente', () async {
     final firstRun = AppDatabase(NativeDatabase(dbFile));
     // Omonimo di un esercizio predefinito: il caso limite in cui una
