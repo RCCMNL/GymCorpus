@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gym_corpus/core/utils/date_format.dart';
 import 'package:gym_corpus/core/utils/decimal_input.dart';
 import 'package:gym_corpus/core/utils/time_format.dart';
+import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
@@ -157,15 +158,13 @@ class _ManualCardioEntryScreenState extends State<ManualCardioEntryScreen> {
               key: const Key('manual-date'),
               onTap: _pickDate,
               borderRadius: BorderRadius.circular(14),
-              child: Container(
+              child: AppCard(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
                   vertical: 14,
                 ),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(14),
-                ),
+                size: AppCardSize.tight,
+                tone: AppCardTone.sunken,
                 child: Row(
                   children: [
                     Icon(

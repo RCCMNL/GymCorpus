@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/gradient_title.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
+import 'package:gym_corpus/core/widgets/icon_badge.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
 
 class NutritionScreen extends StatelessWidget {
@@ -133,12 +134,9 @@ class NutritionScreen extends StatelessWidget {
   }
 
   Widget _buildMacroSection(BuildContext context, ThemeData theme) {
-    return Container(
+    return AppCard(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(24),
-      ),
+      tone: AppCardTone.sunken,
       child: Column(
         children: [
           Row(
@@ -300,23 +298,14 @@ class NutritionScreen extends StatelessWidget {
     IconData icon,
     Color color,
   ) {
-    return Container(
+    return AppCard(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(16),
-      ),
+      size: AppCardSize.tight,
+      tone: AppCardTone.sunken,
       child: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icon, color: color, size: 20),
-          ),
+          IconBadge(icon, color: color, size: IconBadgeSize.small),
           const SizedBox(width: 16),
           Expanded(
             child: Text(
@@ -356,12 +345,9 @@ class NutritionScreen extends StatelessWidget {
           extra: {'title': title, 'body': summary, 'imageUrl': imageUrl},
         );
       },
-      child: Container(
+      child: AppCard(
         margin: const EdgeInsets.only(bottom: 16),
-        decoration: BoxDecoration(
-          color: theme.colorScheme.surfaceContainerHigh,
-          borderRadius: BorderRadius.circular(20),
-        ),
+        tone: AppCardTone.sunken,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

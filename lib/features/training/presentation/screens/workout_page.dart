@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
+import 'package:gym_corpus/core/widgets/icon_badge.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
@@ -288,19 +289,10 @@ class _WorkoutPageState extends State<WorkoutPage> {
                           padding: const EdgeInsets.symmetric(vertical: 40),
                           child: Column(
                             children: [
-                              Container(
-                                padding: const EdgeInsets.all(24),
-                                decoration: BoxDecoration(
-                                  color: theme.colorScheme.surfaceContainerHigh,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Icon(
-                                  Icons.fitness_center_rounded,
-                                  size: 48,
-                                  color: theme.colorScheme.outline.withValues(
-                                    alpha: 0.4,
-                                  ),
-                                ),
+                              const IconBadge(
+                                Icons.fitness_center_rounded,
+                                size: IconBadgeSize.large,
+                                circle: true,
                               ),
                               const SizedBox(height: 20),
                               Text(

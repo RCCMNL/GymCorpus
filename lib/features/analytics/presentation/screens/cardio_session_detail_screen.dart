@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:gym_corpus/core/utils/date_format.dart';
 import 'package:gym_corpus/core/utils/time_format.dart';
+import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:gym_corpus/features/analytics/presentation/widgets/cardio_splits_section.dart';
@@ -223,13 +224,11 @@ class _MetricTile extends StatelessWidget {
     final theme = Theme.of(context);
     final width = (MediaQuery.of(context).size.width - 52) / 2;
 
-    return Container(
+    return AppCard(
       width: width,
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(18),
-      ),
+      size: AppCardSize.tight,
+      tone: AppCardTone.sunken,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

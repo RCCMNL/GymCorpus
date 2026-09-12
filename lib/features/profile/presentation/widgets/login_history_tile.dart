@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gym_corpus/core/utils/date_format.dart';
+import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/features/auth/domain/entities/user_entity.dart';
 
 /// Una riga della cronologia accessi.
@@ -20,13 +21,11 @@ class LoginHistoryTile extends StatelessWidget {
     final theme = Theme.of(context);
     final date = formatDateTimeShort(login.date);
 
-    return Container(
+    return AppCard(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(16),
-      ),
+      size: AppCardSize.tight,
+      tone: AppCardTone.sunken,
       child: Row(
         children: [
           Icon(Icons.important_devices, color: theme.colorScheme.primary),

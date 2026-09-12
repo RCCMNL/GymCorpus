@@ -183,13 +183,11 @@ class MetricTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Container(
+    return AppCard(
       constraints: const BoxConstraints(minHeight: 60),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.45),
-        borderRadius: BorderRadius.circular(16),
-      ),
+      size: AppCardSize.tight,
+      tone: AppCardTone.sunken,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

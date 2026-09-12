@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
+import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
@@ -204,12 +205,10 @@ class _IntegrationsScreenState extends State<IntegrationsScreen> {
     Widget? trailing,
     VoidCallback? onTap,
   }) {
-    return Container(
+    return AppCard(
       margin: const EdgeInsets.only(bottom: 8),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(16),
-      ),
+      size: AppCardSize.tight,
+      tone: AppCardTone.sunken,
       child: ListTile(
         onTap: onTap,
         leading: Icon(icon, color: theme.colorScheme.primary),

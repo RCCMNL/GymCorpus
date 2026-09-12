@@ -56,6 +56,23 @@ void main() {
       expect(_decorationOf(tester).borderRadius, BorderRadius.circular(24));
     });
 
+    testWidgets('il pozzetto e piu chiaro e non ha filo di bordo', (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        const AppCard(tone: AppCardTone.sunken, child: Text('x')),
+      );
+
+      final decoration = _decorationOf(tester);
+
+      expect(
+        decoration.color,
+        AppTheme.darkTheme.colorScheme.surfaceContainerHighest,
+      );
+      expect(decoration.border, isNull);
+    });
+
     testWidgets('il fondo e il bordo non si scelgono', (tester) async {
       await _pump(
         tester,
@@ -106,6 +123,18 @@ void main() {
       );
 
       expect(tester.getSize(find.byType(AppCard)), const Size(120, 64));
+    });
+
+    testWidgets('anche un minimo d altezza e layout', (tester) async {
+      await _pump(
+        tester,
+        const AppCard(
+          constraints: BoxConstraints(minHeight: 80),
+          child: Text('x'),
+        ),
+      );
+
+      expect(tester.getSize(find.byType(AppCard)).height, 80);
     });
 
     testWidgets('il contenuto si puo tagliare sugli angoli', (tester) async {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gym_corpus/core/utils/date_format.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
+import 'package:gym_corpus/core/widgets/icon_badge.dart';
 import 'package:gym_corpus/features/analytics/domain/progress_formatters.dart';
 import 'package:gym_corpus/features/training/domain/entities/body_measurement.dart';
 import 'package:gym_corpus/features/training/domain/entities/body_weight.dart';
@@ -295,21 +296,15 @@ class HeroMetricChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Container(
+    return AppCard(
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface.withValues(alpha: 0.24),
-        borderRadius: BorderRadius.circular(20),
-      ),
+      tone: AppCardTone.sunken,
       child: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.primary.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icon, size: 20, color: theme.colorScheme.primary),
+          IconBadge(
+            icon,
+            color: theme.colorScheme.primary,
+            size: IconBadgeSize.small,
           ),
           const SizedBox(width: 12),
           Expanded(

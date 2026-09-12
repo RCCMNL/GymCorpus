@@ -200,11 +200,9 @@ class _NumberedList extends StatelessWidget {
     final theme = Theme.of(context);
     final steps = content.split('.').where((s) => s.trim().isNotEmpty).toList();
 
-    return Container(
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainer,
-        borderRadius: BorderRadius.circular(16),
-      ),
+    return AppCard(
+      size: AppCardSize.tight,
+      tone: AppCardTone.sunken,
       child: Column(
         children: List.generate(steps.length, (index) {
           return Container(

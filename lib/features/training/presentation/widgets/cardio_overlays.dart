@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/widgets/icon_badge.dart';
 
 /// Overlay a schermo intero mostrato mentre si cerca il segnale GPS prima
 /// di poter avviare una sessione cardio.
@@ -168,17 +169,11 @@ class AutoPauseOverlay extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.primary.withValues(alpha: 0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.motion_photos_paused_rounded,
-                      size: 56,
-                      color: theme.colorScheme.primary,
-                    ),
+                  IconBadge(
+                    Icons.motion_photos_paused_rounded,
+                    color: theme.colorScheme.primary,
+                    size: IconBadgeSize.large,
+                    circle: true,
                   ),
                   const SizedBox(height: 24),
                   Text(

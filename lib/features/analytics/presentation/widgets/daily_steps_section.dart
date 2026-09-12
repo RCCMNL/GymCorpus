@@ -5,6 +5,7 @@ import 'package:gym_corpus/core/service_locator.dart' as di;
 import 'package:gym_corpus/core/services/health_service.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
+import 'package:gym_corpus/core/widgets/icon_badge.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
 
 /// Card riepilogo attività giornaliera con passi, km, tempo, kcal
@@ -185,17 +186,9 @@ class _DailyStepsSectionState extends State<DailyStepsSection> {
         ),
         child: Row(
           children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.greenAccent.shade400.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Icon(
-                Icons.directions_walk_rounded,
-                color: Colors.greenAccent.shade400,
-                size: 28,
-              ),
+            IconBadge(
+              Icons.directions_walk_rounded,
+              color: Colors.greenAccent.shade400,
             ),
             const SizedBox(width: 16),
             Expanded(

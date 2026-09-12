@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/core/widgets/confirm_dialog.dart';
+import 'package:gym_corpus/core/widgets/icon_badge.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_activity.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_session.dart';
@@ -168,13 +169,10 @@ class CompactCardioCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: accentColor.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(activity.icon, color: accentColor, size: 18),
+          IconBadge(
+            activity.icon,
+            color: accentColor,
+            size: IconBadgeSize.small,
           ),
           const SizedBox(width: 12),
           Expanded(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -126,13 +127,11 @@ class ArticleDetailScreen extends StatelessWidget {
   }
 
   Widget _buildRelatedArticle(ThemeData theme, String title, String time) {
-    return Container(
+    return AppCard(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(16),
-      ),
+      size: AppCardSize.tight,
+      tone: AppCardTone.sunken,
       child: Row(
         children: [
           Container(

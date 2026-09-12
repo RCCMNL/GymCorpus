@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/core/widgets/compact_sheet.dart';
+import 'package:gym_corpus/core/widgets/icon_badge.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_event.dart';
 import 'package:gym_corpus/features/auth/presentation/widgets/auth_shared_widgets.dart';
@@ -87,17 +88,10 @@ class _ForgotPasswordSheetState extends State<ForgotPasswordSheet> {
             const SizedBox(height: 24),
             Row(
               children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    Icons.lock_reset_rounded,
-                    color: theme.colorScheme.primary,
-                    size: 22,
-                  ),
+                IconBadge(
+                  Icons.lock_reset_rounded,
+                  color: theme.colorScheme.primary,
+                  size: IconBadgeSize.small,
                 ),
                 const SizedBox(width: 14),
                 Text(

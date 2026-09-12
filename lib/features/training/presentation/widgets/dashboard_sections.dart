@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
+import 'package:gym_corpus/core/widgets/icon_badge.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 
@@ -260,14 +261,7 @@ class _DashboardCard extends StatelessWidget {
         padding: const EdgeInsets.all(20),
         child: Row(
           children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Icon(icon, color: color, size: 28),
-            ),
+            IconBadge(icon, color: color),
             const SizedBox(width: 20),
             Expanded(
               child: Column(
@@ -398,13 +392,10 @@ class RoutineHighlightCard extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: primary.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Icon(Icons.bolt_rounded, color: primary, size: 20),
+                    IconBadge(
+                      Icons.bolt_rounded,
+                      color: primary,
+                      size: IconBadgeSize.small,
                     ),
                     if (routine.estimatedDuration != null)
                       Container(

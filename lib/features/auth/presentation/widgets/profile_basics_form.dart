@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gym_corpus/core/utils/date_format.dart';
+import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/compact_sheet.dart';
 import 'package:gym_corpus/features/auth/presentation/widgets/auth_shared_widgets.dart';
 
@@ -276,13 +277,11 @@ class ProfileBasicsFormState extends State<ProfileBasicsForm> {
         InkWell(
           key: const Key('profile-birthdate'),
           onTap: _selectDate,
-          borderRadius: BorderRadius.circular(14),
-          child: Container(
+          borderRadius: BorderRadius.circular(16),
+          child: AppCard(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(14),
-            ),
+            size: AppCardSize.tight,
+            tone: AppCardTone.sunken,
             child: Row(
               children: [
                 Icon(
@@ -316,11 +315,9 @@ class ProfileBasicsFormState extends State<ProfileBasicsForm> {
       children: [
         authLabel(theme, 'Genere'),
         const SizedBox(height: 8),
-        Container(
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surfaceContainerHighest,
-            borderRadius: BorderRadius.circular(14),
-          ),
+        AppCard(
+          size: AppCardSize.tight,
+          tone: AppCardTone.sunken,
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               key: const Key('profile-gender'),

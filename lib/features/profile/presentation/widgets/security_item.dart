@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/widgets/app_card.dart';
 
 /// Riga della schermata Sicurezza: icona o logo, etichetta, e a scelta un
 /// comando in coda o la freccia di navigazione.
@@ -22,12 +23,10 @@ class SecurityItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Container(
+    return AppCard(
       margin: const EdgeInsets.only(bottom: 8),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(16),
-      ),
+      size: AppCardSize.tight,
+      tone: AppCardTone.sunken,
       child: ListTile(
         onTap: onTap,
         leading:

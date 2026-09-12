@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/gradient_title.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
+import 'package:gym_corpus/core/widgets/icon_badge.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
 
 class YogaScreen extends StatelessWidget {
@@ -236,23 +237,13 @@ class YogaScreen extends StatelessWidget {
     IconData icon,
     Color iconColor,
   ) {
-    return Container(
+    return AppCard(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(20),
-      ),
+      tone: AppCardTone.sunken,
       child: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: iconColor.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, color: iconColor),
-          ),
+          IconBadge(icon, color: iconColor, circle: true),
           const SizedBox(width: 16),
           Expanded(
             child: Column(

@@ -22,6 +22,17 @@ enum AppCardSize {
   final double radius;
 }
 
+/// Se il riquadro sta sulla pagina o dentro un altro riquadro.
+enum AppCardTone {
+  /// La scheda appoggiata sulla pagina: ha il filo di bordo che la stacca.
+  raised,
+
+  /// Il pozzetto dentro una scheda - una riga di dati, un blocco di
+  /// dettaglio. Un secondo filo di bordo a un millimetro dal primo e'
+  /// solo rumore, quindi non ce l'ha: si stacca perche' e' piu' chiaro.
+  sunken,
+}
+
 /// Il riquadro dell'app: fondo, angoli e il filo di bordo che lo stacca.
 ///
 /// Chi lo usa sceglie la misura e i bordi interni. Fondo e bordo non si
@@ -35,16 +46,19 @@ class AppCard extends StatelessWidget {
   const AppCard({
     required this.child,
     this.size = AppCardSize.card,
+    this.tone = AppCardTone.raised,
     this.padding,
     this.margin,
     this.width,
     this.height,
+    this.constraints,
     this.clipBehavior = Clip.none,
     super.key,
   });
 
   final Widget child;
   final AppCardSize size;
+  final AppCardTone tone;
   final EdgeInsetsGeometry? padding;
   final EdgeInsetsGeometry? margin;
 
@@ -52,6 +66,7 @@ class AppCard extends StatelessWidget {
   /// riempire la riga, la cella larga quanto la sua colonna.
   final double? width;
   final double? height;
+  final BoxConstraints? constraints;
 
   /// Serve quando il contenuto deborda dagli angoli tondi: un'immagine,
   /// una barra di avanzamento a tutta larghezza.
@@ -64,15 +79,22 @@ class AppCard extends StatelessWidget {
     return Container(
       width: width,
       height: height,
+      constraints: constraints,
       padding: padding,
       margin: margin,
       clipBehavior: clipBehavior,
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHigh,
+        color: switch (tone) {
+          AppCardTone.raised => theme.colorScheme.surfaceContainerHigh,
+          AppCardTone.sunken => theme.colorScheme.surfaceContainerHighest,
+        },
         borderRadius: BorderRadius.circular(size.radius),
-        border: Border.all(
-          color: theme.colorScheme.outline.withValues(alpha: 0.08),
-        ),
+        border: switch (tone) {
+          AppCardTone.raised => Border.all(
+            color: theme.colorScheme.outline.withValues(alpha: 0.08),
+          ),
+          AppCardTone.sunken => null,
+        },
       ),
       child: child,
     );

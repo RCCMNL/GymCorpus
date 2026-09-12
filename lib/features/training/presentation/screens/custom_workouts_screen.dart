@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/core/widgets/confirm_dialog.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
+import 'package:gym_corpus/core/widgets/icon_badge.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
@@ -192,19 +193,10 @@ class _CustomWorkoutsScreenState extends State<CustomWorkoutsScreen> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Container(
-                                padding: const EdgeInsets.all(24),
-                                decoration: BoxDecoration(
-                                  color: theme.colorScheme.surfaceContainerHigh,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Icon(
-                                  Icons.edit_document,
-                                  size: 48,
-                                  color: theme.colorScheme.outline.withValues(
-                                    alpha: 0.5,
-                                  ),
-                                ),
+                              const IconBadge(
+                                Icons.edit_document,
+                                size: IconBadgeSize.large,
+                                circle: true,
                               ),
                               const SizedBox(height: 24),
                               Text(
@@ -469,13 +461,11 @@ class _ActionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
-          shape: BoxShape.circle,
-        ),
-        child: Icon(icon, size: 18, color: color),
+      child: IconBadge(
+        icon,
+        color: color,
+        size: IconBadgeSize.small,
+        circle: true,
       ),
     );
   }

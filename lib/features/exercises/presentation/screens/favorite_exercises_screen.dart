@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/widgets/gradient_title.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
+import 'package:gym_corpus/core/widgets/icon_badge.dart';
 import 'package:gym_corpus/features/exercises/domain/equipment_tags.dart';
 import 'package:gym_corpus/features/exercises/domain/exercise_catalog_view.dart';
 import 'package:gym_corpus/features/exercises/presentation/widgets/difficulty_badge.dart';
@@ -220,17 +221,11 @@ class _FavoriteExercisesScreenState extends State<FavoriteExercisesScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.primary.withValues(alpha: 0.05),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.favorite_border_rounded,
-              size: 64,
-              color: theme.colorScheme.primary.withValues(alpha: 0.2),
-            ),
+          IconBadge(
+            Icons.favorite_border_rounded,
+            color: theme.colorScheme.primary,
+            size: IconBadgeSize.large,
+            circle: true,
           ),
           const SizedBox(height: 24),
           Text(

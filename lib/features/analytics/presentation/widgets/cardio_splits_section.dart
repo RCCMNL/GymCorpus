@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:gym_corpus/features/training/domain/services/cardio_splits.dart';
 
@@ -17,13 +18,10 @@ class CardioSplitsSection extends StatelessWidget {
     final theme = Theme.of(context);
 
     if (splits.isEmpty) {
-      return Container(
+      return AppCard(
         width: double.infinity,
         padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.5),
-          borderRadius: BorderRadius.circular(20),
-        ),
+        tone: AppCardTone.sunken,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
