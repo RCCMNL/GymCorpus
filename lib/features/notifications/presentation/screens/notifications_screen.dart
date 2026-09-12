@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gym_corpus/core/utils/date_format.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/core/widgets/gradient_title.dart';
 import 'package:gym_corpus/features/notifications/domain/entities/notification_log_entity.dart';
 import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_bloc.dart';
 import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_event.dart';
 import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_state.dart';
-import 'package:intl/intl.dart';
 
 class NotificationsScreen extends StatelessWidget {
   const NotificationsScreen({super.key});
@@ -202,9 +202,9 @@ class NotificationsScreen extends StatelessWidget {
     if (dateOnly == today) return 'Oggi';
     if (dateOnly == today.subtract(const Duration(days: 1))) return 'Ieri';
     if (now.difference(dateOnly).inDays < 7) {
-      return DateFormat('EEEE', 'it_IT').format(date);
+      return formatWeekday(date);
     }
-    return DateFormat('d MMM yyyy', 'it_IT').format(date);
+    return formatShortDate(date);
   }
 }
 
@@ -268,7 +268,7 @@ class _NotificationTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final color = _colorForType(notification.type, theme);
-    final timeStr = DateFormat('HH:mm').format(notification.timestamp);
+    final timeStr = formatTime(notification.timestamp);
 
     return Dismissible(
       key: ValueKey(notification.id),

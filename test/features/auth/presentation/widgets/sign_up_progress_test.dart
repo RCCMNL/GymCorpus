@@ -5,7 +5,10 @@ import 'package:gym_corpus/features/auth/presentation/widgets/sign_up_progress.d
 
 Future<void> _pump(WidgetTester tester, Widget child) {
   return tester.pumpWidget(
-    MaterialApp(theme: AppTheme.darkTheme, home: Scaffold(body: child)),
+    MaterialApp(
+      theme: AppTheme.darkTheme,
+      home: Scaffold(body: child),
+    ),
   );
 }
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/utils/date_format.dart';
 import 'package:gym_corpus/core/widgets/compact_sheet.dart';
 import 'package:gym_corpus/features/auth/presentation/widgets/auth_shared_widgets.dart';
-import 'package:intl/intl.dart';
 
 /// Le informazioni di base che l'app chiede a chiunque crei un profilo.
 class ProfileBasics {
@@ -293,9 +293,7 @@ class ProfileBasicsFormState extends State<ProfileBasicsForm> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    date == null
-                        ? 'Seleziona'
-                        : DateFormat('dd/MM/yyyy').format(date),
+                    date == null ? 'Seleziona' : formatDateInput(date),
                     overflow: TextOverflow.ellipsis,
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: date == null

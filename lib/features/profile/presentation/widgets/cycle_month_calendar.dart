@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/utils/date_format.dart';
 import 'package:gym_corpus/features/profile/domain/entities/cycle_log.dart';
 import 'package:gym_corpus/features/profile/domain/services/cycle_forecast.dart';
 import 'package:gym_corpus/features/profile/presentation/widgets/cycle_phase_info.dart';
-import 'package:intl/intl.dart';
 
 /// Calendario mensile del ciclo.
 ///
@@ -55,7 +55,7 @@ class CycleMonthCalendar extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                DateFormat('MMMM yyyy', 'it_IT').format(month).toUpperCase(),
+                formatMonthYear(month).toUpperCase(),
                 style: const TextStyle(
                   fontWeight: FontWeight.w900,
                   fontFamily: 'Lexend',

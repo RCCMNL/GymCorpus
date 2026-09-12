@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gym_corpus/core/utils/date_format.dart';
 import 'package:gym_corpus/core/utils/decimal_input.dart';
 import 'package:gym_corpus/core/widgets/compact_sheet.dart';
 import 'package:gym_corpus/features/analytics/domain/progress_formatters.dart';
@@ -10,7 +11,6 @@ import 'package:gym_corpus/features/training/domain/entities/body_weight.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
-import 'package:intl/intl.dart';
 
 /// Tab "Misure" di ProgressScreen: hero riassuntivo seguito dallo storico
 /// delle sessioni di misurazione raggruppate per mese.
@@ -156,7 +156,7 @@ class _MeasurementSessionCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      DateFormat('dd MMM yyyy, HH:mm', 'it_IT').format(date),
+                      formatDateTimeShort(date),
                       style: theme.textTheme.labelMedium?.copyWith(
                         fontWeight: FontWeight.w900,
                         fontFamily: 'Lexend',

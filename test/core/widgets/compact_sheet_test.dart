@@ -158,10 +158,7 @@ void main() {
 
   group('SheetSurface', () {
     testWidgets('mostra il contenuto', (tester) async {
-      await _pump(
-        tester,
-        const SheetSurface(child: Text('corpo del foglio')),
-      );
+      await _pump(tester, const SheetSurface(child: Text('corpo del foglio')));
 
       expect(find.text('corpo del foglio'), findsOneWidget);
     });

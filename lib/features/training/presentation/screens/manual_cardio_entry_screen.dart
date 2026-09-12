@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gym_corpus/core/utils/date_format.dart';
 import 'package:gym_corpus/core/utils/decimal_input.dart';
 import 'package:gym_corpus/core/utils/time_format.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
@@ -11,7 +12,6 @@ import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dar
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
 import 'package:gym_corpus/features/training/presentation/widgets/cardio_activity_style.dart';
-import 'package:intl/intl.dart';
 
 /// Registrazione di una sessione cardio gia' fatta.
 ///
@@ -174,7 +174,7 @@ class _ManualCardioEntryScreenState extends State<ManualCardioEntryScreen> {
                     ),
                     const SizedBox(width: 10),
                     Text(
-                      DateFormat('d MMMM yyyy', 'it_IT').format(_date),
+                      formatFullDate(_date),
                       style: theme.textTheme.bodyMedium,
                     ),
                   ],

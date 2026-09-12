@@ -13,7 +13,10 @@ const _exercise = ExerciseEntity(
 
 Future<void> _pump(WidgetTester tester, Widget child) {
   return tester.pumpWidget(
-    MaterialApp(theme: AppTheme.darkTheme, home: Scaffold(body: child)),
+    MaterialApp(
+      theme: AppTheme.darkTheme,
+      home: Scaffold(body: child),
+    ),
   );
 }
 
@@ -79,11 +82,7 @@ void main() {
       await _pump(
         tester,
         const ExerciseHero(
-          exercise: ExerciseEntity(
-            id: 3,
-            name: lungo,
-            targetMuscle: 'Petto',
-          ),
+          exercise: ExerciseEntity(id: 3, name: lungo, targetMuscle: 'Petto'),
         ),
       );
 

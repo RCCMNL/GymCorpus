@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gym_corpus/core/utils/date_format.dart';
 import 'package:gym_corpus/core/utils/decimal_input.dart';
 import 'package:gym_corpus/core/utils/unit_converter.dart';
 import 'package:gym_corpus/core/widgets/compact_sheet.dart';
@@ -9,7 +10,6 @@ import 'package:gym_corpus/features/analytics/presentation/widgets/progress_shar
 import 'package:gym_corpus/features/training/domain/entities/body_weight.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
-import 'package:intl/intl.dart';
 
 /// Tab "Peso" di ProgressScreen: hero riassuntivo seguito dallo storico
 /// dei check-in di peso raggruppati per mese.
@@ -99,10 +99,7 @@ class WeightHistoryTab extends StatelessWidget {
                                   log.weight,
                                   isImperial: isImperial,
                                 ),
-                                subtitle: DateFormat(
-                                  'dd MMM yyyy, HH:mm',
-                                  'it_IT',
-                                ).format(log.date),
+                                subtitle: formatDateTimeShort(log.date),
                                 icon: Icons.scale_rounded,
                                 onDelete: () => context
                                     .read<TrainingBloc>()

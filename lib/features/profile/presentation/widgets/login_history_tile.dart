@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/utils/date_format.dart';
 import 'package:gym_corpus/features/auth/domain/entities/user_entity.dart';
-import 'package:intl/intl.dart';
 
 /// Una riga della cronologia accessi.
 class LoginHistoryTile extends StatelessWidget {
@@ -18,7 +18,7 @@ class LoginHistoryTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final date = DateFormat('dd MMM yyyy, HH:mm', 'it_IT').format(login.date);
+    final date = formatDateTimeShort(login.date);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 8),

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/utils/date_format.dart';
 import 'package:gym_corpus/features/analytics/domain/progress_formatters.dart';
 import 'package:gym_corpus/features/training/domain/entities/body_measurement.dart';
 import 'package:gym_corpus/features/training/domain/entities/body_weight.dart';
-import 'package:intl/intl.dart';
 
 /// Riepilogo in evidenza in cima a ProgressScreen: ultimo peso registrato
 /// per la tab Peso, stato delle misure per la tab Misure.
@@ -160,10 +160,7 @@ class _ProgressHeroState extends State<ProgressHero> {
                         icon: Icons.history_toggle_off_rounded,
                         label: 'Ultimo log peso',
                         value: latestWeight != null
-                            ? DateFormat(
-                                'dd MMM yyyy',
-                                'it_IT',
-                              ).format(latestWeight.date)
+                            ? formatShortDate(latestWeight.date)
                             : widget.profileWeight != null
                             ? 'Profilo'
                             : 'Nessun dato',

@@ -1,6 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:gym_corpus/core/utils/date_format.dart';
 import 'package:gym_corpus/core/utils/time_format.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/features/analytics/presentation/widgets/cardio_splits_section.dart';
@@ -9,7 +10,6 @@ import 'package:gym_corpus/features/training/domain/entities/cardio_route_point.
 import 'package:gym_corpus/features/training/domain/entities/cardio_session.dart';
 import 'package:gym_corpus/features/training/domain/services/cardio_splits.dart';
 import 'package:gym_corpus/features/training/presentation/widgets/cardio_activity_style.dart';
-import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
 
 /// Dettaglio di una sessione cardio: percorso, metriche e passaggi al
@@ -62,10 +62,7 @@ class CardioSessionDetailScreen extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        DateFormat(
-                          "d MMMM yyyy 'alle' HH:mm",
-                          'it_IT',
-                        ).format(session.date),
+                        formatDateAtTime(session.date),
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: theme.colorScheme.outline,
                         ),

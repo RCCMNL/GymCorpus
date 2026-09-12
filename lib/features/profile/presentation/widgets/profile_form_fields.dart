@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:gym_corpus/core/utils/date_format.dart';
 
 /// Il titolo di una sezione del profilo, con la barretta sfumata a sinistra.
 class ProfileSectionLabel extends StatelessWidget {
@@ -185,9 +185,7 @@ class ProfileDateField extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    value == null
-                        ? 'Seleziona data'
-                        : DateFormat('dd/MM/yyyy').format(value),
+                    value == null ? 'Seleziona data' : formatDateInput(value),
                     style: theme.textTheme.bodyLarge,
                   ),
                 ),

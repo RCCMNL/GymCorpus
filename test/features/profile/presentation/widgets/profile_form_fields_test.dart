@@ -5,7 +5,10 @@ import 'package:gym_corpus/features/profile/presentation/widgets/profile_form_fi
 
 Future<void> _pump(WidgetTester tester, Widget child) {
   return tester.pumpWidget(
-    MaterialApp(theme: AppTheme.darkTheme, home: Scaffold(body: child)),
+    MaterialApp(
+      theme: AppTheme.darkTheme,
+      home: Scaffold(body: child),
+    ),
   );
 }
 
@@ -76,10 +79,7 @@ void main() {
       var aperta = false;
       await _pump(
         tester,
-        ProfileDateField(
-          label: 'DATA DI NASCITA',
-          onTap: () => aperta = true,
-        ),
+        ProfileDateField(label: 'DATA DI NASCITA', onTap: () => aperta = true),
       );
 
       await tester.tap(find.text('Seleziona data'));

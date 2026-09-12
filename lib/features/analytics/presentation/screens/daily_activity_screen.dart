@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/service_locator.dart' as di;
 import 'package:gym_corpus/core/services/health_service.dart';
-import 'package:intl/intl.dart';
+import 'package:gym_corpus/core/utils/date_format.dart';
 
 class DailyActivityScreen extends StatefulWidget {
   const DailyActivityScreen({super.key});
@@ -120,9 +120,7 @@ class _ActivityDayCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isToday =
-        DateFormat('yyyy-MM-dd').format(activity.date) ==
-        DateFormat('yyyy-MM-dd').format(DateTime.now());
+    final isToday = DateUtils.isSameDay(activity.date, DateTime.now());
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -146,10 +144,7 @@ class _ActivityDayCard extends StatelessWidget {
               Text(
                 isToday
                     ? 'Oggi'
-                    : DateFormat(
-                        'EEEE d MMM',
-                        'it_IT',
-                      ).format(activity.date).toUpperCase(),
+                    : formatWeekdayShortDate(activity.date).toUpperCase(),
                 style: theme.textTheme.labelSmall?.copyWith(
                   fontWeight: FontWeight.w800,
                   letterSpacing: 1.2,

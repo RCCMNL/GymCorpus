@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/utils/date_format.dart';
 import 'package:gym_corpus/core/utils/time_format.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_activity.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_route_point.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_session.dart';
 import 'package:gym_corpus/features/training/presentation/widgets/cardio_activity_style.dart';
-import 'package:intl/intl.dart';
 
 /// Riassunto di una sessione cardio nello storico.
 ///
@@ -25,7 +25,7 @@ class DetailedCardioCard extends StatelessWidget {
   final VoidCallback? onTap;
 
   String _formatDate(DateTime date) {
-    return DateFormat('dd MMM yyyy, HH:mm', 'it_IT').format(date);
+    return formatDateTimeShort(date);
   }
 
   @override

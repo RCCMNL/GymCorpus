@@ -5,7 +5,10 @@ import 'package:gym_corpus/core/widgets/gradient_title.dart';
 
 Future<void> _pump(WidgetTester tester, Widget child) {
   return tester.pumpWidget(
-    MaterialApp(theme: AppTheme.darkTheme, home: Scaffold(body: child)),
+    MaterialApp(
+      theme: AppTheme.darkTheme,
+      home: Scaffold(body: child),
+    ),
   );
 }
 

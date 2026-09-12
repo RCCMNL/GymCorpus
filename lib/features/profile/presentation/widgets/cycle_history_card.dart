@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/utils/date_format.dart';
 import 'package:gym_corpus/core/widgets/confirm_dialog.dart';
 import 'package:gym_corpus/features/profile/domain/entities/cycle_log.dart';
 import 'package:gym_corpus/features/profile/domain/services/cycle_forecast.dart';
 import 'package:gym_corpus/features/profile/presentation/widgets/cycle_phase_info.dart';
-import 'package:intl/intl.dart';
 
 /// Storico dei cicli registrati e previsione del prossimo.
 ///
@@ -94,7 +94,7 @@ class CycleHistoryCard extends StatelessWidget {
     final next = summary.nextPeriodStart;
     if (next == null) return 'Non ancora prevedibile';
 
-    return DateFormat('d MMMM yyyy', 'it_IT').format(next);
+    return formatFullDate(next);
   }
 
   Future<void> _confirmDelete(BuildContext context, CycleLogEntity log) async {
@@ -114,19 +114,18 @@ class CycleHistoryCard extends StatelessWidget {
     final end = log.endDate;
 
     if (end == null) {
-      return 'Dal ${DateFormat('d MMMM yyyy', 'it_IT').format(start)}';
+      return 'Dal ${formatFullDate(start)}';
     }
 
     // Dentro lo stesso mese il mese si scrive una volta sola: "2 - 6
     // settembre 2026" invece di ripeterlo su entrambe le date.
     if (start.year == end.year && start.month == end.month) {
       return '${start.day} - '
-          '${DateFormat('d MMMM yyyy', 'it_IT').format(end)}';
+          '${formatFullDate(end)}';
     }
 
-    final format = DateFormat('d MMMM', 'it_IT');
-    return '${format.format(start)} - '
-        '${DateFormat('d MMMM yyyy', 'it_IT').format(end)}';
+    return '${formatDayMonth(start)} - '
+        '${formatFullDate(end)}';
   }
 }
 
