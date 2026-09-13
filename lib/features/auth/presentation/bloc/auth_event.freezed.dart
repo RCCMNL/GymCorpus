@@ -11,553 +11,287 @@ part of 'auth_event.dart';
 
 // dart format off
 T _$identity<T>(T value) => value;
-
 /// @nodoc
 mixin _$AuthEvent {
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is AuthEvent);
-  }
 
-  @override
-  int get hashCode => runtimeType.hashCode;
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthEvent);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+
+
 }
 
 /// @nodoc
-class $AuthEventCopyWith<$Res> {
-  $AuthEventCopyWith(AuthEvent _, $Res Function(AuthEvent) __);
+class $AuthEventCopyWith<$Res>  {
+$AuthEventCopyWith(AuthEvent _, $Res Function(AuthEvent) __);
 }
+
 
 /// Adds pattern-matching-related methods to [AuthEvent].
 extension AuthEventPatterns on AuthEvent {
-  /// A variant of `map` that fallback to returning `orElse`.
-  ///
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case final Subclass value:
-  ///     return ...;
-  ///   case _:
-  ///     return orElse();
-  /// }
-  /// ```
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
 
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(_CheckSessionRequested value)? checkSessionRequested,
-    TResult Function(_LoginRequested value)? loginRequested,
-    TResult Function(_SignUpRequested value)? signUpRequested,
-    TResult Function(_ForgotPasswordRequested value)? forgotPasswordRequested,
-    TResult Function(_GoogleSignInRequested value)? googleSignInRequested,
-    TResult Function(_AppleSignInRequested value)? appleSignInRequested,
-    TResult Function(_LogoutRequested value)? logoutRequested,
-    TResult Function(_UpdateProfileImageRequested value)?
-        updateProfileImageRequested,
-    TResult Function(_UpdateProfileRequested value)? updateProfileRequested,
-    TResult Function(_ChangePasswordRequested value)? changePasswordRequested,
-    required TResult orElse(),
-  }) {
-    final _that = this;
-    switch (_that) {
-      case _CheckSessionRequested() when checkSessionRequested != null:
-        return checkSessionRequested(_that);
-      case _LoginRequested() when loginRequested != null:
-        return loginRequested(_that);
-      case _SignUpRequested() when signUpRequested != null:
-        return signUpRequested(_that);
-      case _ForgotPasswordRequested() when forgotPasswordRequested != null:
-        return forgotPasswordRequested(_that);
-      case _GoogleSignInRequested() when googleSignInRequested != null:
-        return googleSignInRequested(_that);
-      case _AppleSignInRequested() when appleSignInRequested != null:
-        return appleSignInRequested(_that);
-      case _LogoutRequested() when logoutRequested != null:
-        return logoutRequested(_that);
-      case _UpdateProfileImageRequested()
-          when updateProfileImageRequested != null:
-        return updateProfileImageRequested(_that);
-      case _UpdateProfileRequested() when updateProfileRequested != null:
-        return updateProfileRequested(_that);
-      case _ChangePasswordRequested() when changePasswordRequested != null:
-        return changePasswordRequested(_that);
-      case _:
-        return orElse();
-    }
-  }
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _CheckSessionRequested value)?  checkSessionRequested,TResult Function( _LoginRequested value)?  loginRequested,TResult Function( _SignUpRequested value)?  signUpRequested,TResult Function( _ForgotPasswordRequested value)?  forgotPasswordRequested,TResult Function( _GoogleSignInRequested value)?  googleSignInRequested,TResult Function( _AppleSignInRequested value)?  appleSignInRequested,TResult Function( _LogoutRequested value)?  logoutRequested,TResult Function( _UpdateProfileImageRequested value)?  updateProfileImageRequested,TResult Function( _UpdateProfileRequested value)?  updateProfileRequested,TResult Function( _ChangePasswordRequested value)?  changePasswordRequested,required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _CheckSessionRequested() when checkSessionRequested != null:
+return checkSessionRequested(_that);case _LoginRequested() when loginRequested != null:
+return loginRequested(_that);case _SignUpRequested() when signUpRequested != null:
+return signUpRequested(_that);case _ForgotPasswordRequested() when forgotPasswordRequested != null:
+return forgotPasswordRequested(_that);case _GoogleSignInRequested() when googleSignInRequested != null:
+return googleSignInRequested(_that);case _AppleSignInRequested() when appleSignInRequested != null:
+return appleSignInRequested(_that);case _LogoutRequested() when logoutRequested != null:
+return logoutRequested(_that);case _UpdateProfileImageRequested() when updateProfileImageRequested != null:
+return updateProfileImageRequested(_that);case _UpdateProfileRequested() when updateProfileRequested != null:
+return updateProfileRequested(_that);case _ChangePasswordRequested() when changePasswordRequested != null:
+return changePasswordRequested(_that);case _:
+  return orElse();
 
-  /// A `switch`-like method, using callbacks.
-  ///
-  /// Callbacks receives the raw object, upcasted.
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case final Subclass value:
-  ///     return ...;
-  ///   case final Subclass2 value:
-  ///     return ...;
-  /// }
-  /// ```
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
 
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(_CheckSessionRequested value)
-        checkSessionRequested,
-    required TResult Function(_LoginRequested value) loginRequested,
-    required TResult Function(_SignUpRequested value) signUpRequested,
-    required TResult Function(_ForgotPasswordRequested value)
-        forgotPasswordRequested,
-    required TResult Function(_GoogleSignInRequested value)
-        googleSignInRequested,
-    required TResult Function(_AppleSignInRequested value) appleSignInRequested,
-    required TResult Function(_LogoutRequested value) logoutRequested,
-    required TResult Function(_UpdateProfileImageRequested value)
-        updateProfileImageRequested,
-    required TResult Function(_UpdateProfileRequested value)
-        updateProfileRequested,
-    required TResult Function(_ChangePasswordRequested value)
-        changePasswordRequested,
-  }) {
-    final _that = this;
-    switch (_that) {
-      case _CheckSessionRequested():
-        return checkSessionRequested(_that);
-      case _LoginRequested():
-        return loginRequested(_that);
-      case _SignUpRequested():
-        return signUpRequested(_that);
-      case _ForgotPasswordRequested():
-        return forgotPasswordRequested(_that);
-      case _GoogleSignInRequested():
-        return googleSignInRequested(_that);
-      case _AppleSignInRequested():
-        return appleSignInRequested(_that);
-      case _LogoutRequested():
-        return logoutRequested(_that);
-      case _UpdateProfileImageRequested():
-        return updateProfileImageRequested(_that);
-      case _UpdateProfileRequested():
-        return updateProfileRequested(_that);
-      case _ChangePasswordRequested():
-        return changePasswordRequested(_that);
-      case _:
-        throw StateError('Unexpected subclass');
-    }
-  }
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _CheckSessionRequested value)  checkSessionRequested,required TResult Function( _LoginRequested value)  loginRequested,required TResult Function( _SignUpRequested value)  signUpRequested,required TResult Function( _ForgotPasswordRequested value)  forgotPasswordRequested,required TResult Function( _GoogleSignInRequested value)  googleSignInRequested,required TResult Function( _AppleSignInRequested value)  appleSignInRequested,required TResult Function( _LogoutRequested value)  logoutRequested,required TResult Function( _UpdateProfileImageRequested value)  updateProfileImageRequested,required TResult Function( _UpdateProfileRequested value)  updateProfileRequested,required TResult Function( _ChangePasswordRequested value)  changePasswordRequested,}){
+final _that = this;
+switch (_that) {
+case _CheckSessionRequested():
+return checkSessionRequested(_that);case _LoginRequested():
+return loginRequested(_that);case _SignUpRequested():
+return signUpRequested(_that);case _ForgotPasswordRequested():
+return forgotPasswordRequested(_that);case _GoogleSignInRequested():
+return googleSignInRequested(_that);case _AppleSignInRequested():
+return appleSignInRequested(_that);case _LogoutRequested():
+return logoutRequested(_that);case _UpdateProfileImageRequested():
+return updateProfileImageRequested(_that);case _UpdateProfileRequested():
+return updateProfileRequested(_that);case _ChangePasswordRequested():
+return changePasswordRequested(_that);case _:
+  throw StateError('Unexpected subclass');
 
-  /// A variant of `map` that fallback to returning `null`.
-  ///
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case final Subclass value:
-  ///     return ...;
-  ///   case _:
-  ///     return null;
-  /// }
-  /// ```
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
 
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(_CheckSessionRequested value)? checkSessionRequested,
-    TResult? Function(_LoginRequested value)? loginRequested,
-    TResult? Function(_SignUpRequested value)? signUpRequested,
-    TResult? Function(_ForgotPasswordRequested value)? forgotPasswordRequested,
-    TResult? Function(_GoogleSignInRequested value)? googleSignInRequested,
-    TResult? Function(_AppleSignInRequested value)? appleSignInRequested,
-    TResult? Function(_LogoutRequested value)? logoutRequested,
-    TResult? Function(_UpdateProfileImageRequested value)?
-        updateProfileImageRequested,
-    TResult? Function(_UpdateProfileRequested value)? updateProfileRequested,
-    TResult? Function(_ChangePasswordRequested value)? changePasswordRequested,
-  }) {
-    final _that = this;
-    switch (_that) {
-      case _CheckSessionRequested() when checkSessionRequested != null:
-        return checkSessionRequested(_that);
-      case _LoginRequested() when loginRequested != null:
-        return loginRequested(_that);
-      case _SignUpRequested() when signUpRequested != null:
-        return signUpRequested(_that);
-      case _ForgotPasswordRequested() when forgotPasswordRequested != null:
-        return forgotPasswordRequested(_that);
-      case _GoogleSignInRequested() when googleSignInRequested != null:
-        return googleSignInRequested(_that);
-      case _AppleSignInRequested() when appleSignInRequested != null:
-        return appleSignInRequested(_that);
-      case _LogoutRequested() when logoutRequested != null:
-        return logoutRequested(_that);
-      case _UpdateProfileImageRequested()
-          when updateProfileImageRequested != null:
-        return updateProfileImageRequested(_that);
-      case _UpdateProfileRequested() when updateProfileRequested != null:
-        return updateProfileRequested(_that);
-      case _ChangePasswordRequested() when changePasswordRequested != null:
-        return changePasswordRequested(_that);
-      case _:
-        return null;
-    }
-  }
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _CheckSessionRequested value)?  checkSessionRequested,TResult? Function( _LoginRequested value)?  loginRequested,TResult? Function( _SignUpRequested value)?  signUpRequested,TResult? Function( _ForgotPasswordRequested value)?  forgotPasswordRequested,TResult? Function( _GoogleSignInRequested value)?  googleSignInRequested,TResult? Function( _AppleSignInRequested value)?  appleSignInRequested,TResult? Function( _LogoutRequested value)?  logoutRequested,TResult? Function( _UpdateProfileImageRequested value)?  updateProfileImageRequested,TResult? Function( _UpdateProfileRequested value)?  updateProfileRequested,TResult? Function( _ChangePasswordRequested value)?  changePasswordRequested,}){
+final _that = this;
+switch (_that) {
+case _CheckSessionRequested() when checkSessionRequested != null:
+return checkSessionRequested(_that);case _LoginRequested() when loginRequested != null:
+return loginRequested(_that);case _SignUpRequested() when signUpRequested != null:
+return signUpRequested(_that);case _ForgotPasswordRequested() when forgotPasswordRequested != null:
+return forgotPasswordRequested(_that);case _GoogleSignInRequested() when googleSignInRequested != null:
+return googleSignInRequested(_that);case _AppleSignInRequested() when appleSignInRequested != null:
+return appleSignInRequested(_that);case _LogoutRequested() when logoutRequested != null:
+return logoutRequested(_that);case _UpdateProfileImageRequested() when updateProfileImageRequested != null:
+return updateProfileImageRequested(_that);case _UpdateProfileRequested() when updateProfileRequested != null:
+return updateProfileRequested(_that);case _ChangePasswordRequested() when changePasswordRequested != null:
+return changePasswordRequested(_that);case _:
+  return null;
 
-  /// A variant of `when` that fallback to an `orElse` callback.
-  ///
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case Subclass(:final field):
-  ///     return ...;
-  ///   case _:
-  ///     return orElse();
-  /// }
-  /// ```
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
 
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? checkSessionRequested,
-    TResult Function(String email, String password)? loginRequested,
-    TResult Function(
-            String email,
-            String password,
-            String firstName,
-            String lastName,
-            String username,
-            DateTime birthDate,
-            String gender,
-            bool acceptedTerms,
-            bool acceptedPrivacy,
-            bool marketingConsent,
-            bool profilingConsent)?
-        signUpRequested,
-    TResult Function(String email)? forgotPasswordRequested,
-    TResult Function(bool acceptedTerms, bool acceptedPrivacy,
-            bool marketingConsent, bool profilingConsent)?
-        googleSignInRequested,
-    TResult Function(bool acceptedTerms, bool acceptedPrivacy,
-            bool marketingConsent, bool profilingConsent)?
-        appleSignInRequested,
-    TResult Function()? logoutRequested,
-    TResult Function(String filePath)? updateProfileImageRequested,
-    TResult Function(
-            String? firstName,
-            String? lastName,
-            String? username,
-            String? gender,
-            double? weight,
-            double? height,
-            DateTime? birthDate,
-            String? trainingObjective)?
-        updateProfileRequested,
-    TResult Function(String currentPassword, String newPassword)?
-        changePasswordRequested,
-    required TResult orElse(),
-  }) {
-    final _that = this;
-    switch (_that) {
-      case _CheckSessionRequested() when checkSessionRequested != null:
-        return checkSessionRequested();
-      case _LoginRequested() when loginRequested != null:
-        return loginRequested(_that.email, _that.password);
-      case _SignUpRequested() when signUpRequested != null:
-        return signUpRequested(
-            _that.email,
-            _that.password,
-            _that.firstName,
-            _that.lastName,
-            _that.username,
-            _that.birthDate,
-            _that.gender,
-            _that.acceptedTerms,
-            _that.acceptedPrivacy,
-            _that.marketingConsent,
-            _that.profilingConsent);
-      case _ForgotPasswordRequested() when forgotPasswordRequested != null:
-        return forgotPasswordRequested(_that.email);
-      case _GoogleSignInRequested() when googleSignInRequested != null:
-        return googleSignInRequested(_that.acceptedTerms, _that.acceptedPrivacy,
-            _that.marketingConsent, _that.profilingConsent);
-      case _AppleSignInRequested() when appleSignInRequested != null:
-        return appleSignInRequested(_that.acceptedTerms, _that.acceptedPrivacy,
-            _that.marketingConsent, _that.profilingConsent);
-      case _LogoutRequested() when logoutRequested != null:
-        return logoutRequested();
-      case _UpdateProfileImageRequested()
-          when updateProfileImageRequested != null:
-        return updateProfileImageRequested(_that.filePath);
-      case _UpdateProfileRequested() when updateProfileRequested != null:
-        return updateProfileRequested(
-            _that.firstName,
-            _that.lastName,
-            _that.username,
-            _that.gender,
-            _that.weight,
-            _that.height,
-            _that.birthDate,
-            _that.trainingObjective);
-      case _ChangePasswordRequested() when changePasswordRequested != null:
-        return changePasswordRequested(
-            _that.currentPassword, _that.newPassword);
-      case _:
-        return orElse();
-    }
-  }
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  checkSessionRequested,TResult Function( String email,  String password)?  loginRequested,TResult Function( String email,  String password,  String firstName,  String lastName,  String username,  DateTime birthDate,  String gender,  bool acceptedTerms,  bool acceptedPrivacy,  bool marketingConsent,  bool profilingConsent)?  signUpRequested,TResult Function( String email)?  forgotPasswordRequested,TResult Function( bool acceptedTerms,  bool acceptedPrivacy,  bool marketingConsent,  bool profilingConsent)?  googleSignInRequested,TResult Function( bool acceptedTerms,  bool acceptedPrivacy,  bool marketingConsent,  bool profilingConsent)?  appleSignInRequested,TResult Function()?  logoutRequested,TResult Function( String filePath)?  updateProfileImageRequested,TResult Function( String? firstName,  String? lastName,  String? username,  String? gender,  double? weight,  double? height,  DateTime? birthDate,  String? trainingObjective)?  updateProfileRequested,TResult Function( String currentPassword,  String newPassword)?  changePasswordRequested,required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _CheckSessionRequested() when checkSessionRequested != null:
+return checkSessionRequested();case _LoginRequested() when loginRequested != null:
+return loginRequested(_that.email,_that.password);case _SignUpRequested() when signUpRequested != null:
+return signUpRequested(_that.email,_that.password,_that.firstName,_that.lastName,_that.username,_that.birthDate,_that.gender,_that.acceptedTerms,_that.acceptedPrivacy,_that.marketingConsent,_that.profilingConsent);case _ForgotPasswordRequested() when forgotPasswordRequested != null:
+return forgotPasswordRequested(_that.email);case _GoogleSignInRequested() when googleSignInRequested != null:
+return googleSignInRequested(_that.acceptedTerms,_that.acceptedPrivacy,_that.marketingConsent,_that.profilingConsent);case _AppleSignInRequested() when appleSignInRequested != null:
+return appleSignInRequested(_that.acceptedTerms,_that.acceptedPrivacy,_that.marketingConsent,_that.profilingConsent);case _LogoutRequested() when logoutRequested != null:
+return logoutRequested();case _UpdateProfileImageRequested() when updateProfileImageRequested != null:
+return updateProfileImageRequested(_that.filePath);case _UpdateProfileRequested() when updateProfileRequested != null:
+return updateProfileRequested(_that.firstName,_that.lastName,_that.username,_that.gender,_that.weight,_that.height,_that.birthDate,_that.trainingObjective);case _ChangePasswordRequested() when changePasswordRequested != null:
+return changePasswordRequested(_that.currentPassword,_that.newPassword);case _:
+  return orElse();
 
-  /// A `switch`-like method, using callbacks.
-  ///
-  /// As opposed to `map`, this offers destructuring.
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case Subclass(:final field):
-  ///     return ...;
-  ///   case Subclass2(:final field2):
-  ///     return ...;
-  /// }
-  /// ```
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
 
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() checkSessionRequested,
-    required TResult Function(String email, String password) loginRequested,
-    required TResult Function(
-            String email,
-            String password,
-            String firstName,
-            String lastName,
-            String username,
-            DateTime birthDate,
-            String gender,
-            bool acceptedTerms,
-            bool acceptedPrivacy,
-            bool marketingConsent,
-            bool profilingConsent)
-        signUpRequested,
-    required TResult Function(String email) forgotPasswordRequested,
-    required TResult Function(bool acceptedTerms, bool acceptedPrivacy,
-            bool marketingConsent, bool profilingConsent)
-        googleSignInRequested,
-    required TResult Function(bool acceptedTerms, bool acceptedPrivacy,
-            bool marketingConsent, bool profilingConsent)
-        appleSignInRequested,
-    required TResult Function() logoutRequested,
-    required TResult Function(String filePath) updateProfileImageRequested,
-    required TResult Function(
-            String? firstName,
-            String? lastName,
-            String? username,
-            String? gender,
-            double? weight,
-            double? height,
-            DateTime? birthDate,
-            String? trainingObjective)
-        updateProfileRequested,
-    required TResult Function(String currentPassword, String newPassword)
-        changePasswordRequested,
-  }) {
-    final _that = this;
-    switch (_that) {
-      case _CheckSessionRequested():
-        return checkSessionRequested();
-      case _LoginRequested():
-        return loginRequested(_that.email, _that.password);
-      case _SignUpRequested():
-        return signUpRequested(
-            _that.email,
-            _that.password,
-            _that.firstName,
-            _that.lastName,
-            _that.username,
-            _that.birthDate,
-            _that.gender,
-            _that.acceptedTerms,
-            _that.acceptedPrivacy,
-            _that.marketingConsent,
-            _that.profilingConsent);
-      case _ForgotPasswordRequested():
-        return forgotPasswordRequested(_that.email);
-      case _GoogleSignInRequested():
-        return googleSignInRequested(_that.acceptedTerms, _that.acceptedPrivacy,
-            _that.marketingConsent, _that.profilingConsent);
-      case _AppleSignInRequested():
-        return appleSignInRequested(_that.acceptedTerms, _that.acceptedPrivacy,
-            _that.marketingConsent, _that.profilingConsent);
-      case _LogoutRequested():
-        return logoutRequested();
-      case _UpdateProfileImageRequested():
-        return updateProfileImageRequested(_that.filePath);
-      case _UpdateProfileRequested():
-        return updateProfileRequested(
-            _that.firstName,
-            _that.lastName,
-            _that.username,
-            _that.gender,
-            _that.weight,
-            _that.height,
-            _that.birthDate,
-            _that.trainingObjective);
-      case _ChangePasswordRequested():
-        return changePasswordRequested(
-            _that.currentPassword, _that.newPassword);
-      case _:
-        throw StateError('Unexpected subclass');
-    }
-  }
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  checkSessionRequested,required TResult Function( String email,  String password)  loginRequested,required TResult Function( String email,  String password,  String firstName,  String lastName,  String username,  DateTime birthDate,  String gender,  bool acceptedTerms,  bool acceptedPrivacy,  bool marketingConsent,  bool profilingConsent)  signUpRequested,required TResult Function( String email)  forgotPasswordRequested,required TResult Function( bool acceptedTerms,  bool acceptedPrivacy,  bool marketingConsent,  bool profilingConsent)  googleSignInRequested,required TResult Function( bool acceptedTerms,  bool acceptedPrivacy,  bool marketingConsent,  bool profilingConsent)  appleSignInRequested,required TResult Function()  logoutRequested,required TResult Function( String filePath)  updateProfileImageRequested,required TResult Function( String? firstName,  String? lastName,  String? username,  String? gender,  double? weight,  double? height,  DateTime? birthDate,  String? trainingObjective)  updateProfileRequested,required TResult Function( String currentPassword,  String newPassword)  changePasswordRequested,}) {final _that = this;
+switch (_that) {
+case _CheckSessionRequested():
+return checkSessionRequested();case _LoginRequested():
+return loginRequested(_that.email,_that.password);case _SignUpRequested():
+return signUpRequested(_that.email,_that.password,_that.firstName,_that.lastName,_that.username,_that.birthDate,_that.gender,_that.acceptedTerms,_that.acceptedPrivacy,_that.marketingConsent,_that.profilingConsent);case _ForgotPasswordRequested():
+return forgotPasswordRequested(_that.email);case _GoogleSignInRequested():
+return googleSignInRequested(_that.acceptedTerms,_that.acceptedPrivacy,_that.marketingConsent,_that.profilingConsent);case _AppleSignInRequested():
+return appleSignInRequested(_that.acceptedTerms,_that.acceptedPrivacy,_that.marketingConsent,_that.profilingConsent);case _LogoutRequested():
+return logoutRequested();case _UpdateProfileImageRequested():
+return updateProfileImageRequested(_that.filePath);case _UpdateProfileRequested():
+return updateProfileRequested(_that.firstName,_that.lastName,_that.username,_that.gender,_that.weight,_that.height,_that.birthDate,_that.trainingObjective);case _ChangePasswordRequested():
+return changePasswordRequested(_that.currentPassword,_that.newPassword);case _:
+  throw StateError('Unexpected subclass');
 
-  /// A variant of `when` that fallback to returning `null`
-  ///
-  /// It is equivalent to doing:
-  /// ```dart
-  /// switch (sealedClass) {
-  ///   case Subclass(:final field):
-  ///     return ...;
-  ///   case _:
-  ///     return null;
-  /// }
-  /// ```
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
 
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? checkSessionRequested,
-    TResult? Function(String email, String password)? loginRequested,
-    TResult? Function(
-            String email,
-            String password,
-            String firstName,
-            String lastName,
-            String username,
-            DateTime birthDate,
-            String gender,
-            bool acceptedTerms,
-            bool acceptedPrivacy,
-            bool marketingConsent,
-            bool profilingConsent)?
-        signUpRequested,
-    TResult? Function(String email)? forgotPasswordRequested,
-    TResult? Function(bool acceptedTerms, bool acceptedPrivacy,
-            bool marketingConsent, bool profilingConsent)?
-        googleSignInRequested,
-    TResult? Function(bool acceptedTerms, bool acceptedPrivacy,
-            bool marketingConsent, bool profilingConsent)?
-        appleSignInRequested,
-    TResult? Function()? logoutRequested,
-    TResult? Function(String filePath)? updateProfileImageRequested,
-    TResult? Function(
-            String? firstName,
-            String? lastName,
-            String? username,
-            String? gender,
-            double? weight,
-            double? height,
-            DateTime? birthDate,
-            String? trainingObjective)?
-        updateProfileRequested,
-    TResult? Function(String currentPassword, String newPassword)?
-        changePasswordRequested,
-  }) {
-    final _that = this;
-    switch (_that) {
-      case _CheckSessionRequested() when checkSessionRequested != null:
-        return checkSessionRequested();
-      case _LoginRequested() when loginRequested != null:
-        return loginRequested(_that.email, _that.password);
-      case _SignUpRequested() when signUpRequested != null:
-        return signUpRequested(
-            _that.email,
-            _that.password,
-            _that.firstName,
-            _that.lastName,
-            _that.username,
-            _that.birthDate,
-            _that.gender,
-            _that.acceptedTerms,
-            _that.acceptedPrivacy,
-            _that.marketingConsent,
-            _that.profilingConsent);
-      case _ForgotPasswordRequested() when forgotPasswordRequested != null:
-        return forgotPasswordRequested(_that.email);
-      case _GoogleSignInRequested() when googleSignInRequested != null:
-        return googleSignInRequested(_that.acceptedTerms, _that.acceptedPrivacy,
-            _that.marketingConsent, _that.profilingConsent);
-      case _AppleSignInRequested() when appleSignInRequested != null:
-        return appleSignInRequested(_that.acceptedTerms, _that.acceptedPrivacy,
-            _that.marketingConsent, _that.profilingConsent);
-      case _LogoutRequested() when logoutRequested != null:
-        return logoutRequested();
-      case _UpdateProfileImageRequested()
-          when updateProfileImageRequested != null:
-        return updateProfileImageRequested(_that.filePath);
-      case _UpdateProfileRequested() when updateProfileRequested != null:
-        return updateProfileRequested(
-            _that.firstName,
-            _that.lastName,
-            _that.username,
-            _that.gender,
-            _that.weight,
-            _that.height,
-            _that.birthDate,
-            _that.trainingObjective);
-      case _ChangePasswordRequested() when changePasswordRequested != null:
-        return changePasswordRequested(
-            _that.currentPassword, _that.newPassword);
-      case _:
-        return null;
-    }
-  }
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  checkSessionRequested,TResult? Function( String email,  String password)?  loginRequested,TResult? Function( String email,  String password,  String firstName,  String lastName,  String username,  DateTime birthDate,  String gender,  bool acceptedTerms,  bool acceptedPrivacy,  bool marketingConsent,  bool profilingConsent)?  signUpRequested,TResult? Function( String email)?  forgotPasswordRequested,TResult? Function( bool acceptedTerms,  bool acceptedPrivacy,  bool marketingConsent,  bool profilingConsent)?  googleSignInRequested,TResult? Function( bool acceptedTerms,  bool acceptedPrivacy,  bool marketingConsent,  bool profilingConsent)?  appleSignInRequested,TResult? Function()?  logoutRequested,TResult? Function( String filePath)?  updateProfileImageRequested,TResult? Function( String? firstName,  String? lastName,  String? username,  String? gender,  double? weight,  double? height,  DateTime? birthDate,  String? trainingObjective)?  updateProfileRequested,TResult? Function( String currentPassword,  String newPassword)?  changePasswordRequested,}) {final _that = this;
+switch (_that) {
+case _CheckSessionRequested() when checkSessionRequested != null:
+return checkSessionRequested();case _LoginRequested() when loginRequested != null:
+return loginRequested(_that.email,_that.password);case _SignUpRequested() when signUpRequested != null:
+return signUpRequested(_that.email,_that.password,_that.firstName,_that.lastName,_that.username,_that.birthDate,_that.gender,_that.acceptedTerms,_that.acceptedPrivacy,_that.marketingConsent,_that.profilingConsent);case _ForgotPasswordRequested() when forgotPasswordRequested != null:
+return forgotPasswordRequested(_that.email);case _GoogleSignInRequested() when googleSignInRequested != null:
+return googleSignInRequested(_that.acceptedTerms,_that.acceptedPrivacy,_that.marketingConsent,_that.profilingConsent);case _AppleSignInRequested() when appleSignInRequested != null:
+return appleSignInRequested(_that.acceptedTerms,_that.acceptedPrivacy,_that.marketingConsent,_that.profilingConsent);case _LogoutRequested() when logoutRequested != null:
+return logoutRequested();case _UpdateProfileImageRequested() when updateProfileImageRequested != null:
+return updateProfileImageRequested(_that.filePath);case _UpdateProfileRequested() when updateProfileRequested != null:
+return updateProfileRequested(_that.firstName,_that.lastName,_that.username,_that.gender,_that.weight,_that.height,_that.birthDate,_that.trainingObjective);case _ChangePasswordRequested() when changePasswordRequested != null:
+return changePasswordRequested(_that.currentPassword,_that.newPassword);case _:
+  return null;
+
+}
+}
+
 }
 
 /// @nodoc
+
 
 class _CheckSessionRequested implements AuthEvent {
   const _CheckSessionRequested();
+  
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is _CheckSessionRequested);
-  }
 
-  @override
-  int get hashCode => runtimeType.hashCode;
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _CheckSessionRequested);
 }
 
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+
+
+}
+
+
+
+
 /// @nodoc
+
 
 class _LoginRequested implements AuthEvent {
   const _LoginRequested({required this.email, required this.password});
+  
 
-  final String email;
-  final String password;
+ final  String email;
+ final  String password;
 
-  /// Create a copy of AuthEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @pragma('vm:prefer-inline')
-  _$LoginRequestedCopyWith<_LoginRequested> get copyWith =>
-      __$LoginRequestedCopyWithImpl<_LoginRequested>(this, _$identity);
+/// Create a copy of AuthEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$LoginRequestedCopyWith<_LoginRequested> get copyWith => __$LoginRequestedCopyWithImpl<_LoginRequested>(this, _$identity);
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _LoginRequested &&
-            (identical(other.email, email) || other.email == email) &&
-            (identical(other.password, password) ||
-                other.password == password));
-  }
 
-  @override
-  int get hashCode => Object.hash(runtimeType, email, password);
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LoginRequested&&(identical(other.email, email) || other.email == email)&&(identical(other.password, password) || other.password == password));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,email,password);
+
+
+
 }
 
 /// @nodoc
-abstract mixin class _$LoginRequestedCopyWith<$Res>
-    implements $AuthEventCopyWith<$Res> {
-  factory _$LoginRequestedCopyWith(
-          _LoginRequested value, $Res Function(_LoginRequested) _then) =
-      __$LoginRequestedCopyWithImpl;
-  @useResult
-  $Res call({String email, String password});
-}
+abstract mixin class _$LoginRequestedCopyWith<$Res> implements $AuthEventCopyWith<$Res> {
+  factory _$LoginRequestedCopyWith(_LoginRequested value, $Res Function(_LoginRequested) _then) = __$LoginRequestedCopyWithImpl;
+@useResult
+$Res call({
+ String email, String password
+});
 
+
+
+
+}
 /// @nodoc
 class __$LoginRequestedCopyWithImpl<$Res>
     implements _$LoginRequestedCopyWith<$Res> {
@@ -566,125 +300,71 @@ class __$LoginRequestedCopyWithImpl<$Res>
   final _LoginRequested _self;
   final $Res Function(_LoginRequested) _then;
 
-  /// Create a copy of AuthEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  $Res call({
-    Object? email = null,
-    Object? password = null,
-  }) {
-    return _then(_LoginRequested(
-      email: null == email
-          ? _self.email
-          : email // ignore: cast_nullable_to_non_nullable
-              as String,
-      password: null == password
-          ? _self.password
-          : password // ignore: cast_nullable_to_non_nullable
-              as String,
-    ));
-  }
+/// Create a copy of AuthEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? email = null,Object? password = null,}) {
+  return _then(_LoginRequested(
+email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
+as String,password: null == password ? _self.password : password // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
 }
 
 /// @nodoc
+
 
 class _SignUpRequested implements AuthEvent {
-  const _SignUpRequested(
-      {required this.email,
-      required this.password,
-      required this.firstName,
-      required this.lastName,
-      required this.username,
-      required this.birthDate,
-      required this.gender,
-      required this.acceptedTerms,
-      required this.acceptedPrivacy,
-      required this.marketingConsent,
-      required this.profilingConsent});
+  const _SignUpRequested({required this.email, required this.password, required this.firstName, required this.lastName, required this.username, required this.birthDate, required this.gender, required this.acceptedTerms, required this.acceptedPrivacy, required this.marketingConsent, required this.profilingConsent});
+  
 
-  final String email;
-  final String password;
-  final String firstName;
-  final String lastName;
-  final String username;
-  final DateTime birthDate;
-  final String gender;
-  final bool acceptedTerms;
-  final bool acceptedPrivacy;
-  final bool marketingConsent;
-  final bool profilingConsent;
+ final  String email;
+ final  String password;
+ final  String firstName;
+ final  String lastName;
+ final  String username;
+ final  DateTime birthDate;
+ final  String gender;
+ final  bool acceptedTerms;
+ final  bool acceptedPrivacy;
+ final  bool marketingConsent;
+ final  bool profilingConsent;
 
-  /// Create a copy of AuthEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @pragma('vm:prefer-inline')
-  _$SignUpRequestedCopyWith<_SignUpRequested> get copyWith =>
-      __$SignUpRequestedCopyWithImpl<_SignUpRequested>(this, _$identity);
+/// Create a copy of AuthEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$SignUpRequestedCopyWith<_SignUpRequested> get copyWith => __$SignUpRequestedCopyWithImpl<_SignUpRequested>(this, _$identity);
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _SignUpRequested &&
-            (identical(other.email, email) || other.email == email) &&
-            (identical(other.password, password) ||
-                other.password == password) &&
-            (identical(other.firstName, firstName) ||
-                other.firstName == firstName) &&
-            (identical(other.lastName, lastName) ||
-                other.lastName == lastName) &&
-            (identical(other.username, username) ||
-                other.username == username) &&
-            (identical(other.birthDate, birthDate) ||
-                other.birthDate == birthDate) &&
-            (identical(other.gender, gender) || other.gender == gender) &&
-            (identical(other.acceptedTerms, acceptedTerms) ||
-                other.acceptedTerms == acceptedTerms) &&
-            (identical(other.acceptedPrivacy, acceptedPrivacy) ||
-                other.acceptedPrivacy == acceptedPrivacy) &&
-            (identical(other.marketingConsent, marketingConsent) ||
-                other.marketingConsent == marketingConsent) &&
-            (identical(other.profilingConsent, profilingConsent) ||
-                other.profilingConsent == profilingConsent));
-  }
 
-  @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      email,
-      password,
-      firstName,
-      lastName,
-      username,
-      birthDate,
-      gender,
-      acceptedTerms,
-      acceptedPrivacy,
-      marketingConsent,
-      profilingConsent);
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SignUpRequested&&(identical(other.email, email) || other.email == email)&&(identical(other.password, password) || other.password == password)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&(identical(other.username, username) || other.username == username)&&(identical(other.birthDate, birthDate) || other.birthDate == birthDate)&&(identical(other.gender, gender) || other.gender == gender)&&(identical(other.acceptedTerms, acceptedTerms) || other.acceptedTerms == acceptedTerms)&&(identical(other.acceptedPrivacy, acceptedPrivacy) || other.acceptedPrivacy == acceptedPrivacy)&&(identical(other.marketingConsent, marketingConsent) || other.marketingConsent == marketingConsent)&&(identical(other.profilingConsent, profilingConsent) || other.profilingConsent == profilingConsent));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,email,password,firstName,lastName,username,birthDate,gender,acceptedTerms,acceptedPrivacy,marketingConsent,profilingConsent);
+
+
+
 }
 
 /// @nodoc
-abstract mixin class _$SignUpRequestedCopyWith<$Res>
-    implements $AuthEventCopyWith<$Res> {
-  factory _$SignUpRequestedCopyWith(
-          _SignUpRequested value, $Res Function(_SignUpRequested) _then) =
-      __$SignUpRequestedCopyWithImpl;
-  @useResult
-  $Res call(
-      {String email,
-      String password,
-      String firstName,
-      String lastName,
-      String username,
-      DateTime birthDate,
-      String gender,
-      bool acceptedTerms,
-      bool acceptedPrivacy,
-      bool marketingConsent,
-      bool profilingConsent});
-}
+abstract mixin class _$SignUpRequestedCopyWith<$Res> implements $AuthEventCopyWith<$Res> {
+  factory _$SignUpRequestedCopyWith(_SignUpRequested value, $Res Function(_SignUpRequested) _then) = __$SignUpRequestedCopyWithImpl;
+@useResult
+$Res call({
+ String email, String password, String firstName, String lastName, String username, DateTime birthDate, String gender, bool acceptedTerms, bool acceptedPrivacy, bool marketingConsent, bool profilingConsent
+});
 
+
+
+
+}
 /// @nodoc
 class __$SignUpRequestedCopyWithImpl<$Res>
     implements _$SignUpRequestedCopyWith<$Res> {
@@ -693,108 +373,70 @@ class __$SignUpRequestedCopyWithImpl<$Res>
   final _SignUpRequested _self;
   final $Res Function(_SignUpRequested) _then;
 
-  /// Create a copy of AuthEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  $Res call({
-    Object? email = null,
-    Object? password = null,
-    Object? firstName = null,
-    Object? lastName = null,
-    Object? username = null,
-    Object? birthDate = null,
-    Object? gender = null,
-    Object? acceptedTerms = null,
-    Object? acceptedPrivacy = null,
-    Object? marketingConsent = null,
-    Object? profilingConsent = null,
-  }) {
-    return _then(_SignUpRequested(
-      email: null == email
-          ? _self.email
-          : email // ignore: cast_nullable_to_non_nullable
-              as String,
-      password: null == password
-          ? _self.password
-          : password // ignore: cast_nullable_to_non_nullable
-              as String,
-      firstName: null == firstName
-          ? _self.firstName
-          : firstName // ignore: cast_nullable_to_non_nullable
-              as String,
-      lastName: null == lastName
-          ? _self.lastName
-          : lastName // ignore: cast_nullable_to_non_nullable
-              as String,
-      username: null == username
-          ? _self.username
-          : username // ignore: cast_nullable_to_non_nullable
-              as String,
-      birthDate: null == birthDate
-          ? _self.birthDate
-          : birthDate // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      gender: null == gender
-          ? _self.gender
-          : gender // ignore: cast_nullable_to_non_nullable
-              as String,
-      acceptedTerms: null == acceptedTerms
-          ? _self.acceptedTerms
-          : acceptedTerms // ignore: cast_nullable_to_non_nullable
-              as bool,
-      acceptedPrivacy: null == acceptedPrivacy
-          ? _self.acceptedPrivacy
-          : acceptedPrivacy // ignore: cast_nullable_to_non_nullable
-              as bool,
-      marketingConsent: null == marketingConsent
-          ? _self.marketingConsent
-          : marketingConsent // ignore: cast_nullable_to_non_nullable
-              as bool,
-      profilingConsent: null == profilingConsent
-          ? _self.profilingConsent
-          : profilingConsent // ignore: cast_nullable_to_non_nullable
-              as bool,
-    ));
-  }
+/// Create a copy of AuthEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? email = null,Object? password = null,Object? firstName = null,Object? lastName = null,Object? username = null,Object? birthDate = null,Object? gender = null,Object? acceptedTerms = null,Object? acceptedPrivacy = null,Object? marketingConsent = null,Object? profilingConsent = null,}) {
+  return _then(_SignUpRequested(
+email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
+as String,password: null == password ? _self.password : password // ignore: cast_nullable_to_non_nullable
+as String,firstName: null == firstName ? _self.firstName : firstName // ignore: cast_nullable_to_non_nullable
+as String,lastName: null == lastName ? _self.lastName : lastName // ignore: cast_nullable_to_non_nullable
+as String,username: null == username ? _self.username : username // ignore: cast_nullable_to_non_nullable
+as String,birthDate: null == birthDate ? _self.birthDate : birthDate // ignore: cast_nullable_to_non_nullable
+as DateTime,gender: null == gender ? _self.gender : gender // ignore: cast_nullable_to_non_nullable
+as String,acceptedTerms: null == acceptedTerms ? _self.acceptedTerms : acceptedTerms // ignore: cast_nullable_to_non_nullable
+as bool,acceptedPrivacy: null == acceptedPrivacy ? _self.acceptedPrivacy : acceptedPrivacy // ignore: cast_nullable_to_non_nullable
+as bool,marketingConsent: null == marketingConsent ? _self.marketingConsent : marketingConsent // ignore: cast_nullable_to_non_nullable
+as bool,profilingConsent: null == profilingConsent ? _self.profilingConsent : profilingConsent // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+
 }
 
 /// @nodoc
+
 
 class _ForgotPasswordRequested implements AuthEvent {
   const _ForgotPasswordRequested({required this.email});
+  
 
-  final String email;
+ final  String email;
 
-  /// Create a copy of AuthEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @pragma('vm:prefer-inline')
-  _$ForgotPasswordRequestedCopyWith<_ForgotPasswordRequested> get copyWith =>
-      __$ForgotPasswordRequestedCopyWithImpl<_ForgotPasswordRequested>(
-          this, _$identity);
+/// Create a copy of AuthEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$ForgotPasswordRequestedCopyWith<_ForgotPasswordRequested> get copyWith => __$ForgotPasswordRequestedCopyWithImpl<_ForgotPasswordRequested>(this, _$identity);
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _ForgotPasswordRequested &&
-            (identical(other.email, email) || other.email == email));
-  }
 
-  @override
-  int get hashCode => Object.hash(runtimeType, email);
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ForgotPasswordRequested&&(identical(other.email, email) || other.email == email));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,email);
+
+
+
 }
 
 /// @nodoc
-abstract mixin class _$ForgotPasswordRequestedCopyWith<$Res>
-    implements $AuthEventCopyWith<$Res> {
-  factory _$ForgotPasswordRequestedCopyWith(_ForgotPasswordRequested value,
-          $Res Function(_ForgotPasswordRequested) _then) =
-      __$ForgotPasswordRequestedCopyWithImpl;
-  @useResult
-  $Res call({String email});
-}
+abstract mixin class _$ForgotPasswordRequestedCopyWith<$Res> implements $AuthEventCopyWith<$Res> {
+  factory _$ForgotPasswordRequestedCopyWith(_ForgotPasswordRequested value, $Res Function(_ForgotPasswordRequested) _then) = __$ForgotPasswordRequestedCopyWithImpl;
+@useResult
+$Res call({
+ String email
+});
 
+
+
+
+}
 /// @nodoc
 class __$ForgotPasswordRequestedCopyWithImpl<$Res>
     implements _$ForgotPasswordRequestedCopyWith<$Res> {
@@ -803,81 +445,63 @@ class __$ForgotPasswordRequestedCopyWithImpl<$Res>
   final _ForgotPasswordRequested _self;
   final $Res Function(_ForgotPasswordRequested) _then;
 
-  /// Create a copy of AuthEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  $Res call({
-    Object? email = null,
-  }) {
-    return _then(_ForgotPasswordRequested(
-      email: null == email
-          ? _self.email
-          : email // ignore: cast_nullable_to_non_nullable
-              as String,
-    ));
-  }
+/// Create a copy of AuthEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? email = null,}) {
+  return _then(_ForgotPasswordRequested(
+email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
 }
 
 /// @nodoc
+
 
 class _GoogleSignInRequested implements AuthEvent {
-  const _GoogleSignInRequested(
-      {this.acceptedTerms = false,
-      this.acceptedPrivacy = false,
-      this.marketingConsent = false,
-      this.profilingConsent = false});
+  const _GoogleSignInRequested({this.acceptedTerms = false, this.acceptedPrivacy = false, this.marketingConsent = false, this.profilingConsent = false});
+  
 
-  @JsonKey()
-  final bool acceptedTerms;
-  @JsonKey()
-  final bool acceptedPrivacy;
-  @JsonKey()
-  final bool marketingConsent;
-  @JsonKey()
-  final bool profilingConsent;
+@JsonKey() final  bool acceptedTerms;
+@JsonKey() final  bool acceptedPrivacy;
+@JsonKey() final  bool marketingConsent;
+@JsonKey() final  bool profilingConsent;
 
-  /// Create a copy of AuthEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @pragma('vm:prefer-inline')
-  _$GoogleSignInRequestedCopyWith<_GoogleSignInRequested> get copyWith =>
-      __$GoogleSignInRequestedCopyWithImpl<_GoogleSignInRequested>(
-          this, _$identity);
+/// Create a copy of AuthEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$GoogleSignInRequestedCopyWith<_GoogleSignInRequested> get copyWith => __$GoogleSignInRequestedCopyWithImpl<_GoogleSignInRequested>(this, _$identity);
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _GoogleSignInRequested &&
-            (identical(other.acceptedTerms, acceptedTerms) ||
-                other.acceptedTerms == acceptedTerms) &&
-            (identical(other.acceptedPrivacy, acceptedPrivacy) ||
-                other.acceptedPrivacy == acceptedPrivacy) &&
-            (identical(other.marketingConsent, marketingConsent) ||
-                other.marketingConsent == marketingConsent) &&
-            (identical(other.profilingConsent, profilingConsent) ||
-                other.profilingConsent == profilingConsent));
-  }
 
-  @override
-  int get hashCode => Object.hash(runtimeType, acceptedTerms, acceptedPrivacy,
-      marketingConsent, profilingConsent);
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _GoogleSignInRequested&&(identical(other.acceptedTerms, acceptedTerms) || other.acceptedTerms == acceptedTerms)&&(identical(other.acceptedPrivacy, acceptedPrivacy) || other.acceptedPrivacy == acceptedPrivacy)&&(identical(other.marketingConsent, marketingConsent) || other.marketingConsent == marketingConsent)&&(identical(other.profilingConsent, profilingConsent) || other.profilingConsent == profilingConsent));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,acceptedTerms,acceptedPrivacy,marketingConsent,profilingConsent);
+
+
+
 }
 
 /// @nodoc
-abstract mixin class _$GoogleSignInRequestedCopyWith<$Res>
-    implements $AuthEventCopyWith<$Res> {
-  factory _$GoogleSignInRequestedCopyWith(_GoogleSignInRequested value,
-          $Res Function(_GoogleSignInRequested) _then) =
-      __$GoogleSignInRequestedCopyWithImpl;
-  @useResult
-  $Res call(
-      {bool acceptedTerms,
-      bool acceptedPrivacy,
-      bool marketingConsent,
-      bool profilingConsent});
-}
+abstract mixin class _$GoogleSignInRequestedCopyWith<$Res> implements $AuthEventCopyWith<$Res> {
+  factory _$GoogleSignInRequestedCopyWith(_GoogleSignInRequested value, $Res Function(_GoogleSignInRequested) _then) = __$GoogleSignInRequestedCopyWithImpl;
+@useResult
+$Res call({
+ bool acceptedTerms, bool acceptedPrivacy, bool marketingConsent, bool profilingConsent
+});
 
+
+
+
+}
 /// @nodoc
 class __$GoogleSignInRequestedCopyWithImpl<$Res>
     implements _$GoogleSignInRequestedCopyWith<$Res> {
@@ -886,96 +510,66 @@ class __$GoogleSignInRequestedCopyWithImpl<$Res>
   final _GoogleSignInRequested _self;
   final $Res Function(_GoogleSignInRequested) _then;
 
-  /// Create a copy of AuthEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  $Res call({
-    Object? acceptedTerms = null,
-    Object? acceptedPrivacy = null,
-    Object? marketingConsent = null,
-    Object? profilingConsent = null,
-  }) {
-    return _then(_GoogleSignInRequested(
-      acceptedTerms: null == acceptedTerms
-          ? _self.acceptedTerms
-          : acceptedTerms // ignore: cast_nullable_to_non_nullable
-              as bool,
-      acceptedPrivacy: null == acceptedPrivacy
-          ? _self.acceptedPrivacy
-          : acceptedPrivacy // ignore: cast_nullable_to_non_nullable
-              as bool,
-      marketingConsent: null == marketingConsent
-          ? _self.marketingConsent
-          : marketingConsent // ignore: cast_nullable_to_non_nullable
-              as bool,
-      profilingConsent: null == profilingConsent
-          ? _self.profilingConsent
-          : profilingConsent // ignore: cast_nullable_to_non_nullable
-              as bool,
-    ));
-  }
+/// Create a copy of AuthEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? acceptedTerms = null,Object? acceptedPrivacy = null,Object? marketingConsent = null,Object? profilingConsent = null,}) {
+  return _then(_GoogleSignInRequested(
+acceptedTerms: null == acceptedTerms ? _self.acceptedTerms : acceptedTerms // ignore: cast_nullable_to_non_nullable
+as bool,acceptedPrivacy: null == acceptedPrivacy ? _self.acceptedPrivacy : acceptedPrivacy // ignore: cast_nullable_to_non_nullable
+as bool,marketingConsent: null == marketingConsent ? _self.marketingConsent : marketingConsent // ignore: cast_nullable_to_non_nullable
+as bool,profilingConsent: null == profilingConsent ? _self.profilingConsent : profilingConsent // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+
 }
 
 /// @nodoc
+
 
 class _AppleSignInRequested implements AuthEvent {
-  const _AppleSignInRequested(
-      {this.acceptedTerms = false,
-      this.acceptedPrivacy = false,
-      this.marketingConsent = false,
-      this.profilingConsent = false});
+  const _AppleSignInRequested({this.acceptedTerms = false, this.acceptedPrivacy = false, this.marketingConsent = false, this.profilingConsent = false});
+  
 
-  @JsonKey()
-  final bool acceptedTerms;
-  @JsonKey()
-  final bool acceptedPrivacy;
-  @JsonKey()
-  final bool marketingConsent;
-  @JsonKey()
-  final bool profilingConsent;
+@JsonKey() final  bool acceptedTerms;
+@JsonKey() final  bool acceptedPrivacy;
+@JsonKey() final  bool marketingConsent;
+@JsonKey() final  bool profilingConsent;
 
-  /// Create a copy of AuthEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @pragma('vm:prefer-inline')
-  _$AppleSignInRequestedCopyWith<_AppleSignInRequested> get copyWith =>
-      __$AppleSignInRequestedCopyWithImpl<_AppleSignInRequested>(
-          this, _$identity);
+/// Create a copy of AuthEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$AppleSignInRequestedCopyWith<_AppleSignInRequested> get copyWith => __$AppleSignInRequestedCopyWithImpl<_AppleSignInRequested>(this, _$identity);
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _AppleSignInRequested &&
-            (identical(other.acceptedTerms, acceptedTerms) ||
-                other.acceptedTerms == acceptedTerms) &&
-            (identical(other.acceptedPrivacy, acceptedPrivacy) ||
-                other.acceptedPrivacy == acceptedPrivacy) &&
-            (identical(other.marketingConsent, marketingConsent) ||
-                other.marketingConsent == marketingConsent) &&
-            (identical(other.profilingConsent, profilingConsent) ||
-                other.profilingConsent == profilingConsent));
-  }
 
-  @override
-  int get hashCode => Object.hash(runtimeType, acceptedTerms, acceptedPrivacy,
-      marketingConsent, profilingConsent);
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AppleSignInRequested&&(identical(other.acceptedTerms, acceptedTerms) || other.acceptedTerms == acceptedTerms)&&(identical(other.acceptedPrivacy, acceptedPrivacy) || other.acceptedPrivacy == acceptedPrivacy)&&(identical(other.marketingConsent, marketingConsent) || other.marketingConsent == marketingConsent)&&(identical(other.profilingConsent, profilingConsent) || other.profilingConsent == profilingConsent));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,acceptedTerms,acceptedPrivacy,marketingConsent,profilingConsent);
+
+
+
 }
 
 /// @nodoc
-abstract mixin class _$AppleSignInRequestedCopyWith<$Res>
-    implements $AuthEventCopyWith<$Res> {
-  factory _$AppleSignInRequestedCopyWith(_AppleSignInRequested value,
-          $Res Function(_AppleSignInRequested) _then) =
-      __$AppleSignInRequestedCopyWithImpl;
-  @useResult
-  $Res call(
-      {bool acceptedTerms,
-      bool acceptedPrivacy,
-      bool marketingConsent,
-      bool profilingConsent});
-}
+abstract mixin class _$AppleSignInRequestedCopyWith<$Res> implements $AuthEventCopyWith<$Res> {
+  factory _$AppleSignInRequestedCopyWith(_AppleSignInRequested value, $Res Function(_AppleSignInRequested) _then) = __$AppleSignInRequestedCopyWithImpl;
+@useResult
+$Res call({
+ bool acceptedTerms, bool acceptedPrivacy, bool marketingConsent, bool profilingConsent
+});
 
+
+
+
+}
 /// @nodoc
 class __$AppleSignInRequestedCopyWithImpl<$Res>
     implements _$AppleSignInRequestedCopyWith<$Res> {
@@ -984,90 +578,91 @@ class __$AppleSignInRequestedCopyWithImpl<$Res>
   final _AppleSignInRequested _self;
   final $Res Function(_AppleSignInRequested) _then;
 
-  /// Create a copy of AuthEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  $Res call({
-    Object? acceptedTerms = null,
-    Object? acceptedPrivacy = null,
-    Object? marketingConsent = null,
-    Object? profilingConsent = null,
-  }) {
-    return _then(_AppleSignInRequested(
-      acceptedTerms: null == acceptedTerms
-          ? _self.acceptedTerms
-          : acceptedTerms // ignore: cast_nullable_to_non_nullable
-              as bool,
-      acceptedPrivacy: null == acceptedPrivacy
-          ? _self.acceptedPrivacy
-          : acceptedPrivacy // ignore: cast_nullable_to_non_nullable
-              as bool,
-      marketingConsent: null == marketingConsent
-          ? _self.marketingConsent
-          : marketingConsent // ignore: cast_nullable_to_non_nullable
-              as bool,
-      profilingConsent: null == profilingConsent
-          ? _self.profilingConsent
-          : profilingConsent // ignore: cast_nullable_to_non_nullable
-              as bool,
-    ));
-  }
+/// Create a copy of AuthEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? acceptedTerms = null,Object? acceptedPrivacy = null,Object? marketingConsent = null,Object? profilingConsent = null,}) {
+  return _then(_AppleSignInRequested(
+acceptedTerms: null == acceptedTerms ? _self.acceptedTerms : acceptedTerms // ignore: cast_nullable_to_non_nullable
+as bool,acceptedPrivacy: null == acceptedPrivacy ? _self.acceptedPrivacy : acceptedPrivacy // ignore: cast_nullable_to_non_nullable
+as bool,marketingConsent: null == marketingConsent ? _self.marketingConsent : marketingConsent // ignore: cast_nullable_to_non_nullable
+as bool,profilingConsent: null == profilingConsent ? _self.profilingConsent : profilingConsent // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+
 }
 
 /// @nodoc
+
 
 class _LogoutRequested implements AuthEvent {
   const _LogoutRequested();
+  
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is _LogoutRequested);
-  }
 
-  @override
-  int get hashCode => runtimeType.hashCode;
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LogoutRequested);
 }
 
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+
+
+}
+
+
+
+
 /// @nodoc
+
 
 class _UpdateProfileImageRequested implements AuthEvent {
   const _UpdateProfileImageRequested({required this.filePath});
+  
 
-  final String filePath;
+ final  String filePath;
 
-  /// Create a copy of AuthEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @pragma('vm:prefer-inline')
-  _$UpdateProfileImageRequestedCopyWith<_UpdateProfileImageRequested>
-      get copyWith => __$UpdateProfileImageRequestedCopyWithImpl<
-          _UpdateProfileImageRequested>(this, _$identity);
+/// Create a copy of AuthEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$UpdateProfileImageRequestedCopyWith<_UpdateProfileImageRequested> get copyWith => __$UpdateProfileImageRequestedCopyWithImpl<_UpdateProfileImageRequested>(this, _$identity);
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _UpdateProfileImageRequested &&
-            (identical(other.filePath, filePath) ||
-                other.filePath == filePath));
-  }
 
-  @override
-  int get hashCode => Object.hash(runtimeType, filePath);
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UpdateProfileImageRequested&&(identical(other.filePath, filePath) || other.filePath == filePath));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,filePath);
+
+
+
 }
 
 /// @nodoc
-abstract mixin class _$UpdateProfileImageRequestedCopyWith<$Res>
-    implements $AuthEventCopyWith<$Res> {
-  factory _$UpdateProfileImageRequestedCopyWith(
-          _UpdateProfileImageRequested value,
-          $Res Function(_UpdateProfileImageRequested) _then) =
-      __$UpdateProfileImageRequestedCopyWithImpl;
-  @useResult
-  $Res call({String filePath});
-}
+abstract mixin class _$UpdateProfileImageRequestedCopyWith<$Res> implements $AuthEventCopyWith<$Res> {
+  factory _$UpdateProfileImageRequestedCopyWith(_UpdateProfileImageRequested value, $Res Function(_UpdateProfileImageRequested) _then) = __$UpdateProfileImageRequestedCopyWithImpl;
+@useResult
+$Res call({
+ String filePath
+});
 
+
+
+
+}
 /// @nodoc
 class __$UpdateProfileImageRequestedCopyWithImpl<$Res>
     implements _$UpdateProfileImageRequestedCopyWith<$Res> {
@@ -1076,94 +671,67 @@ class __$UpdateProfileImageRequestedCopyWithImpl<$Res>
   final _UpdateProfileImageRequested _self;
   final $Res Function(_UpdateProfileImageRequested) _then;
 
-  /// Create a copy of AuthEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  $Res call({
-    Object? filePath = null,
-  }) {
-    return _then(_UpdateProfileImageRequested(
-      filePath: null == filePath
-          ? _self.filePath
-          : filePath // ignore: cast_nullable_to_non_nullable
-              as String,
-    ));
-  }
+/// Create a copy of AuthEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? filePath = null,}) {
+  return _then(_UpdateProfileImageRequested(
+filePath: null == filePath ? _self.filePath : filePath // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
 }
 
 /// @nodoc
+
 
 class _UpdateProfileRequested implements AuthEvent {
-  const _UpdateProfileRequested(
-      {this.firstName,
-      this.lastName,
-      this.username,
-      this.gender,
-      this.weight,
-      this.height,
-      this.birthDate,
-      this.trainingObjective});
+  const _UpdateProfileRequested({this.firstName, this.lastName, this.username, this.gender, this.weight, this.height, this.birthDate, this.trainingObjective});
+  
 
-  final String? firstName;
-  final String? lastName;
-  final String? username;
-  final String? gender;
-  final double? weight;
-  final double? height;
-  final DateTime? birthDate;
-  final String? trainingObjective;
+ final  String? firstName;
+ final  String? lastName;
+ final  String? username;
+ final  String? gender;
+ final  double? weight;
+ final  double? height;
+ final  DateTime? birthDate;
+ final  String? trainingObjective;
 
-  /// Create a copy of AuthEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @pragma('vm:prefer-inline')
-  _$UpdateProfileRequestedCopyWith<_UpdateProfileRequested> get copyWith =>
-      __$UpdateProfileRequestedCopyWithImpl<_UpdateProfileRequested>(
-          this, _$identity);
+/// Create a copy of AuthEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$UpdateProfileRequestedCopyWith<_UpdateProfileRequested> get copyWith => __$UpdateProfileRequestedCopyWithImpl<_UpdateProfileRequested>(this, _$identity);
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _UpdateProfileRequested &&
-            (identical(other.firstName, firstName) ||
-                other.firstName == firstName) &&
-            (identical(other.lastName, lastName) ||
-                other.lastName == lastName) &&
-            (identical(other.username, username) ||
-                other.username == username) &&
-            (identical(other.gender, gender) || other.gender == gender) &&
-            (identical(other.weight, weight) || other.weight == weight) &&
-            (identical(other.height, height) || other.height == height) &&
-            (identical(other.birthDate, birthDate) ||
-                other.birthDate == birthDate) &&
-            (identical(other.trainingObjective, trainingObjective) ||
-                other.trainingObjective == trainingObjective));
-  }
 
-  @override
-  int get hashCode => Object.hash(runtimeType, firstName, lastName, username,
-      gender, weight, height, birthDate, trainingObjective);
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UpdateProfileRequested&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&(identical(other.username, username) || other.username == username)&&(identical(other.gender, gender) || other.gender == gender)&&(identical(other.weight, weight) || other.weight == weight)&&(identical(other.height, height) || other.height == height)&&(identical(other.birthDate, birthDate) || other.birthDate == birthDate)&&(identical(other.trainingObjective, trainingObjective) || other.trainingObjective == trainingObjective));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,firstName,lastName,username,gender,weight,height,birthDate,trainingObjective);
+
+
+
 }
 
 /// @nodoc
-abstract mixin class _$UpdateProfileRequestedCopyWith<$Res>
-    implements $AuthEventCopyWith<$Res> {
-  factory _$UpdateProfileRequestedCopyWith(_UpdateProfileRequested value,
-          $Res Function(_UpdateProfileRequested) _then) =
-      __$UpdateProfileRequestedCopyWithImpl;
-  @useResult
-  $Res call(
-      {String? firstName,
-      String? lastName,
-      String? username,
-      String? gender,
-      double? weight,
-      double? height,
-      DateTime? birthDate,
-      String? trainingObjective});
-}
+abstract mixin class _$UpdateProfileRequestedCopyWith<$Res> implements $AuthEventCopyWith<$Res> {
+  factory _$UpdateProfileRequestedCopyWith(_UpdateProfileRequested value, $Res Function(_UpdateProfileRequested) _then) = __$UpdateProfileRequestedCopyWithImpl;
+@useResult
+$Res call({
+ String? firstName, String? lastName, String? username, String? gender, double? weight, double? height, DateTime? birthDate, String? trainingObjective
+});
 
+
+
+
+}
 /// @nodoc
 class __$UpdateProfileRequestedCopyWithImpl<$Res>
     implements _$UpdateProfileRequestedCopyWith<$Res> {
@@ -1172,98 +740,68 @@ class __$UpdateProfileRequestedCopyWithImpl<$Res>
   final _UpdateProfileRequested _self;
   final $Res Function(_UpdateProfileRequested) _then;
 
-  /// Create a copy of AuthEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  $Res call({
-    Object? firstName = freezed,
-    Object? lastName = freezed,
-    Object? username = freezed,
-    Object? gender = freezed,
-    Object? weight = freezed,
-    Object? height = freezed,
-    Object? birthDate = freezed,
-    Object? trainingObjective = freezed,
-  }) {
-    return _then(_UpdateProfileRequested(
-      firstName: freezed == firstName
-          ? _self.firstName
-          : firstName // ignore: cast_nullable_to_non_nullable
-              as String?,
-      lastName: freezed == lastName
-          ? _self.lastName
-          : lastName // ignore: cast_nullable_to_non_nullable
-              as String?,
-      username: freezed == username
-          ? _self.username
-          : username // ignore: cast_nullable_to_non_nullable
-              as String?,
-      gender: freezed == gender
-          ? _self.gender
-          : gender // ignore: cast_nullable_to_non_nullable
-              as String?,
-      weight: freezed == weight
-          ? _self.weight
-          : weight // ignore: cast_nullable_to_non_nullable
-              as double?,
-      height: freezed == height
-          ? _self.height
-          : height // ignore: cast_nullable_to_non_nullable
-              as double?,
-      birthDate: freezed == birthDate
-          ? _self.birthDate
-          : birthDate // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      trainingObjective: freezed == trainingObjective
-          ? _self.trainingObjective
-          : trainingObjective // ignore: cast_nullable_to_non_nullable
-              as String?,
-    ));
-  }
+/// Create a copy of AuthEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? firstName = freezed,Object? lastName = freezed,Object? username = freezed,Object? gender = freezed,Object? weight = freezed,Object? height = freezed,Object? birthDate = freezed,Object? trainingObjective = freezed,}) {
+  return _then(_UpdateProfileRequested(
+firstName: freezed == firstName ? _self.firstName : firstName // ignore: cast_nullable_to_non_nullable
+as String?,lastName: freezed == lastName ? _self.lastName : lastName // ignore: cast_nullable_to_non_nullable
+as String?,username: freezed == username ? _self.username : username // ignore: cast_nullable_to_non_nullable
+as String?,gender: freezed == gender ? _self.gender : gender // ignore: cast_nullable_to_non_nullable
+as String?,weight: freezed == weight ? _self.weight : weight // ignore: cast_nullable_to_non_nullable
+as double?,height: freezed == height ? _self.height : height // ignore: cast_nullable_to_non_nullable
+as double?,birthDate: freezed == birthDate ? _self.birthDate : birthDate // ignore: cast_nullable_to_non_nullable
+as DateTime?,trainingObjective: freezed == trainingObjective ? _self.trainingObjective : trainingObjective // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+
 }
 
 /// @nodoc
+
 
 class _ChangePasswordRequested implements AuthEvent {
-  const _ChangePasswordRequested(
-      {required this.currentPassword, required this.newPassword});
+  const _ChangePasswordRequested({required this.currentPassword, required this.newPassword});
+  
 
-  final String currentPassword;
-  final String newPassword;
+ final  String currentPassword;
+ final  String newPassword;
 
-  /// Create a copy of AuthEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @pragma('vm:prefer-inline')
-  _$ChangePasswordRequestedCopyWith<_ChangePasswordRequested> get copyWith =>
-      __$ChangePasswordRequestedCopyWithImpl<_ChangePasswordRequested>(
-          this, _$identity);
+/// Create a copy of AuthEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$ChangePasswordRequestedCopyWith<_ChangePasswordRequested> get copyWith => __$ChangePasswordRequestedCopyWithImpl<_ChangePasswordRequested>(this, _$identity);
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _ChangePasswordRequested &&
-            (identical(other.currentPassword, currentPassword) ||
-                other.currentPassword == currentPassword) &&
-            (identical(other.newPassword, newPassword) ||
-                other.newPassword == newPassword));
-  }
 
-  @override
-  int get hashCode => Object.hash(runtimeType, currentPassword, newPassword);
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ChangePasswordRequested&&(identical(other.currentPassword, currentPassword) || other.currentPassword == currentPassword)&&(identical(other.newPassword, newPassword) || other.newPassword == newPassword));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,currentPassword,newPassword);
+
+
+
 }
 
 /// @nodoc
-abstract mixin class _$ChangePasswordRequestedCopyWith<$Res>
-    implements $AuthEventCopyWith<$Res> {
-  factory _$ChangePasswordRequestedCopyWith(_ChangePasswordRequested value,
-          $Res Function(_ChangePasswordRequested) _then) =
-      __$ChangePasswordRequestedCopyWithImpl;
-  @useResult
-  $Res call({String currentPassword, String newPassword});
-}
+abstract mixin class _$ChangePasswordRequestedCopyWith<$Res> implements $AuthEventCopyWith<$Res> {
+  factory _$ChangePasswordRequestedCopyWith(_ChangePasswordRequested value, $Res Function(_ChangePasswordRequested) _then) = __$ChangePasswordRequestedCopyWithImpl;
+@useResult
+$Res call({
+ String currentPassword, String newPassword
+});
 
+
+
+
+}
 /// @nodoc
 class __$ChangePasswordRequestedCopyWithImpl<$Res>
     implements _$ChangePasswordRequestedCopyWith<$Res> {
@@ -1272,24 +810,17 @@ class __$ChangePasswordRequestedCopyWithImpl<$Res>
   final _ChangePasswordRequested _self;
   final $Res Function(_ChangePasswordRequested) _then;
 
-  /// Create a copy of AuthEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  $Res call({
-    Object? currentPassword = null,
-    Object? newPassword = null,
-  }) {
-    return _then(_ChangePasswordRequested(
-      currentPassword: null == currentPassword
-          ? _self.currentPassword
-          : currentPassword // ignore: cast_nullable_to_non_nullable
-              as String,
-      newPassword: null == newPassword
-          ? _self.newPassword
-          : newPassword // ignore: cast_nullable_to_non_nullable
-              as String,
-    ));
-  }
+/// Create a copy of AuthEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? currentPassword = null,Object? newPassword = null,}) {
+  return _then(_ChangePasswordRequested(
+currentPassword: null == currentPassword ? _self.currentPassword : currentPassword // ignore: cast_nullable_to_non_nullable
+as String,newPassword: null == newPassword ? _self.newPassword : newPassword // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
 }
 
 // dart format on
