@@ -15,6 +15,12 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart' as _i558;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:gym_corpus/core/database/database.dart' as _i158;
 import 'package:gym_corpus/core/di/database_module.dart' as _i696;
+import 'package:gym_corpus/features/app_update/data/datasources/app_update_remote_data_source.dart'
+    as _i422;
+import 'package:gym_corpus/features/app_update/data/repositories/app_update_repository_impl.dart'
+    as _i1042;
+import 'package:gym_corpus/features/app_update/domain/repositories/app_update_repository.dart'
+    as _i428;
 import 'package:gym_corpus/features/auth/data/datasources/auth_local_data_source.dart'
     as _i975;
 import 'package:gym_corpus/features/auth/data/datasources/auth_remote_data_source.dart'
@@ -65,6 +71,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i701.AuthRemoteDataSource>(
       () => _i701.AuthRemoteDataSourceImpl(gh<_i974.FirebaseFirestore>()),
     );
+    gh.lazySingleton<_i422.AppUpdateRemoteDataSource>(
+      () => _i422.AppUpdateRemoteDataSourceImpl(gh<_i974.FirebaseFirestore>()),
+    );
     gh.lazySingleton<_i949.TrainingRepository>(
       () => _i871.TrainingRepositoryImpl(database: gh<_i158.AppDatabase>()),
     );
@@ -80,6 +89,10 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i975.AuthLocalDataSource>(),
         gh<_i701.AuthRemoteDataSource>(),
       ),
+    );
+    gh.lazySingleton<_i428.AppUpdateRepository>(
+      () =>
+          _i1042.AppUpdateRepositoryImpl(gh<_i422.AppUpdateRemoteDataSource>()),
     );
     gh.factory<_i312.AuthBloc>(() => _i312.AuthBloc(gh<_i25.AuthRepository>()));
     gh.factory<_i195.TrainingBloc>(

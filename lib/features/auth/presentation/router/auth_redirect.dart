@@ -25,7 +25,17 @@ String? resolveAuthRedirect({
   required AuthState authState,
   required String location,
   required bool isLocked,
+  required bool isUpdateRequired,
 }) {
+  // Viene prima di tutto il resto, sessione compresa: sotto la versione
+  // minima supportata l'app non e' garantita funzionare, quindi non ha
+  // senso lasciar decidere allo stato di autenticazione dove andare.
+  // Il controllo gira una sola volta all'avvio, quindi qui non serve
+  // gestire il caso in cui torni falso dopo essere stato vero.
+  if (isUpdateRequired) {
+    return location == '/update-required' ? null : '/update-required';
+  }
+
   return authState.maybeWhen(
     authenticated: (user, _) {
       // Il lucchetto viene prima di tutto: un profilo da completare non deve

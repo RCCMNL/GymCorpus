@@ -12,6 +12,7 @@ import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/service_locator.dart' as di;
 import 'package:gym_corpus/core/services/app_lock_controller.dart';
 import 'package:gym_corpus/core/services/notification_service.dart';
+import 'package:gym_corpus/core/services/update_controller.dart';
 import 'package:gym_corpus/core/theme/app_theme.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/features/analytics/presentation/screens/analytics_screen.dart';
@@ -19,6 +20,8 @@ import 'package:gym_corpus/features/analytics/presentation/screens/cardio_histor
 import 'package:gym_corpus/features/analytics/presentation/screens/cardio_session_detail_screen.dart';
 import 'package:gym_corpus/features/analytics/presentation/screens/daily_activity_screen.dart';
 import 'package:gym_corpus/features/analytics/presentation/screens/progress_screen.dart';
+import 'package:gym_corpus/features/app_update/domain/repositories/app_update_repository.dart';
+import 'package:gym_corpus/features/app_update/presentation/screens/update_required_screen.dart';
 import 'package:gym_corpus/features/auth/domain/repositories/auth_repository.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_event.dart';
@@ -158,6 +161,7 @@ class _GymAppState extends State<GymApp> with WidgetsBindingObserver {
   late final AuthBloc _authBloc;
   late final BlocRefreshStream _routerRefresh;
   late final AppLockController _appLock;
+  late final UpdateController _updateController;
   late final Listenable _routerListenable;
   late final GoRouter _router;
 
@@ -169,12 +173,18 @@ class _GymAppState extends State<GymApp> with WidgetsBindingObserver {
     _authBloc = di.sl<AuthBloc>()..add(const AuthEvent.checkSessionRequested());
     _routerRefresh = BlocRefreshStream(_authBloc.stream);
     _appLock = AppLockController(di.sl<AuthRepository>());
-    _routerListenable = Listenable.merge([_routerRefresh, _appLock]);
+    _updateController = UpdateController(di.sl<AppUpdateRepository>());
+    _routerListenable = Listenable.merge([
+      _routerRefresh,
+      _appLock,
+      _updateController,
+    ]);
 
     // All'avvio l'app parte bloccata se l'utente ha attivato la biometria:
     // senza questo una sessione Firebase gia' presente porta dritti in
     // /training senza alcuna richiesta di riconoscimento.
     unawaited(_appLock.lockIfEnabled());
+    unawaited(_updateController.checkForUpdate());
 
     _router = GoRouter(
       navigatorKey: _rootNavigatorKey,
@@ -187,6 +197,7 @@ class _GymAppState extends State<GymApp> with WidgetsBindingObserver {
         authState: _authBloc.state,
         location: state.matchedLocation,
         isLocked: _appLock.isLocked,
+        isUpdateRequired: _updateController.isUpdateRequired,
       ),
       routes: [
         GoRoute(
@@ -196,6 +207,11 @@ class _GymAppState extends State<GymApp> with WidgetsBindingObserver {
         GoRoute(
           path: '/lock',
           builder: (context, state) => LockScreen(controller: _appLock),
+        ),
+        GoRoute(
+          path: '/update-required',
+          builder: (context, state) =>
+              UpdateRequiredScreen(info: _updateController.status.info!),
         ),
         GoRoute(
           path: '/login',
@@ -231,7 +247,7 @@ class _GymAppState extends State<GymApp> with WidgetsBindingObserver {
         ),
         ShellRoute(
           builder: (context, state, child) {
-            return RootScreen(child: child);
+            return RootScreen(updateController: _updateController, child: child);
           },
           routes: [
             GoRoute(
@@ -484,6 +500,7 @@ class _GymAppState extends State<GymApp> with WidgetsBindingObserver {
     _router.dispose();
     _routerRefresh.dispose();
     _appLock.dispose();
+    _updateController.dispose();
     _authBloc.close();
     super.dispose();
   }

@@ -5,8 +5,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gym_corpus/core/services/external_links.dart';
 import 'package:gym_corpus/core/services/notification_service.dart';
+import 'package:gym_corpus/core/services/update_controller.dart';
+import 'package:gym_corpus/features/app_update/domain/entities/app_update_status.dart';
 import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_bloc.dart';
 import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_event.dart';
 import 'package:gym_corpus/features/profile/presentation/utils/athlete_progress_extensions.dart';
@@ -14,8 +18,9 @@ import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dar
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
 
 class RootScreen extends StatefulWidget {
-  const RootScreen({required this.child, super.key});
+  const RootScreen({required this.updateController, required this.child, super.key});
 
+  final UpdateController updateController;
   final Widget child;
 
   @override
@@ -24,6 +29,57 @@ class RootScreen extends StatefulWidget {
 
 class _RootScreenState extends State<RootScreen> {
   int _lastUnlockedCount = -1;
+  bool _updateBannerShown = false;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.updateController.addListener(_maybeShowUpdateBanner);
+    _maybeShowUpdateBanner();
+  }
+
+  @override
+  void dispose() {
+    widget.updateController.removeListener(_maybeShowUpdateBanner);
+    super.dispose();
+  }
+
+  /// Promemoria facoltativo, mostrato una sola volta per apertura dell'app:
+  /// l'aggiornamento obbligatorio ha gia' la sua schermata bloccante
+  /// (`/update-required`), qui arriva solo il caso "c'e' di meglio ma questa
+  /// versione va ancora bene".
+  void _maybeShowUpdateBanner() {
+    final status = widget.updateController.status;
+    if (status.urgency != AppUpdateUrgency.optional || _updateBannerShown) {
+      return;
+    }
+    final info = status.info;
+    if (info == null) return;
+
+    _updateBannerShown = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final messenger = ScaffoldMessenger.of(context);
+      messenger.showMaterialBanner(
+        MaterialBanner(
+          content: Text('Nuova versione ${info.latestVersionName} disponibile.'),
+          actions: [
+            TextButton(
+              onPressed: messenger.hideCurrentMaterialBanner,
+              child: const Text('Più tardi'),
+            ),
+            FilledButton(
+              onPressed: () {
+                messenger.hideCurrentMaterialBanner();
+                GetIt.I<ExternalLinks>().open(info.apkUrl);
+              },
+              child: const Text('Aggiorna'),
+            ),
+          ],
+        ),
+      );
+    });
+  }
 
   void _checkBadges(BuildContext context, TrainingLoaded state) {
     final progress = state.athleteProgress;

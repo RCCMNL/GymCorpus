@@ -80,6 +80,10 @@ dart_defines.json
 *.pem
 secrets.yaml
 android/key.properties
+# Credenziali admin per scripts/release.js: a differenza di
+# google-services.json non sono un identificatore pubblico, danno accesso
+# di scrittura completo a Firestore/Storage. Vedi scripts/README.md.
+scripts/service-account.json
 
 # JS / web
 node_modules/

@@ -26,11 +26,17 @@ void main() {
     birthDate: DateTime(1990, 5, 12),
   );
 
-  String? redirect(AuthState state, String location, {bool isLocked = false}) {
+  String? redirect(
+    AuthState state,
+    String location, {
+    bool isLocked = false,
+    bool isUpdateRequired = false,
+  }) {
     return resolveAuthRedirect(
       authState: state,
       location: location,
       isLocked: isLocked,
+      isUpdateRequired: isUpdateRequired,
     );
   }
 
@@ -131,6 +137,38 @@ void main() {
       expect(
         redirect(const AuthState.error('credenziali'), '/training'),
         '/login',
+      );
+    });
+  });
+
+  group('aggiornamento obbligatorio', () {
+    test('ha la precedenza su tutto, sessione compresa', () {
+      expect(
+        redirect(
+          AuthState.authenticated(completeUser),
+          '/training',
+          isUpdateRequired: true,
+        ),
+        '/update-required',
+      );
+      expect(
+        redirect(
+          const AuthState.unauthenticated(),
+          '/login',
+          isUpdateRequired: true,
+        ),
+        '/update-required',
+      );
+    });
+
+    test('sulla schermata di aggiornamento si resta', () {
+      expect(
+        redirect(
+          AuthState.authenticated(completeUser),
+          '/update-required',
+          isUpdateRequired: true,
+        ),
+        isNull,
       );
     });
   });

@@ -60,6 +60,17 @@ service cloud.firestore {
       allow read, update, delete: if false;
     }
 
+    // Versione minima/ultima pubblicata, letta all'avvio per il controllo
+    // aggiornamenti. Non contiene dati personali: lettura pubblica anche
+    // senza autenticazione, perche' il controllo gira prima del login.
+    // La scrittura resta sempre negata al client: lo script di rilascio
+    // (scripts/release.js) scrive con le credenziali admin, che bypassano
+    // queste regole.
+    match /app_update/{platform} {
+      allow read: if true;
+      allow write: if false;
+    }
+
     // Tutto cio' che non e' esplicitamente permesso sopra e' negato.
     match /{document=**} {
       allow read, write: if false;
