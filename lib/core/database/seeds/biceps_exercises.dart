@@ -68,7 +68,7 @@ const bicepsExercises = [
     ),
   ),
   ExercisesCompanion(
-    name: Value('Curl su Panca Scott'),
+    name: Value('Curl su Panca Scott (Manubrio)'),
     difficulty: Value('Principiante'),
     targetMuscle: Value('Bicipiti'),
     equipment: Value('Panca Scott, Manubrio'),
@@ -98,7 +98,7 @@ const bicepsExercises = [
     ),
   ),
   ExercisesCompanion(
-    name: Value('Curl Hammer'),
+    name: Value('Curl Hammer ai cavi (Corda)'),
     difficulty: Value('Principiante'),
     targetMuscle: Value('Bicipiti'),
     equipment: Value('Cavo (Ercolina), Corda'),

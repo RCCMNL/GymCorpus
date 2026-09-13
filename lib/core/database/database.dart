@@ -156,6 +156,7 @@ class AppDatabase extends _$AppDatabase {
         final m = createMigrator();
         await _ensureCurrentTables(m);
         await _ensureCurrentColumns(m);
+        await _renameLegacySeedExercises();
         await _syncSeedExerciseContent();
 
         final exercisesExist = await select(exercises).get();
@@ -307,6 +308,93 @@ class AppDatabase extends _$AppDatabase {
     await _ensureColumn(m, notificationLogs, notificationLogs.type, 'type');
   }
 
+  /// Chiave con cui un esercizio del catalogo ritrova la sua riga.
+  static String _seedKey(String name, String muscle) => '$name|$muscle';
+
+  /// Nomi del catalogo corretti dopo essere gia' stati seminati.
+  ///
+  /// Tre coppie di esercizi diversi avevano lo stesso nome e lo stesso
+  /// muscolo - la variante con disco o bilanciere, quella ai cavi, quella
+  /// col manubrio - e tre nomi avevano una parentesi chiusa senza quella
+  /// aperta.
+  static const _renamedSeedExercises = [
+    (
+      muscle: 'Spalle',
+      from: 'Alzate frontali',
+      to: 'Alzate frontali (Disco o Bilanciere)',
+    ),
+    (
+      muscle: 'Bicipiti',
+      from: 'Curl Hammer',
+      to: 'Curl Hammer ai cavi (Corda)',
+    ),
+    (
+      muscle: 'Bicipiti',
+      from: 'Curl su Panca Scott',
+      to: 'Curl su Panca Scott (Manubrio)',
+    ),
+    (
+      muscle: 'Polpacci',
+      from: 'Calf Raises su scalino, 2 gambe)',
+      to: 'Calf Raises su scalino (2 gambe)',
+    ),
+    (
+      muscle: 'Polpacci',
+      from: 'Calf Raises su scalino, 1 gamba)',
+      to: 'Calf Raises su scalino (1 gamba)',
+    ),
+    (muscle: 'Spalle', from: 'Neck Press)', to: 'Neck Press'),
+  ];
+
+  /// Porta sui database gia' popolati i nomi corretti nel catalogo.
+  ///
+  /// Il seeding gira solo a tabella vuota, quindi chi aveva gia' il
+  /// database terrebbe i vecchi nomi per sempre. Si rinomina finche' ci
+  /// sono piu' righe col vecchio nome di quante il catalogo ne preveda: per
+  /// le coppie omonime la variante era la seconda voce, e il seeding
+  /// inserisce in ordine, quindi e' la riga con l'id piu' alto. L'id non
+  /// cambia, e con lui restano attaccati serie registrate, note e
+  /// preferiti. Gli esercizi custom non si toccano.
+  Future<void> _renameLegacySeedExercises() async {
+    final catalog = getSeedExercises();
+
+    for (final rename in _renamedSeedExercises) {
+      final expected = catalog
+          .where(
+            (s) =>
+                s.name.value == rename.from &&
+                s.targetMuscle.value == rename.muscle,
+          )
+          .length;
+
+      final rows =
+          await (select(exercises)
+                ..where(
+                  (e) =>
+                      e.isCustom.equals(false) &
+                      e.targetMuscle.equals(rename.muscle) &
+                      e.name.equals(rename.from),
+                )
+                ..orderBy([(e) => OrderingTerm.desc(e.id)]))
+              .get();
+      if (rows.length <= expected) continue;
+
+      final alreadyRenamed =
+          await (select(exercises)..where(
+                (e) =>
+                    e.isCustom.equals(false) &
+                    e.targetMuscle.equals(rename.muscle) &
+                    e.name.equals(rename.to),
+              ))
+              .get();
+      if (alreadyRenamed.isNotEmpty) continue;
+
+      await (update(exercises)..where((e) => e.id.equals(rows.first.id))).write(
+        ExercisesCompanion(name: Value(rename.to)),
+      );
+    }
+  }
+
   /// Riallinea gli esercizi predefiniti al catalogo seed, che resta
   /// l'unica fonte del dato.
   ///
@@ -320,9 +408,15 @@ class AppDatabase extends _$AppDatabase {
   /// allineato non paga nulla ad ogni apertura. Tocca esclusivamente i
   /// campi di catalogo: note personali e preferiti sono dell'utente, e
   /// gli esercizi custom non hanno una controparte nei seed.
+  ///
+  /// Le righe si ritrovano per nome e muscolo, non per nome soltanto:
+  /// `Face Pull` esiste sotto Dorso e sotto Spalle con istruzioni diverse,
+  /// e ritrovandole per nome l'ultima voce del catalogo sovrascriveva i
+  /// testi dell'altra a ogni apertura.
   Future<void> _syncSeedExerciseContent() async {
-    final seedByName = <String, ExercisesCompanion>{
-      for (final s in getSeedExercises()) s.name.value: s,
+    final seedByKey = <String, ExercisesCompanion>{
+      for (final s in getSeedExercises())
+        _seedKey(s.name.value, s.targetMuscle.value): s,
     };
 
     final rows = await (select(
@@ -330,7 +424,7 @@ class AppDatabase extends _$AppDatabase {
     )..where((e) => e.isCustom.equals(false))).get();
 
     for (final row in rows) {
-      final seed = seedByName[row.name];
+      final seed = seedByKey[_seedKey(row.name, row.targetMuscle)];
       if (seed == null) continue;
 
       final equipment = _seedText(seed.equipment);

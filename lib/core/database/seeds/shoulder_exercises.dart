@@ -102,7 +102,7 @@ const shoulderExercises = [
     ),
   ),
   ExercisesCompanion(
-    name: Value('Alzate frontali'),
+    name: Value('Alzate frontali (Disco o Bilanciere)'),
     difficulty: Value('Principiante'),
     targetMuscle: Value('Spalle'),
     equipment: Value('Disco (bumper/ghisa) o Bilanciere (dritto o EZ)'),
@@ -198,7 +198,7 @@ const shoulderExercises = [
     ),
   ),
   ExercisesCompanion(
-    name: Value('Neck Press)'),
+    name: Value('Neck Press'),
     difficulty: Value('Avanzato'),
     targetMuscle: Value('Spalle'),
     equipment: Value('Bilanciere, Rack'),

@@ -100,7 +100,7 @@ const calfExercises = [
     ),
   ),
   ExercisesCompanion(
-    name: Value('Calf Raises su scalino, 2 gambe)'),
+    name: Value('Calf Raises su scalino (2 gambe)'),
     difficulty: Value('Principiante'),
     targetMuscle: Value('Polpacci'),
     equipment: Value('Scalino (o rialzo), Corpo libero'),
@@ -117,7 +117,7 @@ const calfExercises = [
     ),
   ),
   ExercisesCompanion(
-    name: Value('Calf Raises su scalino, 1 gamba)'),
+    name: Value('Calf Raises su scalino (1 gamba)'),
     difficulty: Value('Intermedio'),
     targetMuscle: Value('Polpacci'),
     equipment: Value('Scalino (o rialzo), Corpo libero'),
