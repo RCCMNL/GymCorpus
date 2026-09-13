@@ -68,20 +68,29 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i975.AuthLocalDataSource>(
       () => _i975.AuthLocalDataSourceImpl(gh<_i558.FlutterSecureStorage>()),
     );
-    gh.lazySingleton<_i701.AuthRemoteDataSource>(
-      () => _i701.AuthRemoteDataSourceImpl(gh<_i974.FirebaseFirestore>()),
-    );
-    gh.lazySingleton<_i422.AppUpdateRemoteDataSource>(
-      () => _i422.AppUpdateRemoteDataSourceImpl(gh<_i974.FirebaseFirestore>()),
-    );
-    gh.lazySingleton<_i949.TrainingRepository>(
-      () => _i871.TrainingRepositoryImpl(database: gh<_i158.AppDatabase>()),
+    gh.factory<_i186.NotificationsRepository>(
+      () => _i1003.NotificationsRepositoryImpl(gh<_i158.AppDatabase>()),
     );
     gh.lazySingleton<_i1050.CycleRepository>(
       () => _i831.CycleRepositoryImpl(database: gh<_i158.AppDatabase>()),
     );
-    gh.factory<_i186.NotificationsRepository>(
-      () => _i1003.NotificationsRepositoryImpl(gh<_i158.AppDatabase>()),
+    gh.lazySingleton<_i949.TrainingRepository>(
+      () => _i871.TrainingRepositoryImpl(database: gh<_i158.AppDatabase>()),
+    );
+    gh.lazySingleton<_i701.AuthRemoteDataSource>(
+      () => _i701.AuthRemoteDataSourceImpl(gh<_i974.FirebaseFirestore>()),
+    );
+    gh.factory<_i939.NotificationsBloc>(
+      () => _i939.NotificationsBloc(
+        repository: gh<_i186.NotificationsRepository>(),
+      ),
+    );
+    gh.lazySingleton<_i422.AppUpdateRemoteDataSource>(
+      () => _i422.AppUpdateRemoteDataSourceImpl(gh<_i974.FirebaseFirestore>()),
+    );
+    gh.lazySingleton<_i428.AppUpdateRepository>(
+      () =>
+          _i1042.AppUpdateRepositoryImpl(gh<_i422.AppUpdateRemoteDataSource>()),
     );
     gh.lazySingleton<_i25.AuthRepository>(
       () => _i328.AuthRepositoryImpl(
@@ -90,22 +99,13 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i701.AuthRemoteDataSource>(),
       ),
     );
-    gh.lazySingleton<_i428.AppUpdateRepository>(
-      () =>
-          _i1042.AppUpdateRepositoryImpl(gh<_i422.AppUpdateRemoteDataSource>()),
-    );
-    gh.factory<_i312.AuthBloc>(() => _i312.AuthBloc(gh<_i25.AuthRepository>()));
     gh.factory<_i195.TrainingBloc>(
       () => _i195.TrainingBloc(
         repository: gh<_i949.TrainingRepository>(),
         authRepository: gh<_i25.AuthRepository>(),
       ),
     );
-    gh.factory<_i939.NotificationsBloc>(
-      () => _i939.NotificationsBloc(
-        repository: gh<_i186.NotificationsRepository>(),
-      ),
-    );
+    gh.factory<_i312.AuthBloc>(() => _i312.AuthBloc(gh<_i25.AuthRepository>()));
     return this;
   }
 }

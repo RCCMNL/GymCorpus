@@ -4784,7 +4784,7 @@ final class $$RoutinesTableReferences
     _$AppDatabase db,
   ) => MultiTypedResultKey.fromTable(
     db.workouts,
-    aliasName: $_aliasNameGenerator(db.routines.id, db.workouts.routineId),
+    aliasName: 'routines__id__workouts__routine_id',
   );
 
   $$WorkoutsTableProcessedTableManager get workoutsRefs {
@@ -4802,10 +4802,7 @@ final class $$RoutinesTableReferences
   static MultiTypedResultKey<$RoutineExercisesTable, List<RoutineExercise>>
   _routineExercisesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.routineExercises,
-    aliasName: $_aliasNameGenerator(
-      db.routines.id,
-      db.routineExercises.routineId,
-    ),
+    aliasName: 'routines__id__routine_exercises__routine_id',
   );
 
   $$RoutineExercisesTableProcessedTableManager get routineExercisesRefs {
@@ -5180,8 +5177,8 @@ final class $$WorkoutsTableReferences
     extends BaseReferences<_$AppDatabase, $WorkoutsTable, Workout> {
   $$WorkoutsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static $RoutinesTable _routineIdTable(_$AppDatabase db) => db.routines
-      .createAlias($_aliasNameGenerator(db.workouts.routineId, db.routines.id));
+  static $RoutinesTable _routineIdTable(_$AppDatabase db) =>
+      db.routines.createAlias('workouts__routine_id__routines__id');
 
   $$RoutinesTableProcessedTableManager? get routineId {
     final $_column = $_itemColumn<int>('routine_id');
@@ -5200,7 +5197,7 @@ final class $$WorkoutsTableReferences
   static MultiTypedResultKey<$WorkoutSetsTable, List<WorkoutSet>>
   _workoutSetsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.workoutSets,
-    aliasName: $_aliasNameGenerator(db.workouts.id, db.workoutSets.workoutId),
+    aliasName: 'workouts__id__workout_sets__workout_id',
   );
 
   $$WorkoutSetsTableProcessedTableManager get workoutSetsRefs {
@@ -5630,7 +5627,7 @@ final class $$ExercisesTableReferences
   static MultiTypedResultKey<$WorkoutSetsTable, List<WorkoutSet>>
   _workoutSetsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.workoutSets,
-    aliasName: $_aliasNameGenerator(db.exercises.id, db.workoutSets.exerciseId),
+    aliasName: 'exercises__id__workout_sets__exercise_id',
   );
 
   $$WorkoutSetsTableProcessedTableManager get workoutSetsRefs {
@@ -5648,10 +5645,7 @@ final class $$ExercisesTableReferences
   static MultiTypedResultKey<$RoutineExercisesTable, List<RoutineExercise>>
   _routineExercisesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.routineExercises,
-    aliasName: $_aliasNameGenerator(
-      db.exercises.id,
-      db.routineExercises.exerciseId,
-    ),
+    aliasName: 'exercises__id__routine_exercises__exercise_id',
   );
 
   $$RoutineExercisesTableProcessedTableManager get routineExercisesRefs {
@@ -6229,9 +6223,7 @@ final class $$WorkoutSetsTableReferences
   $$WorkoutSetsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
   static $WorkoutsTable _workoutIdTable(_$AppDatabase db) =>
-      db.workouts.createAlias(
-        $_aliasNameGenerator(db.workoutSets.workoutId, db.workouts.id),
-      );
+      db.workouts.createAlias('workout_sets__workout_id__workouts__id');
 
   $$WorkoutsTableProcessedTableManager get workoutId {
     final $_column = $_itemColumn<int>('workout_id')!;
@@ -6248,9 +6240,7 @@ final class $$WorkoutSetsTableReferences
   }
 
   static $ExercisesTable _exerciseIdTable(_$AppDatabase db) =>
-      db.exercises.createAlias(
-        $_aliasNameGenerator(db.workoutSets.exerciseId, db.exercises.id),
-      );
+      db.exercises.createAlias('workout_sets__exercise_id__exercises__id');
 
   $$ExercisesTableProcessedTableManager get exerciseId {
     final $_column = $_itemColumn<int>('exercise_id')!;
@@ -6675,9 +6665,7 @@ final class $$RoutineExercisesTableReferences
   );
 
   static $RoutinesTable _routineIdTable(_$AppDatabase db) =>
-      db.routines.createAlias(
-        $_aliasNameGenerator(db.routineExercises.routineId, db.routines.id),
-      );
+      db.routines.createAlias('routine_exercises__routine_id__routines__id');
 
   $$RoutinesTableProcessedTableManager get routineId {
     final $_column = $_itemColumn<int>('routine_id')!;
@@ -6694,9 +6682,7 @@ final class $$RoutineExercisesTableReferences
   }
 
   static $ExercisesTable _exerciseIdTable(_$AppDatabase db) =>
-      db.exercises.createAlias(
-        $_aliasNameGenerator(db.routineExercises.exerciseId, db.exercises.id),
-      );
+      db.exercises.createAlias('routine_exercises__exercise_id__exercises__id');
 
   $$ExercisesTableProcessedTableManager get exerciseId {
     final $_column = $_itemColumn<int>('exercise_id')!;

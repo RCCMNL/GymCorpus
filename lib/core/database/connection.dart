@@ -8,8 +8,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import 'package:sqlcipher_flutter_libs/sqlcipher_flutter_libs.dart';
-import 'package:sqlite3/open.dart';
 import 'package:sqlite3/sqlite3.dart';
 
 const _databaseFileName = 'gym_db.sqlite';
@@ -21,15 +19,6 @@ const _encryptionKeyStorageKey = 'db_encryption_key_hex';
 /// I primi 16 byte di un file SQLite non cifrato. In un file SQLCipher anche
 /// l'header e' cifrato, quindi questa firma distingue i due casi.
 final _plaintextHeader = latin1.encode('SQLite format 3\u0000');
-
-/// Registra SQLCipher come implementazione sqlite3.
-///
-/// Su Android il pacchetto `sqlite3` aprirebbe altrimenti la libreria di
-/// sistema, che non conosce le PRAGMA di cifratura. Sulle altre piattaforme
-/// la libreria corretta viene collegata in fase di build.
-void registerSqlCipher() {
-  open.overrideFor(OperatingSystem.android, openCipherOnAndroid);
-}
 
 /// Apre il database locale cifrato con SQLCipher.
 ///
@@ -45,16 +34,28 @@ LazyDatabase openConnection({FlutterSecureStorage? storage}) {
   final secureStorage = storage ?? const FlutterSecureStorage();
 
   return LazyDatabase(() async {
-    registerSqlCipher();
-
     final keyHex = await _obtainEncryptionKey(secureStorage);
     final folder = await getApplicationDocumentsDirectory();
-    final file = File(p.join(folder.path, _databaseFileName));
 
-    await _encryptExistingPlaintextDatabase(file, keyHex);
-
-    return NativeDatabase(file, setup: (db) => _unlock(db, keyHex));
+    return openEncryptedDatabase(
+      File(p.join(folder.path, _databaseFileName)),
+      keyHex: keyHex,
+    );
   });
+}
+
+/// Apre [file] cifrato con [keyHex], convertendo prima un eventuale
+/// database in chiaro lasciato da una versione precedente dell'app.
+///
+/// E' separata da [openConnection] perche' non dipende dal secure storage
+/// ne' dalle cartelle di sistema: e' la parte che si puo' provare senza un
+/// dispositivo.
+Future<NativeDatabase> openEncryptedDatabase(
+  File file, {
+  required String keyHex,
+}) async {
+  await _encryptExistingPlaintextDatabase(file, keyHex);
+  return NativeDatabase(file, setup: (db) => _unlock(db, keyHex));
 }
 
 /// Recupera la chiave esistente o ne genera una nuova al primo avvio.
@@ -94,8 +95,9 @@ void _assertSqlCipherAvailable(Database db) {
   if (db.select('PRAGMA cipher_version;').isEmpty) {
     throw StateError(
       'SQLCipher non disponibile: il database resterebbe in chiaro. '
-      'Su iOS e macOS verificare che nessun altro pod colleghi sqlite3 e '
-      'aggiungere "-framework SQLCipher" agli Other Linker Flags.',
+      'Verificare in pubspec.yaml "hooks: user_defines: sqlite3: source: '
+      'sqlcipher", e che nessun altro pod o libreria nativa colleghi SQLite '
+      '(vedi doc/hook.md del pacchetto sqlite3).',
     );
   }
 }
@@ -137,7 +139,7 @@ Future<void> _encryptExistingPlaintextDatabase(File file, String keyHex) async {
     debugPrint('[Database] Cifratura del database esistente fallita: $e');
     rethrow;
   } finally {
-    db.dispose();
+    db.close();
   }
 
   await file.delete();
