@@ -9,6 +9,7 @@ class RoutineEntity extends Equatable {
     this.estimatedDuration,
     this.exercises = const [],
     this.isSystem = false,
+    this.sourceRoutineId,
   });
 
   final int id;
@@ -18,6 +19,10 @@ class RoutineEntity extends Equatable {
   final List<RoutineExerciseEntity> exercises;
   final bool isSystem;
 
+  /// Routine di sistema da cui questa e' stata copiata, se lo e' stata:
+  /// permette di offrire il ripristino ai valori di default.
+  final int? sourceRoutineId;
+
   @override
   List<Object?> get props => [
     id,
@@ -26,6 +31,7 @@ class RoutineEntity extends Equatable {
     createdAt,
     exercises,
     isSystem,
+    sourceRoutineId,
   ];
 }
 

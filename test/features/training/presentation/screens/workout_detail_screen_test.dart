@@ -49,6 +49,14 @@ void main() {
     exercises: const [routineExercise],
   );
 
+  final copiedRoutine = RoutineEntity(
+    id: 3,
+    title: 'Full Body – Principianti (copia)',
+    createdAt: DateTime(2026),
+    exercises: const [routineExercise],
+    sourceRoutineId: 1,
+  );
+
   setUp(() {
     bloc = MockTrainingBloc();
     notificationsBloc = MockNotificationsBloc();
@@ -124,4 +132,51 @@ void main() {
 
     verify(() => bloc.add(const CopyRoutineEvent(1))).called(1);
   });
+
+  testWidgets(
+    'una routine utente creata da zero non mostra il pulsante Ripristina',
+    (tester) async {
+      await tester.pumpWidget(
+        wrap(
+          userRoutine,
+          TrainingLoaded(exercises: const [], routines: [userRoutine]),
+        ),
+      );
+
+      expect(find.text('RIPRISTINA VALORI ORIGINALI'), findsNothing);
+    },
+  );
+
+  testWidgets(
+    'una copia con origine di sistema mostra il pulsante Ripristina',
+    (tester) async {
+      await tester.pumpWidget(
+        wrap(
+          copiedRoutine,
+          TrainingLoaded(exercises: const [], routines: [copiedRoutine]),
+        ),
+      );
+
+      expect(find.text('RIPRISTINA VALORI ORIGINALI'), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'confermare il ripristino invia ResetRoutineToSourceEvent',
+    (tester) async {
+      await tester.pumpWidget(
+        wrap(
+          copiedRoutine,
+          TrainingLoaded(exercises: const [], routines: [copiedRoutine]),
+        ),
+      );
+
+      await tester.tap(find.text('RIPRISTINA VALORI ORIGINALI'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('RIPRISTINA'));
+      await tester.pump();
+
+      verify(() => bloc.add(const ResetRoutineToSourceEvent(3))).called(1);
+    },
+  );
 }

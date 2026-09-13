@@ -56,6 +56,50 @@ class WorkoutDetailScreen extends StatelessWidget {
     context.pop();
   }
 
+  void _showResetDialog(BuildContext context, RoutineEntity currentRoutine) {
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: const Text(
+          'Ripristina valori originali',
+          style: TextStyle(fontWeight: FontWeight.w900, fontFamily: 'Lexend'),
+        ),
+        content: const Text(
+          'Serie, ripetizioni, carico ed esercizi torneranno come nella '
+          'scheda di sistema originale. Le modifiche che hai fatto qui '
+          'andranno perse.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'ANNULLA',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.outline,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              context.read<TrainingBloc>().add(
+                ResetRoutineToSourceEvent(currentRoutine.id),
+              );
+              Navigator.pop(context);
+              AppSnackBar.showSuccess(context, 'Routine ripristinata');
+            },
+            child: const Text(
+              'RIPRISTINA',
+              style: TextStyle(fontWeight: FontWeight.w900),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showDeleteDialog(BuildContext context) {
     showDialog<void>(
       context: context,
@@ -139,6 +183,19 @@ class WorkoutDetailScreen extends StatelessWidget {
                       onPressed: () => _copyRoutine(context),
                       icon: const Icon(Icons.content_copy_rounded),
                       label: const Text('COPIA QUESTA ROUTINE'),
+                    ),
+                  ),
+                ],
+                if (!currentRoutine.isSystem &&
+                    currentRoutine.sourceRoutineId != null) ...[
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () =>
+                          _showResetDialog(context, currentRoutine),
+                      icon: const Icon(Icons.restore_rounded),
+                      label: const Text('RIPRISTINA VALORI ORIGINALI'),
                     ),
                   ),
                 ],

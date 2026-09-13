@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'package:drift/drift.dart' hide isNotNull;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gym_corpus/core/database/database.dart';
@@ -193,6 +194,95 @@ void main() {
           database.routines,
         )..where((r) => r.id.equals(systemRoutine.id))).getSingle();
         expect(originalStillThere.title, systemRoutine.title);
+      },
+    );
+
+    test(
+      'la copia registra l origine di sistema per poterla ripristinare',
+      () async {
+        final systemRoutine = (await (database.select(
+          database.routines,
+        )..where((r) => r.isSystem.equals(true))).get()).first;
+
+        final result = await repository.copyRoutine(systemRoutine.id);
+        final newId = (result as Right).value as int;
+
+        final copy = await (database.select(
+          database.routines,
+        )..where((r) => r.id.equals(newId))).getSingle();
+        expect(copy.sourceRoutineId, systemRoutine.id);
+      },
+    );
+  });
+
+  group('resetRoutineToSource', () {
+    test(
+      'riporta la copia identica alla routine di sistema di origine, anche '
+      'dopo aggiunte/rimozioni di esercizi',
+      () async {
+        final systemRoutine = (await (database.select(
+          database.routines,
+        )..where((r) => r.isSystem.equals(true))).get()).first;
+
+        final copyResult = await repository.copyRoutine(systemRoutine.id);
+        final copyId = (copyResult as Right).value as int;
+
+        // L'utente stravolge la sua copia: cambia i parametri di un
+        // esercizio e ne rimuove un altro.
+        final copiedExercises = await (database.select(
+          database.routineExercises,
+        )..where((t) => t.routineId.equals(copyId))).get();
+        await (database.update(
+          database.routineExercises,
+        )..where((t) => t.id.equals(copiedExercises.first.id))).write(
+          const RoutineExercisesCompanion(
+            sets: Value(99),
+            reps: Value(99),
+            weight: Value(999),
+          ),
+        );
+        if (copiedExercises.length > 1) {
+          await (database.delete(database.routineExercises)
+                ..where((t) => t.id.equals(copiedExercises.last.id)))
+              .go();
+        }
+
+        final resetResult = await repository.resetRoutineToSource(copyId);
+        expect(resetResult, isA<Right<Object?, void>>());
+
+        final originalExercises = await (database.select(
+          database.routineExercises,
+        )..where((t) => t.routineId.equals(systemRoutine.id))).get();
+        final resetExercises = await (database.select(
+          database.routineExercises,
+        )..where((t) => t.routineId.equals(copyId))).get();
+
+        expect(resetExercises.length, originalExercises.length);
+        for (final original in originalExercises) {
+          final restored = resetExercises.firstWhere(
+            (row) => row.exerciseId == original.exerciseId,
+          );
+          expect(restored.sets, original.sets);
+          expect(restored.reps, original.reps);
+          expect(restored.weight, original.weight);
+          expect(restored.orderIndex, original.orderIndex);
+        }
+      },
+    );
+
+    test(
+      'fallisce se la routine non ha un origine di sistema da ripristinare',
+      () async {
+        final ownRoutineResult = await repository.addRoutine(
+          'Scheda mia',
+          const [],
+          null,
+        );
+        final ownRoutineId = (ownRoutineResult as Right).value as int;
+
+        final result = await repository.resetRoutineToSource(ownRoutineId);
+
+        expect(result, isA<Left<Object?, void>>());
       },
     );
   });

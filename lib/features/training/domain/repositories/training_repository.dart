@@ -58,6 +58,7 @@ abstract class TrainingRepository {
   );
   Future<Either<Failure, void>> deleteRoutine(int id);
   Future<Either<Failure, int>> copyRoutine(int id);
+  Future<Either<Failure, void>> resetRoutineToSource(int id);
 
   Stream<List<WorkoutSetEntity>> watchWeightLogs();
   Stream<List<WorkoutSessionEntity>> watchWorkoutSessions();

@@ -295,6 +295,7 @@ class TrainingRepositoryImpl implements TrainingRepository {
             createdAt: routineData.createdAt,
             exercises: routineExercises,
             isSystem: routineData.isSystem,
+            sourceRoutineId: routineData.sourceRoutineId,
           ),
         );
       }
@@ -433,6 +434,9 @@ class TrainingRepositoryImpl implements TrainingRepository {
               RoutinesCompanion.insert(
                 title: '${original.title} (copia)',
                 estimatedDuration: Value(original.estimatedDuration),
+                sourceRoutineId: original.isSystem
+                    ? Value(original.id)
+                    : const Value.absent(),
               ),
             );
 
@@ -453,6 +457,65 @@ class TrainingRepositoryImpl implements TrainingRepository {
         }
         return Right(newRoutineId);
       });
+    } catch (e) {
+      return Left(DatabaseFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> resetRoutineToSource(int id) async {
+    try {
+      final target = await (database.select(
+        database.routines,
+      )..where((r) => r.id.equals(id))).getSingleOrNull();
+      if (target == null) {
+        return const Left(DatabaseFailure('Routine non trovata.'));
+      }
+
+      final sourceId = target.sourceRoutineId;
+      if (sourceId == null) {
+        return const Left(
+          DatabaseFailure(
+            "Questa routine non ha un'origine di sistema da ripristinare.",
+          ),
+        );
+      }
+
+      final source = await (database.select(
+        database.routines,
+      )..where((r) => r.id.equals(sourceId))).getSingleOrNull();
+      if (source == null || !source.isSystem) {
+        return const Left(
+          DatabaseFailure('La routine originale non è più disponibile.'),
+        );
+      }
+
+      final sourceExercises = await (database.select(
+        database.routineExercises,
+      )..where((t) => t.routineId.equals(sourceId))).get();
+
+      await database.transaction(() async {
+        await (database.delete(
+          database.routineExercises,
+        )..where((t) => t.routineId.equals(id))).go();
+
+        for (final re in sourceExercises) {
+          await database
+              .into(database.routineExercises)
+              .insert(
+                RoutineExercisesCompanion.insert(
+                  routineId: id,
+                  exerciseId: re.exerciseId,
+                  sets: Value(re.sets),
+                  reps: Value(re.reps),
+                  weight: Value(re.weight),
+                  orderIndex: Value(re.orderIndex),
+                  setsData: Value(re.setsData),
+                ),
+              );
+        }
+      });
+      return const Right(null);
     } catch (e) {
       return Left(DatabaseFailure(e.toString()));
     }

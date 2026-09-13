@@ -282,8 +282,122 @@ void main() {
           );
           expect(link.sets, exerciseSeed.sets);
           expect(link.reps, exerciseSeed.reps);
+          expect(link.weight, exerciseSeed.weight);
         }
       }
+    },
+  );
+
+  test(
+    'la riapertura riallinea serie/ripetizioni/carico delle routine di '
+    'sistema al seed corrente, senza duplicare gli esercizi',
+    () async {
+      // Regressione: le routine di sistema erano seedate una sola volta,
+      // quindi correggere il carico (sempre 0 in origine) nei seed non
+      // arrivava a chi aveva gia' l'app installata.
+      final firstRun = AppDatabase(NativeDatabase(dbFile));
+      final firstRoutineSeed = getDefaultRoutines().first;
+      final systemRoutine = await (firstRun.select(firstRun.routines)..where(
+            (r) =>
+                r.title.equals(firstRoutineSeed.title) &
+                r.isSystem.equals(true),
+          ))
+          .getSingle();
+
+      // Simula una versione precedente del seed, con carico ancora a 0.
+      await (firstRun.update(
+        firstRun.routineExercises,
+      )..where((t) => t.routineId.equals(systemRoutine.id))).write(
+        const RoutineExercisesCompanion(
+          sets: Value(1),
+          reps: Value(1),
+          weight: Value(0),
+        ),
+      );
+      await firstRun.close();
+
+      final secondRun = AppDatabase(NativeDatabase(dbFile));
+      addTearDown(secondRun.close);
+
+      final realignedRoutine =
+          await (secondRun.select(secondRun.routines)..where(
+                (r) =>
+                    r.title.equals(firstRoutineSeed.title) &
+                    r.isSystem.equals(true),
+              ))
+              .getSingle();
+      final realignedExercises = await (secondRun.select(
+        secondRun.routineExercises,
+      )..where((t) => t.routineId.equals(realignedRoutine.id))).get();
+
+      expect(
+        realignedExercises.length,
+        firstRoutineSeed.exercises.length,
+        reason: 'il riallineamento non deve duplicare gli esercizi',
+      );
+      for (final exerciseSeed in firstRoutineSeed.exercises) {
+        final linkedExercise =
+            await (secondRun.select(secondRun.exercises)
+                  ..where((e) => e.name.equals(exerciseSeed.exerciseName)))
+                .getSingle();
+        final link = realignedExercises.firstWhere(
+          (row) => row.exerciseId == linkedExercise.id,
+        );
+        expect(link.sets, exerciseSeed.sets);
+        expect(link.reps, exerciseSeed.reps);
+        expect(link.weight, exerciseSeed.weight);
+      }
+    },
+  );
+
+  test(
+    'il riallineamento delle routine di sistema ignora un esercizio custom '
+    'omonimo di uno del catalogo',
+    () async {
+      // Regressione: il riallineamento ad ogni apertura risolve di nuovo
+      // ogni nome di esercizio delle routine di sistema (per aggiornarne
+      // sets/reps/weight), e la ricerca non escludeva gli esercizi custom.
+      // Un custom omonimo di uno di catalogo - "Crunch", usato in Full Body
+      // - Principianti - faceva fallire la query con "too many elements".
+      final firstRun = AppDatabase(NativeDatabase(dbFile));
+      await firstRun
+          .into(firstRun.exercises)
+          .insert(
+            ExercisesCompanion.insert(
+              name: 'Crunch',
+              targetMuscle: 'Addominali',
+              isCustom: const Value(true),
+            ),
+          );
+      await firstRun.close();
+
+      // Non deve lanciare, e deve restare collegata all'esercizio di
+      // catalogo, non al custom appena creato.
+      final secondRun = AppDatabase(NativeDatabase(dbFile));
+      addTearDown(secondRun.close);
+
+      final fullBody = await (secondRun.select(secondRun.routines)..where(
+            (r) =>
+                r.title.equals('Full Body – Principianti') &
+                r.isSystem.equals(true),
+          ))
+          .getSingle();
+      final catalogCrunch = await (secondRun.select(secondRun.exercises)
+            ..where(
+              (e) => e.name.equals('Crunch') & e.isCustom.equals(false),
+            ))
+          .getSingle();
+      final link =
+          await (secondRun.select(secondRun.routineExercises)..where(
+                (t) =>
+                    t.routineId.equals(fullBody.id) &
+                    t.exerciseId.equals(catalogCrunch.id),
+              ))
+              .getSingleOrNull();
+      // isA<RoutineExercise>() invece di isNotNull: quest'ultimo e'
+      // esportato sia da drift che da matcher e l'import risulterebbe
+      // ambiguo (vedi sopra).
+      expect(link, isA<RoutineExercise>());
     },
   );
 

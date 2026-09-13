@@ -39,6 +39,14 @@ class Routines extends Table {
   IntColumn get estimatedDuration => integer().nullable()();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   BoolColumn get isSystem => boolean().withDefault(const Constant(false))();
+
+  /// Routine di sistema da cui questa e' stata copiata (vedi copyRoutine),
+  /// nulla per le routine create da zero dall'utente. Permette di
+  /// ripristinare la copia ai valori di default senza tenere un legame
+  /// permanente: se l'origine sparisse, il ripristino fallisce ma la copia
+  /// resta comunque utilizzabile.
+  IntColumn get sourceRoutineId =>
+      integer().nullable().references(Routines, #id)();
 }
 
 class RoutineExercises extends Table {
@@ -141,7 +149,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 20;
+  int get schemaVersion => 21;
 
   @override
   MigrationStrategy get migration {
@@ -239,6 +247,12 @@ class AppDatabase extends _$AppDatabase {
     );
     await _ensureColumn(m, routines, routines.createdAt, 'created_at');
     await _ensureColumn(m, routines, routines.isSystem, 'is_system');
+    await _ensureColumn(
+      m,
+      routines,
+      routines.sourceRoutineId,
+      'source_routine_id',
+    );
 
     await _ensureColumn(
       m,
@@ -468,35 +482,55 @@ class AppDatabase extends _$AppDatabase {
       text == null ? const Value.absent() : Value(text);
 
   /// Inserisce le routine di sistema (uguali per tutti, non modificabili,
-  /// vedi isSystem) se non sono già presenti. Confronta per titolo così
-  /// resta idempotente ad ogni apertura e permette di aggiungerne altre in
-  /// futuro senza toccare quelle già seedate. Gli esercizi sono risolti per
+  /// vedi isSystem) se non sono già presenti, e riallinea i loro esercizi
+  /// (serie/ripetizioni/carico/ordine) al seed corrente se lo sono già.
+  /// Confronta per titolo così resta idempotente ad ogni apertura e
+  /// permette di aggiungerne altre in futuro. Gli esercizi sono risolti per
   /// nome dal catalogo già seedato (getDefaultRoutines in
   /// seeds/default_routines.dart).
+  ///
+  /// Il riallineamento ad ogni apertura (non solo alla prima installazione)
+  /// e' cio' che fa arrivare una correzione al seed - es. il carico, sempre
+  /// 0 in origine - anche a chi ha gia' l'app installata. E' sicuro perche'
+  /// le routine di sistema non sono mai modificabili dall'utente (vedi
+  /// _requireNonSystemRoutine in TrainingRepositoryImpl).
   Future<void> _seedDefaultRoutines() async {
     for (final routineSeed in getDefaultRoutines()) {
-      final alreadySeeded =
+      final existing =
           await (select(routines)..where(
                 (r) =>
                     r.title.equals(routineSeed.title) & r.isSystem.equals(true),
               ))
               .getSingleOrNull();
-      if (alreadySeeded != null) continue;
 
-      final routineId = await into(routines).insert(
-        RoutinesCompanion.insert(
-          title: routineSeed.title,
-          isSystem: const Value(true),
-        ),
-      );
+      final routineId =
+          existing?.id ??
+          await into(routines).insert(
+            RoutinesCompanion.insert(
+              title: routineSeed.title,
+              isSystem: const Value(true),
+            ),
+          );
+
+      await (delete(
+        routineExercises,
+      )..where((t) => t.routineId.equals(routineId))).go();
 
       for (var index = 0; index < routineSeed.exercises.length; index++) {
         final exerciseSeed = routineSeed.exercises[index];
-        final exerciseRow =
-            await (select(exercises)
-                  ..where((e) => e.name.equals(exerciseSeed.exerciseName)))
-                .getSingleOrNull();
-        if (exerciseRow == null) continue;
+        // Solo dal catalogo, mai da un esercizio custom dell'utente: un
+        // custom omonimo (caso limite, ma possibile) non deve ne' finire
+        // in una routine di sistema ne' far fallire la query con piu' di
+        // una riga trovata per lo stesso nome.
+        final matches =
+            await (select(exercises)..where(
+                  (e) =>
+                      e.name.equals(exerciseSeed.exerciseName) &
+                      e.isCustom.equals(false),
+                ))
+                .get();
+        if (matches.isEmpty) continue;
+        final exerciseRow = matches.first;
 
         await into(routineExercises).insert(
           RoutineExercisesCompanion.insert(
@@ -504,6 +538,7 @@ class AppDatabase extends _$AppDatabase {
             exerciseId: exerciseRow.id,
             sets: Value(exerciseSeed.sets),
             reps: Value(exerciseSeed.reps),
+            weight: Value(exerciseSeed.weight),
             orderIndex: Value(index),
           ),
         );

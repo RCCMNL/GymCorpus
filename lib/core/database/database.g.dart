@@ -68,6 +68,20 @@ class $RoutinesTable extends Routines with TableInfo<$RoutinesTable, Routine> {
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _sourceRoutineIdMeta = const VerificationMeta(
+    'sourceRoutineId',
+  );
+  @override
+  late final GeneratedColumn<int> sourceRoutineId = GeneratedColumn<int>(
+    'source_routine_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES routines (id)',
+    ),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -75,6 +89,7 @@ class $RoutinesTable extends Routines with TableInfo<$RoutinesTable, Routine> {
     estimatedDuration,
     createdAt,
     isSystem,
+    sourceRoutineId,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -120,6 +135,15 @@ class $RoutinesTable extends Routines with TableInfo<$RoutinesTable, Routine> {
         isSystem.isAcceptableOrUnknown(data['is_system']!, _isSystemMeta),
       );
     }
+    if (data.containsKey('source_routine_id')) {
+      context.handle(
+        _sourceRoutineIdMeta,
+        sourceRoutineId.isAcceptableOrUnknown(
+          data['source_routine_id']!,
+          _sourceRoutineIdMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -149,6 +173,10 @@ class $RoutinesTable extends Routines with TableInfo<$RoutinesTable, Routine> {
         DriftSqlType.bool,
         data['${effectivePrefix}is_system'],
       )!,
+      sourceRoutineId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}source_routine_id'],
+      ),
     );
   }
 
@@ -164,12 +192,20 @@ class Routine extends DataClass implements Insertable<Routine> {
   final int? estimatedDuration;
   final DateTime createdAt;
   final bool isSystem;
+
+  /// Routine di sistema da cui questa e' stata copiata (vedi copyRoutine),
+  /// nulla per le routine create da zero dall'utente. Permette di
+  /// ripristinare la copia ai valori di default senza tenere un legame
+  /// permanente: se l'origine sparisse, il ripristino fallisce ma la copia
+  /// resta comunque utilizzabile.
+  final int? sourceRoutineId;
   const Routine({
     required this.id,
     required this.title,
     this.estimatedDuration,
     required this.createdAt,
     required this.isSystem,
+    this.sourceRoutineId,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -181,6 +217,9 @@ class Routine extends DataClass implements Insertable<Routine> {
     }
     map['created_at'] = Variable<DateTime>(createdAt);
     map['is_system'] = Variable<bool>(isSystem);
+    if (!nullToAbsent || sourceRoutineId != null) {
+      map['source_routine_id'] = Variable<int>(sourceRoutineId);
+    }
     return map;
   }
 
@@ -193,6 +232,9 @@ class Routine extends DataClass implements Insertable<Routine> {
           : Value(estimatedDuration),
       createdAt: Value(createdAt),
       isSystem: Value(isSystem),
+      sourceRoutineId: sourceRoutineId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sourceRoutineId),
     );
   }
 
@@ -207,6 +249,7 @@ class Routine extends DataClass implements Insertable<Routine> {
       estimatedDuration: serializer.fromJson<int?>(json['estimatedDuration']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       isSystem: serializer.fromJson<bool>(json['isSystem']),
+      sourceRoutineId: serializer.fromJson<int?>(json['sourceRoutineId']),
     );
   }
   @override
@@ -218,6 +261,7 @@ class Routine extends DataClass implements Insertable<Routine> {
       'estimatedDuration': serializer.toJson<int?>(estimatedDuration),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'isSystem': serializer.toJson<bool>(isSystem),
+      'sourceRoutineId': serializer.toJson<int?>(sourceRoutineId),
     };
   }
 
@@ -227,6 +271,7 @@ class Routine extends DataClass implements Insertable<Routine> {
     Value<int?> estimatedDuration = const Value.absent(),
     DateTime? createdAt,
     bool? isSystem,
+    Value<int?> sourceRoutineId = const Value.absent(),
   }) => Routine(
     id: id ?? this.id,
     title: title ?? this.title,
@@ -235,6 +280,9 @@ class Routine extends DataClass implements Insertable<Routine> {
         : this.estimatedDuration,
     createdAt: createdAt ?? this.createdAt,
     isSystem: isSystem ?? this.isSystem,
+    sourceRoutineId: sourceRoutineId.present
+        ? sourceRoutineId.value
+        : this.sourceRoutineId,
   );
   Routine copyWithCompanion(RoutinesCompanion data) {
     return Routine(
@@ -245,6 +293,9 @@ class Routine extends DataClass implements Insertable<Routine> {
           : this.estimatedDuration,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       isSystem: data.isSystem.present ? data.isSystem.value : this.isSystem,
+      sourceRoutineId: data.sourceRoutineId.present
+          ? data.sourceRoutineId.value
+          : this.sourceRoutineId,
     );
   }
 
@@ -255,14 +306,21 @@ class Routine extends DataClass implements Insertable<Routine> {
           ..write('title: $title, ')
           ..write('estimatedDuration: $estimatedDuration, ')
           ..write('createdAt: $createdAt, ')
-          ..write('isSystem: $isSystem')
+          ..write('isSystem: $isSystem, ')
+          ..write('sourceRoutineId: $sourceRoutineId')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, title, estimatedDuration, createdAt, isSystem);
+  int get hashCode => Object.hash(
+    id,
+    title,
+    estimatedDuration,
+    createdAt,
+    isSystem,
+    sourceRoutineId,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -271,7 +329,8 @@ class Routine extends DataClass implements Insertable<Routine> {
           other.title == this.title &&
           other.estimatedDuration == this.estimatedDuration &&
           other.createdAt == this.createdAt &&
-          other.isSystem == this.isSystem);
+          other.isSystem == this.isSystem &&
+          other.sourceRoutineId == this.sourceRoutineId);
 }
 
 class RoutinesCompanion extends UpdateCompanion<Routine> {
@@ -280,12 +339,14 @@ class RoutinesCompanion extends UpdateCompanion<Routine> {
   final Value<int?> estimatedDuration;
   final Value<DateTime> createdAt;
   final Value<bool> isSystem;
+  final Value<int?> sourceRoutineId;
   const RoutinesCompanion({
     this.id = const Value.absent(),
     this.title = const Value.absent(),
     this.estimatedDuration = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.isSystem = const Value.absent(),
+    this.sourceRoutineId = const Value.absent(),
   });
   RoutinesCompanion.insert({
     this.id = const Value.absent(),
@@ -293,6 +354,7 @@ class RoutinesCompanion extends UpdateCompanion<Routine> {
     this.estimatedDuration = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.isSystem = const Value.absent(),
+    this.sourceRoutineId = const Value.absent(),
   }) : title = Value(title);
   static Insertable<Routine> custom({
     Expression<int>? id,
@@ -300,6 +362,7 @@ class RoutinesCompanion extends UpdateCompanion<Routine> {
     Expression<int>? estimatedDuration,
     Expression<DateTime>? createdAt,
     Expression<bool>? isSystem,
+    Expression<int>? sourceRoutineId,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -307,6 +370,7 @@ class RoutinesCompanion extends UpdateCompanion<Routine> {
       if (estimatedDuration != null) 'estimated_duration': estimatedDuration,
       if (createdAt != null) 'created_at': createdAt,
       if (isSystem != null) 'is_system': isSystem,
+      if (sourceRoutineId != null) 'source_routine_id': sourceRoutineId,
     });
   }
 
@@ -316,6 +380,7 @@ class RoutinesCompanion extends UpdateCompanion<Routine> {
     Value<int?>? estimatedDuration,
     Value<DateTime>? createdAt,
     Value<bool>? isSystem,
+    Value<int?>? sourceRoutineId,
   }) {
     return RoutinesCompanion(
       id: id ?? this.id,
@@ -323,6 +388,7 @@ class RoutinesCompanion extends UpdateCompanion<Routine> {
       estimatedDuration: estimatedDuration ?? this.estimatedDuration,
       createdAt: createdAt ?? this.createdAt,
       isSystem: isSystem ?? this.isSystem,
+      sourceRoutineId: sourceRoutineId ?? this.sourceRoutineId,
     );
   }
 
@@ -344,6 +410,9 @@ class RoutinesCompanion extends UpdateCompanion<Routine> {
     if (isSystem.present) {
       map['is_system'] = Variable<bool>(isSystem.value);
     }
+    if (sourceRoutineId.present) {
+      map['source_routine_id'] = Variable<int>(sourceRoutineId.value);
+    }
     return map;
   }
 
@@ -354,7 +423,8 @@ class RoutinesCompanion extends UpdateCompanion<Routine> {
           ..write('title: $title, ')
           ..write('estimatedDuration: $estimatedDuration, ')
           ..write('createdAt: $createdAt, ')
-          ..write('isSystem: $isSystem')
+          ..write('isSystem: $isSystem, ')
+          ..write('sourceRoutineId: $sourceRoutineId')
           ..write(')'))
         .toString();
   }
@@ -4766,6 +4836,7 @@ typedef $$RoutinesTableCreateCompanionBuilder =
       Value<int?> estimatedDuration,
       Value<DateTime> createdAt,
       Value<bool> isSystem,
+      Value<int?> sourceRoutineId,
     });
 typedef $$RoutinesTableUpdateCompanionBuilder =
     RoutinesCompanion Function({
@@ -4774,11 +4845,29 @@ typedef $$RoutinesTableUpdateCompanionBuilder =
       Value<int?> estimatedDuration,
       Value<DateTime> createdAt,
       Value<bool> isSystem,
+      Value<int?> sourceRoutineId,
     });
 
 final class $$RoutinesTableReferences
     extends BaseReferences<_$AppDatabase, $RoutinesTable, Routine> {
   $$RoutinesTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $RoutinesTable _sourceRoutineIdTable(_$AppDatabase db) =>
+      db.routines.createAlias('routines__source_routine_id__routines__id');
+
+  $$RoutinesTableProcessedTableManager? get sourceRoutineId {
+    final $_column = $_itemColumn<int>('source_routine_id');
+    if ($_column == null) return null;
+    final manager = $$RoutinesTableTableManager(
+      $_db,
+      $_db.routines,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_sourceRoutineIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
 
   static MultiTypedResultKey<$WorkoutsTable, List<Workout>> _workoutsRefsTable(
     _$AppDatabase db,
@@ -4853,6 +4942,29 @@ class $$RoutinesTableFilterComposer
     column: $table.isSystem,
     builder: (column) => ColumnFilters(column),
   );
+
+  $$RoutinesTableFilterComposer get sourceRoutineId {
+    final $$RoutinesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.sourceRoutineId,
+      referencedTable: $db.routines,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$RoutinesTableFilterComposer(
+            $db: $db,
+            $table: $db.routines,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 
   Expression<bool> workoutsRefs(
     Expression<bool> Function($$WorkoutsTableFilterComposer f) f,
@@ -4938,6 +5050,29 @@ class $$RoutinesTableOrderingComposer
     column: $table.isSystem,
     builder: (column) => ColumnOrderings(column),
   );
+
+  $$RoutinesTableOrderingComposer get sourceRoutineId {
+    final $$RoutinesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.sourceRoutineId,
+      referencedTable: $db.routines,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$RoutinesTableOrderingComposer(
+            $db: $db,
+            $table: $db.routines,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 }
 
 class $$RoutinesTableAnnotationComposer
@@ -4965,6 +5100,29 @@ class $$RoutinesTableAnnotationComposer
 
   GeneratedColumn<bool> get isSystem =>
       $composableBuilder(column: $table.isSystem, builder: (column) => column);
+
+  $$RoutinesTableAnnotationComposer get sourceRoutineId {
+    final $$RoutinesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.sourceRoutineId,
+      referencedTable: $db.routines,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$RoutinesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.routines,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 
   Expression<T> workoutsRefs<T extends Object>(
     Expression<T> Function($$WorkoutsTableAnnotationComposer a) f,
@@ -5030,7 +5188,11 @@ class $$RoutinesTableTableManager
           $$RoutinesTableUpdateCompanionBuilder,
           (Routine, $$RoutinesTableReferences),
           Routine,
-          PrefetchHooks Function({bool workoutsRefs, bool routineExercisesRefs})
+          PrefetchHooks Function({
+            bool sourceRoutineId,
+            bool workoutsRefs,
+            bool routineExercisesRefs,
+          })
         > {
   $$RoutinesTableTableManager(_$AppDatabase db, $RoutinesTable table)
     : super(
@@ -5050,12 +5212,14 @@ class $$RoutinesTableTableManager
                 Value<int?> estimatedDuration = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<bool> isSystem = const Value.absent(),
+                Value<int?> sourceRoutineId = const Value.absent(),
               }) => RoutinesCompanion(
                 id: id,
                 title: title,
                 estimatedDuration: estimatedDuration,
                 createdAt: createdAt,
                 isSystem: isSystem,
+                sourceRoutineId: sourceRoutineId,
               ),
           createCompanionCallback:
               ({
@@ -5064,12 +5228,14 @@ class $$RoutinesTableTableManager
                 Value<int?> estimatedDuration = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<bool> isSystem = const Value.absent(),
+                Value<int?> sourceRoutineId = const Value.absent(),
               }) => RoutinesCompanion.insert(
                 id: id,
                 title: title,
                 estimatedDuration: estimatedDuration,
                 createdAt: createdAt,
                 isSystem: isSystem,
+                sourceRoutineId: sourceRoutineId,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -5080,14 +5246,49 @@ class $$RoutinesTableTableManager
               )
               .toList(),
           prefetchHooksCallback:
-              ({workoutsRefs = false, routineExercisesRefs = false}) {
+              ({
+                sourceRoutineId = false,
+                workoutsRefs = false,
+                routineExercisesRefs = false,
+              }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
                     if (workoutsRefs) db.workouts,
                     if (routineExercisesRefs) db.routineExercises,
                   ],
-                  addJoins: null,
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (sourceRoutineId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.sourceRoutineId,
+                                    referencedTable: $$RoutinesTableReferences
+                                        ._sourceRoutineIdTable(db),
+                                    referencedColumn: $$RoutinesTableReferences
+                                        ._sourceRoutineIdTable(db)
+                                        .id,
+                                  )
+                                  as T;
+                        }
+
+                        return state;
+                      },
                   getPrefetchedDataCallback: (items) async {
                     return [
                       if (workoutsRefs)
@@ -5152,7 +5353,11 @@ typedef $$RoutinesTableProcessedTableManager =
       $$RoutinesTableUpdateCompanionBuilder,
       (Routine, $$RoutinesTableReferences),
       Routine,
-      PrefetchHooks Function({bool workoutsRefs, bool routineExercisesRefs})
+      PrefetchHooks Function({
+        bool sourceRoutineId,
+        bool workoutsRefs,
+        bool routineExercisesRefs,
+      })
     >;
 typedef $$WorkoutsTableCreateCompanionBuilder =
     WorkoutsCompanion Function({
