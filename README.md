@@ -103,7 +103,11 @@ Come arriva SQLCipher:
   controllo su `cipher_version`. Il hook scarica binari precompilati, quindi la prima
   build richiede la rete.
 - **Android**: nessun setup nel progetto nativo. Il workaround per Android 6 e
-  precedenti non serve, il progetto ha `minSdk = 26`.
+  precedenti non serve, il progetto ha `minSdk = 26`. Verificato a settembre 2026 su
+  un dispositivo con Android 16: un database cifrato dalla vecchia
+  `sqlcipher_flutter_libs` (SQLCipher 4.5.5) si apre con la versione 3 (SQLCipher
+  4.18.0) senza conversioni, perche' dentro SQLCipher 4 il formato del file non cambia.
+  Con un futuro SQLCipher 5 la prova andra' rifatta.
 - **iOS e macOS**: non ancora verificati dopo il passaggio alla versione 3. Se un'altra
   libreria nativa collegasse gia' SQLite, vedi `doc/hook.md` del pacchetto `sqlite3`;
   il controllo su `cipher_version` fa emergere il problema al primo avvio.
