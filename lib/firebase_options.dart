@@ -50,13 +50,12 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyAm3se1v64P8NpSOwSnQccfVf3SjRJ0s9o',
-    appId: '1:996703301991:android:7005bdeceb97f161947fc2',
+    apiKey: 'AIzaSyCyUKTzpZQZeXfve48kmQvDeb2dDs-DOuQ',
+    appId: '1:996703301991:android:ccbe83e19b71b315947fc2',
     messagingSenderId: '996703301991',
     projectId: 'gymcorpus-project',
     storageBucket: 'gymcorpus-project.firebasestorage.app',
   );
-
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyB3_2KIcM2vgQ-EudUouO3uhOuxE4AJBTc',
     appId: '1:996703301991:ios:5ce886a0d4837a3f947fc2',

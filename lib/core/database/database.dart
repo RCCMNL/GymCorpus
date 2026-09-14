@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:gym_corpus/core/database/seed_data.dart';
+import 'package:gym_corpus/core/database/seeds/default_routines.dart';
 
 // Dopo aver runnato build_runner questo file verrà generato
 part 'database.g.dart';
@@ -28,6 +29,8 @@ class Exercises extends Table {
   BoolColumn get isBodyweight => boolean().withDefault(const Constant(false))();
   BoolColumn get isVector => boolean().withDefault(const Constant(false))();
   BoolColumn get isFavorite => boolean().withDefault(const Constant(false))();
+  TextColumn get difficulty => text().nullable()();
+  BoolColumn get isCustom => boolean().withDefault(const Constant(false))();
 }
 
 class Routines extends Table {
@@ -35,6 +38,15 @@ class Routines extends Table {
   TextColumn get title => text()();
   IntColumn get estimatedDuration => integer().nullable()();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+  BoolColumn get isSystem => boolean().withDefault(const Constant(false))();
+
+  /// Routine di sistema da cui questa e' stata copiata (vedi copyRoutine),
+  /// nulla per le routine create da zero dall'utente. Permette di
+  /// ripristinare la copia ai valori di default senza tenere un legame
+  /// permanente: se l'origine sparisse, il ripristino fallisce ma la copia
+  /// resta comunque utilizzabile.
+  IntColumn get sourceRoutineId =>
+      integer().nullable().references(Routines, #id)();
 }
 
 class RoutineExercises extends Table {
@@ -91,6 +103,11 @@ class CardioSessions extends Table {
   IntColumn get steps => integer().nullable()(); // Passi tracciati
   TextColumn get routeJson =>
       text().nullable()(); // JSON string of latlng coordinates
+
+  /// Obiettivo scelto prima di partire, se c'era: serve allo storico per
+  /// dire se e' stato raggiunto.
+  TextColumn get goalType => text().nullable()();
+  RealColumn get goalValue => real().nullable()();
   DateTimeColumn get date => dateTime()();
 }
 
@@ -101,6 +118,16 @@ class NotificationLogs extends Table {
   DateTimeColumn get timestamp => dateTime().withDefault(currentDateAndTime)();
   BoolColumn get isRead => boolean().withDefault(const Constant(false))();
   TextColumn get type => text().withDefault(const Constant('general'))();
+}
+
+class CycleLogs extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  DateTimeColumn get startDate => dateTime()();
+
+  /// Nullo finche' la mestruazione e' in corso: e' l'unico dato che
+  /// distingue un ciclo aperto da uno concluso, quindi non va riempito
+  /// con una data di comodo quando manca.
+  DateTimeColumn get endDate => dateTime().nullable()();
 }
 
 @DriftDatabase(
@@ -115,13 +142,14 @@ class NotificationLogs extends Table {
     CardioSessions,
     BodyMeasurements,
     NotificationLogs,
+    CycleLogs,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 16;
+  int get schemaVersion => 21;
 
   @override
   MigrationStrategy get migration {
@@ -136,6 +164,8 @@ class AppDatabase extends _$AppDatabase {
         final m = createMigrator();
         await _ensureCurrentTables(m);
         await _ensureCurrentColumns(m);
+        await _renameLegacySeedExercises();
+        await _syncSeedExerciseContent();
 
         final exercisesExist = await select(exercises).get();
 
@@ -143,6 +173,8 @@ class AppDatabase extends _$AppDatabase {
           // Se la tabella è vuota, inseriamo il seeding iniziale
           await _seedInitialData();
         }
+
+        await _seedDefaultRoutines();
       },
     );
   }
@@ -169,6 +201,7 @@ class AppDatabase extends _$AppDatabase {
     await _ensureTable(m, cardioSessions);
     await _ensureTable(m, bodyMeasurements);
     await _ensureTable(m, notificationLogs);
+    await _ensureTable(m, cycleLogs);
   }
 
   Future<void> _ensureCurrentColumns(Migrator m) async {
@@ -197,6 +230,8 @@ class AppDatabase extends _$AppDatabase {
     await _ensureColumn(m, exercises, exercises.isBodyweight, 'is_bodyweight');
     await _ensureColumn(m, exercises, exercises.isVector, 'is_vector');
     await _ensureColumn(m, exercises, exercises.isFavorite, 'is_favorite');
+    await _ensureColumn(m, exercises, exercises.difficulty, 'difficulty');
+    await _ensureColumn(m, exercises, exercises.isCustom, 'is_custom');
 
     await customStatement("""
       UPDATE ${exercises.actualTableName}
@@ -211,6 +246,13 @@ class AppDatabase extends _$AppDatabase {
       'estimated_duration',
     );
     await _ensureColumn(m, routines, routines.createdAt, 'created_at');
+    await _ensureColumn(m, routines, routines.isSystem, 'is_system');
+    await _ensureColumn(
+      m,
+      routines,
+      routines.sourceRoutineId,
+      'source_routine_id',
+    );
 
     await _ensureColumn(
       m,
@@ -242,6 +284,18 @@ class AppDatabase extends _$AppDatabase {
     await _ensureColumn(
       m,
       cardioSessions,
+      cardioSessions.goalType,
+      'goal_type',
+    );
+    await _ensureColumn(
+      m,
+      cardioSessions,
+      cardioSessions.goalValue,
+      'goal_value',
+    );
+    await _ensureColumn(
+      m,
+      cardioSessions,
       cardioSessions.routeJson,
       'route_json',
     );
@@ -266,6 +320,230 @@ class AppDatabase extends _$AppDatabase {
       'is_read',
     );
     await _ensureColumn(m, notificationLogs, notificationLogs.type, 'type');
+  }
+
+  /// Chiave con cui un esercizio del catalogo ritrova la sua riga.
+  static String _seedKey(String name, String muscle) => '$name|$muscle';
+
+  /// Nomi del catalogo corretti dopo essere gia' stati seminati.
+  ///
+  /// Tre coppie di esercizi diversi avevano lo stesso nome e lo stesso
+  /// muscolo - la variante con disco o bilanciere, quella ai cavi, quella
+  /// col manubrio - e tre nomi avevano una parentesi chiusa senza quella
+  /// aperta.
+  static const _renamedSeedExercises = [
+    (
+      muscle: 'Spalle',
+      from: 'Alzate frontali',
+      to: 'Alzate frontali (Disco o Bilanciere)',
+    ),
+    (
+      muscle: 'Bicipiti',
+      from: 'Curl Hammer',
+      to: 'Curl Hammer ai cavi (Corda)',
+    ),
+    (
+      muscle: 'Bicipiti',
+      from: 'Curl su Panca Scott',
+      to: 'Curl su Panca Scott (Manubrio)',
+    ),
+    (
+      muscle: 'Polpacci',
+      from: 'Calf Raises su scalino, 2 gambe)',
+      to: 'Calf Raises su scalino (2 gambe)',
+    ),
+    (
+      muscle: 'Polpacci',
+      from: 'Calf Raises su scalino, 1 gamba)',
+      to: 'Calf Raises su scalino (1 gamba)',
+    ),
+    (muscle: 'Spalle', from: 'Neck Press)', to: 'Neck Press'),
+  ];
+
+  /// Porta sui database gia' popolati i nomi corretti nel catalogo.
+  ///
+  /// Il seeding gira solo a tabella vuota, quindi chi aveva gia' il
+  /// database terrebbe i vecchi nomi per sempre. Si rinomina finche' ci
+  /// sono piu' righe col vecchio nome di quante il catalogo ne preveda: per
+  /// le coppie omonime la variante era la seconda voce, e il seeding
+  /// inserisce in ordine, quindi e' la riga con l'id piu' alto. L'id non
+  /// cambia, e con lui restano attaccati serie registrate, note e
+  /// preferiti. Gli esercizi custom non si toccano.
+  Future<void> _renameLegacySeedExercises() async {
+    final catalog = getSeedExercises();
+
+    for (final rename in _renamedSeedExercises) {
+      final expected = catalog
+          .where(
+            (s) =>
+                s.name.value == rename.from &&
+                s.targetMuscle.value == rename.muscle,
+          )
+          .length;
+
+      final rows =
+          await (select(exercises)
+                ..where(
+                  (e) =>
+                      e.isCustom.equals(false) &
+                      e.targetMuscle.equals(rename.muscle) &
+                      e.name.equals(rename.from),
+                )
+                ..orderBy([(e) => OrderingTerm.desc(e.id)]))
+              .get();
+      if (rows.length <= expected) continue;
+
+      final alreadyRenamed =
+          await (select(exercises)..where(
+                (e) =>
+                    e.isCustom.equals(false) &
+                    e.targetMuscle.equals(rename.muscle) &
+                    e.name.equals(rename.to),
+              ))
+              .get();
+      if (alreadyRenamed.isNotEmpty) continue;
+
+      await (update(exercises)..where((e) => e.id.equals(rows.first.id))).write(
+        ExercisesCompanion(name: Value(rename.to)),
+      );
+    }
+  }
+
+  /// Riallinea gli esercizi predefiniti al catalogo seed, che resta
+  /// l'unica fonte del dato.
+  ///
+  /// Il seeding iniziale in [_seedInitialData] gira solo a tabella vuota,
+  /// quindi chi ha già il database popolato non riceve nessuna correzione
+  /// successiva: è così che la difficoltà restava nulla dopo averla
+  /// introdotta, e che il refuso "with" al posto di "con" è rimasto
+  /// visibile nell'attrezzatura anche dopo averlo corretto nei seed.
+  ///
+  /// Scrive solo le righe che differiscono davvero, così un database già
+  /// allineato non paga nulla ad ogni apertura. Tocca esclusivamente i
+  /// campi di catalogo: note personali e preferiti sono dell'utente, e
+  /// gli esercizi custom non hanno una controparte nei seed.
+  ///
+  /// Le righe si ritrovano per nome e muscolo, non per nome soltanto:
+  /// `Face Pull` esiste sotto Dorso e sotto Spalle con istruzioni diverse,
+  /// e ritrovandole per nome l'ultima voce del catalogo sovrascriveva i
+  /// testi dell'altra a ogni apertura.
+  Future<void> _syncSeedExerciseContent() async {
+    final seedByKey = <String, ExercisesCompanion>{
+      for (final s in getSeedExercises())
+        _seedKey(s.name.value, s.targetMuscle.value): s,
+    };
+
+    final rows = await (select(
+      exercises,
+    )..where((e) => e.isCustom.equals(false))).get();
+
+    for (final row in rows) {
+      final seed = seedByKey[_seedKey(row.name, row.targetMuscle)];
+      if (seed == null) continue;
+
+      final equipment = _seedText(seed.equipment);
+      final focusArea = _seedText(seed.focusArea);
+      final preparation = _seedText(seed.preparation);
+      final execution = _seedText(seed.execution);
+      final tips = _seedText(seed.tips);
+      final difficulty = _seedText(seed.difficulty);
+      final videoUrl = _seedText(seed.referenceVideoUrl);
+
+      final needsUpdate =
+          (equipment != null && equipment != row.equipment) ||
+          (focusArea != null && focusArea != row.focusArea) ||
+          (preparation != null && preparation != row.preparation) ||
+          (execution != null && execution != row.execution) ||
+          (tips != null && tips != row.tips) ||
+          (difficulty != null && difficulty != row.difficulty) ||
+          (videoUrl != null && videoUrl != row.referenceVideoUrl);
+      if (!needsUpdate) continue;
+
+      await (update(exercises)..where((e) => e.id.equals(row.id))).write(
+        ExercisesCompanion(
+          equipment: _valueOrAbsent(equipment),
+          focusArea: _valueOrAbsent(focusArea),
+          preparation: _valueOrAbsent(preparation),
+          execution: _valueOrAbsent(execution),
+          tips: _valueOrAbsent(tips),
+          difficulty: _valueOrAbsent(difficulty),
+          referenceVideoUrl: _valueOrAbsent(videoUrl),
+        ),
+      );
+    }
+  }
+
+  /// Testo dichiarato dal seed, oppure `null` se quel campo non è
+  /// specificato: in quel caso il valore già presente non va toccato.
+  static String? _seedText(Value<String?> field) =>
+      field.present ? field.value : null;
+
+  static Value<String?> _valueOrAbsent(String? text) =>
+      text == null ? const Value.absent() : Value(text);
+
+  /// Inserisce le routine di sistema (uguali per tutti, non modificabili,
+  /// vedi isSystem) se non sono già presenti, e riallinea i loro esercizi
+  /// (serie/ripetizioni/carico/ordine) al seed corrente se lo sono già.
+  /// Confronta per titolo così resta idempotente ad ogni apertura e
+  /// permette di aggiungerne altre in futuro. Gli esercizi sono risolti per
+  /// nome dal catalogo già seedato (getDefaultRoutines in
+  /// seeds/default_routines.dart).
+  ///
+  /// Il riallineamento ad ogni apertura (non solo alla prima installazione)
+  /// e' cio' che fa arrivare una correzione al seed - es. il carico, sempre
+  /// 0 in origine - anche a chi ha gia' l'app installata. E' sicuro perche'
+  /// le routine di sistema non sono mai modificabili dall'utente (vedi
+  /// _requireNonSystemRoutine in TrainingRepositoryImpl).
+  Future<void> _seedDefaultRoutines() async {
+    for (final routineSeed in getDefaultRoutines()) {
+      final existing =
+          await (select(routines)..where(
+                (r) =>
+                    r.title.equals(routineSeed.title) & r.isSystem.equals(true),
+              ))
+              .getSingleOrNull();
+
+      final routineId =
+          existing?.id ??
+          await into(routines).insert(
+            RoutinesCompanion.insert(
+              title: routineSeed.title,
+              isSystem: const Value(true),
+            ),
+          );
+
+      await (delete(
+        routineExercises,
+      )..where((t) => t.routineId.equals(routineId))).go();
+
+      for (var index = 0; index < routineSeed.exercises.length; index++) {
+        final exerciseSeed = routineSeed.exercises[index];
+        // Solo dal catalogo, mai da un esercizio custom dell'utente: un
+        // custom omonimo (caso limite, ma possibile) non deve ne' finire
+        // in una routine di sistema ne' far fallire la query con piu' di
+        // una riga trovata per lo stesso nome.
+        final matches =
+            await (select(exercises)..where(
+                  (e) =>
+                      e.name.equals(exerciseSeed.exerciseName) &
+                      e.isCustom.equals(false),
+                ))
+                .get();
+        if (matches.isEmpty) continue;
+        final exerciseRow = matches.first;
+
+        await into(routineExercises).insert(
+          RoutineExercisesCompanion.insert(
+            routineId: routineId,
+            exerciseId: exerciseRow.id,
+            sets: Value(exerciseSeed.sets),
+            reps: Value(exerciseSeed.reps),
+            weight: Value(exerciseSeed.weight),
+            orderIndex: Value(index),
+          ),
+        );
+      }
+    }
   }
 
   Future<void> _ensureTable(Migrator m, TableInfo<Table, dynamic> table) async {
@@ -518,6 +796,33 @@ class AppDatabase extends _$AppDatabase {
   Future<void> deleteCardioSession(int id) =>
       (delete(cardioSessions)..where((t) => t.id.equals(id))).go();
 
+  // Cycle logs
+  Stream<List<CycleLog>> watchAllCycleLogs() =>
+      (select(cycleLogs)..orderBy([
+            (t) =>
+                OrderingTerm(expression: t.startDate, mode: OrderingMode.desc),
+          ]))
+          .watch();
+
+  Future<int> insertCycleLog(CycleLogsCompanion log) =>
+      into(cycleLogs).insert(log);
+
+  Future<void> closeCycleLog(int id, DateTime endDate) =>
+      (update(cycleLogs)..where((t) => t.id.equals(id))).write(
+        CycleLogsCompanion(endDate: Value(endDate)),
+      );
+
+  Future<void> updateCycleLog(int id, DateTime startDate, DateTime? endDate) =>
+      (update(cycleLogs)..where((t) => t.id.equals(id))).write(
+        CycleLogsCompanion(
+          startDate: Value(startDate),
+          endDate: Value(endDate),
+        ),
+      );
+
+  Future<void> deleteCycleLog(int id) =>
+      (delete(cycleLogs)..where((t) => t.id.equals(id))).go();
+
   // Notification logs
   Stream<List<NotificationLog>> watchAllNotificationLogs() =>
       (select(notificationLogs)..orderBy([
@@ -550,8 +855,15 @@ class AppDatabase extends _$AppDatabase {
     await delete(weightLogs).go();
     await delete(workoutSets).go();
     await delete(workouts).go();
-    await delete(routineExercises).go();
-    await delete(routines).go();
+    // Le routine di sistema sono uguali per tutti e non appartengono
+    // all'utente: un logout/reset non deve farle sparire.
+    final userRoutineIds = await (select(
+      routines,
+    )..where((r) => r.isSystem.equals(false))).map((r) => r.id).get();
+    await (delete(
+      routineExercises,
+    )..where((t) => t.routineId.isIn(userRoutineIds))).go();
+    await (delete(routines)..where((t) => t.isSystem.equals(false))).go();
     await update(exercises).write(
       const ExercisesCompanion(
         userNotes: Value<String?>(null),

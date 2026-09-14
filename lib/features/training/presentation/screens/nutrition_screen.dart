@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gym_corpus/core/widgets/app_card.dart';
+import 'package:gym_corpus/core/widgets/gradient_title.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
-import 'package:gym_corpus/core/widgets/section_title.dart';
+import 'package:gym_corpus/core/widgets/icon_badge.dart';
+import 'package:gym_corpus/core/widgets/labels.dart';
 
 class NutritionScreen extends StatelessWidget {
   const NutritionScreen({super.key});
@@ -21,10 +24,10 @@ class NutritionScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.tertiary.withValues(alpha: 0.1),
+                  color: theme.colorScheme.tertiary.tintedFill,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: theme.colorScheme.tertiary.withValues(alpha: 0.2),
+                    color: theme.colorScheme.tertiary.tintedBorder,
                   ),
                 ),
                 child: Row(
@@ -48,23 +51,7 @@ class NutritionScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 32),
-              ShaderMask(
-                shaderCallback: (bounds) => LinearGradient(
-                  colors: [
-                    theme.colorScheme.primary,
-                    theme.colorScheme.tertiary,
-                  ],
-                ).createShader(bounds),
-                child: Text(
-                  'Nutrizione',
-                  style: theme.textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.w900,
-                    fontFamily: 'Lexend',
-                    color: Colors.white,
-                    fontSize: 28,
-                  ),
-                ),
-              ),
+              const GradientTitle('Nutrizione'),
               const SizedBox(height: 8),
               Text(
                 'IL TUO CARBURANTE QUOTIDIANO',
@@ -75,7 +62,7 @@ class NutritionScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 32),
-              _buildMacroSection(theme),
+              _buildMacroSection(context, theme),
               const SizedBox(height: 24),
               _buildWaterTracker(theme),
               const SizedBox(height: 32),
@@ -83,13 +70,25 @@ class NutritionScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const SectionTitle('PASTI DI OGGI'),
-                  TextButton(
-                    onPressed: () {},
+                  // Niente pulsante "Aggiungi": la sezione e' ancora in
+                  // sviluppo (vedi il banner in cima) e un controllo che
+                  // al tocco non fa nulla non si legge come "in arrivo",
+                  // si legge come app rotta. Meglio dichiararlo.
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.surfaceContainerHigh,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                     child: Text(
-                      'Aggiungi +',
-                      style: TextStyle(
-                        color: theme.colorScheme.primary,
-                        fontWeight: FontWeight.bold,
+                      'PRESTO DISPONIBILE',
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: theme.colorScheme.outline,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 9,
                       ),
                     ),
                   ),
@@ -134,13 +133,10 @@ class NutritionScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildMacroSection(ThemeData theme) {
-    return Container(
+  Widget _buildMacroSection(BuildContext context, ThemeData theme) {
+    return AppCard(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(24),
-      ),
+      tone: AppCardTone.sunken,
       child: Column(
         children: [
           Row(
@@ -164,9 +160,19 @@ class NutritionScreen extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildMacroItem('Prot', '180g', Colors.redAccent),
-              _buildMacroItem('Carb', '250g', Colors.blueAccent),
-              _buildMacroItem('Grassi', '70g', Colors.yellowAccent),
+              _buildMacroItem(
+                context,
+                'Prot',
+                '180g',
+                theme.colorScheme.primary,
+              ),
+              _buildMacroItem(context, 'Carb', '250g', const Color(0xFF37CBFD)),
+              _buildMacroItem(
+                context,
+                'Grassi',
+                '70g',
+                const Color(0xFFFFC46B),
+              ),
             ],
           ),
         ],
@@ -174,7 +180,12 @@ class NutritionScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildMacroItem(String label, String value, Color color) {
+  Widget _buildMacroItem(
+    BuildContext context,
+    String label,
+    String value,
+    Color color,
+  ) {
     return Column(
       children: [
         Container(
@@ -194,7 +205,13 @@ class NutritionScreen extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
-        Text(label, style: const TextStyle(fontSize: 10, color: Colors.grey)),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 10,
+            color: Theme.of(context).colorScheme.outline,
+          ),
+        ),
       ],
     );
   }
@@ -281,23 +298,14 @@ class NutritionScreen extends StatelessWidget {
     IconData icon,
     Color color,
   ) {
-    return Container(
+    return AppCard(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(16),
-      ),
+      size: AppCardSize.tight,
+      tone: AppCardTone.sunken,
       child: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icon, color: color, size: 20),
-          ),
+          IconBadge(icon, color: color, size: IconBadgeSize.small),
           const SizedBox(width: 16),
           Expanded(
             child: Text(
@@ -337,12 +345,9 @@ class NutritionScreen extends StatelessWidget {
           extra: {'title': title, 'body': summary, 'imageUrl': imageUrl},
         );
       },
-      child: Container(
+      child: AppCard(
         margin: const EdgeInsets.only(bottom: 16),
-        decoration: BoxDecoration(
-          color: theme.colorScheme.surfaceContainerHigh,
-          borderRadius: BorderRadius.circular(20),
-        ),
+        tone: AppCardTone.sunken,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

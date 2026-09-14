@@ -3,8 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_event.dart';
+import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
 import 'package:gym_corpus/features/profile/presentation/widgets/feedback_dialog.dart';
 import 'package:gym_corpus/features/profile/presentation/widgets/profile_list_widgets.dart';
+import 'package:gym_corpus/features/profile/presentation/widgets/profile_menu_tab.dart';
 import 'package:gym_corpus/features/profile/presentation/widgets/timer_picker_sheet.dart';
 import 'package:gym_corpus/features/profile/presentation/widgets/unit_picker_sheet.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
@@ -27,6 +29,16 @@ class SettingsMenuTab extends StatelessWidget {
         : <String, String>{};
     final isAudioEnabled = settings['audio_effects'] == 'true';
     final isVibrationEnabled = settings['vibration'] == 'true';
+
+    // Acceso di default per i profili femminili, come la voce nel menu: da
+    // qui si accende o si spegne a prescindere dal sesso indicato.
+    final cyclePreference = settings[ProfileMenuTab.cycleCalendarSetting];
+    final isCycleCalendarEnabled = cyclePreference != null
+        ? cyclePreference == 'true'
+        : context.watch<AuthBloc>().state.maybeWhen(
+            authenticated: (user, _) => user.gender == 'Donna',
+            orElse: () => false,
+          );
 
     return Column(
       key: const ValueKey('settings_menu'),
@@ -104,6 +116,25 @@ class SettingsMenuTab extends StatelessWidget {
                   onChanged: (val) {
                     context.read<TrainingBloc>().add(
                       UpdatePreferenceEvent('vibration', val.toString()),
+                    );
+                  },
+                  activeThumbColor: theme.colorScheme.primary,
+                ),
+              ),
+            ),
+            ProfileItem(
+              icon: Icons.auto_awesome_rounded,
+              label: 'Calendario ciclo',
+              trailing: Transform.scale(
+                scale: 0.8,
+                child: Switch(
+                  value: isCycleCalendarEnabled,
+                  onChanged: (val) {
+                    context.read<TrainingBloc>().add(
+                      UpdatePreferenceEvent(
+                        ProfileMenuTab.cycleCalendarSetting,
+                        val.toString(),
+                      ),
                     );
                   },
                   activeThumbColor: theme.colorScheme.primary,

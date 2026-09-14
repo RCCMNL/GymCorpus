@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gym_corpus/core/utils/unit_converter.dart';
+import 'package:gym_corpus/features/exercises/presentation/widgets/exercise_thumbnail.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 import 'package:gym_corpus/features/training/domain/exercise_set.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
@@ -176,27 +177,19 @@ class _SelectedExerciseTileState extends State<SelectedExerciseTile> {
                         color: theme.colorScheme.surfaceContainerHighest,
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.keyboard_arrow_down_rounded,
-                        color: Colors.grey,
+                        color: theme.colorScheme.outline,
                         size: 24,
                       ),
                     ),
                   ),
                 ),
                 const SizedBox(width: 12),
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.primary.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: Icon(
-                    Icons.fitness_center_rounded,
-                    color: theme.colorScheme.primary,
-                    size: 22,
-                  ),
+                ExerciseThumbnail(
+                  exercise: widget.exercise.exercise,
+                  size: 48,
+                  borderRadius: 14,
                 ),
                 const SizedBox(width: 12),
                 Expanded(

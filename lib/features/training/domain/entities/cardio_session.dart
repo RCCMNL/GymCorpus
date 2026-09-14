@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:gym_corpus/features/training/domain/entities/cardio_goal.dart';
 
 class CardioSessionEntity extends Equatable {
   const CardioSessionEntity({
@@ -12,6 +13,7 @@ class CardioSessionEntity extends Equatable {
     required this.date,
     this.steps,
     this.routeJson,
+    this.goal,
   });
 
   final int id;
@@ -23,6 +25,9 @@ class CardioSessionEntity extends Equatable {
   final int calories;
   final int? steps;
   final String? routeJson;
+
+  /// Obiettivo scelto prima di partire, se c'era.
+  final CardioGoal? goal;
   final DateTime date;
 
   @override
@@ -36,6 +41,7 @@ class CardioSessionEntity extends Equatable {
     calories,
     steps,
     routeJson,
+    goal,
     date,
   ];
 }

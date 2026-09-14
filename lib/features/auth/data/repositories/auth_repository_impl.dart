@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:dartz/dartz.dart';
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:drift/drift.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
@@ -12,8 +11,10 @@ import 'package:gym_corpus/core/database/database.dart';
 import 'package:gym_corpus/core/error/failures.dart';
 import 'package:gym_corpus/features/auth/data/datasources/auth_local_data_source.dart';
 import 'package:gym_corpus/features/auth/data/datasources/auth_remote_data_source.dart';
+import 'package:gym_corpus/features/auth/data/local_user_data_guard.dart';
 import 'package:gym_corpus/features/auth/domain/entities/user_entity.dart';
 import 'package:gym_corpus/features/auth/domain/repositories/auth_repository.dart';
+import 'package:gym_corpus/features/training/data/weight_history_sync.dart';
 import 'package:injectable/injectable.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
@@ -22,21 +23,6 @@ class AuthFailure extends Failure {
 
   @override
   List<Object> get props => [message];
-}
-
-/// Sollevata quando i dati locali dell'account precedente non possono essere
-/// rimossi prima di completare l'accesso di un altro utente.
-///
-/// L'accesso non deve proseguire in questo caso: su un dispositivo condiviso
-/// il nuovo utente vedrebbe routine, allenamenti e pesi di chi lo ha
-/// preceduto, servito dagli stream ancora attivi sul database locale.
-class LocalDataCleanupException implements Exception {
-  const LocalDataCleanupException();
-
-  @override
-  String toString() =>
-      'Non e stato possibile preparare i dati locali per questo account. '
-      'Riprova; se il problema persiste riavvia l app.';
 }
 
 const _googleServerClientId = String.fromEnvironment('GOOGLE_SERVER_CLIENT_ID');
@@ -56,48 +42,36 @@ class AuthRepositoryImpl implements AuthRepository {
   final AuthLocalDataSource _localDataSource;
   final AuthRemoteDataSource _remoteDataSource;
 
-  final _userStreamController = StreamController<UserEntity?>.broadcast();
+  late final LocalUserDataGuard _localDataGuard = LocalUserDataGuard(
+    _localDataSource,
+  );
+  late final WeightHistorySync _weightHistory = WeightHistorySync(
+    GetIt.I<AppDatabase>(),
+  );
 
-  @override
-  Stream<UserEntity?> get userStream => _userStreamController.stream;
-
-  String get _effectiveGoogleServerClientId => _googleServerClientId.isNotEmpty
-      ? _googleServerClientId
-      : _defaultGoogleServerClientId;
-
-  Future<void> _prepareLocalDataForUser(String userId) async {
-    final ownerId = await _localDataSource.getLocalDataOwner();
-    if (ownerId == userId) return;
-
+  /// Prepara i dati locali per l'utente che sta entrando.
+  ///
+  /// Se la pulizia fallisce la sessione Firebase viene chiusa: altrimenti
+  /// resterebbe attiva e il riavvio successivo entrerebbe di nuovo senza
+  /// aver ripulito nulla.
+  Future<void> _prepareLocalData(String userId) async {
     try {
-      await GetIt.I<AppDatabase>().clearLocalUserData();
-      await _localDataSource.saveLocalDataOwner(userId);
-    } catch (e) {
-      debugPrint('AuthRepositoryImpl._prepareLocalDataForUser error: $e');
-
-      // Prima l'errore veniva solo loggato e l'accesso proseguiva comunque,
-      // lasciando visibili i dati dell'account precedente. La sessione
-      // Firebase viene chiusa perche' altrimenti resterebbe attiva e il
-      // riavvio successivo entrerebbe di nuovo senza aver ripulito nulla.
+      await _localDataGuard.prepareFor(userId);
+    } on LocalDataCleanupException {
       try {
         await _firebaseAuth.signOut();
       } catch (signOutError) {
         debugPrint(
-          'AuthRepositoryImpl._prepareLocalDataForUser signOut error: '
-          '$signOutError',
+          'AuthRepositoryImpl._prepareLocalData signOut: $signOutError',
         );
       }
-      throw const LocalDataCleanupException();
+      rethrow;
     }
   }
 
-  Future<void> _clearLocalDataOwner() async {
-    try {
-      await _localDataSource.clearLocalDataOwner();
-    } catch (e) {
-      debugPrint('AuthRepositoryImpl._clearLocalDataOwner error: $e');
-    }
-  }
+  String get _effectiveGoogleServerClientId => _googleServerClientId.isNotEmpty
+      ? _googleServerClientId
+      : _defaultGoogleServerClientId;
 
   /// Vero se la foto puo' essere caricata anche da un altro dispositivo.
   ///
@@ -139,24 +113,6 @@ class AuthRepositoryImpl implements AuthRepository {
       return user;
     }
     return user.copyWith(clearPhotoUrl: true);
-  }
-
-  bool _hasMeaningfulWeightChange(double previousWeight, double nextWeight) {
-    return (previousWeight - nextWeight).abs() >= 0.05;
-  }
-
-  Future<void> _syncWeightHistoryFromProfile(double weight) async {
-    final database = GetIt.I<AppDatabase>();
-    final latestLog = await database.getLatestWeightEntry();
-    final shouldInsert =
-        latestLog == null ||
-        _hasMeaningfulWeightChange(latestLog.weight, weight);
-
-    if (!shouldInsert) return;
-
-    await database.insertWeightLog(
-      WeightLogsCompanion(weight: Value(weight), date: Value(DateTime.now())),
-    );
   }
 
   UserEntity _mapFirebaseUser(User user) {
@@ -274,14 +230,13 @@ class AuthRepositoryImpl implements AuthRepository {
 
       if (credential.user != null) {
         final baseUser = _mapFirebaseUser(credential.user!);
-        await _prepareLocalDataForUser(baseUser.id);
+        await _prepareLocalData(baseUser.id);
         final remoteUser = await _remoteDataSource.getUserProfile(baseUser.id);
         final user = (remoteUser ?? baseUser).copyWith(
           authProviders: baseUser.authProviders,
         );
 
         final finalUser = await _updateLoginHistory(user);
-        _userStreamController.add(finalUser);
         return Right(finalUser);
       }
       return const Left(
@@ -307,9 +262,8 @@ class AuthRepositoryImpl implements AuthRepository {
 
       if (credential.user != null) {
         final user = _mapFirebaseUser(credential.user!);
-        await _prepareLocalDataForUser(user.id);
+        await _prepareLocalData(user.id);
         final finalUser = await _updateLoginHistory(user);
-        _userStreamController.add(finalUser);
         return Right(finalUser);
       }
       return const Left(
@@ -326,7 +280,6 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, void>> logout() async {
     await _firebaseAuth.signOut();
     await _localDataSource.clearSession();
-    _userStreamController.add(null);
     return const Right(null);
   }
 
@@ -338,7 +291,7 @@ class AuthRepositoryImpl implements AuthRepository {
     if (firebaseUser != null) {
       final baseUser = _mapFirebaseUser(firebaseUser);
       try {
-        await _prepareLocalDataForUser(baseUser.id);
+        await _prepareLocalData(baseUser.id);
       } on LocalDataCleanupException catch (e) {
         // checkSession non ha un catch generale: senza questa gestione
         // l'eccezione uscirebbe dal metodo come errore non gestito.
@@ -388,13 +341,12 @@ class AuthRepositoryImpl implements AuthRepository {
         authProviders: baseUser.authProviders,
       );
       final finalSessionUser = await _updateLoginHistory(updatedSessionUser);
-      _userStreamController.add(finalSessionUser);
       return Right(finalSessionUser);
     }
 
     if (cachedUser != null) {
       await _localDataSource.clearSession();
-      await _clearLocalDataOwner();
+      await _localDataGuard.clearOwner();
     }
 
     return const Left(AuthFailure('Nessuna sessione attiva'));
@@ -476,7 +428,7 @@ class AuthRepositoryImpl implements AuthRepository {
         }
 
         final baseUser = _mapFirebaseUser(userCredential.user!);
-        await _prepareLocalDataForUser(baseUser.id);
+        await _prepareLocalData(baseUser.id);
         final remoteUser = isNewUser
             ? null
             : await _remoteDataSource.getUserProfile(baseUser.id);
@@ -494,7 +446,6 @@ class AuthRepositoryImpl implements AuthRepository {
         }
 
         final finalUser = await _updateLoginHistory(user);
-        _userStreamController.add(finalUser);
         return Right(finalUser);
       }
       return const Left(AuthFailure('Impossibile accedere con Google'));
@@ -558,7 +509,7 @@ class AuthRepositoryImpl implements AuthRepository {
         }
 
         final baseUser = _mapFirebaseUser(userCredential.user!);
-        await _prepareLocalDataForUser(baseUser.id);
+        await _prepareLocalData(baseUser.id);
         final remoteUser = isNewUser
             ? null
             : await _remoteDataSource.getUserProfile(baseUser.id);
@@ -576,7 +527,6 @@ class AuthRepositoryImpl implements AuthRepository {
         }
 
         final finalUser = await _updateLoginHistory(user);
-        _userStreamController.add(finalUser);
         return Right(finalUser);
       }
       return const Left(AuthFailure('Impossibile accedere con Apple'));
@@ -681,10 +631,9 @@ class AuthRepositoryImpl implements AuthRepository {
           .timeout(const Duration(seconds: 5));
 
       if (syncWeightHistory && !clearWeight && updatedUser.weight != null) {
-        await _syncWeightHistoryFromProfile(updatedUser.weight!);
+        await _weightHistory.record(updatedUser.weight!);
       }
 
-      _userStreamController.add(updatedUser);
       return Right(updatedUser);
     } catch (e) {
       return Left(AuthFailure('Errore durante aggiornamento: $e'));
@@ -743,8 +692,7 @@ class AuthRepositoryImpl implements AuthRepository {
         debugPrint('AuthRepositoryImpl.deleteAccount local clear error: $e');
       }
       await _localDataSource.clearSession();
-      await _clearLocalDataOwner();
-      _userStreamController.add(null);
+      await _localDataGuard.clearOwner();
 
       return const Right(null);
     } on FirebaseAuthException catch (e) {
@@ -844,6 +792,22 @@ class AuthRepositoryImpl implements AuthRepository {
         ),
       );
     } on FirebaseAuthException catch (e) {
+      // La conferma fallisce quasi sempre per due motivi, e vanno detti in
+      // modo diverso: la password non corrisponde, oppure la sessione e'
+      // troppo vecchia e va rifatto l'accesso. Il messaggio di Firebase e'
+      // in inglese e non distingue le due cose per chi legge.
+      if (e.code == 'requires-recent-login') {
+        return const Left(
+          AuthFailure(
+            "Per procedere devi confermare di nuovo l'accesso: esci e rientra, "
+            'poi riprova.',
+          ),
+        );
+      }
+      if (e.code == 'wrong-password' || e.code == 'invalid-credential') {
+        return const Left(AuthFailure('La password inserita non e corretta.'));
+      }
+
       return Left(
         AuthFailure(e.message ?? 'Errore durante la conferma account'),
       );

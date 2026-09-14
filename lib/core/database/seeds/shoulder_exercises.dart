@@ -5,11 +5,12 @@ import 'package:gym_corpus/core/database/database.dart';
 const shoulderExercises = [
   ExercisesCompanion(
     name: Value('Overhead Press con bilanciere'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Spalle'),
     equipment: Value('Bilanciere, Rack (opzionale)'),
     focusArea: Value('Deltoidi (anteriori, mediali), Tricipiti, Trapezio'),
     preparation: Value(
-      'In piedi, afferra il bilanciere with presa prona (palmi avanti) leggermente più larga delle spalle. Porta il bilanciere al petto alto/clavicole (puoi staccarlo da un rack). Core contratto, glutei contratti.',
+      'In piedi, afferra il bilanciere con presa prona (palmi avanti) leggermente più larga delle spalle. Porta il bilanciere al petto alto/clavicole (puoi staccarlo da un rack). Core contratto, glutei contratti.',
     ),
     execution: Value(
       'Spingi il bilanciere verticalmente sopra la testa fino alla completa estensione delle braccia, senza iperestendere la schiena. Il bilanciere termina sopra la nuca. Scendi in modo controllato tornando alla posizione iniziale.',
@@ -20,13 +21,14 @@ const shoulderExercises = [
   ),
   ExercisesCompanion(
     name: Value('Overhead Press con manubri'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Spalle'),
     equipment: Value('Manubri, Panca (se seduto)'),
     focusArea: Value(
       'Deltoidi (anteriori, mediali), Tricipiti, Stabilizzatori',
     ),
     preparation: Value(
-      "Seduto su panca with schienale a 90° o in piedi. Porta i manubri all'altezza delle spalle, palmi rivolti in avanti (o semi-proni per più comfort).",
+      "Seduto su panca con schienale a 90° o in piedi. Porta i manubri all'altezza delle spalle, palmi rivolti in avanti (o semi-proni per più comfort).",
     ),
     execution: Value(
       'Spingi i manubri verticalmente sopra la testa, convergendo leggermente in cima senza farli toccare. Ritorna lentamente alla posizione di partenza (gomiti a 90 gradi o leggermente sotto).',
@@ -37,21 +39,23 @@ const shoulderExercises = [
   ),
   ExercisesCompanion(
     name: Value('Arnold Press'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Spalle'),
     equipment: Value('Manubri, Panca (consigliata)'),
     focusArea: Value('Deltoidi (tutti i capi, focus anteriore e mediale)'),
     preparation: Value(
-      'Seduto su panca. Parti with i manubri davanti al petto, palmi rivolti verso di te (presa supina).',
+      'Seduto su panca. Parti con i manubri davanti al petto, palmi rivolti verso di te (presa supina).',
     ),
     execution: Value(
-      "Inizia spingendo verso l'alto. Mentre sali, ruota i polsi in modo che i palmi guardino in avanti nella parte finale del movemento (come una \"OHP\" with manubri). Inverti il movemento in discesa, tornando alla posizione supina iniziale.",
+      "Inizia spingendo verso l'alto. Mentre sali, ruota i polsi in modo che i palmi guardino in avanti nella parte finale del movemento (come una \"OHP\" con manubri). Inverti il movemento in discesa, tornando alla posizione supina iniziale.",
     ),
     tips: Value(
-      'Movemento fluido e controllato, non a scatti. Combina una spinta with una rotazione, lavorando i capi del deltoide in modi diversi.',
+      'Movemento fluido e controllato, non a scatti. Combina una spinta con una rotazione, lavorando i capi del deltoide in modi diversi.',
     ),
   ),
   ExercisesCompanion(
     name: Value('Alzate laterali(Manubri)'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Spalle'),
     equipment: Value('Manubri'),
     focusArea: Value('Deltoidi (mediali/laterali)'),
@@ -67,21 +71,23 @@ const shoulderExercises = [
   ),
   ExercisesCompanion(
     name: Value('Alzate laterali ai cavi'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Spalle'),
     equipment: Value('Cavo (Ercolina), Maniglia'),
     focusArea: Value('Deltoidi (mediali, tensione costante)'),
     preparation: Value(
-      'Posiziona la carrucola in basso. Afferra la maniglia with la mano opposta al cavo (es. mano dx, cavo a sx). Fai un passo laterale per mettere in tensione.',
+      'Posiziona la carrucola in basso. Afferra la maniglia con la mano opposta al cavo (es. mano dx, cavo a sx). Fai un passo laterale per mettere in tensione.',
     ),
     execution: Value(
-      "Esegui un'alzata laterale come with i manubri. Il cavo offre una tensione costante per tutto l'arco di movemento, specialmente in basso.",
+      "Esegui un'alzata laterale come con i manubri. Il cavo offre una tensione costante per tutto l'arco di movemento, specialmente in basso.",
     ),
     tips: Value(
-      "Puoi tenerti a un supporto with l'altra mano per stabilizzare il corpo. Concentrati sul deltoide mediale.",
+      "Puoi tenerti a un supporto con l'altra mano per stabilizzare il corpo. Concentrati sul deltoide mediale.",
     ),
   ),
   ExercisesCompanion(
     name: Value('Alzate frontali'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Spalle'),
     equipment: Value('Manubri'),
     focusArea: Value('Deltoidi (anteriori)'),
@@ -96,12 +102,13 @@ const shoulderExercises = [
     ),
   ),
   ExercisesCompanion(
-    name: Value('Alzate frontali'),
+    name: Value('Alzate frontali (Disco o Bilanciere)'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Spalle'),
     equipment: Value('Disco (bumper/ghisa) o Bilanciere (dritto o EZ)'),
     focusArea: Value('Deltoidi (anteriori)'),
     preparation: Value(
-      "Afferra un disco ai lati ('presa volante') o un bilanciere with presa larghezza spalle.",
+      "Afferra un disco ai lati ('presa volante') o un bilanciere con presa larghezza spalle.",
     ),
     execution: Value(
       "Solleva l'attrezzo davanti a te fino all'altezza delle spalle/occhi. Mantieni il core contratto per stabilizzare.",
@@ -112,6 +119,7 @@ const shoulderExercises = [
   ),
   ExercisesCompanion(
     name: Value('Alzate posteriori a 90'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Spalle'),
     equipment: Value('Manubri, Panca (opzionale)'),
     focusArea: Value('Deltoidi (posteriori), Romboidi, Trapezio (medio)'),
@@ -122,16 +130,17 @@ const shoulderExercises = [
       'Solleva i manubri lateralmente (come un uccello che apre le ali), mantenendo i gomiti leggermente flessi. Contrai le scapole in cima. Ritorna controllato.',
     ),
     tips: Value(
-      'Non tirare with la schiena, il movemento parte dalle spalle. Usa pesi leggeri e concentrati sulla contrazione dei deltoidi posteriori.',
+      'Non tirare con la schiena, il movemento parte dalle spalle. Usa pesi leggeri e concentrati sulla contrazione dei deltoidi posteriori.',
     ),
   ),
   ExercisesCompanion(
     name: Value('Alzate posteriori ai cavi'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Spalle'),
     equipment: Value('Cavi (Ercolina)'),
     focusArea: Value('Deltoidi (posteriori), Romboidi'),
     preparation: Value(
-      'Posiziona le carrucole a metà altezza o alte. Afferra le maniglie incrociandole (cavo dx with mano sx, cavo sx with mano dx). Fai un passo indietro.',
+      'Posiziona le carrucole a metà altezza o alte. Afferra le maniglie incrociandole (cavo dx con mano sx, cavo sx con mano dx). Fai un passo indietro.',
     ),
     execution: Value(
       "Apri le braccia ('tira') lateralmente e all'indietro, mantenendo le braccia quasi tese. Contrai i deltoidi posteriori. Ritorna lentamente.",
@@ -142,13 +151,14 @@ const shoulderExercises = [
   ),
   ExercisesCompanion(
     name: Value('Face Pull'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Spalle'),
     equipment: Value('Cavo (Ercolina), Corda'),
     focusArea: Value(
       'Deltoidi (posteriori), Cuffia dei rotatori, Trapezio (medio)',
     ),
     preparation: Value(
-      "Posiziona la carrucola all'altezza degli occhi o del petto. Afferra la corda with presa prona (pollici verso di te). Fai un passo indietro.",
+      "Posiziona la carrucola all'altezza degli occhi o del petto. Afferra la corda con presa prona (pollici verso di te). Fai un passo indietro.",
     ),
     execution: Value(
       'Tira la corda verso il viso ("pull"), puntando ai lati della testa (altezza orecchie/occhi). Contemporaneamente, ruota esternamente le spalle (extrarotazione). Contrai forte in cima.',
@@ -158,15 +168,16 @@ const shoulderExercises = [
     ),
   ),
   ExercisesCompanion(
-    name: Value('Tirate al mento with bilanciere'),
+    name: Value('Tirate al mento con bilanciere'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Spalle'),
     equipment: Value('Bilanciere'),
     focusArea: Value('Deltoidi (mediali), Trapezio'),
     preparation: Value(
-      'Afferra il bilanciere with una presa larga (più larga delle spalle). Parti with il bilanciere alle cosce.',
+      'Afferra il bilanciere con una presa larga (più larga delle spalle). Parti con il bilanciere alle cosce.',
     ),
     execution: Value(
-      "Tira il bilanciere verso l'alto lungo il corpo, guidando il movemento with i gomiti (i gomiti salgono alti e larghi). Fermati quando il bilanciere arriva al petto (non al mento).",
+      "Tira il bilanciere verso l'alto lungo il corpo, guidando il movemento con i gomiti (i gomiti salgono alti e larghi). Fermati quando il bilanciere arriva al petto (non al mento).",
     ),
     tips: Value(
       "La presa larga è fondamentale per focalizzarsi sui deltoidi mediali e ridurre l'impingement (schiacciamento) della spalla, a differenza della presa stretta.",
@@ -174,19 +185,21 @@ const shoulderExercises = [
   ),
   ExercisesCompanion(
     name: Value('Tirate al mento (Manubri)'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Spalle'),
     equipment: Value('Manubri'),
     focusArea: Value('Deltoidi (mediali), Trapezio'),
     preparation: Value('Tieni i manubri davanti a te (palmi verso il corpo).'),
     execution: Value(
-      "Tira i manubri verso l'alto, guidando with i gomiti. I manubri permettono un movemento più libero rispetto al bilanciere, potenzialmente più sicuro per le spalle.",
+      "Tira i manubri verso l'alto, guidando con i gomiti. I manubri permettono un movemento più libero rispetto al bilanciere, potenzialmente più sicuro per le spalle.",
     ),
     tips: Value(
-      'Come per il bilanciere, guida with i gomiti e non portare i pesi troppo in alto (altezza petto va bene).',
+      'Come per il bilanciere, guida con i gomiti e non portare i pesi troppo in alto (altezza petto va bene).',
     ),
   ),
   ExercisesCompanion(
-    name: Value('Neck Press)'),
+    name: Value('Neck Press'),
+    difficulty: Value('Avanzato'),
     targetMuscle: Value('Spalle'),
     equipment: Value('Bilanciere, Rack'),
     focusArea: Value('Deltoidi (mediali, anteriori), Tricipiti'),
@@ -197,11 +210,12 @@ const shoulderExercises = [
       'Spingi il bilanciere verticalmente sopra la testa. Scendi controllato tornando dietro la nuca.',
     ),
     tips: Value(
-      "ATTENZIONE: Richiede un'ottima mobilità delle spalle (extrarotazione) e toracica. Molte persone non hanno la mobilità per eseguirlo in sicurezza. Procedere with cautela e pesi bassi.",
+      "ATTENZIONE: Richiede un'ottima mobilità delle spalle (extrarotazione) e toracica. Molte persone non hanno la mobilità per eseguirlo in sicurezza. Procedere con cautela e pesi bassi.",
     ),
   ),
   ExercisesCompanion(
     name: Value('Push Press'),
+    difficulty: Value('Avanzato'),
     targetMuscle: Value('Spalle'),
     equipment: Value('Bilanciere, Rack'),
     focusArea: Value('Spalle (potenza), Deltoidi, Tricipiti, Gambe (spinta)'),
@@ -209,7 +223,7 @@ const shoulderExercises = [
       'Posizione di partenza come una OHP (bilanciere sulle clavicole).',
     ),
     execution: Value(
-      "Esegui un rapido 'dip' (mini-squat) piegando leggermente le ginocchia. Immediatamente, spingi with forza with le gambe e contemporaneamente spingi il bilanciere sopra la testa in modo esplosivo.",
+      "Esegui un rapido 'dip' (mini-squat) piegando leggermente le ginocchia. Immediatamente, spingi con forza con le gambe e contemporaneamente spingi il bilanciere sopra la testa in modo esplosivo.",
     ),
     tips: Value(
       'È un movemento di potenza, non di ipertrofia pura. Usa lo slancio (leg drive) delle gambe per muovere più carico. Scendi in modo controllato (eccentrica).',
@@ -217,6 +231,7 @@ const shoulderExercises = [
   ),
   ExercisesCompanion(
     name: Value('Reverse Pec Deck'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Spalle'),
     equipment: Value('Macchinario (Pec Deck / Rear Delt)'),
     focusArea: Value('Deltoidi (posteriori)'),
@@ -232,13 +247,14 @@ const shoulderExercises = [
   ),
   ExercisesCompanion(
     name: Value('Landmine Press'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Spalle'),
     equipment: Value('Bilanciere, Supporto Landmine'),
     focusArea: Value(
       'Deltoide (anteriore), Pettorale (clavicolare), Tricipiti',
     ),
     preparation: Value(
-      "In ginocchio o in piedi. Afferra l'estremità libera del bilanciere with una mano all'altezza della spalla.",
+      "In ginocchio o in piedi. Afferra l'estremità libera del bilanciere con una mano all'altezza della spalla.",
     ),
     execution: Value(
       "Spingi il bilanciere verso l'alto e in avanti, estendendo il braccio. Contrai spalla e petto alto. Ritorna controllato.",
@@ -249,6 +265,7 @@ const shoulderExercises = [
   ),
   ExercisesCompanion(
     name: Value('Pike Push-up'),
+    difficulty: Value('Avanzato'),
     targetMuscle: Value('Spalle'),
     equipment: Value('Corpo libero'),
     isBodyweight: Value(true),
@@ -265,22 +282,24 @@ const shoulderExercises = [
   ),
   ExercisesCompanion(
     name: Value('Handstand Push-up'),
+    difficulty: Value('Avanzato'),
     targetMuscle: Value('Spalle'),
     equipment: Value('Corpo libero, Muro (per supporto)'),
     isBodyweight: Value(true),
     focusArea: Value('Deltoidi, Tricipiti, Trapezio (avanzato)'),
     preparation: Value(
-      'Posizionati in verticale (handstand) with i talloni appoggiati al muro per equilibrio.',
+      'Posizionati in verticale (handstand) con i talloni appoggiati al muro per equilibrio.',
     ),
     execution: Value(
-      'Piega lentamente i gomiti, abbassando la testa verso il pavimento (idealmente su un cuscino o pad). Spingi with forza per tornare alla posizione di partenza.',
+      'Piega lentamente i gomiti, abbassando la testa verso il pavimento (idealmente su un cuscino o pad). Spingi con forza per tornare alla posizione di partenza.',
     ),
     tips: Value(
-      'Esercizio molto avanzato. Richiede grande forza nelle spalle e nel core. Inizia with i Pike Push-up o with ROM ridotto.',
+      'Esercizio molto avanzato. Richiede grande forza nelle spalle e nel core. Inizia con i Pike Push-up o con ROM ridotto.',
     ),
   ),
   ExercisesCompanion(
     name: Value('Cuban Press'),
+    difficulty: Value('Avanzato'),
     targetMuscle: Value('Spalle'),
     equipment: Value('Manubri (molto leggeri)'),
     focusArea: Value('Cuffia dei rotatori, Deltoidi (posteriori, mediali)'),
@@ -295,7 +314,8 @@ const shoulderExercises = [
     ),
   ),
   ExercisesCompanion(
-    name: Value('Scrollate with manubri'),
+    name: Value('Scrollate con manubri'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Spalle'),
     equipment: Value('Manubri (pesanti)'),
     focusArea: Value('Trapezio (superiore)'),

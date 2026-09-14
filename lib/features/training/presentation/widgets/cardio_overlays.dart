@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/widgets/icon_badge.dart';
 
 /// Overlay a schermo intero mostrato mentre si cerca il segnale GPS prima
 /// di poter avviare una sessione cardio.
@@ -168,17 +169,11 @@ class AutoPauseOverlay extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.primary.withValues(alpha: 0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.motion_photos_paused_rounded,
-                      size: 56,
-                      color: theme.colorScheme.primary,
-                    ),
+                  IconBadge(
+                    Icons.motion_photos_paused_rounded,
+                    color: theme.colorScheme.primary,
+                    size: IconBadgeSize.large,
+                    circle: true,
                   ),
                   const SizedBox(height: 24),
                   Text(
@@ -230,6 +225,58 @@ class AutoPauseOverlay extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Avviso comparso a meta' schermo quando si completa un chilometro o si
+/// raggiunge l'obiettivo di sessione.
+///
+/// Accompagna la vibrazione: durante una corsa il telefono e' spesso in
+/// tasca o al braccio, e il solo aggiornamento dei numeri passerebbe
+/// inosservato.
+class CardioMilestoneBanner extends StatelessWidget {
+  const CardioMilestoneBanner({required this.title, this.subtitle, super.key});
+
+  final String title;
+  final String? subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final detail = subtitle;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface.withValues(alpha: 0.94),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.18),
+            blurRadius: 20,
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            title,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w900,
+              fontFamily: 'Lexend',
+            ),
+          ),
+          if (detail != null)
+            Text(
+              detail,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.outline,
+              ),
+            ),
+        ],
       ),
     );
   }

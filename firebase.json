@@ -7,7 +7,7 @@
       "android": {
         "default": {
           "projectId": "gymcorpus-project",
-          "appId": "1:996703301991:android:7005bdeceb97f161947fc2",
+          "appId": "1:996703301991:android:ccbe83e19b71b315947fc2",
           "fileOutput": "android/app/google-services.json"
         }
       },
@@ -15,7 +15,7 @@
         "lib/firebase_options.dart": {
           "projectId": "gymcorpus-project",
           "configurations": {
-            "android": "1:996703301991:android:7005bdeceb97f161947fc2",
+            "android": "1:996703301991:android:ccbe83e19b71b315947fc2",
             "ios": "1:996703301991:ios:5ce886a0d4837a3f947fc2"
           }
         }

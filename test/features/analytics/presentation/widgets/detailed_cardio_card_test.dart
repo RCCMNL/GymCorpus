@@ -6,6 +6,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:gym_corpus/features/analytics/presentation/widgets/detailed_cardio_card.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_session.dart';
 
+/// La card era espandibile e conteneva una mini mappa illeggibile: ora e' un
+/// riassunto che porta alla schermata di dettaglio.
 void main() {
   Widget wrap(Widget child) => MaterialApp(home: Scaffold(body: child));
 
@@ -26,7 +28,7 @@ void main() {
     );
 
     expect(find.text('5.20 km'), findsOneWidget);
-    expect(find.text('30m 30s'), findsOneWidget);
+    expect(find.text('30m'), findsOneWidget);
     expect(find.text('10.4 km/h'), findsOneWidget);
     expect(find.text('05:45 /km'), findsOneWidget);
     expect(find.text('420 kcal'), findsOneWidget);
@@ -53,9 +55,7 @@ void main() {
     expect(find.text('Camminata'), findsOneWidget);
   });
 
-  testWidgets('senza percorso mostra "Mappa assente" e nessun toggle', (
-    tester,
-  ) async {
+  testWidgets('senza percorso lo dichiara', (tester) async {
     final session = CardioSessionEntity(
       id: 3,
       type: 'run',
@@ -72,16 +72,9 @@ void main() {
     );
 
     expect(find.text('Mappa assente'), findsOneWidget);
-    expect(find.text('MAPPA'), findsNothing);
   });
 
-  testWidgets('con un percorso mostra il toggle mappa e la espande al tap', (
-    tester,
-  ) async {
-    final routeJson = jsonEncode([
-      {'lat': 41.90, 'lng': 12.49},
-      {'lat': 41.91, 'lng': 12.50},
-    ]);
+  group('con un percorso registrato', () {
     final session = CardioSessionEntity(
       id: 4,
       type: 'run',
@@ -91,32 +84,45 @@ void main() {
       pace: '06:00',
       calories: 400,
       date: DateTime(2026),
-      routeJson: routeJson,
+      routeJson: jsonEncode([
+        {'lat': 41.90, 'lng': 12.49, 't': 0},
+        {'lat': 41.91, 'lng': 12.50, 't': 600},
+      ]),
     );
 
-    await tester.pumpWidget(
-      wrap(DetailedCardioCard(session: session, accentColor: Colors.blue)),
-    );
+    testWidgets('invita ad aprire il percorso', (tester) async {
+      await tester.pumpWidget(
+        wrap(DetailedCardioCard(session: session, accentColor: Colors.blue)),
+      );
 
-    expect(find.text('MAPPA'), findsOneWidget);
-    // AnimatedCrossFade costruisce sempre entrambi i rami: la mappa e' gia'
-    // nell'albero ma collassata finche' non si espande.
-    expect(
-      tester
-          .widget<AnimatedCrossFade>(find.byType(AnimatedCrossFade))
-          .crossFadeState,
-      CrossFadeState.showFirst,
-    );
+      expect(find.text('Vedi percorso'), findsOneWidget);
+    });
 
-    await tester.tap(find.text('MAPPA'));
-    await tester.pump(const Duration(milliseconds: 300));
+    testWidgets('la mappa non vive piu dentro la card', (tester) async {
+      // La mini mappa incorporata era troppo piccola per essere letta e
+      // caricava tile per ogni riga dello storico.
+      await tester.pumpWidget(
+        wrap(DetailedCardioCard(session: session, accentColor: Colors.blue)),
+      );
 
-    expect(
-      tester
-          .widget<AnimatedCrossFade>(find.byType(AnimatedCrossFade))
-          .crossFadeState,
-      CrossFadeState.showSecond,
-    );
-    expect(find.byType(FlutterMap), findsOneWidget);
+      expect(find.byType(FlutterMap), findsNothing);
+    });
+
+    testWidgets('il tap apre il dettaglio della sessione', (tester) async {
+      var opened = 0;
+      await tester.pumpWidget(
+        wrap(
+          DetailedCardioCard(
+            session: session,
+            accentColor: Colors.blue,
+            onTap: () => opened++,
+          ),
+        ),
+      );
+
+      await tester.tap(find.byType(DetailedCardioCard));
+
+      expect(opened, 1);
+    });
   });
 }

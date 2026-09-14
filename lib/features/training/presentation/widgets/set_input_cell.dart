@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/widgets/app_card.dart';
+import 'package:gym_corpus/core/widgets/labels.dart';
 
 /// Campo numerico compatto (peso o ripetizioni) con etichetta di unita' a
 /// destra, usato dentro SelectedExerciseTile.
@@ -17,16 +19,10 @@ class SetInputCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Container(
+    return AppCard(
       height: 44,
       padding: const EdgeInsets.symmetric(horizontal: 10),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: theme.colorScheme.outline.withValues(alpha: 0.05),
-        ),
-      ),
+      size: AppCardSize.tight,
       child: Row(
         children: [
           Expanded(
@@ -38,6 +34,8 @@ class SetInputCell extends StatelessWidget {
               ),
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
+                // Il riempimento lo disegna il Container che avvolge il campo.
+                filled: false,
                 border: InputBorder.none,
                 isDense: true,
                 hintText: '-',
@@ -49,14 +47,7 @@ class SetInputCell extends StatelessWidget {
               onChanged: onChanged,
             ),
           ),
-          Text(
-            label,
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: theme.colorScheme.primary.withValues(alpha: 0.5),
-              fontWeight: FontWeight.w900,
-              fontSize: 9,
-            ),
-          ),
+          StatLabel(label),
         ],
       ),
     );

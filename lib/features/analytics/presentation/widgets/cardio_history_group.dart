@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:gym_corpus/core/widgets/app_card.dart';
+import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
+import 'package:gym_corpus/core/widgets/confirm_dialog.dart';
 import 'package:gym_corpus/features/analytics/presentation/widgets/detailed_cardio_card.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_session.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
@@ -25,15 +29,8 @@ class CardioHistoryGroup extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Container(
+    return AppCard(
       padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.55),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: theme.colorScheme.outline.withValues(alpha: 0.07),
-        ),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -98,57 +95,22 @@ class DismissibleCardioCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Dismissible(
       key: Key('cardio_${session.id}'),
       direction: DismissDirection.endToStart,
-      confirmDismiss: (direction) async {
-        final shouldDelete = await showDialog<bool>(
-          context: context,
-          builder: (dialogContext) => AlertDialog(
-            backgroundColor: theme.colorScheme.surface,
-            title: const Text(
-              'ELIMINA SESSIONE',
-              style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
-            ),
-            content: const Text(
-              'Sei sicuro di voler eliminare definitivamente questa sessione di cardio?',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(dialogContext, false),
-                child: Text(
-                  'ANNULLA',
-                  style: TextStyle(color: theme.colorScheme.outline),
-                ),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(dialogContext, true),
-                child: const Text(
-                  'ELIMINA',
-                  style: TextStyle(
-                    color: Colors.redAccent,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-
-        return shouldDelete ?? false;
-      },
+      confirmDismiss: (direction) => ConfirmDialog.ask(
+        context,
+        title: 'Elimina sessione',
+        message:
+            'Sei sicuro di voler eliminare definitivamente questa '
+            'sessione di cardio?',
+      ),
       onDismissed: (direction) {
         context.read<TrainingBloc>().add(DeleteCardioSessionEvent(session.id));
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Sessione eliminata'),
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
+        AppSnackBar.show(
+          context,
+          'Sessione eliminata',
+          icon: Icons.delete_outline_rounded,
         );
       },
       background: Container(
@@ -156,16 +118,21 @@ class DismissibleCardioCard extends StatelessWidget {
         padding: const EdgeInsets.only(right: 24),
         alignment: Alignment.centerRight,
         decoration: BoxDecoration(
-          color: Colors.redAccent.withValues(alpha: 0.12),
+          color: Colors.redAccent.tintedFill,
           borderRadius: BorderRadius.circular(22),
-          border: Border.all(color: Colors.redAccent.withValues(alpha: 0.18)),
+          border: Border.all(color: Colors.redAccent.tintedBorder),
         ),
         child: const Icon(
           Icons.delete_outline_rounded,
           color: Colors.redAccent,
         ),
       ),
-      child: DetailedCardioCard(session: session, accentColor: accentColor),
+      child: DetailedCardioCard(
+        session: session,
+        accentColor: accentColor,
+        onTap: () =>
+            context.push('/analytics/cardio-history/session', extra: session),
+      ),
     );
   }
 }

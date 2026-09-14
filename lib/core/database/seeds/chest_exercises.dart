@@ -5,6 +5,7 @@ import 'package:gym_corpus/core/database/database.dart';
 const chestExercises = [
   ExercisesCompanion(
     name: Value('Distensioni su panca piana (Bilanciere)'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Petto'),
     equipment: Value('Panca piana, Bilanciere, Rack'),
     focusArea: Value(
@@ -22,6 +23,7 @@ const chestExercises = [
   ),
   ExercisesCompanion(
     name: Value('Distensioni su panca piana (Manubri)'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Petto'),
     equipment: Value('Panca piana, Manubri'),
     focusArea: Value(
@@ -39,6 +41,7 @@ const chestExercises = [
   ),
   ExercisesCompanion(
     name: Value('Distensioni su panca inclinata (Bilanciere)'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Petto'),
     equipment: Value('Panca inclinata (30-45°), Bilanciere, Rack'),
     focusArea: Value('Pettorali (focus clavicolare/alto), Deltoidi anteriori'),
@@ -54,6 +57,7 @@ const chestExercises = [
   ),
   ExercisesCompanion(
     name: Value('Distensioni su panca inclinata (Manubri)'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Petto'),
     equipment: Value('Panca inclinata (30-45°), Manubri'),
     focusArea: Value('Pettorali (focus clavicolare/alto), Deltoidi anteriori'),
@@ -69,6 +73,7 @@ const chestExercises = [
   ),
   ExercisesCompanion(
     name: Value('Distensioni su panca declinata (Bilanciere)'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Petto'),
     equipment: Value('Panca declinata, Bilanciere, Rack'),
     focusArea: Value('Pettorali (focus addominale/basso), Tricipiti'),
@@ -84,6 +89,7 @@ const chestExercises = [
   ),
   ExercisesCompanion(
     name: Value('Distensioni su panca declinata (Manubri)'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Petto'),
     equipment: Value('Panca declinata, Manubri'),
     focusArea: Value('Pettorali (focus addominale/basso)'),
@@ -99,13 +105,14 @@ const chestExercises = [
   ),
   ExercisesCompanion(
     name: Value('Croci con manubri (Panca piana)'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Petto'),
     equipment: Value('Panca piana, Manubri'),
     focusArea: Value(
       'Pettorali (isolamento, focus sterno-costale, allungamento)',
     ),
     preparation: Value(
-      "Sdraiati sulla panca piana with i manubri sopra il petto, palmi rivolti l'uno verso l'altro. Mantieni i gomiti leggermente piegati (curvatura fissa) per tutto il movemento.",
+      "Sdraiati sulla panca piana con i manubri sopra il petto, palmi rivolti l'uno verso l'altro. Mantieni i gomiti leggermente piegati (curvatura fissa) per tutto il movemento.",
     ),
     execution: Value(
       'Apri le braccia in un ampio arco, abbassando i manubri lateralmente fino a sentire un forte allungamento del petto. I gomiti devono rimanere leggermente flessi. Riporta i manubri in alto usando i pettorali, come se stessi "abbracciando un albero".',
@@ -116,6 +123,7 @@ const chestExercises = [
   ),
   ExercisesCompanion(
     name: Value('Croci con manubri (Panca inclinata)'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Petto'),
     equipment: Value('Panca inclinata (30-45°), Manubri'),
     focusArea: Value('Pettorali (isolamento, focus clavicolare, allungamento)'),
@@ -131,6 +139,7 @@ const chestExercises = [
   ),
   ExercisesCompanion(
     name: Value('Croci ai cavi alto'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Petto'),
     equipment: Value('Ercolina (Stazione cavi)'),
     focusArea: Value('Pettorali (focus addominale/basso, contrazione interna)'),
@@ -146,6 +155,7 @@ const chestExercises = [
   ),
   ExercisesCompanion(
     name: Value('Croci ai cavi basso o medio'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Petto'),
     equipment: Value('Ercolina (Stazione cavi)'),
     focusArea: Value(
@@ -163,6 +173,7 @@ const chestExercises = [
   ),
   ExercisesCompanion(
     name: Value('Piegamenti sulle braccia (Push-ups)'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Petto'),
     equipment: Value('Corpo libero'),
     isBodyweight: Value(true),
@@ -181,6 +192,7 @@ const chestExercises = [
   ),
   ExercisesCompanion(
     name: Value('Piegamenti sulle braccia declinati'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Petto'),
     equipment: Value('Corpo libero, Rialzo (panca, sedia)'),
     isBodyweight: Value(true),
@@ -199,6 +211,7 @@ const chestExercises = [
   ),
   ExercisesCompanion(
     name: Value('Dip alle parallele'),
+    difficulty: Value('Avanzato'),
     targetMuscle: Value('Petto'),
     equipment: Value('Parallele (o Dip station)'),
     focusArea: Value(
@@ -216,6 +229,7 @@ const chestExercises = [
   ),
   ExercisesCompanion(
     name: Value('Pectoral Machine(Pec Deck)'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Petto'),
     equipment: Value('Macchinario (Pec Deck / Butterfly)'),
     focusArea: Value('Pettorali (isolamento, contrazione interna)'),
@@ -231,6 +245,7 @@ const chestExercises = [
   ),
   ExercisesCompanion(
     name: Value('Chest Press'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Petto'),
     equipment: Value('Macchinario (Chest Press)'),
     focusArea: Value(
@@ -248,6 +263,7 @@ const chestExercises = [
   ),
   ExercisesCompanion(
     name: Value('Pullover(Manubrio)'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Petto'),
     equipment: Value('Panca piana, Manubrio'),
     focusArea: Value(
@@ -265,6 +281,7 @@ const chestExercises = [
   ),
   ExercisesCompanion(
     name: Value('Svendsen Press'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Petto'),
     equipment: Value('Dischi (o due manubri piccoli)'),
     focusArea: Value(
@@ -282,6 +299,7 @@ const chestExercises = [
   ),
   ExercisesCompanion(
     name: Value('Landmine Press'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Petto'),
     equipment: Value('Bilanciere, Angolo (Landmine) o angolo muro'),
     focusArea: Value(
@@ -299,6 +317,7 @@ const chestExercises = [
   ),
   ExercisesCompanion(
     name: Value('Floor Press'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Petto'),
     equipment: Value('Pavimento, Manubri (o Bilanciere)'),
     focusArea: Value(

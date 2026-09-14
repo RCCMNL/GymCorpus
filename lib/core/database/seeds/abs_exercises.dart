@@ -5,6 +5,7 @@ import 'package:gym_corpus/core/database/database.dart';
 const absExercises = [
   ExercisesCompanion(
     name: Value('Crunch'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Addominali'),
     equipment: Value('Corpo libero, Tappetino'),
     isBodyweight: Value(true),
@@ -16,17 +17,18 @@ const absExercises = [
       "Solleva spalle e parte alta della schiena da terra, contraendo l'addome. Pensa ad \"accorciare\" lo spazio tra sterno e bacino. La zona lombare rimane a terra. Scendi controllato.",
     ),
     tips: Value(
-      'Non tirare la testa with le mani. Il movemento è breve e concentrato. Espira quando sali.',
+      'Non tirare la testa con le mani. Il movemento è breve e concentrato. Espira quando sali.',
     ),
   ),
   ExercisesCompanion(
     name: Value('Crunch inverso'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Addominali'),
     equipment: Value('Corpo libero, Tappetino'),
     isBodyweight: Value(true),
     focusArea: Value("Retto dell'addome (focus parte bassa)"),
     preparation: Value(
-      'Sdraiato supino, braccia lungo i fianchi (palmi a terra per stabilità). Solleva le gambe with ginocchia piegate a 90°.',
+      'Sdraiato supino, braccia lungo i fianchi (palmi a terra per stabilità). Solleva le gambe con ginocchia piegate a 90°.',
     ),
     execution: Value(
       "Contrai l'addome per sollevare il bacino da terra, portando le ginocchia verso il petto. Il movemento è controllato (non uno slancio). Ritorna lentamente.",
@@ -37,6 +39,7 @@ const absExercises = [
   ),
   ExercisesCompanion(
     name: Value('Plank'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Addominali'),
     equipment: Value('Corpo libero, Tappetino'),
     isBodyweight: Value(true),
@@ -53,6 +56,7 @@ const absExercises = [
   ),
   ExercisesCompanion(
     name: Value('Side Plank'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Addominali'),
     equipment: Value('Corpo libero, Tappetino'),
     isBodyweight: Value(true),
@@ -69,6 +73,7 @@ const absExercises = [
   ),
   ExercisesCompanion(
     name: Value('Sollevamento gambe'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Addominali'),
     equipment: Value("Sbarra per trazioni (o apposita 'Captain's Chair')"),
     focusArea: Value("Retto dell'addome (parte bassa), Flessori dell'anca"),
@@ -77,11 +82,12 @@ const absExercises = [
       'Solleva le gambe tese (o quasi tese) fino a formare 90 gradi (parallele al suolo) o più in alto. Scendi in modo controllato senza dondolare.',
     ),
     tips: Value(
-      'Evita di dondolare (usa il core per stabilizzare). Se troppo difficile, inizia with le ginocchia (Knee Raises).',
+      'Evita di dondolare (usa il core per stabilizzare). Se troppo difficile, inizia con le ginocchia (Knee Raises).',
     ),
   ),
   ExercisesCompanion(
     name: Value('Sollevamento ginocchia'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Addominali'),
     equipment: Value("Sbarra per trazioni (o 'Captain's Chair')"),
     focusArea: Value("Retto dell'addome (parte bassa), Flessori dell'anca"),
@@ -93,6 +99,7 @@ const absExercises = [
   ),
   ExercisesCompanion(
     name: Value('Sollevamento gambe a terra'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Addominali'),
     equipment: Value('Corpo libero, Tappetino'),
     isBodyweight: Value(true),
@@ -101,7 +108,7 @@ const absExercises = [
       'Sdraiato supino, gambe tese. Mani sotto i glutei (per supporto lombare) o lungo i fianchi.',
     ),
     execution: Value(
-      'Solleva le gambe tese fino alla verticale (90 gradi). Scendi lentamente senza toccare terra with i talloni.',
+      'Solleva le gambe tese fino alla verticale (90 gradi). Scendi lentamente senza toccare terra con i talloni.',
     ),
     tips: Value(
       'Mantieni la zona lombare premuta a terra per tutto il movemento. Se si inarca, piega leggermente le ginocchia o riduci il ROM.',
@@ -109,11 +116,12 @@ const absExercises = [
   ),
   ExercisesCompanion(
     name: Value('Russian Twist'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Addominali'),
     equipment: Value('Disco, Manubrio, Kettlebell (opzionale)'),
     focusArea: Value("Obliqui, Retto dell'addome (rotazione)"),
     preparation: Value(
-      'Seduto a terra, ginocchia piegate, talloni a terra (facile) o sollevati (difficile). Busto inclinato indietro (V-sit). Tieni un peso (opzionale) with entrambe le mani.',
+      'Seduto a terra, ginocchia piegate, talloni a terra (facile) o sollevati (difficile). Busto inclinato indietro (V-sit). Tieni un peso (opzionale) con entrambe le mani.',
     ),
     execution: Value(
       "Ruota il busto e il peso da un lato all'altro, toccando (o quasi) il pavimento di fianco. Muovi spalle e petto, non solo le braccia.",
@@ -124,6 +132,7 @@ const absExercises = [
   ),
   ExercisesCompanion(
     name: Value('Bicycle Crunch'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Addominali'),
     equipment: Value('Corpo libero, Tappetino'),
     isBodyweight: Value(true),
@@ -140,11 +149,12 @@ const absExercises = [
   ),
   ExercisesCompanion(
     name: Value('Crunch ai cavi in ginocchio'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Addominali'),
     equipment: Value('Cavo (Ercolina), Corda'),
-    focusArea: Value("Retto dell'addome (with sovraccarico)"),
+    focusArea: Value("Retto dell'addome (con sovraccarico)"),
     preparation: Value(
-      'Posiziona la carrucola in alto with la corda. Inginocchiati di fronte, afferra la corda e portala ai lati della testa/collo.',
+      'Posiziona la carrucola in alto con la corda. Inginocchiati di fronte, afferra la corda e portala ai lati della testa/collo.',
     ),
     execution: Value(
       "Contrai l'addome flettendo il busto (\"accartocciati\") verso il pavimento, portando i gomiti verso le ginocchia. Espira forte. Ritorna controllato.",
@@ -155,6 +165,7 @@ const absExercises = [
   ),
   ExercisesCompanion(
     name: Value('Ab Rollout'),
+    difficulty: Value('Avanzato'),
     targetMuscle: Value('Addominali'),
     equipment: Value('Ruota addominale (Ab Wheel)'),
     focusArea: Value("Core (anti-estensione), Retto dell'addome, Dorsali"),
@@ -163,24 +174,26 @@ const absExercises = [
       'Fai rotolare la ruota in avanti lentamente, estendendo il corpo il più possibile mantenendo la schiena neutra (non inarcare!). Ritorna alla posizione iniziale contraendo addome e dorsali.',
     ),
     tips: Value(
-      'Esercizio avanzato. Inizia with un ROM breve. Il core deve lavorare per impedire alla schiena di collassare (anti-estensione).',
+      'Esercizio avanzato. Inizia con un ROM breve. Il core deve lavorare per impedire alla schiena di collassare (anti-estensione).',
     ),
   ),
   ExercisesCompanion(
     name: Value('Toes to Bar'),
+    difficulty: Value('Avanzato'),
     targetMuscle: Value('Addominali'),
     equipment: Value('Sbarra per trazioni'),
     focusArea: Value("Retto dell'addome, Flessori anca (avanzato)"),
     preparation: Value('Appeso alla sbarra.'),
     execution: Value(
-      "Contrai l'addome e solleva le gambe tese fino a toccare la sbarra with le punte dei piedi. Scendi in modo controllato.",
+      "Contrai l'addome e solleva le gambe tese fino a toccare la sbarra con le punte dei piedi. Scendi in modo controllato.",
     ),
     tips: Value(
-      "Richiede molta forza e flessibilità. Spesso eseguito with \"kipping\" (slancio) nel CrossFit, ma per l'ipertrofia è meglio la versione controllata (strict).",
+      "Richiede molta forza e flessibilità. Spesso eseguito con \"kipping\" (slancio) nel CrossFit, ma per l'ipertrofia è meglio la versione controllata (strict).",
     ),
   ),
   ExercisesCompanion(
     name: Value('V-Ups'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Addominali'),
     equipment: Value('Corpo libero, Tappetino'),
     isBodyweight: Value(true),
@@ -195,6 +208,7 @@ const absExercises = [
   ),
   ExercisesCompanion(
     name: Value('Hollow Body Hold'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Addominali'),
     equipment: Value('Corpo libero, Tappetino'),
     isBodyweight: Value(true),
@@ -211,11 +225,12 @@ const absExercises = [
   ),
   ExercisesCompanion(
     name: Value('Woodchopper ai cavi'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Addominali'),
     equipment: Value('Cavo (Ercolina), Maniglia o Corda'),
     focusArea: Value('Obliqui, Core (potenza rotazionale)'),
     preparation: Value(
-      'Posiziona la carrucola in alto. In piedi di fianco, afferra la maniglia with entrambe le mani.',
+      'Posiziona la carrucola in alto. In piedi di fianco, afferra la maniglia con entrambe le mani.',
     ),
     execution: Value(
       'Tira il cavo diagonalmente verso il basso, ruotando il busto (come se tagliassi legna). Il movemento parte dal core, non dalle braccia. Torna controllato.',
@@ -226,11 +241,12 @@ const absExercises = [
   ),
   ExercisesCompanion(
     name: Value('Pall of Press ai cavi'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Addominali'),
     equipment: Value('Cavo (Ercolina), Maniglia'),
     focusArea: Value('Obliqui, Core (anti-rotazione)'),
     preparation: Value(
-      'Posiziona la carrucola a metà altezza. In piedi di fianco al cavo, afferra la maniglia with entrambe le mani e portala al petto.',
+      'Posiziona la carrucola a metà altezza. In piedi di fianco al cavo, afferra la maniglia con entrambe le mani e portala al petto.',
     ),
     execution: Value(
       'Fai un passo laterale per mettere in tensione. Spingi le mani dritte davanti a te, estendendo le braccia. Il cavo cercherà di ruotarti; il tuo addome deve impedirlo. Mantieni 1-3 secondi e torna al petto.',
@@ -241,12 +257,13 @@ const absExercises = [
   ),
   ExercisesCompanion(
     name: Value('Sit-up'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Addominali'),
     equipment: Value('Corpo libero, Tappetino (o panca GHD)'),
     isBodyweight: Value(true),
     focusArea: Value("Retto dell'addome, Flessori dell'anca"),
     preparation: Value(
-      'Supino, ginocchia piegate. (Spesso with piedi bloccati).',
+      'Supino, ginocchia piegate. (Spesso con piedi bloccati).',
     ),
     execution: Value(
       "Solleva l'intero busto da terra fino a portarlo in posizione seduta. Scendi controllato.",
@@ -257,6 +274,7 @@ const absExercises = [
   ),
   ExercisesCompanion(
     name: Value('Dragon Flag'),
+    difficulty: Value('Avanzato'),
     targetMuscle: Value('Addominali'),
     equipment: Value('Panca (o supporto stabile)'),
     focusArea: Value("Core (eccentrica), Retto dell'addome (avanzatissimo)"),
@@ -267,11 +285,12 @@ const absExercises = [
       "Mantenendo il corpo dritto come una tavola (dalle spalle ai piedi), abbassalo lentamente in modo controllato (fase eccentrica) fino quasi a sfiorare la panca. Risali (se riesci) o ripeti solo l'eccentrica.",
     ),
     tips: Value(
-      'Reso famoso da Bruce Lee. Esercizio di forza pura del core. Inizia solo with la fase eccentrica (negativa).',
+      'Reso famoso da Bruce Lee. Esercizio di forza pura del core. Inizia solo con la fase eccentrica (negativa).',
     ),
   ),
   ExercisesCompanion(
-    name: Value('Flessioni laterali with manubrio'),
+    name: Value('Flessioni laterali con manubrio'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Addominali'),
     equipment: Value('Manubrio (o Kettlebell)'),
     focusArea: Value('Obliqui, Quadrato dei lombi'),
@@ -287,6 +306,7 @@ const absExercises = [
   ),
   ExercisesCompanion(
     name: Value('Mountain Climbers'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Addominali'),
     equipment: Value('Corpo libero, Tappetino'),
     isBodyweight: Value(true),

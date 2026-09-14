@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:gym_corpus/features/training/domain/entities/body_measurement.dart';
 import 'package:gym_corpus/features/training/domain/entities/body_weight.dart';
+import 'package:gym_corpus/features/training/domain/entities/cardio_goal.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_session.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
@@ -68,6 +69,24 @@ class UpdateRoutineEvent extends TrainingEvent {
 
 class DeleteRoutineEvent extends TrainingEvent {
   const DeleteRoutineEvent(this.id);
+
+  final int id;
+
+  @override
+  List<Object?> get props => [id];
+}
+
+class CopyRoutineEvent extends TrainingEvent {
+  const CopyRoutineEvent(this.id);
+
+  final int id;
+
+  @override
+  List<Object?> get props => [id];
+}
+
+class ResetRoutineToSourceEvent extends TrainingEvent {
+  const ResetRoutineToSourceEvent(this.id);
 
   final int id;
 
@@ -202,6 +221,8 @@ class SaveCardioSessionEvent extends TrainingEvent {
     required this.calories,
     this.steps,
     this.routeJson,
+    this.date,
+    this.goal,
   });
 
   final String type;
@@ -212,6 +233,13 @@ class SaveCardioSessionEvent extends TrainingEvent {
   final int calories;
   final int? steps;
   final String? routeJson;
+
+  /// Data della sessione. Nulla per una sessione appena conclusa, valorizzata
+  /// quando si registra a posteriori un allenamento gia' fatto.
+  final DateTime? date;
+
+  /// Obiettivo scelto prima di partire, salvato con la sessione.
+  final CardioGoal? goal;
 
   @override
   List<Object?> get props => [
@@ -266,6 +294,92 @@ class UpdateExerciseNotesEvent extends TrainingEvent {
 
   @override
   List<Object?> get props => [exerciseId, notes];
+}
+
+class AddCustomExerciseEvent extends TrainingEvent {
+  const AddCustomExerciseEvent({
+    required this.name,
+    required this.targetMuscle,
+    required this.difficulty,
+    this.equipment,
+    this.focusArea,
+    this.preparation,
+    this.execution,
+    this.tips,
+    this.isBodyweight = false,
+  });
+
+  final String name;
+  final String targetMuscle;
+  final String difficulty;
+  final String? equipment;
+  final String? focusArea;
+  final String? preparation;
+  final String? execution;
+  final String? tips;
+  final bool isBodyweight;
+
+  @override
+  List<Object?> get props => [
+    name,
+    targetMuscle,
+    difficulty,
+    equipment,
+    focusArea,
+    preparation,
+    execution,
+    tips,
+    isBodyweight,
+  ];
+}
+
+class UpdateCustomExerciseEvent extends TrainingEvent {
+  const UpdateCustomExerciseEvent({
+    required this.id,
+    required this.name,
+    required this.targetMuscle,
+    required this.difficulty,
+    this.equipment,
+    this.focusArea,
+    this.preparation,
+    this.execution,
+    this.tips,
+    this.isBodyweight = false,
+  });
+
+  final int id;
+  final String name;
+  final String targetMuscle;
+  final String difficulty;
+  final String? equipment;
+  final String? focusArea;
+  final String? preparation;
+  final String? execution;
+  final String? tips;
+  final bool isBodyweight;
+
+  @override
+  List<Object?> get props => [
+    id,
+    name,
+    targetMuscle,
+    difficulty,
+    equipment,
+    focusArea,
+    preparation,
+    execution,
+    tips,
+    isBodyweight,
+  ];
+}
+
+class DeleteCustomExerciseEvent extends TrainingEvent {
+  const DeleteCustomExerciseEvent(this.id);
+
+  final int id;
+
+  @override
+  List<Object?> get props => [id];
 }
 
 // Update events (Internal, but public for visibility)

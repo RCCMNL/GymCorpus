@@ -4,6 +4,7 @@ import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gym_corpus/core/database/database.dart';
+import 'package:gym_corpus/core/database/seeds/default_routines.dart';
 import 'package:path/path.dart' as p;
 
 /// Verifica che la strategia di migrazione additiva riporti sul DB di un
@@ -80,6 +81,360 @@ void main() {
   );
 
   test(
+    'la riapertura ripristina la difficolta mancante per nome, senza toccare gli esercizi custom',
+    () async {
+      // 1. Primo avvio: seeding iniziale, ogni esercizio predefinito ha una
+      //    difficolta assegnata.
+      final firstRun = AppDatabase(NativeDatabase(dbFile));
+      final crunch = await (firstRun.select(
+        firstRun.exercises,
+      )..where((e) => e.name.equals('Crunch'))).getSingle();
+      expect(crunch.difficulty, 'Principiante');
+
+      // Esercizio custom dell'utente, con lo stesso nome di uno predefinito
+      // (caso limite): la difficolta e' lasciata volutamente nulla per
+      // verificare che il backfill non la sovrascriva per errore.
+      await firstRun
+          .into(firstRun.exercises)
+          .insert(
+            ExercisesCompanion.insert(
+              name: 'Crunch',
+              targetMuscle: 'Addominali',
+              isCustom: const Value(true),
+            ),
+          );
+
+      // 2. Simula un'installazione precedente a questa funzionalita: la
+      //    colonna esiste ma i valori non sono mai stati popolati.
+      await firstRun.customStatement('UPDATE exercises SET difficulty = NULL');
+      final wiped =
+          await (firstRun.select(firstRun.exercises)..where(
+                (e) => e.name.equals('Crunch') & e.isCustom.equals(false),
+              ))
+              .getSingle();
+      expect(wiped.difficulty, null);
+      await firstRun.close();
+
+      // 3. Riapertura: il backfill deve ripristinare la difficolta sugli
+      //    esercizi predefiniti cercandoli per nome nei dati seed...
+      final secondRun = AppDatabase(NativeDatabase(dbFile));
+      addTearDown(secondRun.close);
+
+      final restored =
+          await (secondRun.select(secondRun.exercises)..where(
+                (e) => e.name.equals('Crunch') & e.isCustom.equals(false),
+              ))
+              .getSingle();
+      expect(restored.difficulty, 'Principiante');
+
+      final noMissing = await (secondRun.select(
+        secondRun.exercises,
+      )..where((e) => e.isCustom.equals(false))).get();
+      expect(noMissing.any((e) => e.difficulty == null), isFalse);
+
+      // ...ma non deve mai toccare un esercizio custom, anche se omonimo.
+      final customExercise =
+          await (secondRun.select(secondRun.exercises)..where(
+                (e) => e.name.equals('Crunch') & e.isCustom.equals(true),
+              ))
+              .getSingle();
+      expect(customExercise.difficulty, null);
+    },
+  );
+
+  test(
+    'la riapertura riallinea i testi di catalogo modificati nei seed',
+    () async {
+      // Regressione: il refuso "with" al posto di "con" era stato
+      // corretto nei seed, ma chi aveva gia' il database popolato
+      // continuava a vederlo, perche' il seeding gira solo a tabella
+      // vuota.
+      final firstRun = AppDatabase(NativeDatabase(dbFile));
+      final seeded = await (firstRun.select(
+        firstRun.exercises,
+      )..where((e) => e.name.equals('Sissy Squat'))).getSingle();
+      // isA<String>() invece di isNotNull: quest'ultimo e' esportato sia
+      // da drift che da matcher e l'import risulterebbe ambiguo.
+      final realEquipment = seeded.equipment;
+      expect(realEquipment, isA<String>());
+
+      // Simula il testo vecchio rimasto in un'installazione esistente.
+      await (firstRun.update(
+        firstRun.exercises,
+      )..where((e) => e.id.equals(seeded.id))).write(
+        const ExercisesCompanion(equipment: Value('Corpo libero (with X)')),
+      );
+
+      // Nota personale e preferito: sono dell'utente, il riallineamento
+      // non deve toccarli.
+      await (firstRun.update(
+        firstRun.exercises,
+      )..where((e) => e.id.equals(seeded.id))).write(
+        const ExercisesCompanion(
+          userNotes: Value('la mia nota'),
+          isFavorite: Value(true),
+        ),
+      );
+      await firstRun.close();
+
+      final secondRun = AppDatabase(NativeDatabase(dbFile));
+      addTearDown(secondRun.close);
+
+      final repaired = await (secondRun.select(
+        secondRun.exercises,
+      )..where((e) => e.id.equals(seeded.id))).getSingle();
+      expect(repaired.equipment, realEquipment);
+      expect(repaired.userNotes, 'la mia nota');
+      expect(repaired.isFavorite, isTrue);
+    },
+  );
+
+  test(
+    'il riallineamento non cancella un indirizzo video gia salvato',
+    () async {
+      // I seed non dichiarano ancora nessun video: finche' e' cosi', il
+      // riallineamento deve lasciare stare la colonna invece di azzerarla.
+      final firstRun = AppDatabase(NativeDatabase(dbFile));
+      final seeded = await (firstRun.select(
+        firstRun.exercises,
+      )..where((e) => e.name.equals('Sissy Squat'))).getSingle();
+
+      await (firstRun.update(
+        firstRun.exercises,
+      )..where((e) => e.id.equals(seeded.id))).write(
+        const ExercisesCompanion(
+          referenceVideoUrl: Value('https://video.example/sissy'),
+        ),
+      );
+      await firstRun.close();
+
+      final secondRun = AppDatabase(NativeDatabase(dbFile));
+      addTearDown(secondRun.close);
+
+      final dopo = await (secondRun.select(
+        secondRun.exercises,
+      )..where((e) => e.id.equals(seeded.id))).getSingle();
+
+      expect(dopo.referenceVideoUrl, 'https://video.example/sissy');
+    },
+  );
+
+  test('il riallineamento non tocca gli esercizi custom dell utente', () async {
+    final firstRun = AppDatabase(NativeDatabase(dbFile));
+    // Omonimo di un esercizio predefinito: il caso limite in cui una
+    // ricerca per nome potrebbe sovrascrivere dati dell'utente.
+    final customId = await firstRun
+        .into(firstRun.exercises)
+        .insert(
+          ExercisesCompanion.insert(
+            name: 'Sissy Squat',
+            targetMuscle: 'Gambe',
+            equipment: const Value('Il mio attrezzo'),
+            isCustom: const Value(true),
+          ),
+        );
+    await firstRun.close();
+
+    final secondRun = AppDatabase(NativeDatabase(dbFile));
+    addTearDown(secondRun.close);
+
+    final custom = await (secondRun.select(
+      secondRun.exercises,
+    )..where((e) => e.id.equals(customId))).getSingle();
+    expect(custom.equipment, 'Il mio attrezzo');
+  });
+
+  test(
+    'il primo avvio semina le routine di sistema con gli esercizi giusti',
+    () async {
+      final db = AppDatabase(NativeDatabase(dbFile));
+      addTearDown(db.close);
+
+      for (final routineSeed in getDefaultRoutines()) {
+        final routine =
+            await (db.select(db.routines)..where(
+                  (r) =>
+                      r.title.equals(routineSeed.title) &
+                      r.isSystem.equals(true),
+                ))
+                .getSingle();
+
+        final exercisesRows = await (db.select(
+          db.routineExercises,
+        )..where((t) => t.routineId.equals(routine.id))).get();
+        expect(
+          exercisesRows.length,
+          routineSeed.exercises.length,
+          reason: 'esercizi mancanti in "${routineSeed.title}"',
+        );
+
+        for (final exerciseSeed in routineSeed.exercises) {
+          final linkedExercise =
+              await (db.select(db.exercises)
+                    ..where((e) => e.name.equals(exerciseSeed.exerciseName)))
+                  .getSingle();
+          final link = exercisesRows.firstWhere(
+            (row) => row.exerciseId == linkedExercise.id,
+            orElse: () => throw StateError(
+              '"${exerciseSeed.exerciseName}" non collegato a '
+              '"${routineSeed.title}"',
+            ),
+          );
+          expect(link.sets, exerciseSeed.sets);
+          expect(link.reps, exerciseSeed.reps);
+          expect(link.weight, exerciseSeed.weight);
+        }
+      }
+    },
+  );
+
+  test(
+    'la riapertura riallinea serie/ripetizioni/carico delle routine di '
+    'sistema al seed corrente, senza duplicare gli esercizi',
+    () async {
+      // Regressione: le routine di sistema erano seedate una sola volta,
+      // quindi correggere il carico (sempre 0 in origine) nei seed non
+      // arrivava a chi aveva gia' l'app installata.
+      final firstRun = AppDatabase(NativeDatabase(dbFile));
+      final firstRoutineSeed = getDefaultRoutines().first;
+      final systemRoutine = await (firstRun.select(firstRun.routines)..where(
+            (r) =>
+                r.title.equals(firstRoutineSeed.title) &
+                r.isSystem.equals(true),
+          ))
+          .getSingle();
+
+      // Simula una versione precedente del seed, con carico ancora a 0.
+      await (firstRun.update(
+        firstRun.routineExercises,
+      )..where((t) => t.routineId.equals(systemRoutine.id))).write(
+        const RoutineExercisesCompanion(
+          sets: Value(1),
+          reps: Value(1),
+          weight: Value(0),
+        ),
+      );
+      await firstRun.close();
+
+      final secondRun = AppDatabase(NativeDatabase(dbFile));
+      addTearDown(secondRun.close);
+
+      final realignedRoutine =
+          await (secondRun.select(secondRun.routines)..where(
+                (r) =>
+                    r.title.equals(firstRoutineSeed.title) &
+                    r.isSystem.equals(true),
+              ))
+              .getSingle();
+      final realignedExercises = await (secondRun.select(
+        secondRun.routineExercises,
+      )..where((t) => t.routineId.equals(realignedRoutine.id))).get();
+
+      expect(
+        realignedExercises.length,
+        firstRoutineSeed.exercises.length,
+        reason: 'il riallineamento non deve duplicare gli esercizi',
+      );
+      for (final exerciseSeed in firstRoutineSeed.exercises) {
+        final linkedExercise =
+            await (secondRun.select(secondRun.exercises)
+                  ..where((e) => e.name.equals(exerciseSeed.exerciseName)))
+                .getSingle();
+        final link = realignedExercises.firstWhere(
+          (row) => row.exerciseId == linkedExercise.id,
+        );
+        expect(link.sets, exerciseSeed.sets);
+        expect(link.reps, exerciseSeed.reps);
+        expect(link.weight, exerciseSeed.weight);
+      }
+    },
+  );
+
+  test(
+    'il riallineamento delle routine di sistema ignora un esercizio custom '
+    'omonimo di uno del catalogo',
+    () async {
+      // Regressione: il riallineamento ad ogni apertura risolve di nuovo
+      // ogni nome di esercizio delle routine di sistema (per aggiornarne
+      // sets/reps/weight), e la ricerca non escludeva gli esercizi custom.
+      // Un custom omonimo di uno di catalogo - "Crunch", usato in Full Body
+      // - Principianti - faceva fallire la query con "too many elements".
+      final firstRun = AppDatabase(NativeDatabase(dbFile));
+      await firstRun
+          .into(firstRun.exercises)
+          .insert(
+            ExercisesCompanion.insert(
+              name: 'Crunch',
+              targetMuscle: 'Addominali',
+              isCustom: const Value(true),
+            ),
+          );
+      await firstRun.close();
+
+      // Non deve lanciare, e deve restare collegata all'esercizio di
+      // catalogo, non al custom appena creato.
+      final secondRun = AppDatabase(NativeDatabase(dbFile));
+      addTearDown(secondRun.close);
+
+      final fullBody = await (secondRun.select(secondRun.routines)..where(
+            (r) =>
+                r.title.equals('Full Body – Principianti') &
+                r.isSystem.equals(true),
+          ))
+          .getSingle();
+      final catalogCrunch = await (secondRun.select(secondRun.exercises)
+            ..where(
+              (e) => e.name.equals('Crunch') & e.isCustom.equals(false),
+            ))
+          .getSingle();
+      final link =
+          await (secondRun.select(secondRun.routineExercises)..where(
+                (t) =>
+                    t.routineId.equals(fullBody.id) &
+                    t.exerciseId.equals(catalogCrunch.id),
+              ))
+              .getSingleOrNull();
+      // isA<RoutineExercise>() invece di isNotNull: quest'ultimo e'
+      // esportato sia da drift che da matcher e l'import risulterebbe
+      // ambiguo (vedi sopra).
+      expect(link, isA<RoutineExercise>());
+    },
+  );
+
+  test('il seeding delle routine di sistema e idempotente e non tocca quelle '
+      'dell utente', () async {
+    final firstRun = AppDatabase(NativeDatabase(dbFile));
+    final systemCountBefore = await (firstRun.select(
+      firstRun.routines,
+    )..where((r) => r.isSystem.equals(true))).get();
+    expect(systemCountBefore.length, getDefaultRoutines().length);
+
+    // Routine dell'utente, per verificare che il reseed non la tocchi.
+    final userRoutineId = await firstRun
+        .into(firstRun.routines)
+        .insert(RoutinesCompanion.insert(title: 'La mia routine'));
+    await firstRun.close();
+
+    final secondRun = AppDatabase(NativeDatabase(dbFile));
+    addTearDown(secondRun.close);
+
+    final systemCountAfter = await (secondRun.select(
+      secondRun.routines,
+    )..where((r) => r.isSystem.equals(true))).get();
+    expect(
+      systemCountAfter.length,
+      getDefaultRoutines().length,
+      reason: 'le routine di sistema non devono duplicarsi al riavvio',
+    );
+
+    final userRoutine = await (secondRun.select(
+      secondRun.routines,
+    )..where((r) => r.id.equals(userRoutineId))).getSingle();
+    expect(userRoutine.title, 'La mia routine');
+    expect(userRoutine.isSystem, isFalse);
+  });
+
+  test(
     'ogni colonna dello schema corrente sopravvive a una riapertura',
     () async {
       final firstRun = AppDatabase(NativeDatabase(dbFile));
@@ -101,6 +456,68 @@ void main() {
           reason: 'colonne perse sulla tabella ${entry.key}',
         );
       }
+    },
+  );
+
+  test('la riapertura crea la tabella del ciclo se manca', () async {
+    // Il calendario ciclo arriva dopo: chi aggiorna l'app ha un database
+    // senza quella tabella, e la strategia additiva deve crearla senza
+    // toccare il resto dei dati.
+    final firstRun = AppDatabase(NativeDatabase(dbFile));
+    await firstRun.customStatement('DROP TABLE cycle_logs');
+    await firstRun.close();
+
+    final secondRun = AppDatabase(NativeDatabase(dbFile));
+    addTearDown(secondRun.close);
+
+    final id = await secondRun.insertCycleLog(
+      CycleLogsCompanion.insert(startDate: DateTime(2026, 9)),
+    );
+    await secondRun.closeCycleLog(id, DateTime(2026, 9, 5));
+
+    final saved = await secondRun.select(secondRun.cycleLogs).getSingle();
+    expect(saved.startDate, DateTime(2026, 9));
+    expect(saved.endDate, DateTime(2026, 9, 5));
+  });
+
+  test(
+    'la riapertura riporta le colonne obiettivo sulle sessioni cardio',
+    () async {
+      // L'obiettivo di sessione arriva dopo: chi aggiorna l'app ha la tabella
+      // senza quelle colonne, e senza il ripristino ogni salvataggio cardio
+      // fallirebbe con "no such column".
+      final firstRun = AppDatabase(NativeDatabase(dbFile));
+      await firstRun.customStatement(
+        'ALTER TABLE cardio_sessions DROP COLUMN goal_type',
+      );
+      await firstRun.customStatement(
+        'ALTER TABLE cardio_sessions DROP COLUMN goal_value',
+      );
+      await firstRun.close();
+
+      final secondRun = AppDatabase(NativeDatabase(dbFile));
+      addTearDown(secondRun.close);
+
+      await secondRun
+          .into(secondRun.cardioSessions)
+          .insert(
+            CardioSessionsCompanion.insert(
+              distance: 5,
+              duration: 1800,
+              avgSpeed: 10,
+              pace: '06:00',
+              calories: 300,
+              date: DateTime(2026, 9, 4),
+              goalType: const Value('distance'),
+              goalValue: const Value(5),
+            ),
+          );
+
+      final saved = await secondRun
+          .select(secondRun.cardioSessions)
+          .getSingle();
+      expect(saved.goalType, 'distance');
+      expect(saved.goalValue, 5);
     },
   );
 }

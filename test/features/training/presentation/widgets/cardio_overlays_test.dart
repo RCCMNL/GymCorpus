@@ -53,4 +53,35 @@ void main() {
       expect(dismissed, isTrue);
     });
   });
+
+  group('CardioMilestoneBanner', () {
+    testWidgets('mostra il messaggio del traguardo raggiunto', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: CardioMilestoneBanner(
+              title: '1 km',
+              subtitle: '05:40 al chilometro',
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('1 km'), findsOneWidget);
+      expect(find.text('05:40 al chilometro'), findsOneWidget);
+    });
+
+    testWidgets('senza dettaglio mostra solo il titolo', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: CardioMilestoneBanner(title: 'Obiettivo raggiunto'),
+          ),
+        ),
+      );
+
+      expect(find.text('Obiettivo raggiunto'), findsOneWidget);
+      expect(find.byType(Text), findsOneWidget);
+    });
+  });
 }

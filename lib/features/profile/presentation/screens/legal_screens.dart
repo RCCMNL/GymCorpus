@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/widgets/app_card.dart';
+import 'package:gym_corpus/core/widgets/gradient_title.dart';
 
 class LegalScreen extends StatefulWidget {
   const LegalScreen({
@@ -95,21 +97,9 @@ class _LegalScreenState extends State<LegalScreen>
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            ShaderMask(
-                              shaderCallback: (b) => LinearGradient(
-                                colors: [
-                                  theme.colorScheme.primary,
-                                  theme.colorScheme.tertiary,
-                                ],
-                              ).createShader(b),
-                              child: Text(
-                                widget.title,
-                                style: theme.textTheme.titleLarge?.copyWith(
-                                  fontWeight: FontWeight.w900,
-                                  fontFamily: 'Lexend',
-                                  color: Colors.white,
-                                ),
-                              ),
+                            GradientTitle(
+                              widget.title,
+                              scale: GradientTitleScale.compact,
                             ),
                             const SizedBox(height: 4),
                             Text(
@@ -141,17 +131,8 @@ class _LegalScreenState extends State<LegalScreen>
               ),
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 16),
-                child: Container(
+                child: AppCard(
                   padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.surfaceContainerHigh.withValues(
-                      alpha: 0.5,
-                    ),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: theme.colorScheme.outline.withValues(alpha: 0.06),
-                    ),
-                  ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

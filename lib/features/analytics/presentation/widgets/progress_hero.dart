@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/utils/date_format.dart';
+import 'package:gym_corpus/core/widgets/app_card.dart';
+import 'package:gym_corpus/core/widgets/icon_badge.dart';
 import 'package:gym_corpus/features/analytics/domain/progress_formatters.dart';
 import 'package:gym_corpus/features/training/domain/entities/body_measurement.dart';
 import 'package:gym_corpus/features/training/domain/entities/body_weight.dart';
-import 'package:intl/intl.dart';
 
 /// Riepilogo in evidenza in cima a ProgressScreen: ultimo peso registrato
 /// per la tab Peso, stato delle misure per la tab Misure.
@@ -160,10 +162,7 @@ class _ProgressHeroState extends State<ProgressHero> {
                         icon: Icons.history_toggle_off_rounded,
                         label: 'Ultimo log peso',
                         value: latestWeight != null
-                            ? DateFormat(
-                                'dd MMM yyyy',
-                                'it_IT',
-                              ).format(latestWeight.date)
+                            ? formatShortDate(latestWeight.date)
                             : widget.profileWeight != null
                             ? 'Profilo'
                             : 'Nessun dato',
@@ -236,22 +235,12 @@ class _ProgressHeroState extends State<ProgressHero> {
                     itemBuilder: (context, index) {
                       final part = sortedParts[index];
                       final m = latestByPart[part]!;
-                      return Container(
+                      return AppCard(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 10,
                           vertical: 8,
                         ),
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.surface.withValues(
-                            alpha: 0.35,
-                          ),
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(
-                            color: theme.colorScheme.outline.withValues(
-                              alpha: 0.05,
-                            ),
-                          ),
-                        ),
+                        size: AppCardSize.tight,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -307,21 +296,15 @@ class HeroMetricChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Container(
+    return AppCard(
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface.withValues(alpha: 0.24),
-        borderRadius: BorderRadius.circular(20),
-      ),
+      tone: AppCardTone.sunken,
       child: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.primary.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icon, size: 20, color: theme.colorScheme.primary),
+          IconBadge(
+            icon,
+            color: theme.colorScheme.primary,
+            size: IconBadgeSize.small,
           ),
           const SizedBox(width: 12),
           Expanded(

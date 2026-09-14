@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gym_corpus/core/services/notification_service.dart';
+import 'package:gym_corpus/core/widgets/app_card.dart';
+import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
+import 'package:gym_corpus/core/widgets/gradient_title.dart';
 import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_bloc.dart';
 import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_event.dart';
+import 'package:gym_corpus/features/notifications/presentation/widgets/notification_tiles.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
@@ -110,17 +114,13 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
 
   Future<void> _showPermissionDeniedMessage() async {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text(
-          'Le notifiche di sistema sono disattivate. Attivale nelle impostazioni del telefono.',
-        ),
-        duration: const Duration(seconds: 3),
-        action: SnackBarAction(
-          label: 'Impostazioni',
-          onPressed: _openSystemSettings,
-        ),
-      ),
+    AppSnackBar.show(
+      context,
+      'Le notifiche di sistema sono disattivate. '
+      'Attivale nelle impostazioni del telefono.',
+      tone: AppSnackBarTone.warning,
+      actionLabel: 'Impostazioni',
+      onAction: _openSystemSettings,
     );
   }
 
@@ -300,19 +300,9 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
             ),
             onPressed: () => Navigator.maybePop(context),
           ),
-          title: ShaderMask(
-            shaderCallback: (bounds) => LinearGradient(
-              colors: [theme.colorScheme.primary, theme.colorScheme.tertiary],
-            ).createShader(bounds),
-            child: Text(
-              'Notifiche',
-              style: theme.textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.w900,
-                fontFamily: 'Lexend',
-                fontSize: 22,
-                color: Colors.white,
-              ),
-            ),
+          title: const GradientTitle(
+            'Notifiche',
+            scale: GradientTitleScale.compact,
           ),
           centerTitle: false,
         ),
@@ -394,18 +384,15 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                 ),
               ),
               // Stretching section
-              _buildSectionHeader(
-                theme,
+              const NotificationSectionHeader(
                 icon: Icons.self_improvement_rounded,
-                color: const Color(0xFF8DE8C7),
+                color: Color(0xFF8DE8C7),
                 title: 'STRETCHING GIORNALIERO',
               ),
               const SizedBox(height: 16),
-              _buildSettingsCard(
-                theme,
+              NotificationCard(
                 children: [
-                  _buildSwitchTile(
-                    theme,
+                  NotificationSwitchTile(
                     label: 'Promemoria Stretching',
                     subtitle: 'Ricevi un promemoria giornaliero',
                     value: _effectiveStretchingEnabled,
@@ -416,8 +403,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                       color: theme.colorScheme.outline.withValues(alpha: 0.1),
                       height: 1,
                     ),
-                    _buildTimeTile(
-                      theme,
+                    NotificationTimeTile(
                       label: 'Orario',
                       time: _stretchingTime,
                       onTap: _pickStretchingTime,
@@ -429,18 +415,15 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
               const SizedBox(height: 32),
 
               // Training section
-              _buildSectionHeader(
-                theme,
+              NotificationSectionHeader(
                 icon: Icons.fitness_center_rounded,
                 color: theme.colorScheme.primary,
                 title: 'ALLENAMENTO',
               ),
               const SizedBox(height: 16),
-              _buildSettingsCard(
-                theme,
+              NotificationCard(
                 children: [
-                  _buildSwitchTile(
-                    theme,
+                  NotificationSwitchTile(
                     label: 'Promemoria Allenamento',
                     subtitle: 'Ricevi un promemoria nei giorni previsti',
                     value: _effectiveTrainingEnabled,
@@ -451,8 +434,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                       color: theme.colorScheme.outline.withValues(alpha: 0.1),
                       height: 1,
                     ),
-                    _buildTimeTile(
-                      theme,
+                    NotificationTimeTile(
                       label: 'Orario',
                       time: _trainingTime,
                       onTap: _pickTrainingTime,
@@ -475,7 +457,10 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                             ),
                           ),
                           const SizedBox(height: 12),
-                          _buildDaySelector(theme),
+                          WeekDaySelector(
+                            selectedDays: _trainingDays.toSet(),
+                            onToggle: _toggleDay,
+                          ),
                         ],
                       ),
                     ),
@@ -486,18 +471,15 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
               const SizedBox(height: 32),
 
               // Badge section
-              _buildSectionHeader(
-                theme,
+              const NotificationSectionHeader(
                 icon: Icons.emoji_events_rounded,
                 color: Colors.orangeAccent,
                 title: 'BADGE & TRAGUARDI',
               ),
               const SizedBox(height: 16),
-              _buildSettingsCard(
-                theme,
+              NotificationCard(
                 children: [
-                  _buildSwitchTile(
-                    theme,
+                  NotificationSwitchTile(
                     label: 'Notifiche Badge',
                     subtitle:
                         'Ricevi una notifica quando sblocchi un nuovo badge',
@@ -510,22 +492,14 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
               const SizedBox(height: 32),
 
               // Other notifications info
-              _buildSectionHeader(
-                theme,
+              NotificationSectionHeader(
                 icon: Icons.info_outline_rounded,
                 color: theme.colorScheme.outline,
                 title: 'ALTRE NOTIFICHE',
               ),
               const SizedBox(height: 16),
-              Container(
+              AppCard(
                 padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.surfaceContainerHigh,
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(
-                    color: theme.colorScheme.outline.withValues(alpha: 0.08),
-                  ),
-                ),
                 child: Row(
                   children: [
                     Icon(
@@ -553,201 +527,6 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildSectionHeader(
-    ThemeData theme, {
-    required IconData icon,
-    required Color color,
-    required String title,
-  }) {
-    return Row(
-      children: [
-        Container(
-          width: 32,
-          height: 32,
-          decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.15),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Icon(icon, color: color, size: 18),
-        ),
-        const SizedBox(width: 12),
-        Text(
-          title,
-          style: theme.textTheme.labelSmall?.copyWith(
-            letterSpacing: 2,
-            fontWeight: FontWeight.w900,
-            color: theme.colorScheme.outline.withValues(alpha: 0.7),
-            fontSize: 10,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSettingsCard(ThemeData theme, {required List<Widget> children}) {
-    return Container(
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: theme.colorScheme.outline.withValues(alpha: 0.08),
-        ),
-      ),
-      child: Column(children: children),
-    );
-  }
-
-  Widget _buildSwitchTile(
-    ThemeData theme, {
-    required String label,
-    required String subtitle,
-    required bool value,
-    required ValueChanged<bool> onChanged,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    fontFamily: 'Lexend',
-                    fontSize: 14,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  subtitle,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.outline,
-                    fontSize: 11,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Transform.scale(
-            scale: 0.85,
-            child: Switch(
-              value: value,
-              onChanged: onChanged,
-              activeThumbColor: theme.colorScheme.primary,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTimeTile(
-    ThemeData theme, {
-    required String label,
-    required TimeOfDay time,
-    required VoidCallback onTap,
-  }) {
-    final h = time.hour.toString().padLeft(2, '0');
-    final m = time.minute.toString().padLeft(2, '0');
-
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              label,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w700,
-                fontFamily: 'Lexend',
-                fontSize: 14,
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.primary.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: theme.colorScheme.primary.withValues(alpha: 0.2),
-                ),
-              ),
-              child: Text(
-                '$h:$m',
-                style: TextStyle(
-                  fontFamily: 'Lexend',
-                  fontWeight: FontWeight.w800,
-                  fontSize: 16,
-                  color: theme.colorScheme.primary,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDaySelector(ThemeData theme) {
-    const dayLabels = ['L', 'M', 'M', 'G', 'V', 'S', 'D'];
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: List.generate(7, (index) {
-        final day = index + 1; // 1=Mon .. 7=Sun
-        final isSelected = _trainingDays.contains(day);
-
-        return GestureDetector(
-          onTap: () => _toggleDay(day),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: isSelected
-                  ? theme.colorScheme.primary
-                  : theme.colorScheme.surfaceContainerHighest.withValues(
-                      alpha: 0.3,
-                    ),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: isSelected
-                    ? theme.colorScheme.primary
-                    : theme.colorScheme.outline.withValues(alpha: 0.15),
-              ),
-              boxShadow: isSelected
-                  ? [
-                      BoxShadow(
-                        color: theme.colorScheme.primary.withValues(alpha: 0.3),
-                        blurRadius: 8,
-                        offset: const Offset(0, 3),
-                      ),
-                    ]
-                  : null,
-            ),
-            child: Center(
-              child: Text(
-                dayLabels[index],
-                style: TextStyle(
-                  fontFamily: 'Lexend',
-                  fontWeight: FontWeight.w800,
-                  fontSize: 13,
-                  color: isSelected ? Colors.white : theme.colorScheme.outline,
-                ),
-              ),
-            ),
-          ),
-        );
-      }),
     );
   }
 }

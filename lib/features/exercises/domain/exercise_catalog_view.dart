@@ -1,3 +1,4 @@
+import 'package:gym_corpus/features/exercises/domain/equipment_tags.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 
 /// Voce speciale del selettore muscoli che mostra tutti gli esercizi.
@@ -8,6 +9,10 @@ const String kFavoritesMuscleFilter = 'Preferiti';
 
 /// Etichetta di sezione per gli esercizi senza una categoria valorizzata.
 const String kUncategorizedSection = 'Altro';
+
+/// Voce speciale del selettore difficoltà che mostra tutti gli esercizi,
+/// indipendentemente dalla difficoltà assegnata (o dalla sua assenza).
+const String kAllDifficultiesFilter = 'Tutte';
 
 /// Catalogo esercizi filtrato per ricerca testuale e muscolo selezionato,
 /// raggruppato per sezione e con l'elenco dei muscoli disponibili per il
@@ -20,12 +25,15 @@ class ExerciseCatalogView {
     required this.sections,
     required this.exercisesBySection,
     required this.muscleGroups,
+    required this.difficultyOptions,
   });
 
   factory ExerciseCatalogView.build({
     required List<ExerciseEntity> exercises,
     required String searchQuery,
     required String selectedMuscle,
+    required String selectedDifficulty,
+    Set<String> selectedEquipment = const {},
   }) {
     final search = searchQuery.toLowerCase();
     final filtered = exercises.where((e) {
@@ -39,7 +47,18 @@ class ExerciseCatalogView {
           selectedMuscle == kAllMusclesFilter ||
           (selectedMuscle == kFavoritesMuscleFilter && e.isFavorite) ||
           e.categories.contains(selectedMuscle);
-      return matchesSearch && matchesMuscle;
+      final matchesDifficulty =
+          selectedDifficulty == kAllDifficultiesFilter ||
+          e.difficulty == selectedDifficulty;
+      // Multiselezione: un esercizio con anche solo uno dei tag scelti
+      // corrisponde (OR tra i tag), non deve averli tutti.
+      final matchesEquipment =
+          selectedEquipment.isEmpty ||
+          equipmentTagsFor(e).any(selectedEquipment.contains);
+      return matchesSearch &&
+          matchesMuscle &&
+          matchesDifficulty &&
+          matchesEquipment;
     }).toList();
 
     final grouped = <String, List<ExerciseEntity>>{};
@@ -76,6 +95,10 @@ class ExerciseCatalogView {
       sections: sections,
       exercisesBySection: grouped,
       muscleGroups: muscleGroups,
+      difficultyOptions: const [
+        kAllDifficultiesFilter,
+        ...ExerciseEntity.difficultyLevels,
+      ],
     );
   }
 
@@ -91,4 +114,10 @@ class ExerciseCatalogView {
   /// [kFavoritesMuscleFilter] in testa, poi i gruppi muscolari presenti
   /// nel catalogo completo (non filtrato), ordinati alfabeticamente.
   final List<String> muscleGroups;
+
+  /// Voci per il selettore difficoltà: [kAllDifficultiesFilter] seguito dai
+  /// tre livelli in ordine crescente. A differenza di [muscleGroups] non è
+  /// derivato dai dati (è un enum chiuso e ordinale, un ordinamento
+  /// alfabetico delle etichette italiane romperebbe l'ordine naturale).
+  final List<String> difficultyOptions;
 }

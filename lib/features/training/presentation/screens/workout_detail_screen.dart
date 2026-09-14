@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
@@ -46,6 +47,56 @@ class WorkoutDetailScreen extends StatelessWidget {
       backgroundColor: Colors.transparent,
       builder: (context) =>
           QuickExerciseEditPanel(re: re, routine: currentRoutine),
+    );
+  }
+
+  void _copyRoutine(BuildContext context) {
+    context.read<TrainingBloc>().add(CopyRoutineEvent(routine.id));
+    AppSnackBar.showSuccess(context, 'Routine copiata in "I tuoi workout"');
+    context.pop();
+  }
+
+  void _showResetDialog(BuildContext context, RoutineEntity currentRoutine) {
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: const Text(
+          'Ripristina valori originali',
+          style: TextStyle(fontWeight: FontWeight.w900, fontFamily: 'Lexend'),
+        ),
+        content: const Text(
+          'Serie, ripetizioni, carico ed esercizi torneranno come nella '
+          'scheda di sistema originale. Le modifiche che hai fatto qui '
+          'andranno perse.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'ANNULLA',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.outline,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              context.read<TrainingBloc>().add(
+                ResetRoutineToSourceEvent(currentRoutine.id),
+              );
+              Navigator.pop(context);
+              AppSnackBar.showSuccess(context, 'Routine ripristinata');
+            },
+            child: const Text(
+              'RIPRISTINA',
+              style: TextStyle(fontWeight: FontWeight.w900),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -122,7 +173,32 @@ class WorkoutDetailScreen extends StatelessWidget {
                   title: currentRoutine.title,
                   exerciseCount: exercises.length,
                   estimatedDuration: currentRoutine.estimatedDuration,
+                  isSystem: currentRoutine.isSystem,
                 ),
+                if (currentRoutine.isSystem) ...[
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton.tonalIcon(
+                      onPressed: () => _copyRoutine(context),
+                      icon: const Icon(Icons.content_copy_rounded),
+                      label: const Text('COPIA QUESTA ROUTINE'),
+                    ),
+                  ),
+                ],
+                if (!currentRoutine.isSystem &&
+                    currentRoutine.sourceRoutineId != null) ...[
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () =>
+                          _showResetDialog(context, currentRoutine),
+                      icon: const Icon(Icons.restore_rounded),
+                      label: const Text('RIPRISTINA VALORI ORIGINALI'),
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 32),
                 // La riga degli esercizi è stata integrata nell'header sopra
                 if (exercises.isEmpty)
@@ -141,6 +217,7 @@ class WorkoutDetailScreen extends StatelessWidget {
                       return RoutineExerciseListItem(
                         exercise: re,
                         isImperial: isImperial,
+                        isReadOnly: currentRoutine.isSystem,
                         onEdit: () =>
                             _showEditExerciseSheet(context, re, currentRoutine),
                         onRemove: () =>

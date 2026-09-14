@@ -1,8 +1,8 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
@@ -10,9 +10,14 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/database/database.dart';
 import 'package:gym_corpus/core/services/health_service.dart';
+import 'package:gym_corpus/core/utils/time_format.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
+import 'package:gym_corpus/features/training/domain/entities/cardio_activity.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_draft.dart';
+import 'package:gym_corpus/features/training/domain/entities/cardio_goal.dart';
+import 'package:gym_corpus/features/training/domain/entities/cardio_route_point.dart';
+import 'package:gym_corpus/features/training/domain/services/cardio_splits.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
@@ -20,12 +25,17 @@ import 'package:gym_corpus/features/training/presentation/widgets/cardio_map_vie
 import 'package:gym_corpus/features/training/presentation/widgets/cardio_overlays.dart';
 import 'package:gym_corpus/features/training/presentation/widgets/cardio_stats_panel.dart';
 import 'package:gym_corpus/features/training/presentation/widgets/gps_status_badge.dart';
+import 'package:gym_corpus/features/training/presentation/widgets/indoor_session_widgets.dart';
 import 'package:latlong2/latlong.dart';
 
 class CardioTrackerScreen extends StatefulWidget {
-  const CardioTrackerScreen({required this.type, super.key});
+  const CardioTrackerScreen({required this.activity, this.goal, super.key});
 
-  final String type; // 'run' or 'walk'
+  final CardioActivity activity;
+
+  /// Obiettivo scelto prima di partire: non viene salvato con la sessione,
+  /// serve alla barra di avanzamento e all'avviso al traguardo.
+  final CardioGoal? goal;
 
   @override
   State<CardioTrackerScreen> createState() => _CardioTrackerScreenState();
@@ -34,10 +44,18 @@ class CardioTrackerScreen extends StatefulWidget {
 class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
   final MapController _mapController = MapController();
   final HealthService _healthService = GetIt.I<HealthService>();
-  final List<LatLng> _route = [];
+  final List<CardioRoutePoint> _route = [];
   StreamSubscription<Position>? _positionStream;
   Timer? _timer;
   Timer? _countdownTimer;
+  Timer? _bannerTimer;
+
+  /// Ultimo chilometro gia' annunciato: senza questa memoria l'avviso si
+  /// ripeterebbe a ogni punto GPS ricevuto oltre il traguardo.
+  int _announcedKm = 0;
+  bool _goalAnnounced = false;
+  String? _bannerTitle;
+  String? _bannerSubtitle;
 
   int _elapsedSeconds = 0;
   double _distanceMeters = 0;
@@ -67,6 +85,14 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
 
   Future<void> _initLocation() async {
     await _checkDraft();
+
+    // Al chiuso non c'e' percorso da seguire: chiedere il permesso di
+    // localizzazione per una sessione sul tapis roulant sarebbe solo un
+    // permesso in piu' senza contropartita.
+    if (!widget.activity.tracksLocation) {
+      if (mounted) setState(() => _isLocating = false);
+      return;
+    }
 
     final serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) return;
@@ -122,7 +148,7 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
           ),
           content: Text(
             'Abbiamo trovato una sessione di '
-            '${draft.type == 'run' ? 'Corsa' : 'Camminata'} non terminata. '
+            '${CardioActivity.fromId(draft.type).label} non terminata. '
             'Vuoi riprenderla?',
           ),
           actions: [
@@ -163,8 +189,10 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
           ..clear()
           ..addAll(draft.route);
         if (_route.isNotEmpty) {
-          _currentPosition = _route.last;
+          _currentPosition = _route.last.position;
         }
+        // Riprendendo non si riannunciano i chilometri gia' percorsi.
+        _announcedKm = (_distanceMeters / 1000).floor();
         _isTracking = true;
       });
       _startTracking(resume: true);
@@ -174,16 +202,18 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
   }
 
   Future<void> _saveDraft() async {
-    if (_route.isEmpty) return;
+    // Al chiuso non esiste un percorso: la bozza deve salvarsi lo stesso,
+    // altrimenti una sessione indoor interrotta non sarebbe recuperabile.
+    if (_route.isEmpty && _elapsedSeconds == 0) return;
     try {
       final db = GetIt.I<AppDatabase>();
       final draft = CardioDraft(
-        type: widget.type,
+        type: widget.activity.id,
         elapsedSeconds: _elapsedSeconds,
         distanceMeters: _distanceMeters,
         steps: _currentSteps,
         startTime: _sessionStartTime,
-        route: List<LatLng>.of(_route),
+        route: List<CardioRoutePoint>.of(_route),
       );
       await db.updateSetting('cardio_draft', draft.encode());
     } catch (e) {
@@ -245,12 +275,27 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
       _secondsWithoutMovement = 0;
       _sessionStartTime ??= DateTime.now();
       if (!resume && _currentPosition != null) {
-        _route.add(_currentPosition!);
+        _route.add(
+          CardioRoutePoint(
+            position: _currentPosition!,
+            elapsedSeconds: _elapsedSeconds,
+          ),
+        );
       }
     });
 
     _timer = Timer.periodic(const Duration(seconds: 1), (_) async {
       if (_isPaused) return;
+
+      // La pausa automatica si basa sulla velocita' GPS: al chiuso quella
+      // velocita' e' sempre zero, e metterebbe in pausa una sessione in
+      // corso dopo mezzo minuto.
+      if (!widget.activity.tracksLocation) {
+        setState(() => _elapsedSeconds++);
+        await _updateStepsIfDue();
+        _saveDraftIfDue();
+        return;
+      }
 
       if (_currentSpeedKmh < 1.8) {
         // Meno di 0.5 m/s
@@ -271,23 +316,12 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
         setState(() => _elapsedSeconds++);
       }
 
-      // Aggiorna i passi ogni 5 secondi
-      if (_elapsedSeconds > 0 &&
-          _elapsedSeconds % 5 == 0 &&
-          _sessionStartTime != null) {
-        if (_healthService.isAuthorized) {
-          final steps = await _healthService.getStepsSince(_sessionStartTime!);
-          if (mounted) setState(() => _currentSteps = steps);
-        }
-      }
-
-      // Salva la bozza ogni 10 secondi. Volutamente non attesa: il timer non
-      // deve bloccarsi su una scrittura lenta. _saveDraft gestisce e logga
-      // i propri errori.
-      if (_elapsedSeconds > 0 && _elapsedSeconds % 10 == 0) {
-        unawaited(_saveDraft());
-      }
+      await _updateStepsIfDue();
+      _saveDraftIfDue();
     });
+
+    // Al chiuso non c'e' alcun flusso di posizioni da aprire.
+    if (!widget.activity.tracksLocation) return;
 
     LocationSettings locationSettings;
 
@@ -346,7 +380,7 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
             if (_route.isNotEmpty) {
               final dist = const Distance().as(
                 LengthUnit.Meter,
-                _route.last,
+                _route.last.position,
                 newPoint,
               );
 
@@ -356,18 +390,104 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
               if (dist > 35.0) return;
 
               _distanceMeters += dist;
-              _route.add(newPoint);
-            } else {
-              _route.add(newPoint);
             }
+
+            _route.add(
+              CardioRoutePoint(
+                position: newPoint,
+                elapsedSeconds: _elapsedSeconds,
+              ),
+            );
 
             _currentPosition = newPoint;
             _currentSpeedKmh = pos.speed * 3.6; // m/s -> km/h
             if (_currentSpeedKmh < 0) _currentSpeedKmh = 0;
           });
+          _checkMilestones();
           _mapController.move(newPoint, 16);
         });
   }
+
+  /// Aggiorna i passi ogni cinque secondi, se il conteggio e' disponibile.
+  Future<void> _updateStepsIfDue() async {
+    if (_elapsedSeconds == 0 || _elapsedSeconds % 5 != 0) return;
+    if (_sessionStartTime == null || !_healthService.isAuthorized) return;
+
+    final steps = await _healthService.getStepsSince(_sessionStartTime!);
+    if (mounted) setState(() => _currentSteps = steps);
+  }
+
+  /// Salva la bozza ogni dieci secondi. Volutamente non attesa: il timer non
+  /// deve bloccarsi su una scrittura lenta, e `_saveDraft` gestisce e logga
+  /// i propri errori.
+  void _saveDraftIfDue() {
+    if (_elapsedSeconds > 0 && _elapsedSeconds % 10 == 0) {
+      unawaited(_saveDraft());
+    }
+  }
+
+  /// Vibrazione e avviso a ogni chilometro completato e al traguardo.
+  ///
+  /// Durante una corsa il telefono e' in tasca o al braccio: senza un
+  /// riscontro percepibile l'obiettivo si scoprirebbe solo a fine sessione.
+  void _checkMilestones() {
+    final completedKm = (_distanceMeters / 1000).floor();
+    if (completedKm > _announcedKm) {
+      _announcedKm = completedKm;
+      final splits = CardioSplits.fromRoute(_route);
+      final lastFull = splits.where((s) => !s.isPartial).lastOrNull;
+
+      unawaited(HapticFeedback.mediumImpact());
+      _showBanner(
+        '$completedKm km',
+        lastFull == null ? null : '${lastFull.pace} al chilometro',
+      );
+    }
+
+    final goal = widget.goal;
+    if (goal == null || _goalAnnounced) return;
+
+    final reached = goal.isReached(
+      distanceKm: _distanceMeters / 1000,
+      seconds: _elapsedSeconds,
+      calories: _estimatedCalories,
+    );
+    if (!reached) return;
+
+    _goalAnnounced = true;
+    unawaited(HapticFeedback.heavyImpact());
+    _showBanner('Obiettivo raggiunto', goal.label);
+  }
+
+  void _showBanner(String title, String? subtitle) {
+    if (!mounted) return;
+
+    setState(() {
+      _bannerTitle = title;
+      _bannerSubtitle = subtitle;
+    });
+
+    _bannerTimer?.cancel();
+    _bannerTimer = Timer(const Duration(seconds: 4), () {
+      if (!mounted) return;
+      setState(() {
+        _bannerTitle = null;
+        _bannerSubtitle = null;
+      });
+    });
+  }
+
+  /// Stima MET, la stessa usata dal pannello statistiche e dal salvataggio.
+  int get _estimatedCalories => widget.activity
+      .caloriesFor(
+        speedKmh: CardioActivity.averageSpeed(
+          distanceKm: _distanceMeters / 1000,
+          seconds: _elapsedSeconds,
+        ),
+        weightKg: _getUserWeight(),
+        seconds: _elapsedSeconds,
+      )
+      .round();
 
   void _pauseTracking() {
     setState(() {
@@ -389,6 +509,19 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
     _timer?.cancel();
     await _positionStream?.cancel();
 
+    // Al chiuso la distanza non la misura nessun sensore: la si chiede una
+    // volta sola, alla fine, e si puo' non indicarla.
+    if (!widget.activity.tracksLocation &&
+        widget.activity.tracksDistance &&
+        _distanceMeters == 0 &&
+        mounted) {
+      final km = await showDialog<double>(
+        context: context,
+        builder: (_) => const IndoorDistanceDialog(),
+      );
+      if (km != null) _distanceMeters = km * 1000;
+    }
+
     await _clearDraft();
 
     final distKm = _distanceMeters / 1000;
@@ -396,37 +529,26 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
         ? (distKm / (_elapsedSeconds / 3600))
         : 0.0;
 
-    // Pace: minutes per km
-    var pace = '--:--';
-    if (distKm > 0) {
-      final paceMinutes = (_elapsedSeconds / 60) / distKm;
-      final pMins = paceMinutes.floor();
-      final pSecs = ((paceMinutes - pMins) * 60).round();
-      pace =
-          '${pMins.toString().padLeft(2, '0')}:${pSecs.toString().padLeft(2, '0')}';
-    }
+    // Stima MET calibrata sull'andatura media: prima era un valore fisso per
+    // tipo di attivita', e una corsa lenta valeva quanto una veloce.
+    final calories = _estimatedCalories;
 
-    // MET-based calorie estimation
-    final userWeight = _getUserWeight();
-    final metValue = widget.type == 'run' ? 9.8 : 3.8;
-    final calories = (metValue * userWeight * (_elapsedSeconds / 3600)).round();
-
-    // Route JSON
-    final routeJson = jsonEncode(
-      _route.map((p) => {'lat': p.latitude, 'lng': p.longitude}).toList(),
-    );
+    // Percorso con i tempi di passaggio: sono loro a rendere possibili gli
+    // split al chilometro nella schermata di dettaglio.
+    final routeJson = CardioRoutePoint.encode(_route);
 
     if (mounted) {
       context.read<TrainingBloc>().add(
         SaveCardioSessionEvent(
-          type: widget.type,
+          type: widget.activity.id,
           distance: double.parse(distKm.toStringAsFixed(2)),
           duration: _elapsedSeconds,
           avgSpeed: double.parse(avgSpeed.toStringAsFixed(1)),
-          pace: pace,
+          pace: formatPace(seconds: _elapsedSeconds, distanceKm: distKm),
           calories: calories,
           steps: _currentSteps,
           routeJson: routeJson,
+          goal: widget.goal,
         ),
       );
 
@@ -444,7 +566,7 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
 
     final authState = context.read<AuthBloc>().state;
     return authState.maybeWhen(
-      authenticated: (user) => user.weight ?? 70.0,
+      authenticated: (user, _) => user.weight ?? 70.0,
       orElse: () => 70.0,
     );
   }
@@ -453,6 +575,7 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
   void dispose() {
     _timer?.cancel();
     _countdownTimer?.cancel();
+    _bannerTimer?.cancel();
     _positionStream?.cancel();
     super.dispose();
   }
@@ -460,7 +583,8 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isRun = widget.type == 'run';
+    final isRun = widget.activity == CardioActivity.run;
+    final tracksLocation = widget.activity.tracksLocation;
     final distKm = _distanceMeters / 1000;
 
     return PopScope(
@@ -473,13 +597,23 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
         backgroundColor: theme.colorScheme.surface,
         body: Stack(
           children: [
-            // Map
-            CardioMapView(
-              mapController: _mapController,
-              currentPosition: _currentPosition,
-              route: _route,
-              isRun: isRun,
-            ),
+            // Sfondo: la mappa all'aperto, il cronometro al chiuso, dove un
+            // percorso GPS non esiste.
+            if (tracksLocation)
+              CardioMapView(
+                mapController: _mapController,
+                currentPosition: _currentPosition,
+                route: [for (final point in _route) point.position],
+                isRun: isRun,
+              )
+            else
+              Positioned.fill(
+                child: IndoorSessionBackdrop(
+                  activity: widget.activity,
+                  elapsedSeconds: _elapsedSeconds,
+                  isTracking: _isTracking,
+                ),
+              ),
 
             // Back button
             Positioned(
@@ -515,7 +649,7 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
             ),
 
             // Top Right Controls (GPS + OSM)
-            if (!_isLocating)
+            if (!_isLocating && tracksLocation)
               Positioned(
                 top: MediaQuery.of(context).padding.top + 12,
                 right: 16,
@@ -531,7 +665,7 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
               right: 0,
               bottom: 0,
               child: CardioStatsPanel(
-                isRun: isRun,
+                activity: widget.activity,
                 distanceKm: distKm,
                 elapsedSeconds: _elapsedSeconds,
                 currentSpeedKmh: _currentSpeedKmh,
@@ -541,14 +675,29 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
                 isLocating: _isLocating,
                 isPaused: _isPaused,
                 isSaving: _isSaving,
+                goal: widget.goal,
                 onStart: _runCountdown,
                 onPauseResume: _isPaused ? _resumeTracking : _pauseTracking,
                 onStop: _stopAndSave,
               ),
             ),
 
+            // Avviso di chilometro completato o obiettivo raggiunto
+            if (_bannerTitle != null)
+              Positioned(
+                top: MediaQuery.of(context).padding.top + 72,
+                left: 24,
+                right: 24,
+                child: Center(
+                  child: CardioMilestoneBanner(
+                    title: _bannerTitle!,
+                    subtitle: _bannerSubtitle,
+                  ),
+                ),
+              ),
+
             // Loading Overlay (Ricerca GPS)
-            if (_isLocating)
+            if (_isLocating && tracksLocation)
               const Positioned.fill(child: GpsSearchingOverlay()),
 
             // Countdown Overlay

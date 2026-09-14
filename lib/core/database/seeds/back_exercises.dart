@@ -5,6 +5,7 @@ import 'package:gym_corpus/core/database/database.dart';
 const backExercises = [
   ExercisesCompanion(
     name: Value('Pull-ups (presa prona larga)'),
+    difficulty: Value('Avanzato'),
     targetMuscle: Value('Dorso'),
     equipment: Value('Sbarra per trazioni'),
     focusArea: Value('Gran dorsale (ampiezza), Bicipiti, Romboidi'),
@@ -20,6 +21,7 @@ const backExercises = [
   ),
   ExercisesCompanion(
     name: Value('Chin-ups (presa supina)'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Dorso'),
     equipment: Value('Sbarra per trazioni'),
     focusArea: Value('Bicipiti, Gran dorsale (parte bassa), Romboidi'),
@@ -35,6 +37,7 @@ const backExercises = [
   ),
   ExercisesCompanion(
     name: Value('Trazioni alla sbarra (presa neutra)'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Dorso'),
     equipment: Value('Sbarra per trazioni (con maniglie parallele / V-Bar)'),
     focusArea: Value('Gran dorsale, Bicipiti, Brachioradiale'),
@@ -50,6 +53,7 @@ const backExercises = [
   ),
   ExercisesCompanion(
     name: Value('Lat Machine (presa larga)'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Dorso'),
     equipment: Value('Macchinario (Lat Machine), Barra lunga'),
     focusArea: Value('Gran dorsale (ampiezza)'),
@@ -65,6 +69,7 @@ const backExercises = [
   ),
   ExercisesCompanion(
     name: Value('Lat Machine (presa stretta)'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Dorso'),
     equipment: Value('Macchinario (Lat Machine), Barra (o maniglia stretta)'),
     focusArea: Value('Gran dorsale (parte bassa/interna), Bicipiti'),
@@ -80,6 +85,7 @@ const backExercises = [
   ),
   ExercisesCompanion(
     name: Value('Lat Machine (Presa neutra/ V-Bar)'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Dorso'),
     equipment: Value(
       'Macchinario (Lat Machine), V-Bar (maniglia stretta neutra)',
@@ -93,6 +99,7 @@ const backExercises = [
   ),
   ExercisesCompanion(
     name: Value('Rematore con bilanciere'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Dorso'),
     equipment: Value('Bilanciere, Pesi'),
     focusArea: Value(
@@ -110,6 +117,7 @@ const backExercises = [
   ),
   ExercisesCompanion(
     name: Value('Rematore Pendlay'),
+    difficulty: Value('Avanzato'),
     targetMuscle: Value('Dorso'),
     equipment: Value('Bilanciere, Pesi'),
     focusArea: Value('Dorsali, Trapezio, Schiena (superiore), Erettori'),
@@ -125,6 +133,7 @@ const backExercises = [
   ),
   ExercisesCompanion(
     name: Value('Rematore con manubrio'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Dorso'),
     equipment: Value('Manubrio, Panca piana'),
     focusArea: Value('Gran dorsale, Romboidi, Bicipiti (lavoro unilaterale)'),
@@ -140,6 +149,7 @@ const backExercises = [
   ),
   ExercisesCompanion(
     name: Value('Rematore al T-Bar'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Dorso'),
     equipment: Value('Bilanciere (angolo landmine) o Macchina T-Bar'),
     focusArea: Value('Dorso (spessore, parte centrale), Trapezio, Romboidi'),
@@ -155,6 +165,7 @@ const backExercises = [
   ),
   ExercisesCompanion(
     name: Value('Rematore al cavo basso (Seated Cable Row)'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Dorso'),
     equipment: Value('Macchinario (Pulley), Maniglia (stretta o larga)'),
     focusArea: Value('Dorso (spessore), Romboidi, Trapezio (medio)'),
@@ -170,6 +181,7 @@ const backExercises = [
   ),
   ExercisesCompanion(
     name: Value('Rematore con petto in appoggio'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Dorso'),
     equipment: Value('Panca inclinata (30-45°), Manubri (o Bilanciere)'),
     focusArea: Value('Dorso (superiore), Romboidi, Trapezio (isolamento)'),
@@ -185,6 +197,7 @@ const backExercises = [
   ),
   ExercisesCompanion(
     name: Value('Stacco da terra (Deadlift) '),
+    difficulty: Value('Avanzato'),
     targetMuscle: Value('Dorso'),
     equipment: Value('Bilanciere, Pesi'),
     focusArea: Value(
@@ -202,6 +215,7 @@ const backExercises = [
   ),
   ExercisesCompanion(
     name: Value('Stacco Romeno'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Dorso'),
     equipment: Value('Bilanciere o Manubri'),
     focusArea: Value('Ischiocrurali, Glutei, Erettori spinali (isom.)'),
@@ -217,6 +231,7 @@ const backExercises = [
   ),
   ExercisesCompanion(
     name: Value('Hyperextensions'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Dorso'),
     equipment: Value('Panca 45° (Hyperextension) o GHD'),
     focusArea: Value('Erettori spinali (zona lombare), Glutei, Ischiocrurali'),
@@ -232,6 +247,7 @@ const backExercises = [
   ),
   ExercisesCompanion(
     name: Value('Pulldown a braccia tese'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Dorso'),
     equipment: Value('Cavo (Ercolina), Barra (dritta o corda)'),
     focusArea: Value('Gran dorsale (isolamento), Core'),
@@ -247,6 +263,7 @@ const backExercises = [
   ),
   ExercisesCompanion(
     name: Value('Pullover'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Dorso'),
     equipment: Value('Manubrio, Panca piana'),
     focusArea: Value('Gran dorsale (allungamento), Petto, Serrato anteriore'),
@@ -262,6 +279,7 @@ const backExercises = [
   ),
   ExercisesCompanion(
     name: Value('Rematore inverso'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Dorso'),
     equipment: Value('Sbarra (bassa, es. Multipower) o Anelli/TRX'),
     focusArea: Value('Dorso (superiore), Romboidi, Bicipiti (corpo libero)'),
@@ -277,6 +295,7 @@ const backExercises = [
   ),
   ExercisesCompanion(
     name: Value('Scrollate con manubri/bilanciere'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Dorso'),
     equipment: Value('Manubri (pesanti) o Bilanciere'),
     focusArea: Value('Trapezio (superiore)'),
@@ -292,6 +311,7 @@ const backExercises = [
   ),
   ExercisesCompanion(
     name: Value('Face Pull'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Dorso'),
     equipment: Value('Cavo (Ercolina), Corda'),
     focusArea: Value(

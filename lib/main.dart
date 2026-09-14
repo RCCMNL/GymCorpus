@@ -12,26 +12,38 @@ import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/service_locator.dart' as di;
 import 'package:gym_corpus/core/services/app_lock_controller.dart';
 import 'package:gym_corpus/core/services/notification_service.dart';
+import 'package:gym_corpus/core/services/update_controller.dart';
 import 'package:gym_corpus/core/theme/app_theme.dart';
+import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/features/analytics/presentation/screens/analytics_screen.dart';
 import 'package:gym_corpus/features/analytics/presentation/screens/cardio_history_screen.dart';
+import 'package:gym_corpus/features/analytics/presentation/screens/cardio_session_detail_screen.dart';
 import 'package:gym_corpus/features/analytics/presentation/screens/daily_activity_screen.dart';
 import 'package:gym_corpus/features/analytics/presentation/screens/progress_screen.dart';
+import 'package:gym_corpus/features/app_update/domain/repositories/app_update_repository.dart';
+import 'package:gym_corpus/features/app_update/presentation/screens/update_required_screen.dart';
 import 'package:gym_corpus/features/auth/domain/repositories/auth_repository.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_event.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
+import 'package:gym_corpus/features/auth/presentation/router/auth_redirect.dart';
 import 'package:gym_corpus/features/auth/presentation/screens/lock_screen.dart';
 import 'package:gym_corpus/features/auth/presentation/screens/login_screen.dart';
+import 'package:gym_corpus/features/auth/presentation/screens/profile_onboarding_screen.dart';
 import 'package:gym_corpus/features/auth/presentation/screens/sign_up_screen.dart';
 import 'package:gym_corpus/features/auth/presentation/screens/splash_screen.dart';
+import 'package:gym_corpus/features/exercises/presentation/screens/custom_exercise_form_screen.dart';
 import 'package:gym_corpus/features/exercises/presentation/screens/exercise_detail_screen.dart';
 import 'package:gym_corpus/features/exercises/presentation/screens/exercises_screen.dart';
 import 'package:gym_corpus/features/exercises/presentation/screens/favorite_exercises_screen.dart';
+import 'package:gym_corpus/features/notifications/domain/repositories/notifications_repository.dart';
 import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_bloc.dart';
 import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_event.dart';
 import 'package:gym_corpus/features/notifications/presentation/screens/notification_settings_screen.dart';
 import 'package:gym_corpus/features/notifications/presentation/screens/notifications_screen.dart';
+import 'package:gym_corpus/features/profile/domain/repositories/cycle_repository.dart';
+import 'package:gym_corpus/features/profile/presentation/bloc/cycle_bloc.dart';
+import 'package:gym_corpus/features/profile/presentation/bloc/cycle_event.dart';
 import 'package:gym_corpus/features/profile/presentation/screens/cycle_calendar_screen.dart';
 import 'package:gym_corpus/features/profile/presentation/screens/edit_profile_screen.dart';
 import 'package:gym_corpus/features/profile/presentation/screens/integrations_screen.dart';
@@ -40,6 +52,9 @@ import 'package:gym_corpus/features/profile/presentation/screens/profile_screen.
 import 'package:gym_corpus/features/profile/presentation/screens/records_screen.dart';
 import 'package:gym_corpus/features/profile/presentation/screens/security_screen.dart';
 import 'package:gym_corpus/features/profile/presentation/screens/trophy_board_screen.dart';
+import 'package:gym_corpus/features/training/domain/entities/cardio_activity.dart';
+import 'package:gym_corpus/features/training/domain/entities/cardio_goal.dart';
+import 'package:gym_corpus/features/training/domain/entities/cardio_session.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
@@ -48,6 +63,7 @@ import 'package:gym_corpus/features/training/presentation/bloc/training_state.da
 import 'package:gym_corpus/features/training/presentation/screens/article_detail_screen.dart';
 import 'package:gym_corpus/features/training/presentation/screens/cardio_tracker_screen.dart';
 import 'package:gym_corpus/features/training/presentation/screens/custom_workouts_screen.dart';
+import 'package:gym_corpus/features/training/presentation/screens/manual_cardio_entry_screen.dart';
 import 'package:gym_corpus/features/training/presentation/screens/nutrition_screen.dart';
 import 'package:gym_corpus/features/training/presentation/screens/root_screen.dart';
 import 'package:gym_corpus/features/training/presentation/screens/training_dashboard_screen.dart';
@@ -57,9 +73,22 @@ import 'package:gym_corpus/features/training/presentation/screens/workout_page.d
 import 'package:gym_corpus/features/training/presentation/screens/yoga_screen.dart';
 import 'package:gym_corpus/firebase_options.dart';
 
+/// Lexend e Inter sono impacchettati nell'app sotto licenza OFL, che
+/// richiede di distribuire il testo della licenza insieme ai font.
+/// Registrandoli qui compaiono nella pagina delle licenze di Flutter.
+void _registerFontLicenses() {
+  LicenseRegistry.addLicense(() async* {
+    for (final font in ['Lexend', 'Inter']) {
+      final license = await rootBundle.loadString('assets/fonts/$font-OFL.txt');
+      yield LicenseEntryWithLineBreaks([font], license);
+    }
+  });
+}
+
 void main() async {
   final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  _registerFontLicenses();
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   // In debug usa il provider "debug" (token da registrare in console, vedi
@@ -132,6 +161,7 @@ class _GymAppState extends State<GymApp> with WidgetsBindingObserver {
   late final AuthBloc _authBloc;
   late final BlocRefreshStream _routerRefresh;
   late final AppLockController _appLock;
+  late final UpdateController _updateController;
   late final Listenable _routerListenable;
   late final GoRouter _router;
 
@@ -143,62 +173,32 @@ class _GymAppState extends State<GymApp> with WidgetsBindingObserver {
     _authBloc = di.sl<AuthBloc>()..add(const AuthEvent.checkSessionRequested());
     _routerRefresh = BlocRefreshStream(_authBloc.stream);
     _appLock = AppLockController(di.sl<AuthRepository>());
-    _routerListenable = Listenable.merge([_routerRefresh, _appLock]);
+    _updateController = UpdateController(di.sl<AppUpdateRepository>());
+    _routerListenable = Listenable.merge([
+      _routerRefresh,
+      _appLock,
+      _updateController,
+    ]);
 
     // All'avvio l'app parte bloccata se l'utente ha attivato la biometria:
     // senza questo una sessione Firebase gia' presente porta dritti in
     // /training senza alcuna richiesta di riconoscimento.
     unawaited(_appLock.lockIfEnabled());
+    unawaited(_updateController.checkForUpdate());
 
     _router = GoRouter(
       navigatorKey: _rootNavigatorKey,
       initialLocation: '/splash',
       refreshListenable: _routerListenable,
-      redirect: (context, state) {
-        final authState = _authBloc.state;
-
-        return authState.maybeWhen(
-          authenticated: (_) {
-            if (_appLock.isLocked) {
-              return state.matchedLocation == '/lock' ? null : '/lock';
-            }
-            if (state.matchedLocation == '/login' ||
-                state.matchedLocation == '/signup' ||
-                state.matchedLocation == '/splash' ||
-                state.matchedLocation == '/lock') {
-              return '/training';
-            }
-            return null;
-          },
-          unauthenticated: () {
-            if (state.matchedLocation != '/login' &&
-                state.matchedLocation != '/signup' &&
-                !state.matchedLocation.startsWith('/legal') &&
-                state.matchedLocation != '/splash') {
-              return '/login';
-            }
-            return null;
-          },
-          error: (_, previousUser) {
-            // If we have a previousUser, the user was authenticated
-            // before the error — don't redirect to login
-            if (previousUser != null) return null;
-
-            if (state.matchedLocation != '/login' &&
-                state.matchedLocation != '/signup' &&
-                !state.matchedLocation.startsWith('/legal') &&
-                state.matchedLocation != '/splash') {
-              return '/login';
-            }
-            return null;
-          },
-          loading: (previousUser) {
-            // During loading, don't redirect anywhere
-            return null;
-          },
-          orElse: () => null,
-        );
-      },
+      // La regola vive in auth_redirect.dart: le condizioni sono poche ma si
+      // intrecciano, e li' possono essere verificate caso per caso senza
+      // montare l'intera app.
+      redirect: (context, state) => resolveAuthRedirect(
+        authState: _authBloc.state,
+        location: state.matchedLocation,
+        isLocked: _appLock.isLocked,
+        isUpdateRequired: _updateController.isUpdateRequired,
+      ),
       routes: [
         GoRoute(
           path: '/splash',
@@ -209,8 +209,17 @@ class _GymAppState extends State<GymApp> with WidgetsBindingObserver {
           builder: (context, state) => LockScreen(controller: _appLock),
         ),
         GoRoute(
+          path: '/update-required',
+          builder: (context, state) =>
+              UpdateRequiredScreen(info: _updateController.status.info!),
+        ),
+        GoRoute(
           path: '/login',
           builder: (context, state) => const LoginScreen(),
+        ),
+        GoRoute(
+          path: onboardingLocation,
+          builder: (context, state) => const ProfileOnboardingScreen(),
         ),
         GoRoute(
           path: '/signup',
@@ -238,7 +247,7 @@ class _GymAppState extends State<GymApp> with WidgetsBindingObserver {
         ),
         ShellRoute(
           builder: (context, state, child) {
-            return RootScreen(child: child);
+            return RootScreen(updateController: _updateController, child: child);
           },
           routes: [
             GoRoute(
@@ -253,9 +262,24 @@ class _GymAppState extends State<GymApp> with WidgetsBindingObserver {
                 GoRoute(
                   path: 'cardio',
                   parentNavigatorKey: _rootNavigatorKey,
-                  builder: (context, state) => CardioTrackerScreen(
-                    type: _extraOf<String>(state) ?? 'run',
-                  ),
+                  builder: (context, state) {
+                    // La rotta accettava una semplice stringa con il tipo di
+                    // attivita': quel formato resta leggibile, cosi' una
+                    // navigazione ripristinata da una versione precedente
+                    // continua ad aprire la schermata giusta.
+                    final args = _extraOf<CardioLaunchArgs>(state);
+                    return CardioTrackerScreen(
+                      activity:
+                          args?.activity ??
+                          CardioActivity.fromId(_extraOf<String>(state)),
+                      goal: args?.goal,
+                    );
+                  },
+                ),
+                GoRoute(
+                  path: 'cardio-manual',
+                  parentNavigatorKey: _rootNavigatorKey,
+                  builder: (context, state) => const ManualCardioEntryScreen(),
                 ),
                 GoRoute(
                   path: 'yoga',
@@ -327,6 +351,25 @@ class _GymAppState extends State<GymApp> with WidgetsBindingObserver {
               },
             ),
             GoRoute(
+              path: '/exercises/new',
+              builder: (context, state) => const CustomExerciseFormScreen(),
+            ),
+            GoRoute(
+              path: '/exercises/edit',
+              builder: (context, state) {
+                final exercise = _extraOf<ExerciseEntity>(state);
+                if (exercise == null) {
+                  return const _MissingRouteDataScreen(
+                    title: 'Esercizio non disponibile',
+                    message:
+                        'Apri questa schermata dal dettaglio esercizio per modificarlo.',
+                    fallbackRoute: '/exercises',
+                  );
+                }
+                return CustomExerciseFormScreen(exerciseToEdit: exercise);
+              },
+            ),
+            GoRoute(
               path: '/analytics',
               builder: (context, state) => const AnalyticsScreen(),
               routes: [
@@ -334,6 +377,17 @@ class _GymAppState extends State<GymApp> with WidgetsBindingObserver {
                   path: 'cardio-history',
                   parentNavigatorKey: _rootNavigatorKey,
                   builder: (context, state) => const CardioHistoryScreen(),
+                  routes: [
+                    GoRoute(
+                      path: 'session',
+                      parentNavigatorKey: _rootNavigatorKey,
+                      builder: (context, state) {
+                        final session = _extraOf<CardioSessionEntity>(state);
+                        if (session == null) return const CardioHistoryScreen();
+                        return CardioSessionDetailScreen(session: session);
+                      },
+                    ),
+                  ],
                 ),
                 GoRoute(
                   path: 'daily-activity',
@@ -408,7 +462,15 @@ class _GymAppState extends State<GymApp> with WidgetsBindingObserver {
                 ),
                 GoRoute(
                   path: 'cycle-calendar',
-                  builder: (context, state) => const CycleCalendarScreen(),
+                  // Il bloc del ciclo vive quanto la schermata: chi non apre
+                  // il calendario non mette mai in ascolto quei dati.
+                  builder: (context, state) => BlocProvider(
+                    create: (_) => CycleBloc(
+                      repository: di.sl<CycleRepository>(),
+                      notifications: di.sl<NotificationsRepository>(),
+                    )..add(LoadCycleLogsEvent()),
+                    child: const CycleCalendarScreen(),
+                  ),
                 ),
               ],
             ),
@@ -438,6 +500,7 @@ class _GymAppState extends State<GymApp> with WidgetsBindingObserver {
     _router.dispose();
     _routerRefresh.dispose();
     _appLock.dispose();
+    _updateController.dispose();
     _authBloc.close();
     super.dispose();
   }
@@ -470,15 +533,15 @@ class _GymAppState extends State<GymApp> with WidgetsBindingObserver {
           // Il messaggio viene consumato subito: cosi' un secondo fallimento
           // identico torna a essere un cambio di stato osservabile.
           context.read<TrainingBloc>().add(const ClearActionErrorEvent());
-          _scaffoldMessengerKey.currentState
-            ?..hideCurrentSnackBar()
-            ..showSnackBar(
-              SnackBar(
-                content: Text(message),
-                behavior: SnackBarBehavior.floating,
-                backgroundColor: AppTheme.darkTheme.colorScheme.error,
-              ),
+          final messenger = _scaffoldMessengerKey.currentState;
+          if (messenger != null) {
+            AppSnackBar.showOn(
+              messenger,
+              AppTheme.darkTheme,
+              message,
+              tone: AppSnackBarTone.error,
             );
+          }
         },
         child: MaterialApp.router(
           title: 'GYM 2.0',

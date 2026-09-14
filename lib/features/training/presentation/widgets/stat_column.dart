@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/widgets/labels.dart';
 
 /// Etichetta e valore in evidenza per una singola statistica, usata nel
 /// pannello del CardioTrackerScreen.
@@ -18,15 +19,7 @@ class StatColumn extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(
-          label,
-          style: theme.textTheme.labelSmall?.copyWith(
-            color: theme.colorScheme.outline,
-            fontWeight: FontWeight.w900,
-            letterSpacing: 1.5,
-            fontSize: 10,
-          ),
-        ),
+        StatLabel(label),
         const SizedBox(height: 6),
         Text(
           value,

@@ -1,6 +1,10 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/utils/time_format.dart';
+import 'package:gym_corpus/features/training/domain/entities/cardio_activity.dart';
+import 'package:gym_corpus/features/training/domain/entities/cardio_goal.dart';
+import 'package:gym_corpus/features/training/presentation/widgets/cardio_activity_style.dart';
 import 'package:gym_corpus/features/training/presentation/widgets/stat_column.dart';
 
 /// Pannello inferiore semi-trasparente del CardioTrackerScreen: statistiche
@@ -8,7 +12,7 @@ import 'package:gym_corpus/features/training/presentation/widgets/stat_column.da
 /// avvio/pausa/fine sessione.
 class CardioStatsPanel extends StatelessWidget {
   const CardioStatsPanel({
-    required this.isRun,
+    required this.activity,
     required this.distanceKm,
     required this.elapsedSeconds,
     required this.currentSpeedKmh,
@@ -21,10 +25,11 @@ class CardioStatsPanel extends StatelessWidget {
     required this.onStart,
     required this.onPauseResume,
     required this.onStop,
+    this.goal,
     super.key,
   });
 
-  final bool isRun;
+  final CardioActivity activity;
   final double distanceKm;
   final int elapsedSeconds;
   final double currentSpeedKmh;
@@ -38,15 +43,20 @@ class CardioStatsPanel extends StatelessWidget {
   final VoidCallback onPauseResume;
   final VoidCallback onStop;
 
-  String _formatDuration(int seconds) {
-    final h = seconds ~/ 3600;
-    final m = (seconds % 3600) ~/ 60;
-    final s = seconds % 60;
-    if (h > 0) {
-      return '${h.toString().padLeft(2, '0')}:${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
-    }
-    return '${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
-  }
+  /// Obiettivo scelto prima di partire, se c'e'.
+  final CardioGoal? goal;
+
+  /// Stessa stima MET usata nella colonna calorie e al salvataggio.
+  int get _calories => activity
+      .caloriesFor(
+        speedKmh: CardioActivity.averageSpeed(
+          distanceKm: distanceKm,
+          seconds: elapsedSeconds,
+        ),
+        weightKg: userWeightKg,
+        seconds: elapsedSeconds,
+      )
+      .round();
 
   @override
   Widget build(BuildContext context) {
@@ -82,7 +92,7 @@ class CardioStatsPanel extends StatelessWidget {
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
-                        colors: isRun
+                        colors: activity == CardioActivity.run
                             ? [
                                 theme.colorScheme.primary,
                                 theme.colorScheme.tertiary,
@@ -94,12 +104,12 @@ class CardioStatsPanel extends StatelessWidget {
                   ),
                   const SizedBox(width: 12),
                   Text(
-                    isRun ? 'CORSA' : 'CAMMINATA',
+                    activity.label.toUpperCase(),
                     style: theme.textTheme.labelSmall?.copyWith(
                       fontWeight: FontWeight.w900,
                       letterSpacing: 2,
                       fontSize: 10,
-                      color: isRun
+                      color: activity == CardioActivity.run
                           ? theme.colorScheme.primary
                           : Colors.orangeAccent,
                     ),
@@ -119,7 +129,7 @@ class CardioStatsPanel extends StatelessWidget {
                   ),
                   StatColumn(
                     label: 'DURATA',
-                    value: _formatDuration(elapsedSeconds),
+                    value: formatClock(elapsedSeconds),
                     theme: theme,
                   ),
                   StatColumn(
@@ -146,12 +156,23 @@ class CardioStatsPanel extends StatelessWidget {
                   ),
                   StatColumn(
                     label: 'CALORIE',
-                    value:
-                        '${(userWeightKg * (isRun ? 9.8 : 3.8) * (elapsedSeconds / 3600)).round()} kcal',
+                    value: '$_calories kcal',
                     theme: theme,
                   ),
                 ],
               ),
+              if (goal != null) ...[
+                const SizedBox(height: 20),
+                _GoalProgress(
+                  goal: goal!,
+                  distanceKm: distanceKm,
+                  elapsedSeconds: elapsedSeconds,
+                  calories: _calories,
+                  accentColor: activity == CardioActivity.run
+                      ? theme.colorScheme.primary
+                      : Colors.orangeAccent,
+                ),
+              ],
               const SizedBox(height: 28),
 
               // Controls
@@ -160,11 +181,9 @@ class CardioStatsPanel extends StatelessWidget {
                   width: double.infinity,
                   child: ElevatedButton.icon(
                     onPressed: onStart,
-                    icon: Icon(
-                      isRun ? Icons.directions_run : Icons.directions_walk,
-                    ),
+                    icon: Icon(activity.icon),
                     label: Text(
-                      'INIZIA ${isRun ? "CORSA" : "CAMMINATA"}',
+                      activity.startLabel,
                       style: const TextStyle(
                         fontWeight: FontWeight.w900,
                         letterSpacing: 1.5,
@@ -172,7 +191,7 @@ class CardioStatsPanel extends StatelessWidget {
                       ),
                     ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: isRun
+                      backgroundColor: activity == CardioActivity.run
                           ? theme.colorScheme.primary
                           : Colors.orangeAccent,
                       foregroundColor: Colors.white,
@@ -254,6 +273,72 @@ class CardioStatsPanel extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Avanzamento verso l'obiettivo scelto per la sessione.
+class _GoalProgress extends StatelessWidget {
+  const _GoalProgress({
+    required this.goal,
+    required this.distanceKm,
+    required this.elapsedSeconds,
+    required this.calories,
+    required this.accentColor,
+  });
+
+  final CardioGoal goal;
+  final double distanceKm;
+  final int elapsedSeconds;
+  final int calories;
+  final Color accentColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final progress = goal.progress(
+      distanceKm: distanceKm,
+      seconds: elapsedSeconds,
+      calories: calories,
+    );
+    final reached = goal.isReached(
+      distanceKm: distanceKm,
+      seconds: elapsedSeconds,
+      calories: calories,
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Obiettivo ${goal.label}',
+              style: theme.textTheme.labelMedium?.copyWith(
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            Text(
+              reached ? 'Obiettivo raggiunto' : '${(progress * 100).round()}%',
+              style: theme.textTheme.labelMedium?.copyWith(
+                fontWeight: FontWeight.w900,
+                color: reached ? accentColor : theme.colorScheme.outline,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: LinearProgressIndicator(
+            value: progress,
+            minHeight: 8,
+            backgroundColor: theme.colorScheme.surfaceContainerHighest,
+            valueColor: AlwaysStoppedAnimation<Color>(accentColor),
+          ),
+        ),
+      ],
     );
   }
 }

@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gym_corpus/core/widgets/gradient_title.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
+import 'package:gym_corpus/core/widgets/icon_badge.dart';
+import 'package:gym_corpus/features/exercises/domain/equipment_tags.dart';
+import 'package:gym_corpus/features/exercises/domain/exercise_catalog_view.dart';
+import 'package:gym_corpus/features/exercises/presentation/widgets/difficulty_badge.dart';
+import 'package:gym_corpus/features/exercises/presentation/widgets/exercise_filters_sheet.dart';
+import 'package:gym_corpus/features/exercises/presentation/widgets/exercise_thumbnail.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
@@ -17,6 +24,26 @@ class FavoriteExercisesScreen extends StatefulWidget {
 
 class _FavoriteExercisesScreenState extends State<FavoriteExercisesScreen> {
   String _searchQuery = '';
+  String _selectedDifficulty = kAllDifficultiesFilter;
+  Set<String> _selectedEquipment = {};
+
+  bool get _hasActiveFilters =>
+      _selectedDifficulty != kAllDifficultiesFilter ||
+      _selectedEquipment.isNotEmpty;
+
+  Future<void> _openFilters() async {
+    final result = await showExerciseFiltersSheet(
+      context,
+      initialDifficulty: _selectedDifficulty,
+      initialEquipment: _selectedEquipment,
+    );
+    if (result != null) {
+      setState(() {
+        _selectedDifficulty = result.difficulty;
+        _selectedEquipment = result.equipment;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +60,16 @@ class _FavoriteExercisesScreenState extends State<FavoriteExercisesScreen> {
                 final matchesSearch = e.name.toLowerCase().contains(
                   _searchQuery.toLowerCase(),
                 );
-                return e.isFavorite && matchesSearch;
+                final matchesDifficulty =
+                    _selectedDifficulty == kAllDifficultiesFilter ||
+                    e.difficulty == _selectedDifficulty;
+                final matchesEquipment =
+                    _selectedEquipment.isEmpty ||
+                    equipmentTagsFor(e).any(_selectedEquipment.contains);
+                return e.isFavorite &&
+                    matchesSearch &&
+                    matchesDifficulty &&
+                    matchesEquipment;
               }).toList();
 
               return Column(
@@ -63,22 +99,9 @@ class _FavoriteExercisesScreenState extends State<FavoriteExercisesScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              ShaderMask(
-                                shaderCallback: (bounds) => LinearGradient(
-                                  colors: [
-                                    theme.colorScheme.primary,
-                                    theme.colorScheme.tertiary,
-                                  ],
-                                ).createShader(bounds),
-                                child: Text(
-                                  'Preferiti',
-                                  style: theme.textTheme.headlineSmall
-                                      ?.copyWith(
-                                        fontWeight: FontWeight.w900,
-                                        color: Colors.white,
-                                        fontFamily: 'Lexend',
-                                      ),
-                                ),
+                              const GradientTitle(
+                                'Preferiti',
+                                scale: GradientTitleScale.compact,
                               ),
                               Text(
                                 'I TUOI ESERCIZI SALVATI',
@@ -100,32 +123,64 @@ class _FavoriteExercisesScreenState extends State<FavoriteExercisesScreen> {
                   // Search Bar
                   Padding(
                     padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.surfaceContainerHigh
-                            .withValues(alpha: 0.8),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: TextField(
-                        onChanged: (val) => setState(() => _searchQuery = val),
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                        decoration: InputDecoration(
-                          hintText: 'Cerca tra i preferiti...',
-                          hintStyle: TextStyle(
-                            color: theme.colorScheme.outline.withValues(
-                              alpha: 0.6,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.surfaceContainerHigh
+                                  .withValues(alpha: 0.8),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: TextField(
+                              onChanged: (val) =>
+                                  setState(() => _searchQuery = val),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                              decoration: InputDecoration(
+                                hintText: 'Cerca tra i preferiti...',
+                                hintStyle: TextStyle(
+                                  color: theme.colorScheme.outline.withValues(
+                                    alpha: 0.6,
+                                  ),
+                                ),
+                                prefixIcon: Icon(
+                                  Icons.search,
+                                  color: theme.colorScheme.primary,
+                                ),
+                                // Il riempimento lo disegna il Container che avvolge il campo.
+                                filled: false,
+                                border: InputBorder.none,
+                                contentPadding: const EdgeInsets.symmetric(
+                                  vertical: 14,
+                                ),
+                              ),
                             ),
                           ),
-                          prefixIcon: Icon(
-                            Icons.search,
-                            color: theme.colorScheme.primary,
-                          ),
-                          border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(
-                            vertical: 14,
+                        ),
+                        const SizedBox(width: 12),
+                        Material(
+                          color: theme.colorScheme.surfaceContainerHigh,
+                          borderRadius: BorderRadius.circular(16),
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(16),
+                            onTap: _openFilters,
+                            child: Padding(
+                              padding: const EdgeInsets.all(14),
+                              child: Badge(
+                                isLabelVisible: _hasActiveFilters,
+                                smallSize: 8,
+                                backgroundColor: theme.colorScheme.primary,
+                                child: Icon(
+                                  Icons.tune_rounded,
+                                  color: theme.colorScheme.onSurface,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
-                      ),
+                      ],
                     ),
                   ),
 
@@ -166,17 +221,11 @@ class _FavoriteExercisesScreenState extends State<FavoriteExercisesScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.primary.withValues(alpha: 0.05),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.favorite_border_rounded,
-              size: 64,
-              color: theme.colorScheme.primary.withValues(alpha: 0.2),
-            ),
+          IconBadge(
+            Icons.favorite_border_rounded,
+            color: theme.colorScheme.primary,
+            size: IconBadgeSize.large,
+            circle: true,
           ),
           const SizedBox(height: 24),
           Text(
@@ -239,51 +288,7 @@ class _ExerciseTile extends StatelessWidget {
           ),
           child: Row(
             children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: Container(
-                  width: 60,
-                  height: 60,
-                  color: theme.colorScheme.surfaceContainerHigh,
-                  child: exercise.imageUrl != null
-                      ? Image.network(
-                          exercise.imageUrl!,
-                          fit: BoxFit.cover,
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) return child;
-                            return ColoredBox(
-                              color: theme.colorScheme.surfaceContainerHighest,
-                              child: Center(
-                                child: SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    value:
-                                        loadingProgress.expectedTotalBytes !=
-                                            null
-                                        ? loadingProgress
-                                                  .cumulativeBytesLoaded /
-                                              loadingProgress
-                                                  .expectedTotalBytes!
-                                        : null,
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                          errorBuilder: (context, error, stackTrace) =>
-                              Image.asset(
-                                'assets/images/placeholder-image.png',
-                                fit: BoxFit.cover,
-                              ),
-                        )
-                      : Image.asset(
-                          'assets/images/placeholder-image.png',
-                          fit: BoxFit.cover,
-                        ),
-                ),
-              ),
+              ExerciseThumbnail(exercise: exercise),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
@@ -326,6 +331,10 @@ class _ExerciseTile extends StatelessWidget {
                         ),
                       ],
                     ),
+                    if (exercise.difficulty != null) ...[
+                      const SizedBox(height: 6),
+                      DifficultyBadge(difficulty: exercise.difficulty!),
+                    ],
                   ],
                 ),
               ),

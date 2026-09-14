@@ -2,13 +2,16 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
+import 'package:gym_corpus/core/widgets/app_card.dart';
+import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
-import 'package:gym_corpus/core/widgets/section_title.dart';
+import 'package:gym_corpus/core/widgets/labels.dart';
+import 'package:gym_corpus/features/profile/data/workout_report_pdf.dart';
+import 'package:gym_corpus/features/profile/domain/workout_report.dart';
 import 'package:gym_corpus/features/training/domain/repositories/training_repository.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:pdf/pdf.dart';
-import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -55,15 +58,15 @@ class _IntegrationsScreenState extends State<IntegrationsScreen> {
       final file = File('${directory.path}/gym_corpus_export.json');
       await file.writeAsString(jsonString);
 
-      // ignore: deprecated_member_use
-      await Share.shareXFiles([
-        XFile(file.path),
-      ], text: 'Esportazione dati GymCorpus');
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(file.path)],
+          text: 'Esportazione dati GymCorpus',
+        ),
+      );
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Errore durante l'esportazione: $e")),
-        );
+        AppSnackBar.showError(context, "Errore durante l'esportazione: $e");
       }
     } finally {
       if (mounted) setState(() => _isExporting = false);
@@ -73,70 +76,34 @@ class _IntegrationsScreenState extends State<IntegrationsScreen> {
   Future<void> _exportAsPdf() async {
     setState(() => _isExporting = true);
     try {
-      final pdf = pw.Document();
       final repository = GetIt.I<TrainingRepository>();
-      final weightLogs = await repository.watchWeightLogs().first;
+      final sets = await repository.watchWeightLogs().first;
+      final sessions = await repository.watchWorkoutSessions().first;
+      final exercises = await repository.watchExercises().first;
+      final settings = await repository.watchAllSettings().first;
 
-      pdf.addPage(
-        pw.MultiPage(
-          build: (pw.Context context) {
-            return [
-              pw.Header(
-                level: 0,
-                child: pw.Text(
-                  'GymCorpus - Report Allenamenti',
-                  style: pw.TextStyle(
-                    fontSize: 24,
-                    fontWeight: pw.FontWeight.bold,
-                  ),
-                ),
-              ),
-              pw.Padding(
-                padding: const pw.EdgeInsets.symmetric(vertical: 4),
-                child: pw.Text('Report generato il ${DateTime.now()}'),
-              ),
-              pw.SizedBox(height: 20),
-              pw.Text(
-                'Riepilogo Recente',
-                style: pw.TextStyle(
-                  fontSize: 18,
-                  fontWeight: pw.FontWeight.bold,
-                ),
-              ),
-              pw.SizedBox(height: 10),
-              pw.TableHelper.fromTextArray(
-                context: context,
-                data: [
-                  ['Data', 'Peso (kg)', 'Ripetizioni'],
-                  for (final l in weightLogs.take(20))
-                    [
-                      l.timestamp.toIso8601String().split('T')[0],
-                      l.weight.toString(),
-                      l.reps.toString(),
-                    ],
-                ],
-              ),
-              pw.SizedBox(height: 40),
-              pw.Center(
-                child: pw.Text(
-                  'Fine del Report',
-                  style: const pw.TextStyle(color: PdfColors.grey),
-                ),
-              ),
-            ];
-          },
-        ),
+      final data = buildWorkoutReport(
+        sessions: sessions,
+        sets: sets,
+        exercises: exercises,
+        isImperial: settings['units'] == 'LB',
+        generatedAt: DateTime.now(),
+      );
+
+      final logo = await rootBundle.load(
+        'assets/images/splash_android12_icon.png',
       );
 
       await Printing.sharePdf(
-        bytes: await pdf.save(),
+        bytes: await buildWorkoutReportPdf(
+          data: data,
+          logoBytes: logo.buffer.asUint8List(),
+        ),
         filename: 'gym_corpus_report.pdf',
       );
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Errore durante l'esportazione PDF: $e")),
-        );
+        AppSnackBar.showError(context, "Errore durante l'esportazione PDF: $e");
       }
     } finally {
       if (mounted) setState(() => _isExporting = false);
@@ -163,10 +130,9 @@ class _IntegrationsScreenState extends State<IntegrationsScreen> {
                 ),
               ),
               const SizedBox(height: 32),
-              SectionTitle(
+              const SectionTitle(
                 'SALUTE (IN SVILUPPO)',
-                color: theme.colorScheme.outline,
-                letterSpacing: 2,
+                tone: SectionTitleTone.muted,
               ),
               const SizedBox(height: 12),
               _buildIntegrationItem(
@@ -181,10 +147,9 @@ class _IntegrationsScreenState extends State<IntegrationsScreen> {
                 theme: theme,
               ),
               const SizedBox(height: 32),
-              SectionTitle(
+              const SectionTitle(
                 'ESPORTAZIONE DATI',
-                color: theme.colorScheme.outline,
-                letterSpacing: 2,
+                tone: SectionTitleTone.muted,
               ),
               const SizedBox(height: 12),
               _buildIntegrationItem(
@@ -213,10 +178,9 @@ class _IntegrationsScreenState extends State<IntegrationsScreen> {
                 ),
               ],
               const SizedBox(height: 48),
-              SectionTitle(
+              const SectionTitle(
                 'GDPR COMPLIANCE',
-                color: theme.colorScheme.outline,
-                letterSpacing: 2,
+                tone: SectionTitleTone.muted,
               ),
               const SizedBox(height: 12),
               Text(
@@ -241,12 +205,10 @@ class _IntegrationsScreenState extends State<IntegrationsScreen> {
     Widget? trailing,
     VoidCallback? onTap,
   }) {
-    return Container(
+    return AppCard(
       margin: const EdgeInsets.only(bottom: 8),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(16),
-      ),
+      size: AppCardSize.tight,
+      tone: AppCardTone.sunken,
       child: ListTile(
         onTap: onTap,
         leading: Icon(icon, color: theme.colorScheme.primary),

@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gym_corpus/core/widgets/app_card.dart';
+import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
+import 'package:gym_corpus/core/widgets/confirm_dialog.dart';
+import 'package:gym_corpus/core/widgets/icon_badge.dart';
+import 'package:gym_corpus/core/widgets/labels.dart';
+import 'package:gym_corpus/features/training/domain/entities/cardio_activity.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_session.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
+import 'package:gym_corpus/features/training/presentation/widgets/cardio_activity_style.dart';
 
 /// Le tre sessioni cardio piu' recenti, con link alla cronologia
 /// completa.
@@ -25,16 +32,9 @@ class CardioHistorySection extends StatelessWidget {
 
     final displaySessions = sessions.take(3).toList();
 
-    return Container(
+    return AppCard(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: theme.colorScheme.outline.withValues(alpha: 0.08),
-        ),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -56,13 +56,9 @@ class CardioHistorySection extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  Text(
+                  const SectionTitle(
                     'RECENTI CARDIO',
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 2,
-                      fontSize: 11,
-                    ),
+                    tone: SectionTitleTone.muted,
                   ),
                 ],
               ),
@@ -160,8 +156,8 @@ class CompactCardioCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isRun = session.type == 'run';
-    final accentColor = isRun ? theme.colorScheme.primary : Colors.orangeAccent;
+    final activity = CardioActivity.fromId(session.type);
+    final accentColor = activity.accent(theme);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -173,17 +169,10 @@ class CompactCardioCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: accentColor.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(
-              isRun ? Icons.directions_run : Icons.directions_walk,
-              color: accentColor,
-              size: 18,
-            ),
+          IconBadge(
+            activity.icon,
+            color: accentColor,
+            size: IconBadgeSize.small,
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -191,7 +180,7 @@ class CompactCardioCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  isRun ? 'Corsa' : 'Camminata',
+                  activity.label,
                   style: theme.textTheme.labelLarge?.copyWith(
                     fontWeight: FontWeight.w900,
                     fontFamily: 'Lexend',
@@ -246,40 +235,19 @@ class CompactCardioCard extends StatelessWidget {
   }
 
   Future<void> _confirmDelete(BuildContext context) async {
-    final theme = Theme.of(context);
-    final shouldDelete = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Elimina sessione'),
-        content: const Text(
-          'Vuoi eliminare definitivamente questa sessione di cardio?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text('Annulla'),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: theme.colorScheme.error,
-              foregroundColor: theme.colorScheme.onError,
-            ),
-            onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text('Elimina'),
-          ),
-        ],
-      ),
+    final shouldDelete = await ConfirmDialog.ask(
+      context,
+      title: 'Elimina sessione',
+      message: 'Vuoi eliminare definitivamente questa sessione di cardio?',
     );
 
-    if (shouldDelete != true || !context.mounted) return;
+    if (!shouldDelete || !context.mounted) return;
 
     context.read<TrainingBloc>().add(DeleteCardioSessionEvent(session.id));
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('Sessione cardio eliminata'),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
+    AppSnackBar.show(
+      context,
+      'Sessione cardio eliminata',
+      icon: Icons.delete_outline_rounded,
     );
   }
 }

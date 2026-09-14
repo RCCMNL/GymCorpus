@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/widgets/labels.dart';
 
 /// Riquadro "PRO TIP" statico mostrato in fondo a WorkoutDetailScreen.
 class QuickTipBox extends StatelessWidget {
@@ -35,22 +36,15 @@ class QuickTipBox extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
+              const Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.tips_and_updates_rounded,
                     size: 20,
                     color: Colors.orangeAccent,
                   ),
-                  const SizedBox(width: 10),
-                  Text(
-                    'PRO TIP',
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      fontWeight: FontWeight.w900,
-                      color: Colors.orangeAccent,
-                      letterSpacing: 1.5,
-                    ),
-                  ),
+                  SizedBox(width: 10),
+                  Eyebrow('PRO TIP', color: Colors.orangeAccent),
                 ],
               ),
               const SizedBox(height: 12),

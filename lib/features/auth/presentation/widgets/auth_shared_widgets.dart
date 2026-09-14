@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class AmbientBackground extends StatelessWidget {
   const AmbientBackground({required this.theme, super.key});
@@ -134,6 +135,7 @@ class AuthTextField extends StatelessWidget {
     this.onSubmitted,
     this.suffixIcon,
     this.prefixIconConstraints,
+    this.inputFormatters,
   });
   final TextEditingController controller;
   final String hint;
@@ -145,6 +147,7 @@ class AuthTextField extends StatelessWidget {
   final void Function(String)? onSubmitted;
   final Widget? suffixIcon;
   final BoxConstraints? prefixIconConstraints;
+  final List<TextInputFormatter>? inputFormatters;
   @override
   Widget build(BuildContext context) {
     final t = Theme.of(context);
@@ -153,6 +156,7 @@ class AuthTextField extends StatelessWidget {
       obscureText: obscure,
       autofillHints: autofill,
       keyboardType: keyboardType,
+      inputFormatters: inputFormatters,
       textInputAction: action,
       onSubmitted: onSubmitted,
       style: TextStyle(color: t.colorScheme.onSurface, fontFamily: 'Inter'),
@@ -207,7 +211,10 @@ class AuthPrimaryButton extends StatelessWidget {
   });
   final String label;
   final bool isLoading;
-  final VoidCallback onPressed;
+
+  /// Nullo quando l'azione non e' ancora disponibile: un pulsante primario
+  /// deve poter restare inerte senza sparire dalla schermata.
+  final VoidCallback? onPressed;
   @override
   Widget build(BuildContext context) {
     final t = Theme.of(context);

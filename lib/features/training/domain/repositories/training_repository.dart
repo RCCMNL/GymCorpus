@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:gym_corpus/core/error/failures.dart';
 import 'package:gym_corpus/features/training/domain/entities/body_measurement.dart';
 import 'package:gym_corpus/features/training/domain/entities/body_weight.dart';
+import 'package:gym_corpus/features/training/domain/entities/cardio_goal.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_session.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
@@ -15,6 +16,32 @@ abstract class TrainingRepository {
   });
 
   Future<Either<Failure, void>> updateExerciseNotes(int id, String notes);
+
+  // Custom exercises CRUD (restricted to user-created exercises)
+  Future<Either<Failure, int>> addCustomExercise({
+    required String name,
+    required String targetMuscle,
+    required String difficulty,
+    String? equipment,
+    String? focusArea,
+    String? preparation,
+    String? execution,
+    String? tips,
+    bool isBodyweight = false,
+  });
+  Future<Either<Failure, void>> updateCustomExercise({
+    required int id,
+    required String name,
+    required String targetMuscle,
+    required String difficulty,
+    String? equipment,
+    String? focusArea,
+    String? preparation,
+    String? execution,
+    String? tips,
+    bool isBodyweight = false,
+  });
+  Future<Either<Failure, void>> deleteCustomExercise(int id);
 
   // Routines CRUD
   Stream<List<RoutineEntity>> watchRoutines();
@@ -30,6 +57,8 @@ abstract class TrainingRepository {
     int? estDuration,
   );
   Future<Either<Failure, void>> deleteRoutine(int id);
+  Future<Either<Failure, int>> copyRoutine(int id);
+  Future<Either<Failure, void>> resetRoutineToSource(int id);
 
   Stream<List<WorkoutSetEntity>> watchWeightLogs();
   Stream<List<WorkoutSessionEntity>> watchWorkoutSessions();
@@ -77,6 +106,8 @@ abstract class TrainingRepository {
     required int calories,
     int? steps,
     String? routeJson,
+    DateTime? date,
+    CardioGoal? goal,
   });
   Future<Either<Failure, void>> deleteCardioSession(int id);
 

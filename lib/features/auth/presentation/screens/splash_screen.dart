@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gym_corpus/core/widgets/gradient_title.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
 import 'package:gym_corpus/features/auth/presentation/widgets/auth_shared_widgets.dart';
@@ -60,7 +61,7 @@ class _SplashScreenState extends State<SplashScreen>
         Future.delayed(const Duration(milliseconds: 1500), () {
           if (!mounted) return;
           state.maybeWhen(
-            authenticated: (_) => context.go('/training'),
+            authenticated: (_, __) => context.go('/training'),
             unauthenticated: () => context.go('/login'),
             error: (_, __) => context.go('/login'),
             orElse: () {},
@@ -135,10 +136,7 @@ class _SplashScreenState extends State<SplashScreen>
           ),
         ],
       ),
-      child: ShaderMask(
-        shaderCallback: (bounds) => LinearGradient(
-          colors: [theme.colorScheme.primary, theme.colorScheme.tertiary],
-        ).createShader(bounds),
+      child: GradientMask(
         child: ClipOval(
           child: Image.asset(
             'assets/images/logo.png',

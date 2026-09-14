@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:gym_corpus/features/training/domain/entities/cardio_route_point.dart';
 
 /// Sessione cardio interrotta, salvata periodicamente per poterla riprendere
 /// dopo una chiusura imprevista dell'app.
@@ -28,7 +28,10 @@ class CardioDraft extends Equatable {
   final double distanceMeters;
   final int steps;
   final DateTime? startTime;
-  final List<LatLng> route;
+
+  /// Percorso con i tempi di passaggio: riprendendo una sessione i passaggi
+  /// al chilometro gia' percorsi devono sopravvivere all'interruzione.
+  final List<CardioRoutePoint> route;
 
   /// Interpreta una bozza salvata, restituendo `null` se non e' utilizzabile.
   ///
@@ -42,19 +45,6 @@ class CardioDraft extends Equatable {
       final decoded = jsonDecode(raw);
       if (decoded is! Map<String, dynamic>) return null;
 
-      final route = <LatLng>[];
-      final rawRoute = decoded['route'];
-      if (rawRoute is List) {
-        for (final point in rawRoute) {
-          if (point is! Map) continue;
-          final lat = point['lat'];
-          final lng = point['lng'];
-          if (lat is num && lng is num) {
-            route.add(LatLng(lat.toDouble(), lng.toDouble()));
-          }
-        }
-      }
-
       final type = decoded['type'];
       final elapsed = decoded['elapsedSeconds'];
       final distance = decoded['distanceMeters'];
@@ -67,7 +57,7 @@ class CardioDraft extends Equatable {
         distanceMeters: distance is num ? distance.toDouble() : 0,
         steps: steps is num ? steps.toInt() : 0,
         startTime: startTime is String ? DateTime.tryParse(startTime) : null,
-        route: route,
+        route: CardioRoutePoint.parseList(decoded['route']),
       );
     } catch (e) {
       debugPrint('CardioDraft: bozza non interpretabile: $e');
@@ -81,7 +71,7 @@ class CardioDraft extends Equatable {
     'elapsedSeconds': elapsedSeconds,
     'steps': steps,
     'startTime': startTime?.toIso8601String(),
-    'route': route.map((p) => {'lat': p.latitude, 'lng': p.longitude}).toList(),
+    'route': route.map((p) => p.toJson()).toList(),
   });
 
   @override

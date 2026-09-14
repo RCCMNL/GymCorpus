@@ -1,14 +1,19 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gym_corpus/core/utils/decimal_input.dart';
 import 'package:gym_corpus/core/utils/unit_converter.dart';
+import 'package:gym_corpus/core/widgets/gradient_title.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
+import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_event.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
+import 'package:gym_corpus/features/profile/presentation/widgets/profile_form_fields.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
-import 'package:intl/intl.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -63,7 +68,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
         );
 
     final user = context.read<AuthBloc>().state.maybeWhen(
-      authenticated: (u) => u,
+      authenticated: (u, _) => u,
       orElse: () => null,
     );
     final trainingState = context.read<TrainingBloc>().state;
@@ -136,15 +141,11 @@ class _EditProfileScreenState extends State<EditProfileScreen>
   Future<void> _saveProfile() async {
     if (_formKey.currentState!.validate()) {
       setState(() => _isSaving = true);
-      var finalWeight = double.tryParse(
-        _weightController.text.replaceAll(',', '.'),
-      );
+      var finalWeight = parseDecimalInput(_weightController.text);
       if (finalWeight != null && _isImperial) {
         finalWeight = UnitConverter.lbToKg(finalWeight);
       }
-      var finalHeight = double.tryParse(
-        _heightController.text.replaceAll(',', '.'),
-      );
+      var finalHeight = parseDecimalInput(_heightController.text);
       if (finalHeight != null && _isImperial) {
         finalHeight = UnitConverter.inchToCm(finalHeight);
       }
@@ -169,7 +170,6 @@ class _EditProfileScreenState extends State<EditProfileScreen>
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Scaffold(
       appBar: const GymHeader(),
       body: SafeArea(
@@ -185,67 +185,50 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Header
-                    ShaderMask(
-                      shaderCallback: (b) => LinearGradient(
-                        colors: [
-                          theme.colorScheme.primary,
-                          theme.colorScheme.tertiary,
-                        ],
-                      ).createShader(b),
-                      child: Text(
-                        'Modifica Profilo',
-                        style: theme.textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.w900,
-                          fontFamily: 'Lexend',
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
+                    const GradientTitle('Modifica Profilo'),
                     const SizedBox(height: 4),
-                    Text(
-                      'INFORMAZIONI PERSONALI',
-                      style: theme.textTheme.labelSmall?.copyWith(
-                        letterSpacing: 2.5,
-                        color: theme.colorScheme.primary.withValues(alpha: 0.5),
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
+                    const SectionTitle('INFORMAZIONI PERSONALI'),
                     const SizedBox(height: 28),
-                    _sectionLabel('DATI ANAGRAFICI', theme),
+                    const SectionTitle(
+                      'DATI ANAGRAFICI',
+                      tone: SectionTitleTone.muted,
+                      withAccentBar: true,
+                    ),
                     const SizedBox(height: 12),
                     Row(
                       children: [
                         Expanded(
-                          child: _field(
+                          child: ProfileTextField(
                             controller: _firstNameController,
                             label: 'NOME',
                             hint: 'Inserisci il nome',
                             icon: Icons.person_outline_rounded,
-                            theme: theme,
                           ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
-                          child: _field(
+                          child: ProfileTextField(
                             controller: _lastNameController,
                             label: 'COGNOME',
                             hint: 'Inserisci il cognome',
                             icon: Icons.badge_outlined,
-                            theme: theme,
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 12),
-                    _field(
+                    ProfileTextField(
                       controller: _usernameController,
                       label: 'USERNAME',
                       hint: '@username',
                       icon: Icons.alternate_email_rounded,
-                      theme: theme,
                     ),
                     const SizedBox(height: 28),
-                    _sectionLabel('GENERE', theme),
+                    const SectionTitle(
+                      'GENERE',
+                      tone: SectionTitleTone.muted,
+                      withAccentBar: true,
+                    ),
                     const SizedBox(height: 12),
                     Row(
                       children: _genderOptions.map((opt) {
@@ -271,23 +254,26 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                       }).toList(),
                     ),
                     const SizedBox(height: 28),
-                    _sectionLabel('DATI FISICI', theme),
+                    const SectionTitle(
+                      'DATI FISICI',
+                      tone: SectionTitleTone.muted,
+                      withAccentBar: true,
+                    ),
                     const SizedBox(height: 12),
                     Row(
                       children: [
                         Expanded(
-                          child: _field(
+                          child: ProfileTextField(
                             controller: _weightController,
                             label: _isImperial ? 'PESO (LB)' : 'PESO (KG)',
                             hint: '0.0',
                             icon: Icons.monitor_weight_outlined,
                             keyboard: TextInputType.number,
-                            theme: theme,
                           ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
-                          child: _field(
+                          child: ProfileTextField(
                             controller: _heightController,
                             label: _isImperial
                                 ? 'ALTEZZA (IN)'
@@ -295,62 +281,23 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                             hint: '0',
                             icon: Icons.height_rounded,
                             keyboard: TextInputType.number,
-                            theme: theme,
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 16),
-                    _lbl('DATA DI NASCITA', theme),
-                    const SizedBox(height: 8),
-                    InkWell(
-                      onTap: _isSaving ? null : () => _selectDate(context),
-                      borderRadius: BorderRadius.circular(16),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 16,
-                        ),
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.surfaceContainerHigh,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: theme.colorScheme.outline.withValues(
-                              alpha: 0.1,
-                            ),
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.calendar_today_rounded,
-                              size: 18,
-                              color: theme.colorScheme.primary,
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                _birthDate == null
-                                    ? 'Seleziona data'
-                                    : DateFormat(
-                                        'dd/MM/yyyy',
-                                      ).format(_birthDate!),
-                                style: theme.textTheme.bodyLarge,
-                              ),
-                            ),
-                            Icon(
-                              Icons.chevron_right_rounded,
-                              size: 20,
-                              color: theme.colorScheme.outline.withValues(
-                                alpha: 0.4,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                    ProfileDateField(
+                      label: 'DATA DI NASCITA',
+                      value: _birthDate,
+                      enabled: !_isSaving,
+                      onTap: () => unawaited(_selectDate(context)),
                     ),
                     const SizedBox(height: 28),
-                    _sectionLabel('OBIETTIVO DI ALLENAMENTO', theme),
+                    const SectionTitle(
+                      'OBIETTIVO DI ALLENAMENTO',
+                      tone: SectionTitleTone.muted,
+                      withAccentBar: true,
+                    ),
                     const SizedBox(height: 12),
                     Wrap(
                       spacing: 8,
@@ -369,52 +316,10 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                       }).toList(),
                     ),
                     const SizedBox(height: 48),
-                    Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            color: theme.colorScheme.primary.withValues(
-                              alpha: 0.3,
-                            ),
-                            blurRadius: 24,
-                            offset: const Offset(0, 8),
-                          ),
-                        ],
-                      ),
-                      child: ElevatedButton(
-                        onPressed: _isSaving ? null : _saveProfile,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: theme.colorScheme.primary,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 18),
-                          disabledBackgroundColor: theme.colorScheme.primary
-                              .withValues(alpha: 0.5),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          elevation: 0,
-                        ),
-                        child: _isSaving
-                            ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                  strokeWidth: 2,
-                                ),
-                              )
-                            : const Text(
-                                'SALVA MODIFICHE',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w900,
-                                  letterSpacing: 1.5,
-                                  fontSize: 14,
-                                  fontFamily: 'Lexend',
-                                ),
-                              ),
-                      ),
+                    ProfileSaveButton(
+                      label: 'SALVA MODIFICHE',
+                      isSaving: _isSaving,
+                      onPressed: () => unawaited(_saveProfile()),
                     ),
                     const SizedBox(height: 40),
                   ],
@@ -424,106 +329,6 @@ class _EditProfileScreenState extends State<EditProfileScreen>
           ),
         ),
       ),
-    );
-  }
-
-  Widget _sectionLabel(String text, ThemeData theme) => Row(
-    children: [
-      Container(
-        width: 4,
-        height: 16,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [theme.colorScheme.primary, theme.colorScheme.tertiary],
-          ),
-          borderRadius: BorderRadius.circular(2),
-        ),
-      ),
-      const SizedBox(width: 10),
-      Text(
-        text,
-        style: theme.textTheme.labelSmall?.copyWith(
-          letterSpacing: 1.8,
-          fontWeight: FontWeight.w900,
-          color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-        ),
-      ),
-    ],
-  );
-
-  Widget _lbl(String t, ThemeData theme) => Text(
-    t,
-    style: theme.textTheme.labelSmall?.copyWith(
-      letterSpacing: 1.5,
-      fontWeight: FontWeight.w900,
-      color: theme.colorScheme.outline,
-    ),
-  );
-
-  Widget _field({
-    required TextEditingController controller,
-    required String label,
-    required String hint,
-    required ThemeData theme,
-    IconData? icon,
-    TextInputType keyboard = TextInputType.text,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _lbl(label, theme),
-        const SizedBox(height: 8),
-        TextFormField(
-          controller: controller,
-          keyboardType: keyboard,
-          enabled: !_isSaving,
-          style: theme.textTheme.bodyLarge,
-          decoration: InputDecoration(
-            hintText: hint,
-            prefixIcon: icon != null
-                ? Padding(
-                    padding: const EdgeInsets.only(left: 12, right: 8),
-                    child: Icon(
-                      icon,
-                      size: 20,
-                      color: theme.colorScheme.primary.withValues(alpha: 0.6),
-                    ),
-                  )
-                : null,
-            prefixIconConstraints: const BoxConstraints(minWidth: 40),
-            filled: true,
-            fillColor: theme.colorScheme.surfaceContainerHigh,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 14,
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(
-                color: theme.colorScheme.outline.withValues(alpha: 0.1),
-              ),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(
-                color: theme.colorScheme.outline.withValues(alpha: 0.1),
-              ),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(color: theme.colorScheme.primary),
-            ),
-            disabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(
-                color: theme.colorScheme.outline.withValues(alpha: 0.05),
-              ),
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

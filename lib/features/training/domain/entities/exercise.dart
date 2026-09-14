@@ -16,8 +16,19 @@ class ExerciseEntity extends Equatable {
     this.isBodyweight = false,
     this.isVector = false,
     this.isFavorite = false,
+    this.difficulty,
+    this.isCustom = false,
   });
   static const String bodyweightCategory = 'Corpo libero';
+
+  static const String difficultyBeginner = 'Principiante';
+  static const String difficultyIntermediate = 'Intermedio';
+  static const String difficultyAdvanced = 'Avanzato';
+  static const List<String> difficultyLevels = [
+    difficultyBeginner,
+    difficultyIntermediate,
+    difficultyAdvanced,
+  ];
 
   final int id;
   final String name;
@@ -33,6 +44,8 @@ class ExerciseEntity extends Equatable {
   final bool isBodyweight;
   final bool isVector;
   final bool isFavorite;
+  final String? difficulty;
+  final bool isCustom;
 
   List<String> get categories {
     final values = <String>[];
@@ -62,6 +75,8 @@ class ExerciseEntity extends Equatable {
     isBodyweight,
     isVector,
     isFavorite,
+    difficulty,
+    isCustom,
   ];
 }
 

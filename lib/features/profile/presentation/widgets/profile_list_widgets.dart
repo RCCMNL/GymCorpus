@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/widgets/app_card.dart';
+import 'package:gym_corpus/core/widgets/labels.dart';
+import 'package:gym_corpus/features/profile/presentation/widgets/cycle_phase_info.dart';
 
 /// Sezione della lista profilo/impostazioni: titolo con accento colorato e
 /// una card contenente le sue [ProfileItem].
@@ -36,28 +39,11 @@ class ProfileSection extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 12),
-                Text(
-                  title.toUpperCase(),
-                  style: theme.textTheme.labelSmall?.copyWith(
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 1.5,
-                    fontSize: 11,
-                  ),
-                ),
+                SectionTitle(title.toUpperCase(), tone: SectionTitleTone.muted),
               ],
             ),
           ),
-          Container(
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceContainerHigh.withValues(
-                alpha: 0.4,
-              ),
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(
-                color: theme.colorScheme.outline.withValues(alpha: 0.05),
-              ),
-            ),
+          AppCard(
             child: ListView.separated(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -99,7 +85,7 @@ class ProfileItem extends StatelessWidget {
     final iconColor = isComingSoon
         ? theme.colorScheme.outline
         : label == 'Calendario ciclo'
-        ? const Color(0xFFFF4B72)
+        ? CyclePalette.period
         : (label == 'Sicurezza' || label == 'Esercizi Preferiti'
               ? theme.colorScheme.tertiary
               : (label == 'Valuta GymCorpus'
@@ -116,7 +102,7 @@ class ProfileItem extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
             color: label == 'Calendario ciclo'
-                ? const Color(0xFFFF4B72).withValues(alpha: 0.05)
+                ? CyclePalette.period.withValues(alpha: 0.05)
                 : null,
             borderRadius: BorderRadius.circular(20),
           ),

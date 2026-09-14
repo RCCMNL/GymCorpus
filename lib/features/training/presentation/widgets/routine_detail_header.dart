@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/widgets/gradient_title.dart';
+import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:gym_corpus/features/training/presentation/widgets/header_tag.dart';
 
 /// Card riassuntiva della routine in cima a WorkoutDetailScreen: titolo,
@@ -8,12 +10,14 @@ class RoutineDetailHeader extends StatelessWidget {
     required this.title,
     required this.exerciseCount,
     required this.estimatedDuration,
+    this.isSystem = false,
     super.key,
   });
 
   final String title;
   final int exerciseCount;
   final int? estimatedDuration;
+  final bool isSystem;
 
   @override
   Widget build(BuildContext context) {
@@ -54,34 +58,18 @@ class RoutineDetailHeader extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              Text(
+              Eyebrow(
                 'ROUTINE ATTUALE',
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: theme.colorScheme.primary.withValues(alpha: 0.6),
-                  letterSpacing: 2,
-                  fontWeight: FontWeight.w900,
-                  fontSize: 10,
-                ),
+                color: theme.colorScheme.primary.withValues(alpha: 0.6),
               ),
             ],
           ),
           const SizedBox(height: 12),
-          ShaderMask(
-            shaderCallback: (bounds) => LinearGradient(
-              colors: [theme.colorScheme.primary, theme.colorScheme.tertiary],
-            ).createShader(bounds),
-            child: Text(
-              title,
-              style: theme.textTheme.headlineLarge?.copyWith(
-                fontSize: 32,
-                fontWeight: FontWeight.w900,
-                color: Colors.white,
-                height: 1.1,
-                fontFamily: 'Lexend',
-              ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
+          GradientTitle(
+            title,
+            scale: GradientTitleScale.hero,
+            style: const TextStyle(height: 1.1),
+            maxLines: 2,
           ),
           const SizedBox(height: 16),
           Row(
@@ -99,6 +87,15 @@ class RoutineDetailHeader extends StatelessWidget {
                 color: Colors.orangeAccent.withValues(alpha: 0.08),
                 textColor: Colors.orangeAccent,
               ),
+              if (isSystem) ...[
+                const SizedBox(width: 8),
+                HeaderTag(
+                  icon: Icons.verified_rounded,
+                  label: 'DI SISTEMA',
+                  color: theme.colorScheme.secondary.withValues(alpha: 0.08),
+                  textColor: theme.colorScheme.secondary,
+                ),
+              ],
             ],
           ),
         ],

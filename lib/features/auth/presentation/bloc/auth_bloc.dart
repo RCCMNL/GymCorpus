@@ -220,7 +220,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     final currentUser = state.maybeWhen(
-      authenticated: (user) => user,
+      authenticated: (user, _) => user,
       loading: (prev) => prev,
       error: (msg, prev) => prev,
       orElse: () => null,
@@ -264,6 +264,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
     result.fold((failure) {
       debugPrint('AuthBloc._onUpdateProfile error: ${failure.message}');
+
+      // L'utente resta autenticato: cambiare stato lo farebbe sparire da
+      // mezza app. L'errore viaggia con lo stato buono, cosi' la
+      // schermata che ha chiesto il salvataggio puo' dirlo.
+      final currentUser = state.maybeWhen(
+        authenticated: (user, _) => user,
+        orElse: () => null,
+      );
+      if (currentUser == null) return;
+
+      emit(AuthState.authenticated(currentUser, actionError: failure.message));
     }, (user) => emit(AuthState.authenticated(user)));
   }
 
@@ -280,7 +291,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       (failure) {
         // Handle failure locally in UI instead of emitting state, as the UI stays open
         final currentUser = state.maybeWhen(
-          authenticated: (user) => user,
+          authenticated: (user, _) => user,
           orElse: () => null,
         );
         emit(

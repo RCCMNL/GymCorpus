@@ -1,5 +1,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:gym_corpus/core/service_locator.config.dart';
+import 'package:gym_corpus/core/services/external_links.dart';
 import 'package:gym_corpus/core/services/health_service.dart';
 import 'package:injectable/injectable.dart';
 
@@ -10,5 +11,6 @@ Future<void> configureDependencies() async {
   sl
     ..initInjectable()
     // Registrazioni manuali (non Injectable)
-    ..registerLazySingleton<HealthService>(HealthService.new);
+    ..registerLazySingleton<HealthService>(HealthService.new)
+    ..registerLazySingleton<ExternalLinks>(UrlLauncherLinks.new);
 }

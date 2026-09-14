@@ -1,8 +1,10 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/services/notification_service.dart';
+import 'package:gym_corpus/core/utils/time_format.dart';
 import 'package:gym_corpus/core/utils/unit_converter.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
@@ -39,7 +41,6 @@ class _TrainingScreenState extends State<TrainingScreen>
   DateTime? _lastResumeTime;
   Duration _elapsedBeforePause = Duration.zero;
   bool _isPaused = false;
-  bool _durationSaved = false;
   DateTime? _restEndTime;
   Timer? _executionTimer;
   String _execTimeStr = '00:00:00';
@@ -79,17 +80,10 @@ class _TrainingScreenState extends State<TrainingScreen>
     _executionTimer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (!_isPaused && mounted) {
         setState(() {
-          _execTimeStr = _fmtFull(_elapsedSessionSeconds);
+          _execTimeStr = formatClock(_elapsedSessionSeconds, alwaysHours: true);
         });
       }
     });
-  }
-
-  String _fmtFull(int s) {
-    final h = (s ~/ 3600).toString().padLeft(2, '0');
-    final m = ((s % 3600) ~/ 60).toString().padLeft(2, '0');
-    final sc = (s % 60).toString().padLeft(2, '0');
-    return '$h:$m:$sc';
   }
 
   void _togglePause() {
@@ -158,25 +152,19 @@ class _TrainingScreenState extends State<TrainingScreen>
     final ex = _curEx;
     if (ex != null) {
       final currentSpecs = getSetSpecs(ex, _setIdx);
-      final isFirstSet = _exIdx == 0 && _setIdx == 0;
-      final isLastSet = _isLastSet && _isLastEx;
-      // Al primo set: salva la durata reale come rpe (secondi dall'inizio)
-      // Al completamento: salva la durata finale definitiva
-      int? rpePayload;
-      if (isFirstSet && !_durationSaved) {
-        // placeholder: lo aggiorniamo al termine
-      }
-      if (isLastSet && !_durationSaved) {
-        rpePayload = _elapsedSessionSeconds;
-        _durationSaved = true;
-      }
+
+      // La durata della sessione finisce in `Workouts.durationSeconds` con
+      // CompleteWorkoutSessionEvent, qui sotto. Prima veniva scritta anche
+      // nel campo `rpe` dell'ultimo set, da quando quella colonna non
+      // esisteva: un numero di secondi in un campo che vale da 1 a 10 faceva
+      // scattare a ogni allenamento la stima del massimale, pensata per i
+      // set portati oltre RPE 8.
       context.read<TrainingBloc>().add(
         AddSetToExercise(
           workoutId: _workoutId,
           exerciseId: ex.exercise.id,
           reps: currentSpecs.reps,
           weight: ex.exercise.isBodyweight ? 0 : currentSpecs.weight,
-          rpe: rpePayload,
         ),
       );
     }

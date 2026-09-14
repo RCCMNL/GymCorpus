@@ -87,16 +87,32 @@ misure corporee, tracce GPS delle sessioni cardio) ed e cifrato con SQLCipher.
   Con la libreria sqlite3 normale, infatti, `PRAGMA key` non da errore, semplicemente
   non ha effetto.
 
-Vincoli di piattaforma da rispettare:
+Come arriva SQLCipher:
 
-- **iOS e macOS**: nessun altro pod deve collegare `sqlite3`, altrimenti SQLCipher
-  non viene usato. Se accade, aggiungi `-framework SQLCipher` in "Other Linker Flags"
-  nelle impostazioni del progetto Xcode. Il controllo su `cipher_version` fa emergere
-  subito il problema al primo avvio.
-- **Android**: nessun setup aggiuntivo. Il workaround per Android 6 e precedenti non
-  serve, il progetto ha `minSdk = 26`.
-- Non aggiungere `sqlite3_flutter_libs` alle dipendenze: entrarebbe in conflitto con
-  le librerie native di SQLCipher.
+- Dal pacchetto `sqlite3` versione 3, che collega la libreria nativa con i build hook
+  di Dart. La scelta di SQLCipher al posto di SQLite sta in `pubspec.yaml`:
+
+  ```yaml
+  hooks:
+    user_defines:
+      sqlite3:
+        source: sqlcipher
+  ```
+
+  Senza quella sezione verrebbe collegato SQLite normale, e l'app si fermerebbe al
+  controllo su `cipher_version`. Il hook scarica binari precompilati, quindi la prima
+  build richiede la rete.
+- **Android**: nessun setup nel progetto nativo. Il workaround per Android 6 e
+  precedenti non serve, il progetto ha `minSdk = 26`. Verificato a settembre 2026 su
+  un dispositivo con Android 16: un database cifrato dalla vecchia
+  `sqlcipher_flutter_libs` (SQLCipher 4.5.5) si apre con la versione 3 (SQLCipher
+  4.18.0) senza conversioni, perche' dentro SQLCipher 4 il formato del file non cambia.
+  Con un futuro SQLCipher 5 la prova andra' rifatta.
+- **iOS e macOS**: non ancora verificati dopo il passaggio alla versione 3. Se un'altra
+  libreria nativa collegasse gia' SQLite, vedi `doc/hook.md` del pacchetto `sqlite3`;
+  il controllo su `cipher_version` fa emergere il problema al primo avvio.
+- Non aggiungere `sqlite3_flutter_libs` ne' `sqlcipher_flutter_libs`: con la versione 3
+  di `sqlite3` non servono piu', e `sqlcipher_flutter_libs` e' stato dismesso.
 
 > Se il secure storage perde la chiave (cancellazione dati app, ripristino su un
 > nuovo dispositivo) i dati locali non sono piu' recuperabili. E una conseguenza

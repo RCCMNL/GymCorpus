@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/widgets/app_card.dart';
+import 'package:gym_corpus/core/widgets/labels.dart';
 
 /// Barra superiore con pulsante indietro e titolo di CardioHistoryScreen.
 class CardioHistoryTopBar extends StatelessWidget {
@@ -25,14 +27,7 @@ class CardioHistoryTopBar extends StatelessWidget {
                 fontFamily: 'Lexend',
               ),
             ),
-            Text(
-              'CRONOLOGIA E PERCORSI',
-              style: theme.textTheme.labelSmall?.copyWith(
-                letterSpacing: 2,
-                color: theme.colorScheme.primary,
-                fontWeight: FontWeight.w900,
-              ),
-            ),
+            const SectionTitle('CRONOLOGIA E PERCORSI'),
           ],
         ),
       ],
@@ -68,15 +63,7 @@ class CardioOverviewStat extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              label.toUpperCase(),
-              style: theme.textTheme.labelSmall?.copyWith(
-                fontSize: 9,
-                letterSpacing: 1.1,
-                fontWeight: FontWeight.w900,
-                color: theme.colorScheme.outline,
-              ),
-            ),
+            StatLabel(label.toUpperCase()),
             const SizedBox(height: 6),
             Text(
               value,
@@ -136,14 +123,7 @@ class CardioHistoryOverview extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'PANORAMICA CARDIO',
-                style: theme.textTheme.labelSmall?.copyWith(
-                  letterSpacing: 1.8,
-                  fontWeight: FontWeight.w900,
-                  color: theme.colorScheme.primary,
-                ),
-              ),
+              const SectionTitle('PANORAMICA CARDIO'),
               const SizedBox(height: 16),
               Row(
                 children: [
@@ -189,16 +169,9 @@ class EmptyCardioHistoryView extends StatelessWidget {
         children: [
           CardioHistoryTopBar(theme: theme),
           const Spacer(),
-          Container(
+          AppCard(
             width: double.infinity,
             padding: const EdgeInsets.all(28),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceContainerHigh,
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(
-                color: theme.colorScheme.outline.withValues(alpha: 0.08),
-              ),
-            ),
             child: Column(
               children: [
                 Icon(

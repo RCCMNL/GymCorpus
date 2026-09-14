@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gym_corpus/core/utils/date_format.dart';
+import 'package:gym_corpus/core/widgets/app_card.dart';
+import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
+import 'package:gym_corpus/core/widgets/gradient_title.dart';
+import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:gym_corpus/features/notifications/domain/entities/notification_log_entity.dart';
 import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_bloc.dart';
 import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_event.dart';
 import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_state.dart';
-import 'package:intl/intl.dart';
 
 class NotificationsScreen extends StatelessWidget {
   const NotificationsScreen({super.key});
@@ -25,15 +29,7 @@ class NotificationsScreen extends StatelessWidget {
         context.read<NotificationsBloc>().add(
           const ClearNotificationActionErrorEvent(),
         );
-        ScaffoldMessenger.of(context)
-          ..hideCurrentSnackBar()
-          ..showSnackBar(
-            SnackBar(
-              content: Text(message),
-              behavior: SnackBarBehavior.floating,
-              backgroundColor: theme.colorScheme.error,
-            ),
-          );
+        AppSnackBar.showError(context, message);
       },
       child: Scaffold(
         backgroundColor: theme.colorScheme.surface,
@@ -48,19 +44,9 @@ class NotificationsScreen extends StatelessWidget {
             ),
             onPressed: () => Navigator.maybePop(context),
           ),
-          title: ShaderMask(
-            shaderCallback: (bounds) => LinearGradient(
-              colors: [theme.colorScheme.primary, theme.colorScheme.tertiary],
-            ).createShader(bounds),
-            child: Text(
-              'Notifiche',
-              style: theme.textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.w900,
-                fontFamily: 'Lexend',
-                fontSize: 22,
-                color: Colors.white,
-              ),
-            ),
+          title: const GradientTitle(
+            'Notifiche',
+            scale: GradientTitleScale.compact,
           ),
           centerTitle: false,
           actions: [
@@ -177,14 +163,9 @@ class NotificationsScreen extends StatelessWidget {
             // Section header
             Padding(
               padding: const EdgeInsets.only(bottom: 12, left: 4),
-              child: Text(
+              child: SectionTitle(
                 label.toUpperCase(),
-                style: theme.textTheme.labelSmall?.copyWith(
-                  letterSpacing: 2,
-                  fontWeight: FontWeight.w900,
-                  color: theme.colorScheme.outline.withValues(alpha: 0.6),
-                  fontSize: 10,
-                ),
+                tone: SectionTitleTone.muted,
               ),
             ),
             ...items.map(
@@ -218,9 +199,9 @@ class NotificationsScreen extends StatelessWidget {
     if (dateOnly == today) return 'Oggi';
     if (dateOnly == today.subtract(const Duration(days: 1))) return 'Ieri';
     if (now.difference(dateOnly).inDays < 7) {
-      return DateFormat('EEEE', 'it_IT').format(date);
+      return formatWeekday(date);
     }
-    return DateFormat('d MMM yyyy', 'it_IT').format(date);
+    return formatShortDate(date);
   }
 }
 
@@ -284,7 +265,7 @@ class _NotificationTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final color = _colorForType(notification.type, theme);
-    final timeStr = DateFormat('HH:mm').format(notification.timestamp);
+    final timeStr = formatTime(notification.timestamp);
 
     return Dismissible(
       key: ValueKey(notification.id),
@@ -382,11 +363,9 @@ class _NotificationTile extends StatelessWidget {
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: color.withValues(alpha: 0.12),
+                            color: color.tintedFill,
                             borderRadius: BorderRadius.circular(999),
-                            border: Border.all(
-                              color: color.withValues(alpha: 0.24),
-                            ),
+                            border: Border.all(color: color.tintedBorder),
                           ),
                           child: Text(
                             _labelForType(notification.type).toUpperCase(),

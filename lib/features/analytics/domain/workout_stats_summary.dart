@@ -1,4 +1,5 @@
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
+import 'package:gym_corpus/features/training/domain/entities/workout_session.dart';
 
 /// Aggrega numero di sessioni, minuti totali e volume sollevato da una
 /// lista di set di allenamento.
@@ -15,7 +16,15 @@ class WorkoutStatsSummary {
     required this.totalWeight,
   });
 
-  factory WorkoutStatsSummary.fromLogs(List<WorkoutSetEntity> logs) {
+  /// Riepilogo dei set indicati.
+  ///
+  /// Le [sessions] servono per la durata: da quando esiste la colonna
+  /// `durationSeconds` quello e' il dato vero. Per le sessioni registrate
+  /// prima, che non ce l'hanno, si ricade sulla stima dai set.
+  factory WorkoutStatsSummary.fromLogs(
+    List<WorkoutSetEntity> logs, {
+    List<WorkoutSessionEntity> sessions = const [],
+  }) {
     if (logs.isEmpty) return empty;
 
     final sessionsCount = logs.map((e) => e.workoutId).toSet().length;
@@ -24,9 +33,21 @@ class WorkoutStatsSummary {
       (sum, e) => sum + (e.weight * e.reps),
     );
 
+    final durationById = {
+      for (final session in sessions)
+        if (session.durationSeconds != null)
+          session.id: session.durationSeconds!,
+    };
+
     var totalSeconds = 0;
     final workoutIds = logs.map((e) => e.workoutId).toSet();
     for (final workoutId in workoutIds) {
+      final saved = durationById[workoutId];
+      if (saved != null) {
+        totalSeconds += saved;
+        continue;
+      }
+
       final sessionLogs = logs.where((e) => e.workoutId == workoutId).toList();
       totalSeconds += estimateSessionDurationSeconds(sessionLogs, workoutId);
     }

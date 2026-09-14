@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gym_corpus/core/widgets/compact_sheet.dart';
+import 'package:gym_corpus/features/exercises/domain/equipment_tags.dart';
+import 'package:gym_corpus/features/exercises/domain/exercise_catalog_view.dart';
+import 'package:gym_corpus/features/exercises/presentation/widgets/difficulty_badge.dart';
+import 'package:gym_corpus/features/exercises/presentation/widgets/exercise_filters_sheet.dart';
+import 'package:gym_corpus/features/exercises/presentation/widgets/exercise_thumbnail.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
@@ -22,7 +28,13 @@ class ExercisePickerModal extends StatefulWidget {
 
 class _ExercisePickerModalState extends State<ExercisePickerModal> {
   String _searchQuery = '';
+  String _selectedDifficulty = kAllDifficultiesFilter;
+  Set<String> _selectedEquipment = {};
   final List<ExerciseEntity> _tempSelected = [];
+
+  bool get _hasActiveFilters =>
+      _selectedDifficulty != kAllDifficultiesFilter ||
+      _selectedEquipment.isNotEmpty;
 
   void _toggleExercise(ExerciseEntity ex) {
     setState(() {
@@ -32,6 +44,20 @@ class _ExercisePickerModalState extends State<ExercisePickerModal> {
         _tempSelected.add(ex);
       }
     });
+  }
+
+  Future<void> _openFilters() async {
+    final result = await showExerciseFiltersSheet(
+      context,
+      initialDifficulty: _selectedDifficulty,
+      initialEquipment: _selectedEquipment,
+    );
+    if (result != null) {
+      setState(() {
+        _selectedDifficulty = result.difficulty;
+        _selectedEquipment = result.equipment;
+      });
+    }
   }
 
   @override
@@ -44,22 +70,10 @@ class _ExercisePickerModalState extends State<ExercisePickerModal> {
       maxChildSize: 0.95,
       builder: (context, controller) => Scaffold(
         backgroundColor: Colors.transparent,
-        body: Container(
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surface,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-          ),
+        body: SheetSurface(
+          gap: 0,
           child: Column(
             children: [
-              const SizedBox(height: 12),
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.outline.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
               Padding(
                 padding: const EdgeInsets.all(24),
                 child: Column(
@@ -72,18 +86,45 @@ class _ExercisePickerModalState extends State<ExercisePickerModal> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    TextField(
-                      onChanged: (v) => setState(() => _searchQuery = v),
-                      decoration: InputDecoration(
-                        hintText: 'Cerca per nome o muscolo...',
-                        prefixIcon: const Icon(Icons.search),
-                        filled: true,
-                        fillColor: theme.colorScheme.surfaceContainerHigh,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
-                          borderSide: BorderSide.none,
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            onChanged: (v) => setState(() => _searchQuery = v),
+                            decoration: InputDecoration(
+                              hintText: 'Cerca per nome o muscolo...',
+                              prefixIcon: const Icon(Icons.search),
+                              filled: true,
+                              fillColor: theme.colorScheme.surfaceContainerHigh,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                borderSide: BorderSide.none,
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
+                        const SizedBox(width: 12),
+                        Material(
+                          color: theme.colorScheme.surfaceContainerHigh,
+                          borderRadius: BorderRadius.circular(16),
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(16),
+                            onTap: _openFilters,
+                            child: Padding(
+                              padding: const EdgeInsets.all(14),
+                              child: Badge(
+                                isLabelVisible: _hasActiveFilters,
+                                smallSize: 8,
+                                backgroundColor: theme.colorScheme.primary,
+                                child: Icon(
+                                  Icons.tune_rounded,
+                                  color: theme.colorScheme.onSurface,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -95,26 +136,35 @@ class _ExercisePickerModalState extends State<ExercisePickerModal> {
                       return const Center(child: CircularProgressIndicator());
                     }
                     if (state is TrainingLoaded) {
-                      final filtered = state.exercises
-                          .where(
-                            (e) =>
-                                e.name.toLowerCase().contains(
+                      final filtered = state.exercises.where((e) {
+                        final matchesSearch =
+                            e.name.toLowerCase().contains(
+                              _searchQuery.toLowerCase(),
+                            ) ||
+                            e.targetMuscle.toLowerCase().contains(
+                              _searchQuery.toLowerCase(),
+                            ) ||
+                            (e.equipment?.toLowerCase().contains(
                                   _searchQuery.toLowerCase(),
-                                ) ||
-                                e.targetMuscle.toLowerCase().contains(
-                                  _searchQuery.toLowerCase(),
-                                ) ||
-                                (e.equipment?.toLowerCase().contains(
-                                      _searchQuery.toLowerCase(),
-                                    ) ??
-                                    false) ||
-                                e.categories.any(
-                                  (category) => category.toLowerCase().contains(
-                                    _searchQuery.toLowerCase(),
-                                  ),
-                                ),
-                          )
-                          .toList();
+                                ) ??
+                                false) ||
+                            e.categories.any(
+                              (category) => category.toLowerCase().contains(
+                                _searchQuery.toLowerCase(),
+                              ),
+                            );
+                        final matchesDifficulty =
+                            _selectedDifficulty == kAllDifficultiesFilter ||
+                            e.difficulty == _selectedDifficulty;
+                        final matchesEquipment =
+                            _selectedEquipment.isEmpty ||
+                            equipmentTagsFor(
+                              e,
+                            ).any(_selectedEquipment.contains);
+                        return matchesSearch &&
+                            matchesDifficulty &&
+                            matchesEquipment;
+                      }).toList();
 
                       return ListView.separated(
                         controller: controller,
@@ -154,22 +204,9 @@ class _ExercisePickerModalState extends State<ExercisePickerModal> {
                               ),
                               child: Row(
                                 children: [
-                                  Container(
-                                    width: 60,
-                                    height: 60,
-                                    decoration: BoxDecoration(
-                                      color: theme
-                                          .colorScheme
-                                          .surfaceContainerHighest,
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Icon(
-                                      Icons.fitness_center,
-                                      size: 24,
-                                      color: isSelected
-                                          ? theme.colorScheme.primary
-                                          : const Color(0xFF94AAFF),
-                                    ),
+                                  ExerciseThumbnail(
+                                    exercise: ex,
+                                    borderRadius: 12,
                                   ),
                                   const SizedBox(width: 16),
                                   Expanded(
@@ -221,6 +258,12 @@ class _ExercisePickerModalState extends State<ExercisePickerModal> {
                                             ),
                                           ],
                                         ),
+                                        if (ex.difficulty != null) ...[
+                                          const SizedBox(height: 6),
+                                          DifficultyBadge(
+                                            difficulty: ex.difficulty!,
+                                          ),
+                                        ],
                                       ],
                                     ),
                                   ),

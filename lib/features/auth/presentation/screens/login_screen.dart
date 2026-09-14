@@ -1,17 +1,21 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/utils/biometric_messages.dart';
-import 'package:gym_corpus/core/widgets/social_icons.dart';
+import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/features/auth/domain/repositories/auth_repository.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_event.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
+import 'package:gym_corpus/features/auth/presentation/widgets/auth_header.dart';
 import 'package:gym_corpus/features/auth/presentation/widgets/auth_shared_widgets.dart';
+import 'package:gym_corpus/features/auth/presentation/widgets/forgot_password_sheet.dart';
+import 'package:gym_corpus/features/auth/presentation/widgets/login_card.dart';
 import 'package:local_auth/local_auth.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -29,7 +33,6 @@ class _LoginScreenState extends State<LoginScreen>
 
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _forgotEmailController = TextEditingController();
   bool _showBiometricButton = false;
   bool _obscurePassword = true;
 
@@ -104,11 +107,7 @@ class _LoginScreenState extends State<LoginScreen>
 
   void _showBiometricError(String message) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(content: Text(message), behavior: SnackBarBehavior.floating),
-      );
+    AppSnackBar.show(context, message);
   }
 
   @override
@@ -116,7 +115,6 @@ class _LoginScreenState extends State<LoginScreen>
     _animController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
-    _forgotEmailController.dispose();
     super.dispose();
   }
 
@@ -132,22 +130,25 @@ class _LoginScreenState extends State<LoginScreen>
     );
   }
 
+  /// Su iOS l'accesso con Apple e' richiesto quando se ne offre un altro di
+  /// terze parti: e' la linea guida 4.8 dell'App Store.
+  static bool get _showsAppleSignIn =>
+      defaultTargetPlatform == TargetPlatform.iOS ||
+      defaultTargetPlatform == TargetPlatform.macOS;
+
+  Future<void> _onApplePressed() async {
+    context.read<AuthBloc>().add(const AuthEvent.appleSignInRequested());
+  }
+
   Future<void> _onGooglePressed() async {
     context.read<AuthBloc>().add(const AuthEvent.googleSignInRequested());
   }
 
   void _showSnack(String msg, {bool isError = false}) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(msg),
-        duration: const Duration(seconds: 3),
-        backgroundColor: isError
-            ? Theme.of(context).colorScheme.error
-            : Colors.orange,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-      ),
+    AppSnackBar.show(
+      context,
+      msg,
+      tone: isError ? AppSnackBarTone.error : AppSnackBarTone.warning,
     );
   }
 
@@ -162,118 +163,9 @@ class _LoginScreenState extends State<LoginScreen>
     }
   }
 
-  void _showForgotPasswordSheet() {
-    _forgotEmailController.text = _emailController.text;
-    final theme = Theme.of(context);
-
-    showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => Padding(
-        padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
-        child: Container(
-          margin: const EdgeInsets.all(16),
-          padding: const EdgeInsets.all(28),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surfaceContainer,
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(
-              color: theme.colorScheme.primary.withValues(alpha: 0.15),
-            ),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.outline.withValues(alpha: 0.3),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.primary.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Icon(
-                      Icons.lock_reset_rounded,
-                      color: theme.colorScheme.primary,
-                      size: 22,
-                    ),
-                  ),
-                  const SizedBox(width: 14),
-                  Text(
-                    'Recupera Password',
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Text(
-                'Inserisci la tua email e ti invieremo un link per reimpostare la password.',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.outline,
-                ),
-              ),
-              const SizedBox(height: 20),
-              AuthTextField(
-                controller: _forgotEmailController,
-                hint: 'La tua email',
-                icon: Icons.email_outlined,
-                keyboardType: TextInputType.emailAddress,
-                autofill: const [AutofillHints.email],
-                action: TextInputAction.done,
-              ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: () {
-                    final email = _forgotEmailController.text.trim();
-                    if (email.isEmpty || !email.contains('@')) {
-                      _showSnack("Inserisci un'email valida.");
-                      return;
-                    }
-                    context.read<AuthBloc>().add(
-                      AuthEvent.forgotPasswordRequested(email: email),
-                    );
-                    Navigator.of(ctx).pop();
-                    _showSnack('Email di recupero inviata a $email');
-                  },
-                  style: FilledButton.styleFrom(
-                    backgroundColor: theme.colorScheme.primary,
-                    foregroundColor: theme.colorScheme.onPrimary,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  ),
-                  child: const Text(
-                    'INVIA LINK DI RECUPERO',
-                    style: TextStyle(
-                      fontFamily: 'Lexend',
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+  void _showForgotPassword() {
+    unawaited(
+      showForgotPasswordSheet(context, initialEmail: _emailController.text),
     );
   }
 
@@ -317,247 +209,36 @@ class _LoginScreenState extends State<LoginScreen>
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'Bentornato',
-                                            style: theme.textTheme.headlineLarge
-                                                ?.copyWith(
-                                                  fontWeight: FontWeight.w900,
-                                                  letterSpacing: -0.5,
-                                                  fontSize: 32,
-                                                ),
-                                          ),
-                                          const SizedBox(height: 4),
-                                          Text(
-                                            'ACCEDI AL TUO ACCOUNT',
-                                            style: theme.textTheme.labelSmall
-                                                ?.copyWith(
-                                                  letterSpacing: 2,
-                                                  color: theme
-                                                      .colorScheme
-                                                      .primary
-                                                      .withValues(alpha: 0.7),
-                                                ),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(width: 16),
-                                      Hero(
-                                        tag: 'app_logo',
-                                        child: Container(
-                                          padding: const EdgeInsets.all(8),
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            color: theme.colorScheme.primary
-                                                .withValues(alpha: 0.05),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: theme.colorScheme.primary
-                                                    .withValues(alpha: 0.15),
-                                                blurRadius: 20,
-                                                spreadRadius: 2,
-                                              ),
-                                            ],
-                                          ),
-                                          child: ShaderMask(
-                                            shaderCallback: (bounds) =>
-                                                LinearGradient(
-                                                  colors: [
-                                                    theme.colorScheme.primary,
-                                                    theme.colorScheme.tertiary,
-                                                  ],
-                                                ).createShader(bounds),
-                                            child: ClipOval(
-                                              child: Image.asset(
-                                                'assets/images/logo.png',
-                                                width: 56,
-                                                height: 56,
-                                                color: Colors.white,
-                                                colorBlendMode:
-                                                    BlendMode.modulate,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
+                                  const AuthHeader(
+                                    title: 'Bentornato',
+                                    subtitle: 'ACCEDI AL TUO ACCOUNT',
                                   ),
                                   const SizedBox(height: 36),
                                   // Glass card
-                                  GlassCard(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        _buildLabel(theme, 'Email'),
-                                        const SizedBox(height: 8),
-                                        AuthTextField(
-                                          controller: _emailController,
-                                          hint: 'nome@esempio.com',
-                                          icon: Icons.email_outlined,
-                                          keyboardType:
-                                              TextInputType.emailAddress,
-                                          autofill: const [AutofillHints.email],
-                                          action: TextInputAction.next,
-                                        ),
-                                        const SizedBox(height: 22),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            _buildLabel(theme, 'Password'),
-                                            GestureDetector(
-                                              onTap: _showForgotPasswordSheet,
-                                              child: Text(
-                                                'Password dimenticata?',
-                                                style: theme
-                                                    .textTheme
-                                                    .labelSmall
-                                                    ?.copyWith(
-                                                      color: theme
-                                                          .colorScheme
-                                                          .primary,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                    ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(height: 8),
-                                        AuthTextField(
-                                          controller: _passwordController,
-                                          hint: 'password',
-                                          icon: Icons.lock_outline_rounded,
-                                          obscure: _obscurePassword,
-                                          autofill: const [
-                                            AutofillHints.password,
-                                          ],
-                                          action: TextInputAction.done,
-                                          onSubmitted: (_) => _onLoginPressed(),
-                                          suffixIcon: IconButton(
-                                            icon: Icon(
-                                              _obscurePassword
-                                                  ? Icons.visibility_off_rounded
-                                                  : Icons.visibility_rounded,
-                                              size: 20,
-                                              color: theme.colorScheme.outline,
-                                            ),
-                                            onPressed: () => setState(
-                                              () => _obscurePassword =
-                                                  !_obscurePassword,
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(height: 28),
-                                        AuthPrimaryButton(
-                                          label: 'ACCEDI',
-                                          isLoading: isLoading,
-                                          onPressed: _onLoginPressed,
-                                        ),
-                                        const SizedBox(height: 28),
-                                        _buildDivider(
-                                          theme,
-                                          'OPPURE CONTINUA CON',
-                                        ),
-                                        const SizedBox(height: 20),
-                                        AuthSocialButton(
-                                          label: 'Accedi con Google',
-                                          logo: const GoogleLogo(size: 20),
-                                          onTap: _onGooglePressed,
-                                        ),
-                                        const SizedBox(height: 12),
-                                        Text(
-                                          'Primo accesso? Se non hai ancora un account, usa "Registrati" qui sotto.',
-                                          style: theme.textTheme.bodySmall
-                                              ?.copyWith(
-                                                color: theme
-                                                    .colorScheme
-                                                    .onSurfaceVariant,
-                                                height: 1.35,
-                                              ),
-                                        ),
-                                        if (_showBiometricButton) ...[
-                                          const SizedBox(height: 24),
-                                          Center(
-                                            child: Column(
-                                              children: [
-                                                IconButton.filledTonal(
-                                                  onPressed: isLoading
-                                                      ? null
-                                                      : _onBiometricLogin,
-                                                  icon: const Icon(
-                                                    Icons.fingerprint,
-                                                    size: 30,
-                                                  ),
-                                                  padding: const EdgeInsets.all(
-                                                    14,
-                                                  ),
-                                                  style: IconButton.styleFrom(
-                                                    backgroundColor: theme
-                                                        .colorScheme
-                                                        .primary
-                                                        .withValues(alpha: 0.1),
-                                                    foregroundColor: theme
-                                                        .colorScheme
-                                                        .primary,
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 6),
-                                                Text(
-                                                  'Accedi con Biometria',
-                                                  style: theme
-                                                      .textTheme
-                                                      .labelSmall
-                                                      ?.copyWith(
-                                                        color: theme
-                                                            .colorScheme
-                                                            .primary,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                      ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ],
+                                  LoginCard(
+                                    emailController: _emailController,
+                                    passwordController: _passwordController,
+                                    obscurePassword: _obscurePassword,
+                                    isLoading: isLoading,
+                                    showsAppleSignIn: _showsAppleSignIn,
+                                    showsBiometricButton: _showBiometricButton,
+                                    onToggleObscure: () => setState(
+                                      () =>
+                                          _obscurePassword = !_obscurePassword,
                                     ),
+                                    onLogin: _onLoginPressed,
+                                    onForgotPassword: _showForgotPassword,
+                                    onGoogle: () =>
+                                        unawaited(_onGooglePressed()),
+                                    onApple: () => unawaited(_onApplePressed()),
+                                    onBiometric: () =>
+                                        unawaited(_onBiometricLogin()),
                                   ),
                                   const SizedBox(height: 28),
-                                  Center(
-                                    child: GestureDetector(
-                                      onTap: () => context.push('/signup'),
-                                      child: RichText(
-                                        text: TextSpan(
-                                          style: theme.textTheme.bodyMedium
-                                              ?.copyWith(
-                                                color: theme
-                                                    .colorScheme
-                                                    .onSurfaceVariant,
-                                              ),
-                                          children: [
-                                            const TextSpan(
-                                              text: 'Non hai un account? ',
-                                            ),
-                                            TextSpan(
-                                              text: 'Registrati',
-                                              style: TextStyle(
-                                                color:
-                                                    theme.colorScheme.tertiary,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
+                                  AuthFooterPrompt(
+                                    question: 'Non hai un account? ',
+                                    action: 'Registrati',
+                                    onTap: () => context.push('/signup'),
                                   ),
                                 ],
                               ),
@@ -573,43 +254,6 @@ class _LoginScreenState extends State<LoginScreen>
           );
         },
       ),
-    );
-  }
-
-  Widget _buildLabel(ThemeData theme, String text) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 4),
-      child: Text(
-        text.toUpperCase(),
-        style: theme.textTheme.labelSmall?.copyWith(
-          color: theme.colorScheme.onSurfaceVariant,
-          fontWeight: FontWeight.bold,
-          letterSpacing: 1.5,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDivider(ThemeData theme, String text) {
-    return Row(
-      children: [
-        Expanded(
-          child: Container(
-            height: 1,
-            color: theme.colorScheme.outlineVariant.withValues(alpha: 0.15),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14),
-          child: Text(text, style: theme.textTheme.labelSmall),
-        ),
-        Expanded(
-          child: Container(
-            height: 1,
-            color: theme.colorScheme.outlineVariant.withValues(alpha: 0.15),
-          ),
-        ),
-      ],
     );
   }
 }

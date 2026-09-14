@@ -1,11 +1,17 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
+import 'package:gym_corpus/core/widgets/confirm_dialog.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
+import 'package:gym_corpus/core/widgets/icon_badge.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
+import 'package:gym_corpus/features/training/presentation/widgets/routine_card.dart';
 
 class CustomWorkoutsScreen extends StatefulWidget {
   const CustomWorkoutsScreen({super.key});
@@ -35,7 +41,12 @@ class _CustomWorkoutsScreenState extends State<CustomWorkoutsScreen> {
             }
 
             if (state is TrainingLoaded) {
-              final routines = state.routines;
+              final systemRoutines = state.routines
+                  .where((r) => r.isSystem)
+                  .toList();
+              final routines = state.routines
+                  .where((r) => !r.isSystem)
+                  .toList();
 
               return SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(
@@ -141,6 +152,36 @@ class _CustomWorkoutsScreenState extends State<CustomWorkoutsScreen> {
                     ),
                     const SizedBox(height: 32),
 
+                    // Routine consigliate (di sistema): uguali per tutti,
+                    // avviabili subito, copiabili ma non modificabili.
+                    if (systemRoutines.isNotEmpty) ...[
+                      Text(
+                        'Routine consigliate',
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w900,
+                          fontFamily: 'Lexend',
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      ListView.separated(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: systemRoutines.length,
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(height: 16),
+                        itemBuilder: (context, index) {
+                          final routine = systemRoutines[index];
+                          return _SystemRoutineCard(
+                            routine: routine,
+                            color: index.isEven
+                                ? theme.colorScheme.primary
+                                : theme.colorScheme.tertiary,
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 32),
+                    ],
+
                     // Workouts List
                     if (routines.isEmpty)
                       Center(
@@ -152,19 +193,10 @@ class _CustomWorkoutsScreenState extends State<CustomWorkoutsScreen> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Container(
-                                padding: const EdgeInsets.all(24),
-                                decoration: BoxDecoration(
-                                  color: theme.colorScheme.surfaceContainerHigh,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Icon(
-                                  Icons.edit_document,
-                                  size: 48,
-                                  color: theme.colorScheme.outline.withValues(
-                                    alpha: 0.5,
-                                  ),
-                                ),
+                              const IconBadge(
+                                Icons.edit_document,
+                                size: IconBadgeSize.large,
+                                circle: true,
                               ),
                               const SizedBox(height: 24),
                               Text(
@@ -278,245 +310,138 @@ class _WorkoutCard extends StatelessWidget {
   final RoutineEntity routine;
   final Color color;
 
-  void _showDeleteDialog(BuildContext context) {
-    final theme = Theme.of(context);
-    showDialog<void>(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: theme.colorScheme.surface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: Text(
-          'Elimina workout?',
-          style: theme.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        content: Text(
-          'Sei sicuro di voler eliminare "${routine.title}"? Questa azione non può essere annullata.',
-          style: theme.textTheme.bodyMedium,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              'ANNULLA',
-              style: TextStyle(color: theme.colorScheme.outline),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              context.read<TrainingBloc>().add(DeleteRoutineEvent(routine.id));
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  backgroundColor: Colors.transparent,
-                  elevation: 0,
-                  behavior: SnackBarBehavior.floating,
-                  content: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.error,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: theme.colorScheme.error.withValues(alpha: 0.3),
-                          blurRadius: 15,
-                          offset: const Offset(0, 5),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.delete_forever_rounded,
-                          color: Colors.white,
-                          size: 24,
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            'Workout "${routine.title}" eliminata',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w900,
-                              fontFamily: 'Lexend',
-                              fontSize: 13,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: theme.colorScheme.error,
-              foregroundColor: theme.colorScheme.onError,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            child: const Text('ELIMINA'),
-          ),
-        ],
-      ),
+  Future<void> _showDeleteDialog(BuildContext context) async {
+    final bloc = context.read<TrainingBloc>();
+    final confirmed = await ConfirmDialog.ask(
+      context,
+      title: 'Elimina workout?',
+      message:
+          'Sei sicuro di voler eliminare "${routine.title}"? '
+          'Questa azione non può essere annullata.',
+    );
+
+    if (!confirmed || !context.mounted) return;
+
+    bloc.add(DeleteRoutineEvent(routine.id));
+    AppSnackBar.show(
+      context,
+      'Workout "${routine.title}" eliminata',
+      tone: AppSnackBarTone.error,
+      icon: Icons.delete_forever_rounded,
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Container(
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.6),
-            theme.colorScheme.surfaceContainer.withValues(alpha: 0.4),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: color.withValues(alpha: 0.15), width: 1.5),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () => context.push('/custom/detail', extra: routine),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
+
+    return RoutineCardShell(
+      accent: color,
+      onTap: () => context.push('/custom/detail', extra: routine),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                RoutineCardTitle(routine.title),
+                const SizedBox(height: 16),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            routine.title,
-                            style: theme.textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.w900,
-                              fontFamily: 'Lexend',
-                              fontSize: 18,
-                              color: theme.colorScheme.onSurface,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 16),
-                          Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 6,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: color.withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Icons.fitness_center_rounded,
-                                      size: 14,
-                                      color: color,
-                                    ),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      '${routine.exercises.length} ESERCIZI',
-                                      style: theme.textTheme.labelSmall
-                                          ?.copyWith(
-                                            color: color,
-                                            fontWeight: FontWeight.w900,
-                                            letterSpacing: 0.5,
-                                            fontSize: 9,
-                                            fontFamily: 'Lexend',
-                                          ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 6,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: theme.colorScheme.tertiary.withValues(
-                                    alpha: 0.1,
-                                  ),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Icons.timer_outlined,
-                                      size: 14,
-                                      color: theme.colorScheme.tertiary,
-                                    ),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      '${routine.estimatedDuration ?? "--"} MIN',
-                                      style: theme.textTheme.labelSmall
-                                          ?.copyWith(
-                                            color: theme.colorScheme.tertiary,
-                                            fontWeight: FontWeight.w900,
-                                            letterSpacing: 0.5,
-                                            fontSize: 9,
-                                            fontFamily: 'Lexend',
-                                          ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+                    RoutineTagChip(
+                      label: '${routine.exercises.length} ESERCIZI',
+                      color: color,
+                      icon: Icons.fitness_center_rounded,
                     ),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        _ActionButton(
-                          icon: Icons.edit_rounded,
-                          color: theme.colorScheme.primary,
-                          onTap: () =>
-                              context.push('/custom/edit', extra: routine),
-                        ),
-                        const SizedBox(width: 8),
-                        _ActionButton(
-                          icon: Icons.delete_rounded,
-                          color: Colors.redAccent,
-                          onTap: () => _showDeleteDialog(context),
-                        ),
-                      ],
+                    const SizedBox(width: 8),
+                    RoutineTagChip(
+                      label: '${routine.estimatedDuration ?? "--"} MIN',
+                      color: theme.colorScheme.tertiary,
+                      icon: Icons.timer_outlined,
                     ),
                   ],
                 ),
               ],
             ),
           ),
-        ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _ActionButton(
+                icon: Icons.edit_rounded,
+                color: theme.colorScheme.primary,
+                onTap: () => context.push('/custom/edit', extra: routine),
+              ),
+              const SizedBox(width: 8),
+              _ActionButton(
+                icon: Icons.delete_rounded,
+                color: Colors.redAccent,
+                onTap: () => unawaited(_showDeleteDialog(context)),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SystemRoutineCard extends StatelessWidget {
+  const _SystemRoutineCard({required this.routine, required this.color});
+
+  final RoutineEntity routine;
+  final Color color;
+
+  void _copyRoutine(BuildContext context) {
+    context.read<TrainingBloc>().add(CopyRoutineEvent(routine.id));
+    AppSnackBar.showSuccess(context, 'Routine copiata in "I tuoi workout"');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return RoutineCardShell(
+      accent: color,
+      onTap: () => context.push('/custom/detail', extra: routine),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                RoutineTagChip(
+                  label: 'CONSIGLIATA',
+                  color: theme.colorScheme.onSecondaryContainer,
+                  background: theme.colorScheme.secondaryContainer.withValues(
+                    alpha: 0.5,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                RoutineCardTitle(routine.title),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    RoutineTagChip(
+                      label: '${routine.exercises.length} ESERCIZI',
+                      color: color,
+                      icon: Icons.fitness_center_rounded,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+          _ActionButton(
+            icon: Icons.content_copy_rounded,
+            color: theme.colorScheme.primary,
+            onTap: () => _copyRoutine(context),
+          ),
+        ],
       ),
     );
   }
@@ -536,13 +461,11 @@ class _ActionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
-          shape: BoxShape.circle,
-        ),
-        child: Icon(icon, size: 18, color: color),
+      child: IconBadge(
+        icon,
+        color: color,
+        size: IconBadgeSize.small,
+        circle: true,
       ),
     );
   }

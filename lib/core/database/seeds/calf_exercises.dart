@@ -5,6 +5,7 @@ import 'package:gym_corpus/core/database/database.dart';
 const calfExercises = [
   ExercisesCompanion(
     name: Value('Calf Raises in piedi (Alla macchina)'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Polpacci'),
     equipment: Value('Macchina (Standing Calf Raise)'),
     focusArea: Value('Gastrocnemio (gemelli)'),
@@ -20,6 +21,7 @@ const calfExercises = [
   ),
   ExercisesCompanion(
     name: Value('Calf Raises in piedi (Con bilanciere)'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Polpacci'),
     equipment: Value('Bilanciere, Rialzo (step o disco robusto)'),
     focusArea: Value('Gastrocnemio, Stabilizzatori (Core, Caviglie)'),
@@ -30,16 +32,17 @@ const calfExercises = [
       "Mantenendo l'equilibrio e il core contratto, sollevarsi sulle punte dei piedi. Contrazione di picco. Scendere lentamente in allungamento.",
     ),
     tips: Value(
-      'Richiede molto equilibrio. È consigliabile eseguirlo dentro un rack per sicurezza. Iniziare with carichi bassi per padroneggiare il movemento.',
+      'Richiede molto equilibrio. È consigliabile eseguirlo dentro un rack per sicurezza. Iniziare con carichi bassi per padroneggiare il movemento.',
     ),
   ),
   ExercisesCompanion(
     name: Value('Calf Raises in piedi (Smith Machine)'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Polpacci'),
     equipment: Value('Smith Machine (Multipower), Rialzo'),
     focusArea: Value('Gastrocnemio'),
     preparation: Value(
-      'Posizionare la sbarra del Multipower sulla schiena. Posizionare un rialzo sotto i piedi e salirci with gli avampiedi.',
+      'Posizionare la sbarra del Multipower sulla schiena. Posizionare un rialzo sotto i piedi e salirci con gli avampiedi.',
     ),
     execution: Value(
       'Eseguire il calf raise sollevandosi sulle punte. Contrazione. Scendere lentamente in stretch.',
@@ -50,11 +53,12 @@ const calfExercises = [
   ),
   ExercisesCompanion(
     name: Value('Calf Raises in piedi (Manubrio)'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Polpacci'),
     equipment: Value('Manubrio, Rialzo, Supporto (per equilibrio)'),
     focusArea: Value('Gastrocnemio (lavoro unilaterale)'),
     preparation: Value(
-      "Tenere un manubrio in una mano (es. destra). Appoggiare l'avampiede della stessa gamba (destra) su un rialzo. Tenersi with l'altra mano (sinistra) a un supporto per l'equilibrio. L'altra gamba (sinistra) è piegata e sollevata.",
+      "Tenere un manubrio in una mano (es. destra). Appoggiare l'avampiede della stessa gamba (destra) su un rialzo. Tenersi con l'altra mano (sinistra) a un supporto per l'equilibrio. L'altra gamba (sinistra) è piegata e sollevata.",
     ),
     execution: Value(
       'Sollevare il tallone (destro) il più in alto possibile, contraendo il polpaccio. Scendere lentamente in massimo allungamento.',
@@ -65,6 +69,7 @@ const calfExercises = [
   ),
   ExercisesCompanion(
     name: Value('Calf Raises seduto (Macchina)'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Polpacci'),
     equipment: Value('Macchina (Seated Calf Raise)'),
     focusArea: Value('Soleo'),
@@ -72,7 +77,7 @@ const calfExercises = [
       'Sedersi alla macchina specifica. Posizionare le ginocchia sotto i cuscinetti imbottiti. Avampiedi sulla piattaforma, talloni liberi.',
     ),
     execution: Value(
-      'Spingere with le punte sollevando i talloni, contraendo il polpaccio. Mantenere la contrazione. Scendere lentamente in allungamento.',
+      'Spingere con le punte sollevando i talloni, contraendo il polpaccio. Mantenere la contrazione. Scendere lentamente in allungamento.',
     ),
     tips: Value(
       'Tenere le ginocchia piegate a 90° esclude gran parte del gastrocnemio (che è bi-articolare) e isola il lavoro sul soleo, un muscolo importante per lo "spessore" del polpaccio.',
@@ -80,6 +85,7 @@ const calfExercises = [
   ),
   ExercisesCompanion(
     name: Value('Calf Raises alla Pressa 45°'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Polpacci'),
     equipment: Value('Leg Press (Pressa a 45°)'),
     focusArea: Value('Gastrocnemio, Soleo'),
@@ -87,14 +93,15 @@ const calfExercises = [
       'Sedersi alla pressa. Posizionare solo gli avampiedi sulla parte bassa della piattaforma, talloni liberi. Spingere per stendere le gambe (NON bloccare le ginocchia!).',
     ),
     execution: Value(
-      "Mantenendo le gambe quasi tese, spingere la piattaforma with le punte (flessione plantare). Contrazione. Rilasciare lentamente (flessione dorsale) per l'allungamento.",
+      "Mantenendo le gambe quasi tese, spingere la piattaforma con le punte (flessione plantare). Contrazione. Rilasciare lentamente (flessione dorsale) per l'allungamento.",
     ),
     tips: Value(
       'ATTENZIONE: Non bloccare mai le ginocchia (rischio infortunio). Questo esercizio permette di usare carichi molto elevati in sicurezza.',
     ),
   ),
   ExercisesCompanion(
-    name: Value('Calf Raises su scalino, 2 gambe)'),
+    name: Value('Calf Raises su scalino (2 gambe)'),
+    difficulty: Value('Principiante'),
     targetMuscle: Value('Polpacci'),
     equipment: Value('Scalino (o rialzo), Corpo libero'),
     isBodyweight: Value(true),
@@ -110,7 +117,8 @@ const calfExercises = [
     ),
   ),
   ExercisesCompanion(
-    name: Value('Calf Raises su scalino, 1 gamba)'),
+    name: Value('Calf Raises su scalino (1 gamba)'),
+    difficulty: Value('Intermedio'),
     targetMuscle: Value('Polpacci'),
     equipment: Value('Scalino (o rialzo), Corpo libero'),
     isBodyweight: Value(true),
@@ -127,6 +135,7 @@ const calfExercises = [
   ),
   ExercisesCompanion(
     name: Value('Salti su box pliometrici'),
+    difficulty: Value('Avanzato'),
     targetMuscle: Value('Polpacci'),
     equipment: Value('Box pliometrico (Plywood box)'),
     focusArea: Value('Polpacci (potenza esplosiva), Quadricipiti, Glutei'),

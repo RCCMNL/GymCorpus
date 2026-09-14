@@ -3,6 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/service_locator.dart' as di;
 import 'package:gym_corpus/core/services/health_service.dart';
+import 'package:gym_corpus/core/widgets/app_card.dart';
+import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
+import 'package:gym_corpus/core/widgets/icon_badge.dart';
+import 'package:gym_corpus/core/widgets/labels.dart';
 
 /// Card riepilogo attività giornaliera con passi, km, tempo, kcal
 /// e grafico a barre settimanale.
@@ -46,13 +50,9 @@ class _DailyStepsSectionState extends State<DailyStepsSection> {
               _isLoading = false;
               _permissionDenied = true;
             });
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text(
-                  'Permessi salute necessari per visualizzare i passi.',
-                ),
-                backgroundColor: Colors.orange,
-              ),
+            AppSnackBar.showWarning(
+              context,
+              'Permessi salute necessari per visualizzare i passi.',
             );
           }
           return;
@@ -77,12 +77,7 @@ class _DailyStepsSectionState extends State<DailyStepsSection> {
           _isLoading = false;
           _permissionDenied = true;
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Errore: $e'),
-            backgroundColor: Colors.redAccent,
-          ),
-        );
+        AppSnackBar.showError(context, 'Errore: $e');
       }
     }
   }
@@ -113,13 +108,9 @@ class _DailyStepsSectionState extends State<DailyStepsSection> {
               ),
             ),
             const SizedBox(width: 12),
-            Text(
+            const SectionTitle(
               'ATTIVITÀ GIORNALIERA',
-              style: theme.textTheme.labelSmall?.copyWith(
-                fontWeight: FontWeight.w900,
-                letterSpacing: 2,
-                fontSize: 11,
-              ),
+              tone: SectionTitleTone.muted,
             ),
             const Spacer(),
             if (!_isLoading && !_permissionDenied)
@@ -148,16 +139,9 @@ class _DailyStepsSectionState extends State<DailyStepsSection> {
   }
 
   Widget _buildLoadingState(ThemeData theme) {
-    return Container(
+    return AppCard(
       width: double.infinity,
       padding: const EdgeInsets.all(40),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: theme.colorScheme.outline.withValues(alpha: 0.08),
-        ),
-      ),
       child: Column(
         children: [
           SizedBox(
@@ -202,17 +186,9 @@ class _DailyStepsSectionState extends State<DailyStepsSection> {
         ),
         child: Row(
           children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.greenAccent.shade400.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Icon(
-                Icons.directions_walk_rounded,
-                color: Colors.greenAccent.shade400,
-                size: 28,
-              ),
+            IconBadge(
+              Icons.directions_walk_rounded,
+              color: Colors.greenAccent.shade400,
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -259,16 +235,9 @@ class _DailyStepsSectionState extends State<DailyStepsSection> {
     return GestureDetector(
       onTap: () => context.push('/analytics/daily-activity'),
       behavior: HitTestBehavior.opaque,
-      child: Container(
+      child: AppCard(
         width: double.infinity,
         padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: theme.colorScheme.surfaceContainerHigh,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(
-            color: theme.colorScheme.outline.withValues(alpha: 0.08),
-          ),
-        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

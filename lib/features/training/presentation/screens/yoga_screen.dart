@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/widgets/app_card.dart';
+import 'package:gym_corpus/core/widgets/gradient_title.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
-import 'package:gym_corpus/core/widgets/section_title.dart';
+import 'package:gym_corpus/core/widgets/icon_badge.dart';
+import 'package:gym_corpus/core/widgets/labels.dart';
 
 class YogaScreen extends StatelessWidget {
   const YogaScreen({super.key});
@@ -20,10 +23,10 @@ class YogaScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.tertiary.withValues(alpha: 0.1),
+                  color: theme.colorScheme.tertiary.tintedFill,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: theme.colorScheme.tertiary.withValues(alpha: 0.2),
+                    color: theme.colorScheme.tertiary.tintedBorder,
                   ),
                 ),
                 child: Row(
@@ -47,23 +50,7 @@ class YogaScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 32),
-              ShaderMask(
-                shaderCallback: (bounds) => LinearGradient(
-                  colors: [
-                    theme.colorScheme.primary,
-                    theme.colorScheme.tertiary,
-                  ],
-                ).createShader(bounds),
-                child: Text(
-                  'Yoga & Mind',
-                  style: theme.textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.w900,
-                    fontFamily: 'Lexend',
-                    color: Colors.white,
-                    fontSize: 28,
-                  ),
-                ),
-              ),
+              const GradientTitle('Yoga & Mind'),
               const SizedBox(height: 8),
               Text(
                 'EQUILIBRIO E CONSAPEVOLEZZA',
@@ -111,15 +98,17 @@ class YogaScreen extends StatelessWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: const NetworkImage(
-                      'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&q=80&w=600',
-                    ),
-                    fit: BoxFit.cover,
-                    colorFilter: ColorFilter.mode(
-                      Colors.black.withValues(alpha: 0.6),
-                      BlendMode.darken,
-                    ),
+                  // Sfondo disegnato invece di una foto scaricata da un
+                  // servizio esterno: nessuna chiamata di rete silenziosa, e
+                  // niente card rotta se quell'indirizzo cambia.
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      theme.colorScheme.primary,
+                      theme.colorScheme.tertiary,
+                      theme.colorScheme.surfaceContainerHighest,
+                    ],
                   ),
                   borderRadius: BorderRadius.circular(28),
                   boxShadow: [
@@ -170,20 +159,37 @@ class YogaScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    ElevatedButton.icon(
-                      onPressed: () {},
-                      icon: const Icon(Icons.play_arrow),
-                      label: const Text('Inizia Sessione'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: Colors.black,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 12,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
+                    // Nessun pulsante di avvio: le sessioni guidate non
+                    // esistono ancora, e un tasto che non fa niente sembra
+                    // un difetto dell'app invece di una funzione in arrivo.
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.tintedFill,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.white.tintedBorder),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.schedule_rounded,
+                            size: 16,
+                            color: Colors.white,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Le sessioni guidate non sono ancora disponibili',
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.9),
+                              fontWeight: FontWeight.w700,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
@@ -231,23 +237,13 @@ class YogaScreen extends StatelessWidget {
     IconData icon,
     Color iconColor,
   ) {
-    return Container(
+    return AppCard(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(20),
-      ),
+      tone: AppCardTone.sunken,
       child: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: iconColor.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, color: iconColor),
-          ),
+          IconBadge(icon, color: iconColor, circle: true),
           const SizedBox(width: 16),
           Expanded(
             child: Column(

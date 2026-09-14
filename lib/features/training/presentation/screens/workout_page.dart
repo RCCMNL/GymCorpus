@@ -3,11 +3,13 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-
-import 'package:gym_corpus/core/utils/unit_converter.dart';
+import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
+import 'package:gym_corpus/core/widgets/icon_badge.dart';
+import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
+import 'package:gym_corpus/features/training/domain/services/routine_draft.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
@@ -51,181 +53,59 @@ class _WorkoutPageState extends State<WorkoutPage> {
   }
 
   void _saveRoutine() {
-    var routineName = _nameController.text.trim();
-    if (routineName.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          elevation: 0,
-          backgroundColor: Colors.transparent,
-          behavior: SnackBarBehavior.floating,
-          content: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Colors.orangeAccent, Colors.deepOrange],
-              ),
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.orangeAccent.withValues(alpha: 0.3),
-                  blurRadius: 15,
-                  offset: const Offset(0, 5),
-                ),
-              ],
-            ),
-            child: const Row(
-              children: [
-                Icon(
-                  Icons.warning_amber_rounded,
-                  color: Colors.white,
-                  size: 24,
-                ),
-                SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    'Inserisci il nome del tuo workout',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w900,
-                      fontFamily: 'Lexend',
-                      fontSize: 13,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-      return;
-    }
-
-    if (routineName.isNotEmpty) {
-      routineName = routineName[0].toUpperCase() + routineName.substring(1);
-    }
-
-    if (_selectedExercises.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          elevation: 0,
-          backgroundColor: Colors.transparent,
-          behavior: SnackBarBehavior.floating,
-          content: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Colors.orangeAccent, Colors.deepOrange],
-              ),
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.orangeAccent.withValues(alpha: 0.3),
-                  blurRadius: 15,
-                  offset: const Offset(0, 5),
-                ),
-              ],
-            ),
-            child: const Row(
-              children: [
-                Icon(
-                  Icons.fitness_center_rounded,
-                  color: Colors.white,
-                  size: 24,
-                ),
-                SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    'Aggiungi almeno un esercizio',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w900,
-                      fontFamily: 'Lexend',
-                      fontSize: 13,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-      return;
-    }
-
     final trainingState = context.read<TrainingBloc>().state;
     final settings = trainingState is TrainingLoaded
         ? trainingState.settings
         : <String, String>{};
-    final isImperial = (settings['units'] ?? 'KG') == 'LB';
 
-    // Se siamo in imperiale, riconvertiamo tutto in KG per il database
-    final exercisesToSave = _selectedExercises.map((re) {
-      if (re.exercise.isBodyweight) {
-        var setsList = <dynamic>[];
-        try {
-          setsList = jsonDecode(re.setsData!) as List<dynamic>;
-        } catch (e) {
-          // setsData corrotto: si ricade sui valori di default della routine
-          // invece di bloccare il salvataggio, ma l'anomalia va tracciata.
-          debugPrint(
-            'WorkoutPage: setsData non valido per '
-            '${re.exercise.name} (id ${re.exercise.id}): $e',
-          );
-          setsList = const [];
-        }
+    final draft = RoutineDraft(
+      name: _nameController.text,
+      exercises: _selectedExercises,
+      useImperialUnits: (settings['units'] ?? 'KG') == 'LB',
+    );
 
-        final sanitizedSets = setsList.isEmpty
-            ? const [
-                {'weight': 0, 'reps': 0},
-              ]
-            : setsList.map((dynamic s) {
-                final map = s as Map<String, dynamic>;
-                return {'weight': 0, 'reps': map['reps'] as int? ?? 0};
-              }).toList();
-
-        return re.copyWith(weight: 0, setsData: jsonEncode(sanitizedSets));
-      }
-
-      if (!isImperial) return re;
-
-      var setsList = <dynamic>[];
-      try {
-        setsList = jsonDecode(re.setsData!) as List<dynamic>;
-        final convertedSets = setsList.map((dynamic s) {
-          final map = s as Map<String, dynamic>;
-          final w = (map['weight'] as num).toDouble();
-          return {
-            'weight': UnitConverter.lbToKg(w),
-            'reps': map['reps'] as int,
-          };
-        }).toList();
-
-        return re.copyWith(
-          weight: UnitConverter.lbToKg(re.weight),
-          setsData: jsonEncode(convertedSets),
-        );
-      } catch (e) {
-        debugPrint('WorkoutPage _saveRoutine sets conversion error: $e');
-        return re;
-      }
-    }).toList();
-
-    if (widget.routineToEdit != null) {
-      context.read<TrainingBloc>().add(
-        UpdateRoutineEvent(
-          id: widget.routineToEdit!.id,
-          title: routineName,
-          exercises: exercisesToSave,
-          estDuration: widget.routineToEdit!.estimatedDuration,
-        ),
-      );
-    } else {
-      context.read<TrainingBloc>().add(
-        AddRoutineEvent(title: routineName, exercises: exercisesToSave),
-      );
+    final problem = draft.problem;
+    if (problem != null) {
+      _showDraftProblem(problem);
+      return;
     }
 
+    final routineToEdit = widget.routineToEdit;
+    context.read<TrainingBloc>().add(
+      routineToEdit != null
+          ? UpdateRoutineEvent(
+              id: routineToEdit.id,
+              title: draft.normalizedName,
+              exercises: draft.exercisesToSave(),
+              estDuration: routineToEdit.estimatedDuration,
+            )
+          : AddRoutineEvent(
+              title: draft.normalizedName,
+              exercises: draft.exercisesToSave(),
+            ),
+    );
+
     context.pop();
+  }
+
+  void _showDraftProblem(RoutineDraftProblem problem) {
+    final (message, icon) = switch (problem) {
+      RoutineDraftProblem.missingName => (
+        'Inserisci il nome del tuo workout',
+        Icons.warning_amber_rounded,
+      ),
+      RoutineDraftProblem.noExercises => (
+        'Aggiungi almeno un esercizio',
+        Icons.fitness_center_rounded,
+      ),
+    };
+
+    AppSnackBar.show(
+      context,
+      message,
+      tone: AppSnackBarTone.warning,
+      icon: icon,
+    );
   }
 
   @override
@@ -309,6 +189,8 @@ class _WorkoutPageState extends State<WorkoutPage> {
                               alpha: 0.4,
                             ),
                           ),
+                          // Il riempimento lo disegna il Container che avvolge il campo.
+                          filled: false,
                           border: InputBorder.none,
                           contentPadding: EdgeInsets.zero,
                           icon: Icon(
@@ -329,14 +211,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              'PIANO ESERCIZI',
-                              style: theme.textTheme.labelSmall?.copyWith(
-                                letterSpacing: 1.2,
-                                fontWeight: FontWeight.w900,
-                                color: theme.colorScheme.primary,
-                              ),
-                            ),
+                            const SectionTitle('PIANO ESERCIZI'),
                             const SizedBox(height: 4),
                             Container(
                               padding: const EdgeInsets.symmetric(
@@ -414,19 +289,10 @@ class _WorkoutPageState extends State<WorkoutPage> {
                           padding: const EdgeInsets.symmetric(vertical: 40),
                           child: Column(
                             children: [
-                              Container(
-                                padding: const EdgeInsets.all(24),
-                                decoration: BoxDecoration(
-                                  color: theme.colorScheme.surfaceContainerHigh,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Icon(
-                                  Icons.fitness_center_rounded,
-                                  size: 48,
-                                  color: theme.colorScheme.outline.withValues(
-                                    alpha: 0.4,
-                                  ),
-                                ),
+                              const IconBadge(
+                                Icons.fitness_center_rounded,
+                                size: IconBadgeSize.large,
+                                circle: true,
                               ),
                               const SizedBox(height: 20),
                               Text(

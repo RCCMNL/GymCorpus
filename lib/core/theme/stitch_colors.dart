@@ -71,30 +71,34 @@ class StitchColors extends ThemeExtension<StitchColors> {
     );
   }
 
-  // Costanti statiche per inizializzazione comoda
+  // Costanti statiche per inizializzazione comoda. I valori rispecchiano
+  // la palette Stitch dichiarata in AppTheme: questa estensione viene
+  // registrata nel tema, quindi tenerla sui colori demo di Flutter
+  // significherebbe servire un viola/grigio estraneo al brand al primo
+  // widget che la legge.
   static const light = StitchColors(
-    primary: Color(0xFF6200EE),
-    secondary: Color(0xFF03DAC6),
-    background: Color(0xFFFFFFFF),
-    surface: Color(0xFFFFFFFF),
-    error: Color(0xFFB00020),
-    onPrimary: Color(0xFFFFFFFF),
-    onSecondary: Color(0xFF000000),
-    onBackground: Color(0xFF000000),
-    onSurface: Color(0xFF000000),
-    onError: Color(0xFFFFFFFF),
+    primary: Color(0xFF94AAFF),
+    secondary: Color(0xFF3367FF),
+    background: Color(0xFF08082F),
+    surface: Color(0xFF131342),
+    error: Color(0xFFFF8A80),
+    onPrimary: Color(0xFF00257B),
+    onSecondary: Color(0xFFFFFFFF),
+    onBackground: Color(0xFFE5E3FF),
+    onSurface: Color(0xFFE5E3FF),
+    onError: Color(0xFF3E0100),
   );
 
   static const dark = StitchColors(
-    primary: Color(0xFFBB86FC),
-    secondary: Color(0xFF03DAC6),
-    background: Color(0xFF121212),
-    surface: Color(0xFF121212),
-    error: Color(0xFFCF6679),
-    onPrimary: Color(0xFF000000),
-    onSecondary: Color(0xFF000000),
-    onBackground: Color(0xFFFFFFFF),
-    onSurface: Color(0xFFFFFFFF),
-    onError: Color(0xFF000000),
+    primary: Color(0xFF94AAFF),
+    secondary: Color(0xFF3367FF),
+    background: Color(0xFF08082F),
+    surface: Color(0xFF131342),
+    error: Color(0xFFFF8A80),
+    onPrimary: Color(0xFF00257B),
+    onSecondary: Color(0xFFFFFFFF),
+    onBackground: Color(0xFFE5E3FF),
+    onSurface: Color(0xFFE5E3FF),
+    onError: Color(0xFF3E0100),
   );
 }
