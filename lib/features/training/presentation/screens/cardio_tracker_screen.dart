@@ -10,6 +10,7 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/database/database.dart';
 import 'package:gym_corpus/core/services/health_service.dart';
+import 'package:gym_corpus/core/utils/pending_alarm.dart';
 import 'package:gym_corpus/core/utils/time_format.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
@@ -49,7 +50,8 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
   final HealthService _healthService = GetIt.I<HealthService>();
   final List<CardioRoutePoint> _route = [];
   StreamSubscription<Position>? _positionStream;
-  Timer? _timer;
+  /// Il battito al secondo della sessione: uno solo, sempre.
+  final PendingAlarm _tick = PendingAlarm();
   Timer? _countdownTimer;
   Timer? _bannerTimer;
 
@@ -336,7 +338,7 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
       }
     });
 
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) async {
+    _tick.schedulePeriodic(const Duration(seconds: 1), () async {
       if (_isPaused) return;
 
       // La pausa automatica si basa sulla velocita' GPS: al chiuso quella
@@ -549,7 +551,7 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
 
   Future<void> _stopAndSave() async {
     setState(() => _isSaving = true);
-    _timer?.cancel();
+    _tick.cancel();
     await _positionStream?.cancel();
 
     // Al chiuso la distanza non la misura nessun sensore: la si chiede una
@@ -625,7 +627,7 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
 
   @override
   void dispose() {
-    _timer?.cancel();
+    _tick.cancel();
     _countdownTimer?.cancel();
     _bannerTimer?.cancel();
     _positionStream?.cancel();
@@ -821,7 +823,7 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
           TextButton(
             onPressed: () {
               Navigator.pop(ctx);
-              _timer?.cancel();
+              _tick.cancel();
               _positionStream?.cancel();
 
               // Elimina la bozza se l'utente interrompe intenzionalmente

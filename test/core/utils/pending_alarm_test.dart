@@ -39,6 +39,27 @@ void main() {
     expect(fired, 0);
   });
 
+  test('un battito periodico continua a scattare', () async {
+    var ticks = 0;
+
+    alarm.schedulePeriodic(const Duration(milliseconds: 20), () => ticks++);
+    await Future<void>.delayed(const Duration(milliseconds: 150));
+
+    expect(ticks, greaterThan(1));
+  });
+
+  test('un nuovo battito sostituisce quello di prima', () async {
+    var primo = 0;
+    var secondo = 0;
+
+    alarm.schedulePeriodic(const Duration(milliseconds: 40), () => primo++);
+    alarm.schedulePeriodic(const Duration(milliseconds: 40), () => secondo++);
+    await Future<void>.delayed(const Duration(milliseconds: 150));
+
+    expect(primo, 0, reason: 'il primo battito non deve sopravvivere');
+    expect(secondo, greaterThan(0));
+  });
+
   test('sa se c e' ' qualcosa in sospeso', () {
     expect(alarm.isPending, isFalse);
 

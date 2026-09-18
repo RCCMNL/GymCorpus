@@ -16,6 +16,12 @@ class PendingAlarm {
     _timer = Timer(delay, onFire);
   }
 
+  /// Un battito che si ripete, con la stessa regola: uno solo per volta.
+  void schedulePeriodic(Duration period, void Function() onTick) {
+    _timer?.cancel();
+    _timer = Timer.periodic(period, (_) => onTick());
+  }
+
   void cancel() {
     _timer?.cancel();
     _timer = null;
