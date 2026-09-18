@@ -61,6 +61,9 @@ class CardioStatsPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    // Lo stesso colore che l'attivita' ha nel selettore e nello sfondo
+    // della sessione: qui erano tutte arancioni tranne la corsa.
+    final accent = activity.accent(theme);
 
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(top: Radius.circular(40)),
@@ -92,12 +95,7 @@ class CardioStatsPanel extends StatelessWidget {
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
-                        colors: activity == CardioActivity.run
-                            ? [
-                                theme.colorScheme.primary,
-                                theme.colorScheme.tertiary,
-                              ]
-                            : [Colors.orangeAccent, Colors.deepOrange],
+                        colors: [accent, accent.withValues(alpha: 0.6)],
                       ),
                       borderRadius: BorderRadius.circular(2),
                     ),
@@ -109,9 +107,7 @@ class CardioStatsPanel extends StatelessWidget {
                       fontWeight: FontWeight.w900,
                       letterSpacing: 2,
                       fontSize: 10,
-                      color: activity == CardioActivity.run
-                          ? theme.colorScheme.primary
-                          : Colors.orangeAccent,
+                      color: accent,
                     ),
                   ),
                 ],
@@ -168,9 +164,7 @@ class CardioStatsPanel extends StatelessWidget {
                   distanceKm: distanceKm,
                   elapsedSeconds: elapsedSeconds,
                   calories: _calories,
-                  accentColor: activity == CardioActivity.run
-                      ? theme.colorScheme.primary
-                      : Colors.orangeAccent,
+                  accentColor: accent,
                 ),
               ],
               const SizedBox(height: 28),
@@ -191,9 +185,7 @@ class CardioStatsPanel extends StatelessWidget {
                       ),
                     ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: activity == CardioActivity.run
-                          ? theme.colorScheme.primary
-                          : Colors.orangeAccent,
+                      backgroundColor: accent,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 18),
                       shape: RoundedRectangleBorder(
