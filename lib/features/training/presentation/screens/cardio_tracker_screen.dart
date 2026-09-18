@@ -59,6 +59,11 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
   /// ripeterebbe a ogni punto GPS ricevuto oltre il traguardo.
   int _announcedKm = 0;
   bool _goalAnnounced = false;
+
+  /// Secondo della sessione in cui e' arrivato l'ultimo punto GPS buono, e
+  /// quello dell'ultimo avviso di segnale assente.
+  int _lastFixSecond = 0;
+  int _lastFixWarningSecond = 0;
   String? _bannerTitle;
   String? _bannerSubtitle;
 
@@ -370,6 +375,7 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
         setState(() => _elapsedSeconds++);
       }
 
+      _warnIfNoFix();
       await _updateStepsIfDue();
       _saveDraftIfDue();
     });
@@ -435,6 +441,7 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
             return;
           }
 
+          _lastFixSecond = _elapsedSeconds;
           setState(() {
             _distanceMeters += metersFromPrevious ?? 0;
             _route.add(
@@ -451,6 +458,23 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
           _checkMilestones();
           _mapController.move(newPoint, 16);
         });
+  }
+
+  /// Avvisa se da troppo tempo non arriva una posizione utilizzabile.
+  ///
+  /// In citta', sotto gli alberi o col cielo coperto la precisione puo'
+  /// restare sopra la soglia per tutta la sessione: il cronometro gira, la
+  /// distanza resta a zero, e senza avviso lo si scopre alla fine.
+  void _warnIfNoFix() {
+    if (!CardioGpsFilter.shouldWarnStaleFix(
+      secondsSinceLastPoint: _elapsedSeconds - _lastFixSecond,
+      secondsSinceLastWarning: _elapsedSeconds - _lastFixWarningSecond,
+    )) {
+      return;
+    }
+
+    _lastFixWarningSecond = _elapsedSeconds;
+    _showBanner('Segnale GPS debole', 'La distanza non si sta aggiornando');
   }
 
   /// Aggiorna i passi ogni cinque secondi, se il conteggio e' disponibile.

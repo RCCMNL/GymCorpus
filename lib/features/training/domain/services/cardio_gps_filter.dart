@@ -26,6 +26,25 @@ abstract final class CardioGpsFilter {
     return metersFromPrevious > jumpLimitMeters;
   }
 
+  /// Dopo quanti secondi senza un punto valido conviene dirlo.
+  static const staleFixSeconds = 45;
+
+  /// Ogni quanto si puo' ripetere l'avviso, se il segnale non torna.
+  static const warningIntervalSeconds = 90;
+
+  /// Se avvisare adesso che la posizione non sta arrivando.
+  ///
+  /// Con la precisione sempre sopra la soglia nessun punto entra nel
+  /// percorso: il cronometro gira, la distanza resta a zero, e senza un
+  /// avviso te ne accorgi solo a sessione finita.
+  static bool shouldWarnStaleFix({
+    required int secondsSinceLastPoint,
+    required int secondsSinceLastWarning,
+  }) {
+    if (secondsSinceLastPoint < staleFixSeconds) return false;
+    return secondsSinceLastWarning >= warningIntervalSeconds;
+  }
+
   static GpsQuality qualityFor(double accuracyMeters) {
     if (accuracyMeters > 40) return GpsQuality.poor;
     if (accuracyMeters > accuracyLimitMeters) return GpsQuality.fair;

@@ -50,6 +50,50 @@ void main() {
     });
   });
 
+  group('CardioGpsFilter.shouldWarnStaleFix', () {
+    test('appena scartato qualche punto non si avvisa', () {
+      expect(
+        CardioGpsFilter.shouldWarnStaleFix(
+          secondsSinceLastPoint: 20,
+          secondsSinceLastWarning: 999,
+        ),
+        isFalse,
+      );
+    });
+
+    test('dopo troppo tempo senza un punto valido si avvisa', () {
+      // Con precisione sempre sopra la soglia il cronometro gira e la
+      // distanza resta a zero: senza un avviso te ne accorgi alla fine.
+      expect(
+        CardioGpsFilter.shouldWarnStaleFix(
+          secondsSinceLastPoint: 60,
+          secondsSinceLastWarning: 999,
+        ),
+        isTrue,
+      );
+    });
+
+    test('non si ripete l avviso appena dato', () {
+      expect(
+        CardioGpsFilter.shouldWarnStaleFix(
+          secondsSinceLastPoint: 60,
+          secondsSinceLastWarning: 10,
+        ),
+        isFalse,
+      );
+    });
+
+    test('se il segnale non torna, l avviso si ripete piu' ' tardi', () {
+      expect(
+        CardioGpsFilter.shouldWarnStaleFix(
+          secondsSinceLastPoint: 200,
+          secondsSinceLastWarning: 120,
+        ),
+        isTrue,
+      );
+    });
+  });
+
   group('CardioGpsFilter.qualityFor', () {
     test('sotto i 20 metri il segnale e buono', () {
       expect(CardioGpsFilter.qualityFor(10), GpsQuality.good);
