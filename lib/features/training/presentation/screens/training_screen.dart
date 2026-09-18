@@ -317,7 +317,9 @@ class _TrainingScreenState extends State<TrainingScreen>
         }
         if (_exercises.isEmpty) return const EmptyRoutineScreen();
         final ex = _curEx!;
-        final prog = _restDuration > 0 ? (_rest.remaining / _restDuration) : 0.0;
+        final prog = _restDuration > 0
+            ? (_rest.remaining / _restDuration)
+            : 0.0;
         final isResting = _phase == _Phase.resting;
         final accentColor = isResting
             ? const Color(0xFFFFA07A)
@@ -329,156 +331,166 @@ class _TrainingScreenState extends State<TrainingScreen>
         final isImperial = unitStr == 'LB';
         final weightUnit = isImperial ? WeightUnit.lb : WeightUnit.kg;
 
-        return Scaffold(
-          backgroundColor: theme.colorScheme.surface,
-          appBar: const GymHeader(),
-          body: SafeArea(
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-                  child: TrainingHeader(
-                    routineTitle: widget.routine?.title ?? 'Allenamento',
-                    execTimeStr: _execTimeStr,
-                    accentColor: accentColor,
-                    isPaused: _isPaused,
-                    onTogglePause: _togglePause,
-                    onConfirmEnd: _confirmEnd,
-                    exerciseIndex: _exIdx,
-                    exerciseCount: _exercises.length,
-                    progress: _progress,
+        // Un allenamento in corso non se ne va con un tocco distratto sul
+        // tasto indietro: le serie fatte sono al sicuro, la sessione no.
+        // La schermata cardio si proteggeva gia' cosi', questa no.
+        return PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (didPop, result) {
+            if (didPop) return;
+            _confirmEnd();
+          },
+          child: Scaffold(
+            backgroundColor: theme.colorScheme.surface,
+            appBar: const GymHeader(),
+            body: SafeArea(
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                    child: TrainingHeader(
+                      routineTitle: widget.routine?.title ?? 'Allenamento',
+                      execTimeStr: _execTimeStr,
+                      accentColor: accentColor,
+                      isPaused: _isPaused,
+                      onTogglePause: _togglePause,
+                      onConfirmEnd: _confirmEnd,
+                      exerciseIndex: _exIdx,
+                      exerciseCount: _exercises.length,
+                      progress: _progress,
+                    ),
                   ),
-                ),
-                Expanded(
-                  child: Stack(
-                    children: [
-                      // ── MAIN CONTENT (NO SCROLL) ──
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        child: Column(
-                          children: [
-                            const SizedBox(height: 4),
-                            // ── EXERCISE CARD ──
-                            Expanded(
-                              flex: 5,
-                              child: ExerciseProgressCard(
-                                exercise: ex,
-                                setIndex: _setIdx,
-                                totalSets: _totalSets,
-                                unit: weightUnit,
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-
-                            // ── ACTION BUTTONS ──
-                            SizedBox(
-                              width: double.infinity,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
-                                  gradient: isResting
-                                      ? null
-                                      : LinearGradient(
-                                          colors: [
-                                            theme.colorScheme.tertiary,
-                                            theme.colorScheme.tertiary
-                                                .withValues(alpha: 0.8),
-                                          ],
-                                        ),
-                                  color: isResting
-                                      ? theme.colorScheme.surfaceContainerHigh
-                                      : null,
+                  Expanded(
+                    child: Stack(
+                      children: [
+                        // ── MAIN CONTENT (NO SCROLL) ──
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                          child: Column(
+                            children: [
+                              const SizedBox(height: 4),
+                              // ── EXERCISE CARD ──
+                              Expanded(
+                                flex: 5,
+                                child: ExerciseProgressCard(
+                                  exercise: ex,
+                                  setIndex: _setIdx,
+                                  totalSets: _totalSets,
+                                  unit: weightUnit,
                                 ),
-                                child: Material(
-                                  color: Colors.transparent,
-                                  child: InkWell(
-                                    onTap: _phase == _Phase.working
-                                        ? _completeSet
-                                        : null,
+                              ),
+                              const SizedBox(height: 12),
+
+                              // ── ACTION BUTTONS ──
+                              SizedBox(
+                                width: double.infinity,
+                                child: Container(
+                                  decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(20),
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 16,
-                                      ),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Icon(
-                                            isResting
-                                                ? Icons.timer
-                                                : Icons.check_circle_rounded,
-                                            size: 22,
-                                            color: isResting
-                                                ? theme.colorScheme.outline
-                                                : Colors.black,
+                                    gradient: isResting
+                                        ? null
+                                        : LinearGradient(
+                                            colors: [
+                                              theme.colorScheme.tertiary,
+                                              theme.colorScheme.tertiary
+                                                  .withValues(alpha: 0.8),
+                                            ],
                                           ),
-                                          const SizedBox(width: 10),
-                                          Text(
-                                            isResting
-                                                ? 'RECUPERO IN CORSO...'
-                                                : 'SEGNA SET COMPLETATO',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.w900,
-                                              letterSpacing: 1,
-                                              fontSize: 14,
-                                              fontFamily: 'Lexend',
+                                    color: isResting
+                                        ? theme.colorScheme.surfaceContainerHigh
+                                        : null,
+                                  ),
+                                  child: Material(
+                                    color: Colors.transparent,
+                                    child: InkWell(
+                                      onTap: _phase == _Phase.working
+                                          ? _completeSet
+                                          : null,
+                                      borderRadius: BorderRadius.circular(20),
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 16,
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Icon(
+                                              isResting
+                                                  ? Icons.timer
+                                                  : Icons.check_circle_rounded,
+                                              size: 22,
                                               color: isResting
                                                   ? theme.colorScheme.outline
                                                   : Colors.black,
                                             ),
-                                          ),
-                                        ],
+                                            const SizedBox(width: 10),
+                                            Text(
+                                              isResting
+                                                  ? 'RECUPERO IN CORSO...'
+                                                  : 'SEGNA SET COMPLETATO',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w900,
+                                                letterSpacing: 1,
+                                                fontSize: 14,
+                                                fontFamily: 'Lexend',
+                                                color: isResting
+                                                    ? theme.colorScheme.outline
+                                                    : Colors.black,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(height: 12),
+                              const SizedBox(height: 12),
 
-                            // ── NEXT UP ──
-                            NextUpCard(
-                              isLastSet: _isLastSet,
-                              currentExercise: ex,
-                              nextExercise: _isLastEx
-                                  ? null
-                                  : _exercises[_exIdx + 1],
-                              setIndex: _setIdx,
-                              totalSets: _totalSets,
-                              unit: weightUnit,
-                              accent: accentColor,
-                            ),
-                            const SizedBox(height: 8),
-                          ],
-                        ),
-                      ),
-
-                      // ── TIMER MODAL OVERLAY ──
-                      if (isResting)
-                        RestTimerOverlay(
-                          pulseController: _pulseCtrl,
-                          progress: prog,
-                          secondsRemaining: _rest.remaining,
-                          accentColor: accentColor,
-                          onRestart: _restartTimer,
-                          onSkip: _skipRest,
-                          onConfirmEnd: _confirmEnd,
+                              // ── NEXT UP ──
+                              NextUpCard(
+                                isLastSet: _isLastSet,
+                                currentExercise: ex,
+                                nextExercise: _isLastEx
+                                    ? null
+                                    : _exercises[_exIdx + 1],
+                                setIndex: _setIdx,
+                                totalSets: _totalSets,
+                                unit: weightUnit,
+                                accent: accentColor,
+                              ),
+                              const SizedBox(height: 8),
+                            ],
+                          ),
                         ),
 
-                      // ── PAUSE OVERLAY ──
-                      if (_isPaused)
-                        PauseOverlay(
-                          accentColor: accentColor,
-                          onResume: _togglePause,
-                        ),
-                    ],
+                        // ── TIMER MODAL OVERLAY ──
+                        if (isResting)
+                          RestTimerOverlay(
+                            pulseController: _pulseCtrl,
+                            progress: prog,
+                            secondsRemaining: _rest.remaining,
+                            accentColor: accentColor,
+                            onRestart: _restartTimer,
+                            onSkip: _skipRest,
+                            onConfirmEnd: _confirmEnd,
+                          ),
+
+                        // ── PAUSE OVERLAY ──
+                        if (_isPaused)
+                          PauseOverlay(
+                            accentColor: accentColor,
+                            onResume: _togglePause,
+                          ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         );

@@ -87,6 +87,30 @@ void main() {
     );
   }
 
+  testWidgets('il tasto indietro chiede conferma invece di uscire', (
+    tester,
+  ) async {
+    await pumpScreen(tester, withRoutine: routine);
+
+    final navigator = tester.state<NavigatorState>(find.byType(Navigator));
+    await navigator.maybePop();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+
+    expect(find.text('Terminare l allenamento?'), findsOneWidget);
+  });
+
+  testWidgets('senza esercizi non c e niente da confermare', (tester) async {
+    await pumpScreen(tester);
+
+    final navigator = tester.state<NavigatorState>(find.byType(Navigator));
+    await navigator.maybePop();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+
+    expect(find.text('Terminare l allenamento?'), findsNothing);
+  });
+
   testWidgets('uscendo annulla il proprio avviso, non tutte le notifiche', (
     tester,
   ) async {
