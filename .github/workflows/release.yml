@@ -1,0 +1,91 @@
+name: Release Android
+
+# Parte a ogni push su main, ma pubblica solo se pubspec.yaml alza la
+# versione rispetto al commit precedente: un push che non tocca la
+# versione (doc, refactor, fix di stile...) non deve mandare un
+# aggiornamento a chi ha gia' l'app installata. Vedi scripts/README.md.
+on:
+  push:
+    branches: [main]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Storia intera, non solo gli ultimi commit: un push puo' portare
+          # piu' di un commit e "github.event.before" puntare piu' indietro
+          # di una profondita' fissa.
+          fetch-depth: 0
+
+      - name: Verifica se la versione e' cambiata
+        id: version
+        run: |
+          current=$(grep -E '^version:' pubspec.yaml | sed -E 's/^version:\s*//')
+          previous=""
+          if git cat-file -e "${{ github.event.before }}" 2>/dev/null; then
+            previous=$(git show "${{ github.event.before }}:pubspec.yaml" 2>/dev/null | grep -E '^version:' | sed -E 's/^version:\s*//' || echo "")
+          fi
+          echo "current=$current" >> "$GITHUB_OUTPUT"
+          if [ "$current" = "$previous" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Versione invariata ($current): nessuna release da pubblicare."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "Versione cambiata: $previous -> $current"
+          fi
+
+      - name: Verifica che il changelog sia stato scritto
+        if: steps.version.outputs.changed == 'true'
+        run: |
+          if [ ! -s CHANGELOG_NEXT.txt ]; then
+            echo "::error::pubspec.yaml e' salito alla versione ${{ steps.version.outputs.current }} ma CHANGELOG_NEXT.txt e' vuoto. Scrivi il changelog per gli utenti in quel file prima di pushare su main."
+            exit 1
+          fi
+
+      - name: Setup Java
+        if: steps.version.outputs.changed == 'true'
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Flutter
+        if: steps.version.outputs.changed == 'true'
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.41.6'
+          channel: stable
+          cache: true
+
+      - name: Setup Node
+        if: steps.version.outputs.changed == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Ricrea le credenziali di firma e Firebase
+        if: steps.version.outputs.changed == 'true'
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          keystore_path="$RUNNER_TEMP/gymcorpus-release.jks"
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 -d > "$keystore_path"
+          printf 'storePassword=%s\nkeyPassword=%s\nkeyAlias=%s\nstoreFile=%s\n' \
+            "$ANDROID_KEYSTORE_PASSWORD" "$ANDROID_KEY_PASSWORD" "$ANDROID_KEY_ALIAS" "$keystore_path" \
+            > android/key.properties
+          printf '%s' "$FIREBASE_SERVICE_ACCOUNT" > scripts/service-account.json
+
+      - name: Installa le dipendenze dello script di rilascio
+        if: steps.version.outputs.changed == 'true'
+        working-directory: scripts
+        run: npm ci
+
+      - name: Pubblica la release
+        if: steps.version.outputs.changed == 'true'
+        run: node scripts/release.js --changelog-file CHANGELOG_NEXT.txt
