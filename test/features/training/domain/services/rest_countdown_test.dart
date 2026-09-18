@@ -23,6 +23,17 @@ void main() {
     expect(rest.isOver, isFalse);
   });
 
+  test('ricorda da quanti secondi e partito', () {
+    // La barra di avanzamento si misura su questo, non su un campo tenuto
+    // aggiornato dentro build.
+    rest.start(90);
+    rest.tick();
+    rest.tick();
+
+    expect(rest.total, 90);
+    expect(rest.remaining, 88);
+  });
+
   test('ogni tick toglie un secondo', () {
     rest.start(90);
 

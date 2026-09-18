@@ -11,12 +11,17 @@ class RestCountdown {
   final DateTime Function() _now;
 
   int _remaining = 0;
+  int _total = 0;
 
   /// Quando scadra' il recupero, o `null` se il tempo e' fermo.
   DateTime? _endsAt;
 
   /// I secondi che mancano alla fine del recupero.
   int get remaining => _remaining;
+
+  /// I secondi da cui e' partito questo recupero: e' la misura su cui si
+  /// calcola l'avanzamento.
+  int get total => _total;
 
   /// Vero se il tempo sta scorrendo: falso da fermo o in pausa.
   bool get isRunning => _endsAt != null;
@@ -25,6 +30,7 @@ class RestCountdown {
 
   void start(int seconds) {
     _remaining = seconds;
+    _total = seconds;
     _endsAt = _now().add(Duration(seconds: seconds));
   }
 

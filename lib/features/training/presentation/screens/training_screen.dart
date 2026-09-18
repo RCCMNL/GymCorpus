@@ -35,7 +35,6 @@ class _TrainingScreenState extends State<TrainingScreen>
   Timer? _timer;
   final RestCountdown _rest = RestCountdown();
   final PendingAlarm _restAlarm = PendingAlarm();
-  int _restDuration = 90;
   _Phase _phase = _Phase.working;
   int _exIdx = 0;
   int _setIdx = 0;
@@ -201,6 +200,16 @@ class _TrainingScreenState extends State<TrainingScreen>
     _startRest();
   }
 
+  /// La durata del recupero scelta nelle impostazioni, letta quando serve.
+  ///
+  /// Prima era un campo aggiornato dentro `build`, che scriveva nello stato
+  /// mentre lo stava disegnando.
+  int get _restDuration {
+    final state = context.read<TrainingBloc>().state;
+    if (state is! TrainingLoaded) return 90;
+    return int.tryParse(state.settings['rest_timer'] ?? '90') ?? 90;
+  }
+
   void _startRest() {
     _rest.start(_restDuration);
     _startTicking();
@@ -318,10 +327,6 @@ class _TrainingScreenState extends State<TrainingScreen>
     final theme = Theme.of(context);
     return BlocBuilder<TrainingBloc, TrainingState>(
       builder: (context, state) {
-        if (state is TrainingLoaded) {
-          final d = int.tryParse(state.settings['rest_timer'] ?? '90') ?? 90;
-          if (_restDuration != d) _restDuration = d;
-        }
         if (_phase == _Phase.completed) {
           return WorkoutCompletedScreen(
             routineTitle: widget.routine?.title ?? 'Allenamento',
@@ -329,9 +334,7 @@ class _TrainingScreenState extends State<TrainingScreen>
         }
         if (_exercises.isEmpty) return const EmptyRoutineScreen();
         final ex = _curEx!;
-        final prog = _restDuration > 0
-            ? (_rest.remaining / _restDuration)
-            : 0.0;
+        final prog = _rest.total > 0 ? (_rest.remaining / _rest.total) : 0.0;
         final isResting = _phase == _Phase.resting;
         final accentColor = isResting
             ? const Color(0xFFFFA07A)
