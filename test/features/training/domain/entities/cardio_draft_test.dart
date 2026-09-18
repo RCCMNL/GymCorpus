@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:gym_corpus/features/training/domain/entities/cardio_activity.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_draft.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_route_point.dart';
 import 'package:latlong2/latlong.dart';
@@ -169,6 +170,26 @@ void main() {
       );
 
       expect(CardioDraft.tryParse(original.encode()), original);
+    });
+  });
+
+  group('CardioDraft.isFor', () {
+    const draft = CardioDraft(
+      type: 'run',
+      elapsedSeconds: 600,
+      distanceMeters: 1500,
+      steps: 0,
+      startTime: null,
+      route: [],
+    );
+
+    test('vale per l attivita con cui e stata scritta', () {
+      expect(draft.isFor(CardioActivity.run), isTrue);
+    });
+
+    test('non vale per un altra attivita', () {
+      expect(draft.isFor(CardioActivity.bike), isFalse);
+      expect(draft.isFor(CardioActivity.treadmill), isFalse);
     });
   });
 }

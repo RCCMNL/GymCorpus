@@ -176,6 +176,12 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
         return;
       }
 
+      // Una bozza di un'altra attivita' non si propone qui: riprenderla
+      // significherebbe salvare distanza, tempo e percorso di quella
+      // sessione sotto il tipo di questa. Resta dov'e', e tornera' a essere
+      // proposta aprendo l'attivita' giusta.
+      if (!draft.isFor(widget.activity)) return;
+
       if (!mounted) return;
 
       final shouldResume = await showDialog<bool>(
