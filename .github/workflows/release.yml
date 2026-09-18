@@ -7,6 +7,10 @@ name: Release Android
 on:
   push:
     branches: [main]
+  # Avvio a mano: una release fallita a meta' - per un problema di
+  # ambiente, non di codice - non si potrebbe altrimenti ritentare, perche'
+  # il controllo qui sotto vedrebbe la versione invariata.
+  workflow_dispatch:
 
 jobs:
   release:
@@ -28,7 +32,10 @@ jobs:
             previous=$(git show "${{ github.event.before }}:pubspec.yaml" 2>/dev/null | grep -E '^version:' | sed -E 's/^version:\s*//' || echo "")
           fi
           echo "current=$current" >> "$GITHUB_OUTPUT"
-          if [ "$current" = "$previous" ]; then
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "Avvio manuale: si pubblica la versione presente ($current)."
+          elif [ "$current" = "$previous" ]; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
             echo "Versione invariata ($current): nessuna release da pubblicare."
           else
