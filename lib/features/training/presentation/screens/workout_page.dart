@@ -24,9 +24,17 @@ class WorkoutPage extends StatefulWidget {
   State<WorkoutPage> createState() => _WorkoutPageState();
 }
 
+/// Un esercizio in lavorazione insieme alla sua identita'.
+///
+/// La chiave nasce con l'esercizio e non cambia piu': prima era costruita
+/// con la posizione nella lista, e riordinando o togliendo un esercizio la
+/// scheda di quelli sotto veniva ricostruita da zero, perdendo per strada
+/// cos'era aperto e cosa si stava modificando.
+typedef _EditedExercise = ({Key key, RoutineExerciseEntity exercise});
+
 class _WorkoutPageState extends State<WorkoutPage> {
   late final TextEditingController _nameController;
-  final List<RoutineExerciseEntity> _selectedExercises = [];
+  final List<_EditedExercise> _selectedExercises = [];
 
   @override
   void initState() {
@@ -35,7 +43,11 @@ class _WorkoutPageState extends State<WorkoutPage> {
       text: widget.routineToEdit?.title ?? '',
     );
     if (widget.routineToEdit != null) {
-      _selectedExercises.addAll(widget.routineToEdit!.exercises);
+      _selectedExercises.addAll(
+        widget.routineToEdit!.exercises.map(
+          (exercise) => (key: UniqueKey(), exercise: exercise),
+        ),
+      );
     }
   }
 
@@ -54,7 +66,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
   void _saveRoutine() {
     final draft = RoutineDraft(
       name: _nameController.text,
-      exercises: _selectedExercises,
+      exercises: [for (final selected in _selectedExercises) selected.exercise],
     );
 
     final problem = draft.problem;
@@ -321,42 +333,39 @@ class _WorkoutPageState extends State<WorkoutPage> {
                           });
                         },
                         itemBuilder: (context, index) {
-                          final re = _selectedExercises[index];
-                          // Usiamo una chiave stabile basata sulla posizione iniziale o ID univoco
-                          // per evitare che la scheda venga distrutta quando cambiano i dati interni
-                          final stableKey = ValueKey(
-                            'exercise_${re.exercise.id}_$index',
-                          );
+                          final selected = _selectedExercises[index];
+                          final re = selected.exercise;
 
                           return SelectedExerciseTile(
-                            key: stableKey,
+                            key: selected.key,
                             exercise: re,
                             index: index,
                             onRemove: () => _removeExercise(index),
                             onSetsUpdated: (newSets) {
+                              if (newSets.isEmpty) return;
                               setState(() {
-                                if (newSets.isNotEmpty) {
-                                  _selectedExercises[index] =
-                                      RoutineExerciseEntity(
-                                        id: re.id,
-                                        routineId: re.routineId,
-                                        exercise: re.exercise,
-                                        sets: newSets.length,
-                                        reps: newSets.first.reps,
-                                        weight: newSets.first.weight,
-                                        orderIndex: re.orderIndex,
-                                        setsData: jsonEncode(
-                                          newSets
-                                              .map(
-                                                (s) => {
-                                                  'weight': s.weight,
-                                                  'reps': s.reps,
-                                                },
-                                              )
-                                              .toList(),
-                                        ),
-                                      );
-                                }
+                                _selectedExercises[index] = (
+                                  key: selected.key,
+                                  exercise: RoutineExerciseEntity(
+                                    id: re.id,
+                                    routineId: re.routineId,
+                                    exercise: re.exercise,
+                                    sets: newSets.length,
+                                    reps: newSets.first.reps,
+                                    weight: newSets.first.weight,
+                                    orderIndex: re.orderIndex,
+                                    setsData: jsonEncode(
+                                      newSets
+                                          .map(
+                                            (s) => {
+                                              'weight': s.weight,
+                                              'reps': s.reps,
+                                            },
+                                          )
+                                          .toList(),
+                                    ),
+                                  ),
+                                );
                               });
                             },
                           );
@@ -436,8 +445,9 @@ class _WorkoutPageState extends State<WorkoutPage> {
       for (final ex in exercises) {
         // Prevent adding same exercise multiple times in the same batch if not desired
         // but user might want it, so we add all
-        _selectedExercises.add(
-          RoutineExerciseEntity(
+        _selectedExercises.add((
+          key: UniqueKey(),
+          exercise: RoutineExerciseEntity(
             id: 0,
             routineId: 0,
             exercise: ex,
@@ -449,7 +459,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
               {'weight': 0, 'reps': 0},
             ]),
           ),
-        );
+        ));
       }
     });
   }
@@ -461,7 +471,9 @@ class _WorkoutPageState extends State<WorkoutPage> {
       backgroundColor: Colors.transparent,
       builder: (context) => ExercisePickerModal(
         onConfirm: _addExercises,
-        alreadySelected: _selectedExercises.map((e) => e.exercise).toList(),
+        alreadySelected: [
+          for (final selected in _selectedExercises) selected.exercise.exercise,
+        ],
       ),
     );
   }
