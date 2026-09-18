@@ -20,6 +20,7 @@ import 'package:gym_corpus/features/training/domain/entities/cardio_location_iss
 import 'package:gym_corpus/features/training/domain/entities/cardio_route_point.dart';
 import 'package:gym_corpus/features/training/domain/services/cardio_gps_filter.dart';
 import 'package:gym_corpus/features/training/domain/services/cardio_splits.dart';
+import 'package:gym_corpus/features/training/presentation/bloc/cardio_save_outcome.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
@@ -579,24 +580,33 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
     // split al chilometro nella schermata di dettaglio.
     final routeJson = CardioRoutePoint.encode(_route);
 
-    if (mounted) {
-      context.read<TrainingBloc>().add(
-        SaveCardioSessionEvent(
-          type: widget.activity.id,
-          distance: double.parse(distKm.toStringAsFixed(2)),
-          duration: _elapsedSeconds,
-          avgSpeed: double.parse(avgSpeed.toStringAsFixed(1)),
-          pace: formatPace(seconds: _elapsedSeconds, distanceKm: distKm),
-          calories: calories,
-          steps: _currentSteps,
-          routeJson: routeJson,
-          goal: widget.goal,
-        ),
-      );
+    if (!mounted) return;
 
-      await Future<void>.delayed(const Duration(milliseconds: 500));
-      if (mounted) context.pop();
-    }
+    final bloc = context.read<TrainingBloc>();
+    final state = bloc.state;
+    final sessionsBefore = state is TrainingLoaded
+        ? state.cardioSessions.length
+        : 0;
+
+    bloc.add(
+      SaveCardioSessionEvent(
+        type: widget.activity.id,
+        distance: double.parse(distKm.toStringAsFixed(2)),
+        duration: _elapsedSeconds,
+        avgSpeed: double.parse(avgSpeed.toStringAsFixed(1)),
+        pace: formatPace(seconds: _elapsedSeconds, distanceKm: distKm),
+        calories: calories,
+        steps: _currentSteps,
+        routeJson: routeJson,
+        goal: widget.goal,
+      ),
+    );
+
+    // Si aspetta che la sessione sia davvero comparsa, non mezzo secondo:
+    // l'attesa fissa chiudeva la schermata dicendo "salvato" senza saperlo.
+    // Un fallimento lo racconta la SnackBar globale sugli errori del bloc.
+    await awaitCardioSessionSaved(bloc.stream, sessionsBefore: sessionsBefore);
+    if (mounted) context.pop();
   }
 
   double _getUserWeight() {
