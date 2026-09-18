@@ -8,6 +8,7 @@ import 'package:gym_corpus/core/utils/time_format.dart';
 import 'package:gym_corpus/core/utils/unit_converter.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
+import 'package:gym_corpus/features/training/domain/services/rest_countdown.dart';
 import 'package:gym_corpus/features/training/domain/set_specs.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
@@ -31,7 +32,7 @@ class TrainingScreen extends StatefulWidget {
 class _TrainingScreenState extends State<TrainingScreen>
     with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   Timer? _timer;
-  int _seconds = 0;
+  final RestCountdown _rest = RestCountdown();
   int _restDuration = 90;
   _Phase _phase = _Phase.working;
   int _exIdx = 0;
@@ -41,7 +42,6 @@ class _TrainingScreenState extends State<TrainingScreen>
   DateTime? _lastResumeTime;
   Duration _elapsedBeforePause = Duration.zero;
   bool _isPaused = false;
-  DateTime? _restEndTime;
   Timer? _executionTimer;
   String _execTimeStr = '00:00:00';
 
@@ -93,11 +93,13 @@ class _TrainingScreenState extends State<TrainingScreen>
         _elapsedBeforePause += DateTime.now().difference(_lastResumeTime!);
         _lastResumeTime = null;
         _timer?.cancel();
+        _rest.pause();
         NotificationService.instance.cancelNotification(100);
       } else {
         _lastResumeTime = DateTime.now();
         if (_phase == _Phase.resting) {
-          _startTimer();
+          _rest.resume();
+          _startTicking();
         }
       }
     });
@@ -107,18 +109,20 @@ class _TrainingScreenState extends State<TrainingScreen>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
     if (state == AppLifecycleState.resumed) {
-      // App tornata in foreground: ricalcola i secondi rimanenti
-      if (_phase == _Phase.resting && _restEndTime != null) {
-        final remaining = _restEndTime!.difference(DateTime.now()).inSeconds;
-        if (remaining <= 0) {
-          // Recupero già scaduto in background
+      // App tornata in foreground: il recupero ha continuato a scorrere,
+      // a meno che non fosse in pausa. In quel caso il tempo era fermo e
+      // qui non c'e' niente da riprendere: riavviarlo faceva ripartire il
+      // conto alla rovescia sotto l'overlay di pausa.
+      if (_phase == _Phase.resting) {
+        _rest.onForeground();
+        if (!_rest.isRunning) return;
+
+        if (_rest.isOver) {
           NotificationService.instance.cancelNotification(100);
           _onRestDone();
         } else {
-          // Ancora in recupero: aggiorna il countdown e riavvia il timer
-          _timer?.cancel();
-          setState(() => _seconds = remaining);
-          _startTimer();
+          setState(() {});
+          _startTicking();
         }
       }
     } else if (state == AppLifecycleState.paused) {
@@ -178,19 +182,16 @@ class _TrainingScreenState extends State<TrainingScreen>
       setState(() => _phase = _Phase.completed);
       return;
     }
-    setState(() {
-      _phase = _Phase.resting;
-      _seconds = _restDuration;
-    });
-    _startTimer();
+    setState(() => _phase = _Phase.resting);
+    _startRest();
   }
 
-  void _startTimer() {
-    _timer?.cancel();
-    // Registra quando finisce il recupero (usato per ricalcolo al resume)
-    _restEndTime = DateTime.now().add(Duration(seconds: _seconds));
+  void _startRest() {
+    _rest.start(_restDuration);
+    _startTicking();
+
     // Schedula notifica locale per quando scade il recupero
-    Future.delayed(Duration(seconds: _seconds), () {
+    Future.delayed(Duration(seconds: _rest.remaining), () {
       // Spara la notifica solo se ancora in recupero e l'app NON è in primo piano
       if (mounted && _phase == _Phase.resting) {
         final isForeground =
@@ -204,18 +205,19 @@ class _TrainingScreenState extends State<TrainingScreen>
         }
       }
     });
+  }
+
+  void _startTicking() {
+    _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (_seconds > 0) {
-        setState(() => _seconds--);
-      } else {
-        _onRestDone();
-      }
+      setState(_rest.tick);
+      if (_rest.isOver) _onRestDone();
     });
   }
 
   void _onRestDone() {
     _timer?.cancel();
-    _restEndTime = null;
+    _rest.stop();
     NotificationService.instance.cancelNotification(100);
     setState(() {
       if (_isLastSet) {
@@ -225,15 +227,12 @@ class _TrainingScreenState extends State<TrainingScreen>
         _setIdx++;
       }
       _phase = _Phase.working;
-      _seconds = 0;
     });
   }
 
   void _restartTimer() {
     if (_phase != _Phase.resting) return;
-    _timer?.cancel();
-    setState(() => _seconds = _restDuration);
-    _startTimer(); // aggiorna anche _restEndTime
+    setState(_startRest);
   }
 
   void _skipRest() {
@@ -300,10 +299,7 @@ class _TrainingScreenState extends State<TrainingScreen>
       builder: (context, state) {
         if (state is TrainingLoaded) {
           final d = int.tryParse(state.settings['rest_timer'] ?? '90') ?? 90;
-          if (_restDuration != d) {
-            _restDuration = d;
-            if (_phase != _Phase.resting) _seconds = d;
-          }
+          if (_restDuration != d) _restDuration = d;
         }
         if (_phase == _Phase.completed) {
           return WorkoutCompletedScreen(
@@ -312,7 +308,7 @@ class _TrainingScreenState extends State<TrainingScreen>
         }
         if (_exercises.isEmpty) return const EmptyRoutineScreen();
         final ex = _curEx!;
-        final prog = _restDuration > 0 ? (_seconds / _restDuration) : 0.0;
+        final prog = _restDuration > 0 ? (_rest.remaining / _restDuration) : 0.0;
         final isResting = _phase == _Phase.resting;
         final accentColor = isResting
             ? const Color(0xFFFFA07A)
@@ -457,7 +453,7 @@ class _TrainingScreenState extends State<TrainingScreen>
                         RestTimerOverlay(
                           pulseController: _pulseCtrl,
                           progress: prog,
-                          secondsRemaining: _seconds,
+                          secondsRemaining: _rest.remaining,
                           accentColor: accentColor,
                           onRestart: _restartTimer,
                           onSkip: _skipRest,
