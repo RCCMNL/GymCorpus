@@ -121,6 +121,43 @@ void main() {
   // Le routine di sistema sono seedate automaticamente all'apertura del DB
   // (vedi database.dart _seedDefaultRoutines), quindi ne basta una qualsiasi
   // per verificare la guardia modifica/elimina e il flusso di copia.
+  group('ordine degli esercizi di una routine', () {
+    test('gli esercizi tornano nell ordine indicato da orderIndex', () async {
+      final exercises = await database.select(database.exercises).get();
+      final routineId = await database
+          .into(database.routines)
+          .insert(const RoutinesCompanion(title: Value('Ordine')));
+
+      // Inseriti al contrario rispetto all'ordine voluto: senza un ordine
+      // esplicito tornerebbero come sono stati scritti.
+      for (final (position, exercise) in [
+        (2, exercises[0]),
+        (0, exercises[1]),
+        (1, exercises[2]),
+      ]) {
+        await database
+            .into(database.routineExercises)
+            .insert(
+              RoutineExercisesCompanion.insert(
+                routineId: routineId,
+                exerciseId: exercise.id,
+                orderIndex: Value(position),
+              ),
+            );
+      }
+
+      final routines = await repository.watchRoutines().first;
+      final saved = routines.firstWhere((r) => r.id == routineId);
+
+      expect(saved.exercises.map((e) => e.orderIndex), [0, 1, 2]);
+      expect(saved.exercises.map((e) => e.exercise.id), [
+        exercises[1].id,
+        exercises[2].id,
+        exercises[0].id,
+      ]);
+    });
+  });
+
   group('routine di sistema', () {
     test('non si possono modificare direttamente', () async {
       final systemRoutine = (await (database.select(

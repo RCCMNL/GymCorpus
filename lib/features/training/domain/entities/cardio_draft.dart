@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
+import 'package:gym_corpus/features/training/domain/entities/cardio_activity.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_route_point.dart';
 
 /// Sessione cardio interrotta, salvata periodicamente per poterla riprendere
@@ -32,6 +33,13 @@ class CardioDraft extends Equatable {
   /// Percorso con i tempi di passaggio: riprendendo una sessione i passaggi
   /// al chilometro gia' percorsi devono sopravvivere all'interruzione.
   final List<CardioRoutePoint> route;
+
+  /// Vero se la bozza appartiene a [activity].
+  ///
+  /// Una bozza di corsa ripresa dentro una sessione di vogatore finirebbe
+  /// salvata come vogatore, con tanto di percorso GPS: distanza, tempo e
+  /// tracciato di un allenamento che non e' mai esistito.
+  bool isFor(CardioActivity activity) => type == activity.id;
 
   /// Interpreta una bozza salvata, restituendo `null` se non e' utilizzabile.
   ///

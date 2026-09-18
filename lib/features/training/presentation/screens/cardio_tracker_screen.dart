@@ -10,14 +10,18 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/database/database.dart';
 import 'package:gym_corpus/core/services/health_service.dart';
+import 'package:gym_corpus/core/utils/pending_alarm.dart';
 import 'package:gym_corpus/core/utils/time_format.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_activity.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_draft.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_goal.dart';
+import 'package:gym_corpus/features/training/domain/entities/cardio_location_issue.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_route_point.dart';
+import 'package:gym_corpus/features/training/domain/services/cardio_gps_filter.dart';
 import 'package:gym_corpus/features/training/domain/services/cardio_splits.dart';
+import 'package:gym_corpus/features/training/presentation/bloc/cardio_save_outcome.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
@@ -46,7 +50,8 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
   final HealthService _healthService = GetIt.I<HealthService>();
   final List<CardioRoutePoint> _route = [];
   StreamSubscription<Position>? _positionStream;
-  Timer? _timer;
+  /// Il battito al secondo della sessione: uno solo, sempre.
+  final PendingAlarm _tick = PendingAlarm();
   Timer? _countdownTimer;
   Timer? _bannerTimer;
 
@@ -54,6 +59,11 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
   /// ripeterebbe a ogni punto GPS ricevuto oltre il traguardo.
   int _announcedKm = 0;
   bool _goalAnnounced = false;
+
+  /// Secondo della sessione in cui e' arrivato l'ultimo punto GPS buono, e
+  /// quello dell'ultimo avviso di segnale assente.
+  int _lastFixSecond = 0;
+  int _lastFixWarningSecond = 0;
   String? _bannerTitle;
   String? _bannerSubtitle;
 
@@ -77,6 +87,9 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
   bool _showCountdown = false;
   bool _isLocating = true;
 
+  /// Perche' la posizione non e' disponibile, quando non lo e'.
+  CardioLocationIssue? _issue;
+
   @override
   void initState() {
     super.initState();
@@ -85,35 +98,75 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
 
   Future<void> _initLocation() async {
     await _checkDraft();
+    await _locate();
+  }
 
+  /// Cerca la posizione di partenza e chiude comunque la ricerca.
+  ///
+  /// L'esito passa da un unico punto proprio perche' il contrario era un
+  /// bug: ogni `return` anticipato lasciava `_isLocating` a true, e la
+  /// schermata restava sulla ricerca del segnale per sempre, senza
+  /// spiegazione e senza il pulsante di avvio.
+  Future<void> _locate() async {
+    final issue = await _locationIssue();
+    if (!mounted) return;
+
+    setState(() {
+      _isLocating = false;
+      // Una sessione ripresa da una bozza e' gia' in corso: non ha senso
+      // coprirla con l'avviso di posizione mancante.
+      _issue = _isTracking ? null : issue;
+    });
+
+    final position = _currentPosition;
+    if (issue == null && position != null) _mapController.move(position, 16);
+  }
+
+  /// Il motivo per cui la sessione non puo' seguire la posizione, o `null`
+  /// se puo'.
+  Future<CardioLocationIssue?> _locationIssue() async {
     // Al chiuso non c'e' percorso da seguire: chiedere il permesso di
     // localizzazione per una sessione sul tapis roulant sarebbe solo un
     // permesso in piu' senza contropartita.
-    if (!widget.activity.tracksLocation) {
-      if (mounted) setState(() => _isLocating = false);
-      return;
-    }
+    if (!widget.activity.tracksLocation) return null;
 
-    final serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) return;
+    if (!await Geolocator.isLocationServiceEnabled()) {
+      return CardioLocationIssue.serviceDisabled;
+    }
 
     var permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) return;
     }
-    if (permission == LocationPermission.deniedForever) return;
+    if (permission == LocationPermission.denied) {
+      return CardioLocationIssue.permissionDenied;
+    }
+    if (permission == LocationPermission.deniedForever) {
+      return CardioLocationIssue.permissionDeniedForever;
+    }
 
-    final pos = await Geolocator.getCurrentPosition(
-      locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
-    );
-    if (mounted) {
-      setState(() {
-        _currentPosition = LatLng(pos.latitude, pos.longitude);
-        _isLocating = false;
-      });
-      _mapController.move(_currentPosition!, 16);
+    try {
+      final pos = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+        ),
+      );
+      _currentPosition = LatLng(pos.latitude, pos.longitude);
+    } catch (e) {
+      // Il permesso c'e': il flusso di posizioni puo' comunque partire, e
+      // la mappa si centrera' al primo punto ricevuto. Meglio una mappa
+      // non centrata che una schermata bloccata.
+      debugPrint('CardioTracker._locationIssue: $e');
     }
+    return null;
+  }
+
+  void _retryLocation() {
+    setState(() {
+      _isLocating = true;
+      _issue = null;
+    });
+    unawaited(_locate());
   }
 
   Future<void> _checkDraft() async {
@@ -131,6 +184,12 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
         await _clearDraft();
         return;
       }
+
+      // Una bozza di un'altra attivita' non si propone qui: riprenderla
+      // significherebbe salvare distanza, tempo e percorso di quella
+      // sessione sotto il tipo di questa. Resta dov'e', e tornera' a essere
+      // proposta aprendo l'attivita' giusta.
+      if (!draft.isFor(widget.activity)) return;
 
       if (!mounted) return;
 
@@ -284,7 +343,7 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
       }
     });
 
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) async {
+    _tick.schedulePeriodic(const Duration(seconds: 1), () async {
       if (_isPaused) return;
 
       // La pausa automatica si basa sulla velocita' GPS: al chiuso quella
@@ -316,6 +375,7 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
         setState(() => _elapsedSeconds++);
       }
 
+      _warnIfNoFix();
       await _updateStepsIfDue();
       _saveDraftIfDue();
     });
@@ -359,39 +419,31 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
         ).listen((pos) {
           if (_isPaused) return;
 
-          // Aggiorna la qualità del segnale
-          var signalQuality = 2;
-          if (pos.accuracy > 40) {
-            signalQuality = 0;
-          } else if (pos.accuracy > 20) {
-            signalQuality = 1;
-          }
-
           setState(() {
-            _gpsSignalQuality = signalQuality;
+            // GpsStatusBadge legge 0 scarso, 1 discreto, 2 buono: lo stesso
+            // ordine in cui sono dichiarati i valori di GpsQuality.
+            _gpsSignalQuality = CardioGpsFilter.qualityFor(pos.accuracy).index;
           });
 
-          // Filtro GPS Drift: Scarta punti troppo imprecisi (rimbalzi)
-          if (pos.accuracy > 20) return;
-
           final newPoint = LatLng(pos.latitude, pos.longitude);
+          final previous = _route.isEmpty ? null : _route.last.position;
+          final metersFromPrevious = previous == null
+              ? null
+              : const Distance().as(LengthUnit.Meter, previous, newPoint);
 
+          // Punto scartato: niente percorso, niente distanza e soprattutto
+          // niente mappa. Spostarla comunque la faceva saltare sul rimbalzo
+          // che si era appena deciso di ignorare.
+          if (CardioGpsFilter.rejects(
+            accuracyMeters: pos.accuracy,
+            metersFromPrevious: metersFromPrevious,
+          )) {
+            return;
+          }
+
+          _lastFixSecond = _elapsedSeconds;
           setState(() {
-            if (_route.isNotEmpty) {
-              final dist = const Distance().as(
-                LengthUnit.Meter,
-                _route.last.position,
-                newPoint,
-              );
-
-              // Anti-drift avanzato (Filtro cinetico):
-              // Con aggiornamenti ravvicinati, uno sbalzo > 35m significa una velocità
-              // impossibile per un umano (> 60 km/h). Indica che il GPS ha "rimbalzato" lontano.
-              if (dist > 35.0) return;
-
-              _distanceMeters += dist;
-            }
-
+            _distanceMeters += metersFromPrevious ?? 0;
             _route.add(
               CardioRoutePoint(
                 position: newPoint,
@@ -406,6 +458,23 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
           _checkMilestones();
           _mapController.move(newPoint, 16);
         });
+  }
+
+  /// Avvisa se da troppo tempo non arriva una posizione utilizzabile.
+  ///
+  /// In citta', sotto gli alberi o col cielo coperto la precisione puo'
+  /// restare sopra la soglia per tutta la sessione: il cronometro gira, la
+  /// distanza resta a zero, e senza avviso lo si scopre alla fine.
+  void _warnIfNoFix() {
+    if (!CardioGpsFilter.shouldWarnStaleFix(
+      secondsSinceLastPoint: _elapsedSeconds - _lastFixSecond,
+      secondsSinceLastWarning: _elapsedSeconds - _lastFixWarningSecond,
+    )) {
+      return;
+    }
+
+    _lastFixWarningSecond = _elapsedSeconds;
+    _showBanner('Segnale GPS debole', 'La distanza non si sta aggiornando');
   }
 
   /// Aggiorna i passi ogni cinque secondi, se il conteggio e' disponibile.
@@ -506,7 +575,7 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
 
   Future<void> _stopAndSave() async {
     setState(() => _isSaving = true);
-    _timer?.cancel();
+    _tick.cancel();
     await _positionStream?.cancel();
 
     // Al chiuso la distanza non la misura nessun sensore: la si chiede una
@@ -537,24 +606,33 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
     // split al chilometro nella schermata di dettaglio.
     final routeJson = CardioRoutePoint.encode(_route);
 
-    if (mounted) {
-      context.read<TrainingBloc>().add(
-        SaveCardioSessionEvent(
-          type: widget.activity.id,
-          distance: double.parse(distKm.toStringAsFixed(2)),
-          duration: _elapsedSeconds,
-          avgSpeed: double.parse(avgSpeed.toStringAsFixed(1)),
-          pace: formatPace(seconds: _elapsedSeconds, distanceKm: distKm),
-          calories: calories,
-          steps: _currentSteps,
-          routeJson: routeJson,
-          goal: widget.goal,
-        ),
-      );
+    if (!mounted) return;
 
-      await Future<void>.delayed(const Duration(milliseconds: 500));
-      if (mounted) context.pop();
-    }
+    final bloc = context.read<TrainingBloc>();
+    final state = bloc.state;
+    final sessionsBefore = state is TrainingLoaded
+        ? state.cardioSessions.length
+        : 0;
+
+    bloc.add(
+      SaveCardioSessionEvent(
+        type: widget.activity.id,
+        distance: double.parse(distKm.toStringAsFixed(2)),
+        duration: _elapsedSeconds,
+        avgSpeed: double.parse(avgSpeed.toStringAsFixed(1)),
+        pace: formatPace(seconds: _elapsedSeconds, distanceKm: distKm),
+        calories: calories,
+        steps: _currentSteps,
+        routeJson: routeJson,
+        goal: widget.goal,
+      ),
+    );
+
+    // Si aspetta che la sessione sia davvero comparsa, non mezzo secondo:
+    // l'attesa fissa chiudeva la schermata dicendo "salvato" senza saperlo.
+    // Un fallimento lo racconta la SnackBar globale sugli errori del bloc.
+    await awaitCardioSessionSaved(bloc.stream, sessionsBefore: sessionsBefore);
+    if (mounted) context.pop();
   }
 
   double _getUserWeight() {
@@ -573,7 +651,7 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
 
   @override
   void dispose() {
-    _timer?.cancel();
+    _tick.cancel();
     _countdownTimer?.cancel();
     _bannerTimer?.cancel();
     _positionStream?.cancel();
@@ -586,6 +664,10 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
     final isRun = widget.activity == CardioActivity.run;
     final tracksLocation = widget.activity.tracksLocation;
     final distKm = _distanceMeters / 1000;
+
+    // Senza posizione la sessione non puo' partire: si mostra il motivo al
+    // posto dei comandi, non sopra di essi.
+    final blocked = tracksLocation && !_isLocating && _issue != null;
 
     return PopScope(
       canPop: !_isTracking || _isSaving,
@@ -612,6 +694,16 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
                   activity: widget.activity,
                   elapsedSeconds: _elapsedSeconds,
                   isTracking: _isTracking,
+                ),
+              ),
+
+            // Posizione non disponibile: sotto al tasto indietro, cosi' da
+            // qui si puo' sempre uscire.
+            if (blocked)
+              Positioned.fill(
+                child: GpsUnavailableOverlay(
+                  issue: _issue!,
+                  onRetry: _retryLocation,
                 ),
               ),
 
@@ -649,7 +741,7 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
             ),
 
             // Top Right Controls (GPS + OSM)
-            if (!_isLocating && tracksLocation)
+            if (!_isLocating && tracksLocation && !blocked)
               Positioned(
                 top: MediaQuery.of(context).padding.top + 12,
                 right: 16,
@@ -660,27 +752,28 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
               ),
 
             // Bottom Stats Panel
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: CardioStatsPanel(
-                activity: widget.activity,
-                distanceKm: distKm,
-                elapsedSeconds: _elapsedSeconds,
-                currentSpeedKmh: _currentSpeedKmh,
-                currentSteps: _currentSteps,
-                userWeightKg: _getUserWeight(),
-                isTracking: _isTracking,
-                isLocating: _isLocating,
-                isPaused: _isPaused,
-                isSaving: _isSaving,
-                goal: widget.goal,
-                onStart: _runCountdown,
-                onPauseResume: _isPaused ? _resumeTracking : _pauseTracking,
-                onStop: _stopAndSave,
+            if (!blocked)
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: CardioStatsPanel(
+                  activity: widget.activity,
+                  distanceKm: distKm,
+                  elapsedSeconds: _elapsedSeconds,
+                  currentSpeedKmh: _currentSpeedKmh,
+                  currentSteps: _currentSteps,
+                  userWeightKg: _getUserWeight(),
+                  isTracking: _isTracking,
+                  isLocating: _isLocating,
+                  isPaused: _isPaused,
+                  isSaving: _isSaving,
+                  goal: widget.goal,
+                  onStart: _runCountdown,
+                  onPauseResume: _isPaused ? _resumeTracking : _pauseTracking,
+                  onStop: _stopAndSave,
+                ),
               ),
-            ),
 
             // Avviso di chilometro completato o obiettivo raggiunto
             if (_bannerTitle != null)
@@ -754,7 +847,7 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
           TextButton(
             onPressed: () {
               Navigator.pop(ctx);
-              _timer?.cancel();
+              _tick.cancel();
               _positionStream?.cancel();
 
               // Elimina la bozza se l'utente interrompe intenzionalmente

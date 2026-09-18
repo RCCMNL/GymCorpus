@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gym_corpus/core/utils/training_calculations.dart';
 import 'package:gym_corpus/features/auth/domain/repositories/auth_repository.dart';
 import 'package:gym_corpus/features/training/domain/entities/body_measurement.dart';
 import 'package:gym_corpus/features/training/domain/entities/body_weight.dart';
@@ -237,29 +236,15 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
     });
 
     on<AddSetToExercise>((event, emit) async {
-      if (state is TrainingLoaded) {
-        final current = state as TrainingLoaded;
-        var new1RM = current.lastEstimated1RM;
+      final result = await repository.addSetToExercise(
+        workoutId: event.workoutId,
+        exerciseId: event.exerciseId,
+        reps: event.reps,
+        weight: event.weight,
+        rpe: event.rpe,
+      );
 
-        if (event.rpe != null && event.rpe! > 8) {
-          new1RM = TrainingCalculations.calculateBrzycki1RM(
-            weight: event.weight,
-            reps: event.reps,
-          );
-        }
-
-        final result = await repository.addSetToExercise(
-          workoutId: event.workoutId,
-          exerciseId: event.exerciseId,
-          reps: event.reps,
-          weight: event.weight,
-          rpe: event.rpe,
-        );
-
-        result.fold((failure) => _emitFailure(failure.message, emit), (_) {
-          emit(current.copyWith(lastEstimated1RM: new1RM));
-        });
-      }
+      result.fold((failure) => _emitFailure(failure.message, emit), (_) => null);
     });
 
     on<AddBodyWeightLogEvent>((event, emit) async {

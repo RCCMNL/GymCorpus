@@ -125,11 +125,11 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loading,TResult Function( List<ExerciseEntity> exercises,  List<RoutineEntity> routines,  List<WorkoutSetEntity> weightLogs,  List<WorkoutSessionEntity> workoutSessions,  List<BodyWeightLogEntity> bodyWeightLogs,  List<BodyMeasurementEntity> bodyMeasurements,  List<CardioSessionEntity> cardioSessions,  Map<String, String> settings,  double? lastEstimated1RM,  String? actionError)?  loaded,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loading,TResult Function( List<ExerciseEntity> exercises,  List<RoutineEntity> routines,  List<WorkoutSetEntity> weightLogs,  List<WorkoutSessionEntity> workoutSessions,  List<BodyWeightLogEntity> bodyWeightLogs,  List<BodyMeasurementEntity> bodyMeasurements,  List<CardioSessionEntity> cardioSessions,  Map<String, String> settings,  String? actionError)?  loaded,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case TrainingLoading() when loading != null:
 return loading();case TrainingLoaded() when loaded != null:
-return loaded(_that.exercises,_that.routines,_that.weightLogs,_that.workoutSessions,_that.bodyWeightLogs,_that.bodyMeasurements,_that.cardioSessions,_that.settings,_that.lastEstimated1RM,_that.actionError);case TrainingError() when error != null:
+return loaded(_that.exercises,_that.routines,_that.weightLogs,_that.workoutSessions,_that.bodyWeightLogs,_that.bodyMeasurements,_that.cardioSessions,_that.settings,_that.actionError);case TrainingError() when error != null:
 return error(_that.message);case _:
   return orElse();
 
@@ -148,11 +148,11 @@ return error(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loading,required TResult Function( List<ExerciseEntity> exercises,  List<RoutineEntity> routines,  List<WorkoutSetEntity> weightLogs,  List<WorkoutSessionEntity> workoutSessions,  List<BodyWeightLogEntity> bodyWeightLogs,  List<BodyMeasurementEntity> bodyMeasurements,  List<CardioSessionEntity> cardioSessions,  Map<String, String> settings,  double? lastEstimated1RM,  String? actionError)  loaded,required TResult Function( String message)  error,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loading,required TResult Function( List<ExerciseEntity> exercises,  List<RoutineEntity> routines,  List<WorkoutSetEntity> weightLogs,  List<WorkoutSessionEntity> workoutSessions,  List<BodyWeightLogEntity> bodyWeightLogs,  List<BodyMeasurementEntity> bodyMeasurements,  List<CardioSessionEntity> cardioSessions,  Map<String, String> settings,  String? actionError)  loaded,required TResult Function( String message)  error,}) {final _that = this;
 switch (_that) {
 case TrainingLoading():
 return loading();case TrainingLoaded():
-return loaded(_that.exercises,_that.routines,_that.weightLogs,_that.workoutSessions,_that.bodyWeightLogs,_that.bodyMeasurements,_that.cardioSessions,_that.settings,_that.lastEstimated1RM,_that.actionError);case TrainingError():
+return loaded(_that.exercises,_that.routines,_that.weightLogs,_that.workoutSessions,_that.bodyWeightLogs,_that.bodyMeasurements,_that.cardioSessions,_that.settings,_that.actionError);case TrainingError():
 return error(_that.message);case _:
   throw StateError('Unexpected subclass');
 
@@ -170,11 +170,11 @@ return error(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loading,TResult? Function( List<ExerciseEntity> exercises,  List<RoutineEntity> routines,  List<WorkoutSetEntity> weightLogs,  List<WorkoutSessionEntity> workoutSessions,  List<BodyWeightLogEntity> bodyWeightLogs,  List<BodyMeasurementEntity> bodyMeasurements,  List<CardioSessionEntity> cardioSessions,  Map<String, String> settings,  double? lastEstimated1RM,  String? actionError)?  loaded,TResult? Function( String message)?  error,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loading,TResult? Function( List<ExerciseEntity> exercises,  List<RoutineEntity> routines,  List<WorkoutSetEntity> weightLogs,  List<WorkoutSessionEntity> workoutSessions,  List<BodyWeightLogEntity> bodyWeightLogs,  List<BodyMeasurementEntity> bodyMeasurements,  List<CardioSessionEntity> cardioSessions,  Map<String, String> settings,  String? actionError)?  loaded,TResult? Function( String message)?  error,}) {final _that = this;
 switch (_that) {
 case TrainingLoading() when loading != null:
 return loading();case TrainingLoaded() when loaded != null:
-return loaded(_that.exercises,_that.routines,_that.weightLogs,_that.workoutSessions,_that.bodyWeightLogs,_that.bodyMeasurements,_that.cardioSessions,_that.settings,_that.lastEstimated1RM,_that.actionError);case TrainingError() when error != null:
+return loaded(_that.exercises,_that.routines,_that.weightLogs,_that.workoutSessions,_that.bodyWeightLogs,_that.bodyMeasurements,_that.cardioSessions,_that.settings,_that.actionError);case TrainingError() when error != null:
 return error(_that.message);case _:
   return null;
 
@@ -219,7 +219,7 @@ String toString() {
 
 
 class TrainingLoaded implements TrainingState {
-  const TrainingLoaded({required final  List<ExerciseEntity> exercises, final  List<RoutineEntity> routines = const [], final  List<WorkoutSetEntity> weightLogs = const [], final  List<WorkoutSessionEntity> workoutSessions = const [], final  List<BodyWeightLogEntity> bodyWeightLogs = const [], final  List<BodyMeasurementEntity> bodyMeasurements = const [], final  List<CardioSessionEntity> cardioSessions = const [], final  Map<String, String> settings = const {}, this.lastEstimated1RM, this.actionError}): _exercises = exercises,_routines = routines,_weightLogs = weightLogs,_workoutSessions = workoutSessions,_bodyWeightLogs = bodyWeightLogs,_bodyMeasurements = bodyMeasurements,_cardioSessions = cardioSessions,_settings = settings;
+  const TrainingLoaded({required final  List<ExerciseEntity> exercises, final  List<RoutineEntity> routines = const [], final  List<WorkoutSetEntity> weightLogs = const [], final  List<WorkoutSessionEntity> workoutSessions = const [], final  List<BodyWeightLogEntity> bodyWeightLogs = const [], final  List<BodyMeasurementEntity> bodyMeasurements = const [], final  List<CardioSessionEntity> cardioSessions = const [], final  Map<String, String> settings = const {}, this.actionError}): _exercises = exercises,_routines = routines,_weightLogs = weightLogs,_workoutSessions = workoutSessions,_bodyWeightLogs = bodyWeightLogs,_bodyMeasurements = bodyMeasurements,_cardioSessions = cardioSessions,_settings = settings;
   
 
  final  List<ExerciseEntity> _exercises;
@@ -278,7 +278,6 @@ class TrainingLoaded implements TrainingState {
   return EqualUnmodifiableMapView(_settings);
 }
 
- final  double? lastEstimated1RM;
 /// Errore transitorio di una singola operazione di scrittura.
 ///
 /// Serve a segnalare il fallimento senza perdere i dati gia' caricati: la
@@ -296,16 +295,16 @@ $TrainingLoadedCopyWith<TrainingLoaded> get copyWith => _$TrainingLoadedCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is TrainingLoaded&&const DeepCollectionEquality().equals(other._exercises, _exercises)&&const DeepCollectionEquality().equals(other._routines, _routines)&&const DeepCollectionEquality().equals(other._weightLogs, _weightLogs)&&const DeepCollectionEquality().equals(other._workoutSessions, _workoutSessions)&&const DeepCollectionEquality().equals(other._bodyWeightLogs, _bodyWeightLogs)&&const DeepCollectionEquality().equals(other._bodyMeasurements, _bodyMeasurements)&&const DeepCollectionEquality().equals(other._cardioSessions, _cardioSessions)&&const DeepCollectionEquality().equals(other._settings, _settings)&&(identical(other.lastEstimated1RM, lastEstimated1RM) || other.lastEstimated1RM == lastEstimated1RM)&&(identical(other.actionError, actionError) || other.actionError == actionError));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is TrainingLoaded&&const DeepCollectionEquality().equals(other._exercises, _exercises)&&const DeepCollectionEquality().equals(other._routines, _routines)&&const DeepCollectionEquality().equals(other._weightLogs, _weightLogs)&&const DeepCollectionEquality().equals(other._workoutSessions, _workoutSessions)&&const DeepCollectionEquality().equals(other._bodyWeightLogs, _bodyWeightLogs)&&const DeepCollectionEquality().equals(other._bodyMeasurements, _bodyMeasurements)&&const DeepCollectionEquality().equals(other._cardioSessions, _cardioSessions)&&const DeepCollectionEquality().equals(other._settings, _settings)&&(identical(other.actionError, actionError) || other.actionError == actionError));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_exercises),const DeepCollectionEquality().hash(_routines),const DeepCollectionEquality().hash(_weightLogs),const DeepCollectionEquality().hash(_workoutSessions),const DeepCollectionEquality().hash(_bodyWeightLogs),const DeepCollectionEquality().hash(_bodyMeasurements),const DeepCollectionEquality().hash(_cardioSessions),const DeepCollectionEquality().hash(_settings),lastEstimated1RM,actionError);
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_exercises),const DeepCollectionEquality().hash(_routines),const DeepCollectionEquality().hash(_weightLogs),const DeepCollectionEquality().hash(_workoutSessions),const DeepCollectionEquality().hash(_bodyWeightLogs),const DeepCollectionEquality().hash(_bodyMeasurements),const DeepCollectionEquality().hash(_cardioSessions),const DeepCollectionEquality().hash(_settings),actionError);
 
 @override
 String toString() {
-  return 'TrainingState.loaded(exercises: $exercises, routines: $routines, weightLogs: $weightLogs, workoutSessions: $workoutSessions, bodyWeightLogs: $bodyWeightLogs, bodyMeasurements: $bodyMeasurements, cardioSessions: $cardioSessions, settings: $settings, lastEstimated1RM: $lastEstimated1RM, actionError: $actionError)';
+  return 'TrainingState.loaded(exercises: $exercises, routines: $routines, weightLogs: $weightLogs, workoutSessions: $workoutSessions, bodyWeightLogs: $bodyWeightLogs, bodyMeasurements: $bodyMeasurements, cardioSessions: $cardioSessions, settings: $settings, actionError: $actionError)';
 }
 
 
@@ -316,7 +315,7 @@ abstract mixin class $TrainingLoadedCopyWith<$Res> implements $TrainingStateCopy
   factory $TrainingLoadedCopyWith(TrainingLoaded value, $Res Function(TrainingLoaded) _then) = _$TrainingLoadedCopyWithImpl;
 @useResult
 $Res call({
- List<ExerciseEntity> exercises, List<RoutineEntity> routines, List<WorkoutSetEntity> weightLogs, List<WorkoutSessionEntity> workoutSessions, List<BodyWeightLogEntity> bodyWeightLogs, List<BodyMeasurementEntity> bodyMeasurements, List<CardioSessionEntity> cardioSessions, Map<String, String> settings, double? lastEstimated1RM, String? actionError
+ List<ExerciseEntity> exercises, List<RoutineEntity> routines, List<WorkoutSetEntity> weightLogs, List<WorkoutSessionEntity> workoutSessions, List<BodyWeightLogEntity> bodyWeightLogs, List<BodyMeasurementEntity> bodyMeasurements, List<CardioSessionEntity> cardioSessions, Map<String, String> settings, String? actionError
 });
 
 
@@ -333,7 +332,7 @@ class _$TrainingLoadedCopyWithImpl<$Res>
 
 /// Create a copy of TrainingState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? exercises = null,Object? routines = null,Object? weightLogs = null,Object? workoutSessions = null,Object? bodyWeightLogs = null,Object? bodyMeasurements = null,Object? cardioSessions = null,Object? settings = null,Object? lastEstimated1RM = freezed,Object? actionError = freezed,}) {
+@pragma('vm:prefer-inline') $Res call({Object? exercises = null,Object? routines = null,Object? weightLogs = null,Object? workoutSessions = null,Object? bodyWeightLogs = null,Object? bodyMeasurements = null,Object? cardioSessions = null,Object? settings = null,Object? actionError = freezed,}) {
   return _then(TrainingLoaded(
 exercises: null == exercises ? _self._exercises : exercises // ignore: cast_nullable_to_non_nullable
 as List<ExerciseEntity>,routines: null == routines ? _self._routines : routines // ignore: cast_nullable_to_non_nullable
@@ -343,8 +342,7 @@ as List<WorkoutSessionEntity>,bodyWeightLogs: null == bodyWeightLogs ? _self._bo
 as List<BodyWeightLogEntity>,bodyMeasurements: null == bodyMeasurements ? _self._bodyMeasurements : bodyMeasurements // ignore: cast_nullable_to_non_nullable
 as List<BodyMeasurementEntity>,cardioSessions: null == cardioSessions ? _self._cardioSessions : cardioSessions // ignore: cast_nullable_to_non_nullable
 as List<CardioSessionEntity>,settings: null == settings ? _self._settings : settings // ignore: cast_nullable_to_non_nullable
-as Map<String, String>,lastEstimated1RM: freezed == lastEstimated1RM ? _self.lastEstimated1RM : lastEstimated1RM // ignore: cast_nullable_to_non_nullable
-as double?,actionError: freezed == actionError ? _self.actionError : actionError // ignore: cast_nullable_to_non_nullable
+as Map<String, String>,actionError: freezed == actionError ? _self.actionError : actionError // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }

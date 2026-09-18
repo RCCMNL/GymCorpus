@@ -10,20 +10,23 @@ RoutineExerciseEntity _exercise({
   bool isBodyweight = false,
   double weight = 40,
   String? setsData,
+  int id = 1,
+  int orderIndex = 0,
+  String name = 'Panca',
 }) {
   return RoutineExerciseEntity(
-    id: 1,
+    id: id,
     routineId: 1,
     exercise: ExerciseEntity(
-      id: 1,
-      name: 'Panca',
+      id: id,
+      name: name,
       targetMuscle: 'Petto',
       isBodyweight: isBodyweight,
     ),
     sets: 2,
     reps: 10,
     weight: weight,
-    orderIndex: 0,
+    orderIndex: orderIndex,
     setsData: setsData,
   );
 }
@@ -31,13 +34,8 @@ RoutineExerciseEntity _exercise({
 RoutineDraft _draft({
   String name = 'forza',
   List<RoutineExerciseEntity>? exercises,
-  bool imperial = false,
 }) {
-  return RoutineDraft(
-    name: name,
-    exercises: exercises ?? [_exercise()],
-    useImperialUnits: imperial,
-  );
+  return RoutineDraft(name: name, exercises: exercises ?? [_exercise()]);
 }
 
 List<Map<String, dynamic>> _sets(RoutineExerciseEntity exercise) {
@@ -116,7 +114,7 @@ void main() {
       ]);
     });
 
-    test('in chili gli esercizi vengono salvati come sono', () {
+    test('gli esercizi vengono salvati come sono', () {
       final original = _exercise(setsData: '[{"weight":40,"reps":10}]');
 
       final saved = _draft(exercises: [original]).exercisesToSave().single;
@@ -124,28 +122,38 @@ void main() {
       expect(saved, original);
     });
 
-    test('in libbre il peso torna in chili prima di salvare', () {
+    test('l ordine salvato e quello della lista, non quello di partenza', () {
+      // Dopo un riordino gli esercizi portano ancora l'orderIndex della
+      // posizione da cui vengono: e' la lista a dire l'ordine giusto.
       final saved = _draft(
-        imperial: true,
         exercises: [
-          _exercise(weight: 100, setsData: '[{"weight":100,"reps":10}]'),
+          _exercise(id: 7, name: 'Stacco', orderIndex: 2),
+          // Lo zero e' scritto apposta: qui contano gli indici 2, 0, 1.
+          // ignore: avoid_redundant_argument_values
+          _exercise(id: 3, orderIndex: 0),
+          _exercise(id: 5, name: 'Squat', orderIndex: 1),
+        ],
+      ).exercisesToSave();
+
+      expect(saved.map((e) => e.orderIndex), [0, 1, 2]);
+      expect(saved.map((e) => e.exercise.name), ['Stacco', 'Panca', 'Squat']);
+    });
+
+    test('i pesi arrivano gia in chili e non vengono riconvertiti', () {
+      // Chi compila la bozza lavora in libbre, ma converte prima di
+      // consegnare: qui un peso e' gia' un peso in chili, sempre.
+      final saved = _draft(
+        exercises: [
+          _exercise(
+            weight: UnitConverter.lbToKg(100),
+            setsData: '[{"weight":45.359,"reps":10}]',
+          ),
         ],
       ).exercisesToSave().single;
 
-      expect(saved.weight, closeTo(UnitConverter.lbToKg(100), 0.0001));
+      expect(saved.weight, closeTo(45.359, 0.001));
       expect(_sets(saved).single['weight'], closeTo(45.359, 0.001));
       expect(_sets(saved).single['reps'], 10);
-    });
-
-    test('in libbre un setsData illeggibile lascia l esercizio intatto', () {
-      final original = _exercise(weight: 100, setsData: 'non e json');
-
-      final saved = _draft(
-        imperial: true,
-        exercises: [original],
-      ).exercisesToSave().single;
-
-      expect(saved, original);
     });
   });
 }

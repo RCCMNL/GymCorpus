@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_activity.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_goal.dart';
+import 'package:gym_corpus/features/training/presentation/widgets/cardio_activity_style.dart';
 import 'package:gym_corpus/features/training/presentation/widgets/cardio_stats_panel.dart';
 
 void main() {
@@ -35,6 +36,21 @@ void main() {
       ),
     );
   }
+
+  testWidgets('ogni attivita porta il proprio colore, non l arancione', (
+    tester,
+  ) async {
+    await tester.pumpWidget(buildPanel(activity: CardioActivity.elliptical));
+
+    final context = tester.element(find.byType(CardioStatsPanel));
+    final label = tester.widget<Text>(find.text('ELLITTICA'));
+
+    expect(
+      label.style?.color,
+      CardioActivity.elliptical.accent(Theme.of(context)),
+      reason: 'lo sfondo della sessione usa gia questo colore',
+    );
+  });
 
   testWidgets('mostra le statistiche formattate correttamente', (tester) async {
     await tester.pumpWidget(buildPanel());

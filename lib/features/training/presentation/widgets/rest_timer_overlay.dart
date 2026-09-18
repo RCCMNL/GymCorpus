@@ -99,24 +99,30 @@ class RestTimerOverlay extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 40),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ActionPill(
-                      icon: Icons.refresh_rounded,
-                      label: 'Riavvia',
-                      onTap: onRestart,
-                      filled: false,
-                      theme: theme,
-                    ),
-                    ActionPill(
-                      icon: Icons.skip_next_rounded,
-                      label: 'Salta',
-                      onTap: onSkip,
-                      filled: true,
-                      theme: theme,
-                    ),
-                  ],
+                // Le due pastiglie non ci stavano affiancate sugli schermi
+                // stretti: si stringono un po' invece di uscire dal bordo.
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ActionPill(
+                        icon: Icons.refresh_rounded,
+                        label: 'Riavvia',
+                        onTap: onRestart,
+                        filled: false,
+                        theme: theme,
+                      ),
+                      const SizedBox(width: 12),
+                      ActionPill(
+                        icon: Icons.skip_next_rounded,
+                        label: 'Salta',
+                        onTap: onSkip,
+                        filled: true,
+                        theme: theme,
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 24),
                 TextButton.icon(

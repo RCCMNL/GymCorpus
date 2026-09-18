@@ -179,4 +179,21 @@ void main() {
       verify(() => bloc.add(const ResetRoutineToSourceEvent(3))).called(1);
     },
   );
+
+  testWidgets('dopo il ripristino la conferma si vede davvero', (tester) async {
+    await tester.pumpWidget(
+      wrap(
+        copiedRoutine,
+        TrainingLoaded(exercises: const [], routines: [copiedRoutine]),
+      ),
+    );
+
+    await tester.tap(find.text('RIPRISTINA VALORI ORIGINALI'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('RIPRISTINA'));
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('Routine ripristinata'), findsOneWidget);
+  });
 }

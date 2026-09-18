@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:gym_corpus/features/training/domain/entities/cardio_location_issue.dart';
 import 'package:gym_corpus/features/training/presentation/widgets/cardio_overlays.dart';
 
 void main() {
@@ -9,6 +10,71 @@ void main() {
     testWidgets('mostra il messaggio di ricerca segnale', (tester) async {
       await tester.pumpWidget(wrap(const GpsSearchingOverlay()));
       expect(find.text('RICERCA SEGNALE GPS...'), findsOneWidget);
+    });
+  });
+
+  group('GpsUnavailableOverlay', () {
+    testWidgets('col GPS spento spiega che va acceso', (tester) async {
+      await tester.pumpWidget(
+        wrap(
+          GpsUnavailableOverlay(
+            issue: CardioLocationIssue.serviceDisabled,
+            onRetry: () {},
+          ),
+        ),
+      );
+
+      expect(find.text('Attiva la localizzazione del telefono'), findsOneWidget);
+    });
+
+    testWidgets('col permesso negato spiega che va concesso', (tester) async {
+      await tester.pumpWidget(
+        wrap(
+          GpsUnavailableOverlay(
+            issue: CardioLocationIssue.permissionDenied,
+            onRetry: () {},
+          ),
+        ),
+      );
+
+      expect(
+        find.text('Serve il permesso di accedere alla posizione'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('col permesso negato per sempre rimanda alle impostazioni', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        wrap(
+          GpsUnavailableOverlay(
+            issue: CardioLocationIssue.permissionDeniedForever,
+            onRetry: () {},
+          ),
+        ),
+      );
+
+      expect(
+        find.textContaining('impostazioni', findRichText: true),
+        findsWidgets,
+      );
+    });
+
+    testWidgets('riprovare rilancia il controllo', (tester) async {
+      var retried = 0;
+      await tester.pumpWidget(
+        wrap(
+          GpsUnavailableOverlay(
+            issue: CardioLocationIssue.serviceDisabled,
+            onRetry: () => retried++,
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('RIPROVA'));
+
+      expect(retried, 1);
     });
   });
 

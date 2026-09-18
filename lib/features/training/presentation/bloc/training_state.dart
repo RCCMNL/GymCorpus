@@ -21,7 +21,6 @@ class TrainingState with _$TrainingState {
     @Default([]) List<BodyMeasurementEntity> bodyMeasurements,
     @Default([]) List<CardioSessionEntity> cardioSessions,
     @Default({}) Map<String, String> settings,
-    double? lastEstimated1RM,
 
     /// Errore transitorio di una singola operazione di scrittura.
     ///

@@ -70,6 +70,25 @@ void main() {
     expect(find.textContaining('durata'), findsWidgets);
   });
 
+  testWidgets('corretto l errore, il messaggio se ne va', (tester) async {
+    await pump(tester);
+
+    await tester.tap(find.text('SALVA SESSIONE'));
+    await tester.pump();
+    expect(find.text('Indica la durata in minuti.'), findsOneWidget);
+
+    await tester.enterText(find.byKey(const Key('manual-duration')), '45');
+    await tester.scrollUntilVisible(
+      find.text('SALVA SESSIONE'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(find.text('SALVA SESSIONE'));
+    await tester.pump();
+
+    expect(find.text('Indica la durata in minuti.'), findsNothing);
+  });
+
   testWidgets('registra tipo, durata e distanza indicati', (tester) async {
     await pump(tester);
 

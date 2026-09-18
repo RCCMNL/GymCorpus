@@ -72,6 +72,10 @@ class _ManualCardioEntryScreenState extends State<ManualCardioEntryScreen> {
   }
 
   void _save() {
+    // L'errore racconta questo tentativo, non quello di prima: senza
+    // ripulirlo restava a schermo anche dopo aver corretto il campo.
+    setState(() => _error = null);
+
     final minutes = _parse(_duration.text);
     if (minutes == null || minutes <= 0 || minutes > 1440) {
       setState(() => _error = 'Indica la durata in minuti.');

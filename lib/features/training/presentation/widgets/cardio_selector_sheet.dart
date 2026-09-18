@@ -6,6 +6,26 @@ import 'package:gym_corpus/features/training/domain/entities/cardio_activity.dar
 import 'package:gym_corpus/features/training/domain/entities/cardio_goal.dart';
 import 'package:gym_corpus/features/training/presentation/widgets/cardio_activity_style.dart';
 
+/// Apre il foglio di avvio di una sessione cardio.
+///
+/// Passa da qui e non da `showModalBottomSheet` diretto perche'
+/// `isScrollControlled` non e' un dettaglio estetico: senza, il foglio si
+/// ferma a 9/16 dello schermo e le attivita' al chiuso finiscono fuori,
+/// irraggiungibili.
+Future<void> showCardioSelectorSheet({
+  required BuildContext context,
+  required void Function(CardioLaunchArgs args) onStart,
+  required VoidCallback onManualEntry,
+}) {
+  return showModalBottomSheet<void>(
+    context: context,
+    backgroundColor: Colors.transparent,
+    isScrollControlled: true,
+    builder: (_) =>
+        CardioSelectorSheet(onStart: onStart, onManualEntry: onManualEntry),
+  );
+}
+
 /// Foglio di avvio di una sessione cardio: attivita' e obiettivo.
 ///
 /// L'obiettivo si sceglie qui perche' durante la sessione le mani sono
@@ -54,44 +74,49 @@ class _CardioSelectorSheetState extends State<CardioSelectorSheet> {
         24,
         MediaQuery.of(context).padding.bottom + 24,
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const SectionTitle(
-            'OBIETTIVO (OPZIONALE)',
-            tone: SectionTitleTone.muted,
-          ),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            alignment: WrapAlignment.center,
-            children: [
-              for (final preset in _presets)
-                _GoalChip(
-                  goal: preset,
-                  selected: _goal == preset,
-                  onTap: () => _toggle(preset),
-                ),
-            ],
-          ),
-          const SizedBox(height: 24),
-          const SectionTitle("ALL'APERTO", tone: SectionTitleTone.muted),
-          const SizedBox(height: 12),
-          _ActivityRow(activities: CardioActivity.outdoor, onTap: _start),
-          const SizedBox(height: 20),
-          const SectionTitle('AL CHIUSO', tone: SectionTitleTone.muted),
-          const SizedBox(height: 12),
-          _ActivityRow(activities: CardioActivity.indoor, onTap: _start),
-          const SizedBox(height: 12),
-          Center(
-            child: TextButton.icon(
-              onPressed: widget.onManualEntry,
-              icon: const Icon(Icons.edit_calendar_rounded, size: 18),
-              label: const Text('Registra una sessione gia fatta'),
+      // Scorrevole: su schermi bassi, o col testo ingrandito, le attivita'
+      // al chiuso e la registrazione manuale stanno in fondo, e senza
+      // scorrimento sarebbero semplicemente tagliate via.
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SectionTitle(
+              'OBIETTIVO (OPZIONALE)',
+              tone: SectionTitleTone.muted,
             ),
-          ),
-        ],
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              alignment: WrapAlignment.center,
+              children: [
+                for (final preset in _presets)
+                  _GoalChip(
+                    goal: preset,
+                    selected: _goal == preset,
+                    onTap: () => _toggle(preset),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            const SectionTitle("ALL'APERTO", tone: SectionTitleTone.muted),
+            const SizedBox(height: 12),
+            _ActivityRow(activities: CardioActivity.outdoor, onTap: _start),
+            const SizedBox(height: 20),
+            const SectionTitle('AL CHIUSO', tone: SectionTitleTone.muted),
+            const SizedBox(height: 12),
+            _ActivityRow(activities: CardioActivity.indoor, onTap: _start),
+            const SizedBox(height: 12),
+            Center(
+              child: TextButton.icon(
+                onPressed: widget.onManualEntry,
+                icon: const Icon(Icons.edit_calendar_rounded, size: 18),
+                label: const Text('Registra una sessione gia fatta'),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

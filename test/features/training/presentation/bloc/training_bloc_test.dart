@@ -415,11 +415,8 @@ void main() {
     );
 
     blocTest<TrainingBloc, TrainingState>(
-      'aggiorna il lastEstimated1RM quando aggiungi un Set con RPE > 8',
+      'una serie completata finisce nel database con il suo RPE',
       build: () {
-        when(
-          () => mockRepository.watchExercises(),
-        ).thenAnswer((_) => Stream.value(tExercises));
         when(
           () => mockRepository.addSetToExercise(
             workoutId: 1,
@@ -431,7 +428,7 @@ void main() {
         ).thenAnswer((_) async => const Right(null));
         return bloc;
       },
-      seed: () => TrainingLoaded(exercises: tExercises), // Start State Ready
+      seed: () => TrainingLoaded(exercises: tExercises),
       act: (bloc) => bloc.add(
         const AddSetToExercise(
           workoutId: 1,
@@ -441,14 +438,18 @@ void main() {
           rpe: 9,
         ),
       ),
-      expect: () => [
-        // La formula stima ~112.5 per 100kgx5 reps
-        isA<TrainingLoaded>().having(
-          (s) => s.lastEstimated1RM,
-          'last estimated',
-          closeTo(112.5, 0.1),
-        ),
-      ],
+      expect: () => <TrainingState>[],
+      verify: (_) {
+        verify(
+          () => mockRepository.addSetToExercise(
+            workoutId: 1,
+            exerciseId: 1,
+            reps: 5,
+            weight: 100,
+            rpe: 9,
+          ),
+        ).called(1);
+      },
     );
 
     blocTest<TrainingBloc, TrainingState>(
