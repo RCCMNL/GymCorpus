@@ -16,6 +16,7 @@ import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_activity.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_draft.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_goal.dart';
+import 'package:gym_corpus/features/training/domain/entities/cardio_location_issue.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_route_point.dart';
 import 'package:gym_corpus/features/training/domain/services/cardio_splits.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
@@ -77,6 +78,9 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
   bool _showCountdown = false;
   bool _isLocating = true;
 
+  /// Perche' la posizione non e' disponibile, quando non lo e'.
+  CardioLocationIssue? _issue;
+
   @override
   void initState() {
     super.initState();
@@ -85,35 +89,75 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
 
   Future<void> _initLocation() async {
     await _checkDraft();
+    await _locate();
+  }
 
+  /// Cerca la posizione di partenza e chiude comunque la ricerca.
+  ///
+  /// L'esito passa da un unico punto proprio perche' il contrario era un
+  /// bug: ogni `return` anticipato lasciava `_isLocating` a true, e la
+  /// schermata restava sulla ricerca del segnale per sempre, senza
+  /// spiegazione e senza il pulsante di avvio.
+  Future<void> _locate() async {
+    final issue = await _locationIssue();
+    if (!mounted) return;
+
+    setState(() {
+      _isLocating = false;
+      // Una sessione ripresa da una bozza e' gia' in corso: non ha senso
+      // coprirla con l'avviso di posizione mancante.
+      _issue = _isTracking ? null : issue;
+    });
+
+    final position = _currentPosition;
+    if (issue == null && position != null) _mapController.move(position, 16);
+  }
+
+  /// Il motivo per cui la sessione non puo' seguire la posizione, o `null`
+  /// se puo'.
+  Future<CardioLocationIssue?> _locationIssue() async {
     // Al chiuso non c'e' percorso da seguire: chiedere il permesso di
     // localizzazione per una sessione sul tapis roulant sarebbe solo un
     // permesso in piu' senza contropartita.
-    if (!widget.activity.tracksLocation) {
-      if (mounted) setState(() => _isLocating = false);
-      return;
-    }
+    if (!widget.activity.tracksLocation) return null;
 
-    final serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) return;
+    if (!await Geolocator.isLocationServiceEnabled()) {
+      return CardioLocationIssue.serviceDisabled;
+    }
 
     var permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) return;
     }
-    if (permission == LocationPermission.deniedForever) return;
+    if (permission == LocationPermission.denied) {
+      return CardioLocationIssue.permissionDenied;
+    }
+    if (permission == LocationPermission.deniedForever) {
+      return CardioLocationIssue.permissionDeniedForever;
+    }
 
-    final pos = await Geolocator.getCurrentPosition(
-      locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
-    );
-    if (mounted) {
-      setState(() {
-        _currentPosition = LatLng(pos.latitude, pos.longitude);
-        _isLocating = false;
-      });
-      _mapController.move(_currentPosition!, 16);
+    try {
+      final pos = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+        ),
+      );
+      _currentPosition = LatLng(pos.latitude, pos.longitude);
+    } catch (e) {
+      // Il permesso c'e': il flusso di posizioni puo' comunque partire, e
+      // la mappa si centrera' al primo punto ricevuto. Meglio una mappa
+      // non centrata che una schermata bloccata.
+      debugPrint('CardioTracker._locationIssue: $e');
     }
+    return null;
+  }
+
+  void _retryLocation() {
+    setState(() {
+      _isLocating = true;
+      _issue = null;
+    });
+    unawaited(_locate());
   }
 
   Future<void> _checkDraft() async {
@@ -587,6 +631,10 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
     final tracksLocation = widget.activity.tracksLocation;
     final distKm = _distanceMeters / 1000;
 
+    // Senza posizione la sessione non puo' partire: si mostra il motivo al
+    // posto dei comandi, non sopra di essi.
+    final blocked = tracksLocation && !_isLocating && _issue != null;
+
     return PopScope(
       canPop: !_isTracking || _isSaving,
       onPopInvokedWithResult: (didPop, result) async {
@@ -612,6 +660,16 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
                   activity: widget.activity,
                   elapsedSeconds: _elapsedSeconds,
                   isTracking: _isTracking,
+                ),
+              ),
+
+            // Posizione non disponibile: sotto al tasto indietro, cosi' da
+            // qui si puo' sempre uscire.
+            if (blocked)
+              Positioned.fill(
+                child: GpsUnavailableOverlay(
+                  issue: _issue!,
+                  onRetry: _retryLocation,
                 ),
               ),
 
@@ -649,7 +707,7 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
             ),
 
             // Top Right Controls (GPS + OSM)
-            if (!_isLocating && tracksLocation)
+            if (!_isLocating && tracksLocation && !blocked)
               Positioned(
                 top: MediaQuery.of(context).padding.top + 12,
                 right: 16,
@@ -660,27 +718,28 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
               ),
 
             // Bottom Stats Panel
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: CardioStatsPanel(
-                activity: widget.activity,
-                distanceKm: distKm,
-                elapsedSeconds: _elapsedSeconds,
-                currentSpeedKmh: _currentSpeedKmh,
-                currentSteps: _currentSteps,
-                userWeightKg: _getUserWeight(),
-                isTracking: _isTracking,
-                isLocating: _isLocating,
-                isPaused: _isPaused,
-                isSaving: _isSaving,
-                goal: widget.goal,
-                onStart: _runCountdown,
-                onPauseResume: _isPaused ? _resumeTracking : _pauseTracking,
-                onStop: _stopAndSave,
+            if (!blocked)
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: CardioStatsPanel(
+                  activity: widget.activity,
+                  distanceKm: distKm,
+                  elapsedSeconds: _elapsedSeconds,
+                  currentSpeedKmh: _currentSpeedKmh,
+                  currentSteps: _currentSteps,
+                  userWeightKg: _getUserWeight(),
+                  isTracking: _isTracking,
+                  isLocating: _isLocating,
+                  isPaused: _isPaused,
+                  isSaving: _isSaving,
+                  goal: widget.goal,
+                  onStart: _runCountdown,
+                  onPauseResume: _isPaused ? _resumeTracking : _pauseTracking,
+                  onStop: _stopAndSave,
+                ),
               ),
-            ),
 
             // Avviso di chilometro completato o obiettivo raggiunto
             if (_bannerTitle != null)

@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:gym_corpus/core/widgets/icon_badge.dart';
+import 'package:gym_corpus/features/training/domain/entities/cardio_location_issue.dart';
 
 /// Overlay a schermo intero mostrato mentre si cerca il segnale GPS prima
 /// di poter avviare una sessione cardio.
@@ -35,6 +36,98 @@ class GpsSearchingOverlay extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Overlay mostrato quando una sessione all'aperto non puo' partire perche'
+/// manca la posizione.
+///
+/// Prima di questo la schermata restava sulla ricerca del segnale per
+/// sempre: niente spiegazione, niente pulsante di avvio, nessuna via
+/// d'uscita che non fosse il tasto indietro.
+class GpsUnavailableOverlay extends StatelessWidget {
+  const GpsUnavailableOverlay({
+    required this.issue,
+    required this.onRetry,
+    super.key,
+  });
+
+  final CardioLocationIssue issue;
+  final VoidCallback onRetry;
+
+  String get _title {
+    switch (issue) {
+      case CardioLocationIssue.serviceDisabled:
+        return 'Attiva la localizzazione del telefono';
+      case CardioLocationIssue.permissionDenied:
+      case CardioLocationIssue.permissionDeniedForever:
+        return 'Serve il permesso di accedere alla posizione';
+    }
+  }
+
+  String get _explanation {
+    switch (issue) {
+      case CardioLocationIssue.serviceDisabled:
+        return 'Senza posizione non si puo tracciare il percorso. '
+            'Accendi il GPS e riprova, oppure registra la sessione a mano '
+            'quando hai finito.';
+      case CardioLocationIssue.permissionDenied:
+        return 'Concedi il permesso a GymCorpus e riprova, oppure registra '
+            'la sessione a mano quando hai finito.';
+      case CardioLocationIssue.permissionDeniedForever:
+        return 'Il permesso e stato negato in modo definitivo: puoi '
+            'riattivarlo dalle impostazioni del telefono, oppure registrare '
+            'la sessione a mano quando hai finito.';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return ColoredBox(
+      color: theme.colorScheme.surface,
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.location_disabled_rounded,
+                size: 56,
+                color: theme.colorScheme.error,
+              ),
+              const SizedBox(height: 24),
+              Text(
+                _title,
+                textAlign: TextAlign.center,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w900,
+                  fontFamily: 'Lexend',
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                _explanation,
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.outline,
+                ),
+              ),
+              const SizedBox(height: 28),
+              FilledButton(
+                onPressed: onRetry,
+                child: const Text(
+                  'RIPROVA',
+                  style: TextStyle(fontWeight: FontWeight.w900),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
