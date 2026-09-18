@@ -82,10 +82,17 @@ function buildReleaseApk() {
 
 async function uploadApk(bucket, apkPath, versionName, versionCode) {
   const destination = `releases/app-${versionName}+${versionCode}.apk`;
+  const downloadFileName = `GymCorpus-${versionName}.apk`;
   console.log(`Carico ${destination} su Firebase Storage...`);
   const [file] = await bucket.upload(apkPath, {
     destination,
-    metadata: { contentType: 'application/vnd.android.package-archive' },
+    metadata: {
+      contentType: 'application/vnd.android.package-archive',
+      // Senza questo header il browser nomina il file scaricato come
+      // l'ultimo segmento del percorso su Storage ("app-1.1.0+2.apk"),
+      // troppo generico per l'utente che lo installa.
+      contentDisposition: `attachment; filename="${downloadFileName}"`,
+    },
   });
 
   // Link firmato con scadenza lontana invece di un ACL pubblico: funziona
