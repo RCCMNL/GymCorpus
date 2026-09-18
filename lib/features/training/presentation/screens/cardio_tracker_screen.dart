@@ -18,6 +18,7 @@ import 'package:gym_corpus/features/training/domain/entities/cardio_draft.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_goal.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_location_issue.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_route_point.dart';
+import 'package:gym_corpus/features/training/domain/services/cardio_gps_filter.dart';
 import 'package:gym_corpus/features/training/domain/services/cardio_splits.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
@@ -409,39 +410,30 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
         ).listen((pos) {
           if (_isPaused) return;
 
-          // Aggiorna la qualità del segnale
-          var signalQuality = 2;
-          if (pos.accuracy > 40) {
-            signalQuality = 0;
-          } else if (pos.accuracy > 20) {
-            signalQuality = 1;
+          setState(() {
+            // GpsStatusBadge legge 0 scarso, 1 discreto, 2 buono: lo stesso
+            // ordine in cui sono dichiarati i valori di GpsQuality.
+            _gpsSignalQuality = CardioGpsFilter.qualityFor(pos.accuracy).index;
+          });
+
+          final newPoint = LatLng(pos.latitude, pos.longitude);
+          final previous = _route.isEmpty ? null : _route.last.position;
+          final metersFromPrevious = previous == null
+              ? null
+              : const Distance().as(LengthUnit.Meter, previous, newPoint);
+
+          // Punto scartato: niente percorso, niente distanza e soprattutto
+          // niente mappa. Spostarla comunque la faceva saltare sul rimbalzo
+          // che si era appena deciso di ignorare.
+          if (CardioGpsFilter.rejects(
+            accuracyMeters: pos.accuracy,
+            metersFromPrevious: metersFromPrevious,
+          )) {
+            return;
           }
 
           setState(() {
-            _gpsSignalQuality = signalQuality;
-          });
-
-          // Filtro GPS Drift: Scarta punti troppo imprecisi (rimbalzi)
-          if (pos.accuracy > 20) return;
-
-          final newPoint = LatLng(pos.latitude, pos.longitude);
-
-          setState(() {
-            if (_route.isNotEmpty) {
-              final dist = const Distance().as(
-                LengthUnit.Meter,
-                _route.last.position,
-                newPoint,
-              );
-
-              // Anti-drift avanzato (Filtro cinetico):
-              // Con aggiornamenti ravvicinati, uno sbalzo > 35m significa una velocità
-              // impossibile per un umano (> 60 km/h). Indica che il GPS ha "rimbalzato" lontano.
-              if (dist > 35.0) return;
-
-              _distanceMeters += dist;
-            }
-
+            _distanceMeters += metersFromPrevious ?? 0;
             _route.add(
               CardioRoutePoint(
                 position: newPoint,

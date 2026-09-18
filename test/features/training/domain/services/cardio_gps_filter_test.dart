@@ -1,0 +1,66 @@
+import 'package:flutter_test/flutter_test.dart';
+import 'package:gym_corpus/features/training/domain/services/cardio_gps_filter.dart';
+
+/// Un punto GPS scartato deve sparire del tutto: non entra nel percorso,
+/// non somma distanza e non sposta la mappa.
+void main() {
+  group('CardioGpsFilter.rejects', () {
+    test('accetta un punto preciso e vicino', () {
+      expect(
+        CardioGpsFilter.rejects(accuracyMeters: 8, metersFromPrevious: 12),
+        isFalse,
+      );
+    });
+
+    test('scarta un punto troppo impreciso', () {
+      expect(
+        CardioGpsFilter.rejects(accuracyMeters: 25, metersFromPrevious: 5),
+        isTrue,
+      );
+    });
+
+    test('scarta un salto impossibile per un umano', () {
+      // Oltre i 35 metri fra due aggiornamenti ravvicinati e' un rimbalzo
+      // del GPS, non una corsa.
+      expect(
+        CardioGpsFilter.rejects(accuracyMeters: 5, metersFromPrevious: 60),
+        isTrue,
+      );
+    });
+
+    test('il primo punto non ha un precedente da cui saltare', () {
+      expect(
+        CardioGpsFilter.rejects(accuracyMeters: 5, metersFromPrevious: null),
+        isFalse,
+      );
+    });
+
+    test('un primo punto impreciso viene scartato lo stesso', () {
+      expect(
+        CardioGpsFilter.rejects(accuracyMeters: 40, metersFromPrevious: null),
+        isTrue,
+      );
+    });
+
+    test('sul limite il punto si tiene', () {
+      expect(
+        CardioGpsFilter.rejects(accuracyMeters: 20, metersFromPrevious: 35),
+        isFalse,
+      );
+    });
+  });
+
+  group('CardioGpsFilter.qualityFor', () {
+    test('sotto i 20 metri il segnale e buono', () {
+      expect(CardioGpsFilter.qualityFor(10), GpsQuality.good);
+    });
+
+    test('fra 20 e 40 metri il segnale e discreto', () {
+      expect(CardioGpsFilter.qualityFor(30), GpsQuality.fair);
+    });
+
+    test('oltre i 40 metri il segnale e scarso', () {
+      expect(CardioGpsFilter.qualityFor(50), GpsQuality.poor);
+    });
+  });
+}
