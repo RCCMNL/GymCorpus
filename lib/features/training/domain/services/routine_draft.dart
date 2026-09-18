@@ -39,14 +39,17 @@ class RoutineDraft {
     return trimmed[0].toUpperCase() + trimmed.substring(1);
   }
 
-  /// Gli esercizi pronti per il database: corpo libero sempre senza peso.
+  /// Gli esercizi pronti per il database: corpo libero sempre senza peso e
+  /// ordine preso dalla lista.
+  ///
+  /// L'ordine viene rinumerato qui perche' dopo un riordino ogni esercizio
+  /// porta ancora l'indice della posizione da cui viene: salvarlo com'e'
+  /// significava scrivere nel database un ordine che nessuno aveva scelto.
   List<RoutineExerciseEntity> exercisesToSave() {
     return [
-      for (final exercise in exercises)
-        if (exercise.exercise.isBodyweight)
-          _withoutWeight(exercise)
-        else
-          exercise,
+      for (final (index, exercise) in exercises.indexed)
+        (exercise.exercise.isBodyweight ? _withoutWeight(exercise) : exercise)
+            .copyWith(orderIndex: index),
     ];
   }
 

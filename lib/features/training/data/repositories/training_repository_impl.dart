@@ -250,7 +250,14 @@ class TrainingRepositoryImpl implements TrainingRepository {
               database.routineExercises.exerciseId,
             ),
           ),
-        ])..where(database.routineExercises.routineId.equals(routineData.id));
+        ])
+          ..where(database.routineExercises.routineId.equals(routineData.id))
+          // L'ordine e' un dato della routine, non l'ordine in cui il
+          // database restituisce le righe: senza questo, l'ordine degli
+          // esercizi dipendeva da come erano stati scritti.
+          ..orderBy([
+            OrderingTerm(expression: database.routineExercises.orderIndex),
+          ]);
 
         final rows = await exercisesQuery.get();
 

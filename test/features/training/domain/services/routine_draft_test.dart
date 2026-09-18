@@ -10,20 +10,23 @@ RoutineExerciseEntity _exercise({
   bool isBodyweight = false,
   double weight = 40,
   String? setsData,
+  int id = 1,
+  int orderIndex = 0,
+  String name = 'Panca',
 }) {
   return RoutineExerciseEntity(
-    id: 1,
+    id: id,
     routineId: 1,
     exercise: ExerciseEntity(
-      id: 1,
-      name: 'Panca',
+      id: id,
+      name: name,
       targetMuscle: 'Petto',
       isBodyweight: isBodyweight,
     ),
     sets: 2,
     reps: 10,
     weight: weight,
-    orderIndex: 0,
+    orderIndex: orderIndex,
     setsData: setsData,
   );
 }
@@ -117,6 +120,21 @@ void main() {
       final saved = _draft(exercises: [original]).exercisesToSave().single;
 
       expect(saved, original);
+    });
+
+    test('l ordine salvato e quello della lista, non quello di partenza', () {
+      // Dopo un riordino gli esercizi portano ancora l'orderIndex della
+      // posizione da cui vengono: e' la lista a dire l'ordine giusto.
+      final saved = _draft(
+        exercises: [
+          _exercise(id: 7, name: 'Stacco', orderIndex: 2),
+          _exercise(id: 3, name: 'Panca', orderIndex: 0),
+          _exercise(id: 5, name: 'Squat', orderIndex: 1),
+        ],
+      ).exercisesToSave();
+
+      expect(saved.map((e) => e.orderIndex), [0, 1, 2]);
+      expect(saved.map((e) => e.exercise.name), ['Stacco', 'Panca', 'Squat']);
     });
 
     test('i pesi arrivano gia in chili e non vengono riconvertiti', () {
