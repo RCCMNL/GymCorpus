@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/services/notification_service.dart';
+import 'package:gym_corpus/core/utils/pending_alarm.dart';
 import 'package:gym_corpus/core/utils/time_format.dart';
 import 'package:gym_corpus/core/utils/unit_converter.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
@@ -33,6 +34,7 @@ class _TrainingScreenState extends State<TrainingScreen>
     with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   Timer? _timer;
   final RestCountdown _rest = RestCountdown();
+  final PendingAlarm _restAlarm = PendingAlarm();
   int _restDuration = 90;
   _Phase _phase = _Phase.working;
   int _exIdx = 0;
@@ -94,6 +96,7 @@ class _TrainingScreenState extends State<TrainingScreen>
         _lastResumeTime = null;
         _timer?.cancel();
         _rest.pause();
+        _restAlarm.cancel();
         NotificationService.instance.cancelNotification(100);
       } else {
         _lastResumeTime = DateTime.now();
@@ -190,8 +193,10 @@ class _TrainingScreenState extends State<TrainingScreen>
     _rest.start(_restDuration);
     _startTicking();
 
-    // Schedula notifica locale per quando scade il recupero
-    Future.delayed(Duration(seconds: _rest.remaining), () {
+    // Avviso per quando scade il recupero. Programmarlo qui sostituisce
+    // quello di prima: senza, ogni riavvio del recupero ne lasciava uno
+    // vecchio in giro, pronto a scattare in mezzo al recupero successivo.
+    _restAlarm.schedule(Duration(seconds: _rest.remaining), () {
       // Spara la notifica solo se ancora in recupero e l'app NON è in primo piano
       if (mounted && _phase == _Phase.resting) {
         final isForeground =
@@ -218,6 +223,7 @@ class _TrainingScreenState extends State<TrainingScreen>
   void _onRestDone() {
     _timer?.cancel();
     _rest.stop();
+    _restAlarm.cancel();
     NotificationService.instance.cancelNotification(100);
     setState(() {
       if (_isLastSet) {
@@ -287,6 +293,7 @@ class _TrainingScreenState extends State<TrainingScreen>
     WidgetsBinding.instance.removeObserver(this);
     _timer?.cancel();
     _executionTimer?.cancel();
+    _restAlarm.cancel();
     _pulseCtrl?.dispose();
     NotificationService.instance.cancelAll();
     super.dispose();
