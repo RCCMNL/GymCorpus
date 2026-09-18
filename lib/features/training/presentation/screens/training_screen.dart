@@ -44,6 +44,7 @@ class _TrainingScreenState extends State<TrainingScreen>
   DateTime? _lastResumeTime;
   Duration _elapsedBeforePause = Duration.zero;
   bool _isPaused = false;
+  bool _sessionStarted = false;
   Timer? _executionTimer;
   String _execTimeStr = '00:00:00';
 
@@ -56,14 +57,7 @@ class _TrainingScreenState extends State<TrainingScreen>
     _startExecutionTimer();
     context.read<TrainingBloc>()
       ..add(LoadWeightLogsEvent())
-      ..add(LoadWorkoutSessionsEvent())
-      ..add(
-        StartWorkoutSessionEvent(
-          id: _workoutId,
-          name: widget.routine?.title ?? 'Allenamento',
-          routineId: widget.routine?.id,
-        ),
-      );
+      ..add(LoadWorkoutSessionsEvent());
     _pulseCtrl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1200),
@@ -154,10 +148,28 @@ class _TrainingScreenState extends State<TrainingScreen>
     return done / total;
   }
 
+  /// Apre la sessione nel database, se non e' gia' aperta.
+  ///
+  /// Nasce al primo set e non all'apertura della schermata: entrare e
+  /// tornare indietro lasciava una sessione senza niente dentro, che nessuno
+  /// avrebbe mai chiuso.
+  void _startSessionIfNeeded() {
+    if (_sessionStarted) return;
+    _sessionStarted = true;
+    context.read<TrainingBloc>().add(
+      StartWorkoutSessionEvent(
+        id: _workoutId,
+        name: widget.routine?.title ?? 'Allenamento',
+        routineId: widget.routine?.id,
+      ),
+    );
+  }
+
   void _completeSet() {
     if (_phase != _Phase.working) return;
     final ex = _curEx;
     if (ex != null) {
+      _startSessionIfNeeded();
       final currentSpecs = getSetSpecs(ex, _setIdx);
 
       // La durata della sessione finisce in `Workouts.durationSeconds` con

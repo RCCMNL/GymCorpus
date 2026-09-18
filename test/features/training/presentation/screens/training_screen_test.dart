@@ -11,8 +11,10 @@ import 'package:gym_corpus/features/notifications/presentation/bloc/notification
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
+import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
 import 'package:gym_corpus/features/training/presentation/screens/training_screen.dart';
+import 'package:mocktail/mocktail.dart';
 
 // ignore: depend_on_referenced_packages
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
@@ -33,10 +35,14 @@ class _RecordingNotificationsPlatform extends FlutterLocalNotificationsPlatform
   Future<void> cancelAll() async => calls.add('cancelAll');
 }
 
+class _FakeTrainingEvent extends Fake implements TrainingEvent {}
+
 /// Un allenamento in corso non deve poter sparire con un tocco distratto
 /// sul tasto indietro, e uscendo non deve portarsi via le notifiche di
 /// tutta l'app.
 void main() {
+  setUpAll(() => registerFallbackValue(_FakeTrainingEvent()));
+
   late MockTrainingBloc bloc;
   late MockNotificationsBloc notificationsBloc;
   late _RecordingNotificationsPlatform notifications;
@@ -76,6 +82,12 @@ void main() {
   );
 
   Future<void> pumpScreen(WidgetTester tester, {RoutineEntity? withRoutine}) {
+    // Uno schermo da telefono vero: la finestra di default dei test e' piu'
+    // bassa di qualunque telefono, e l'overlay del recupero non ci sta.
+    tester.view.physicalSize = const Size(1170, 2532);
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
+
     return tester.pumpWidget(
       BlocProvider<TrainingBloc>.value(
         value: bloc,
@@ -86,6 +98,33 @@ void main() {
       ),
     );
   }
+
+  testWidgets('aprire la schermata non apre una sessione nel database', (
+    tester,
+  ) async {
+    await pumpScreen(tester, withRoutine: routine);
+
+    final added = verify(() => bloc.add(captureAny())).captured;
+
+    expect(
+      added.whereType<StartWorkoutSessionEvent>(),
+      isEmpty,
+      reason: 'chi apre e torna indietro non ha fatto nessun allenamento',
+    );
+  });
+
+  testWidgets('la sessione si apre al primo set completato', (tester) async {
+    await pumpScreen(tester, withRoutine: routine);
+
+    // Nessun pump dopo il tocco: qui contano gli eventi, non il recupero
+    // che comincia subito dopo.
+    await tester.tap(find.text('SEGNA SET COMPLETATO'));
+
+    final added = verify(() => bloc.add(captureAny())).captured;
+
+    expect(added.whereType<StartWorkoutSessionEvent>(), hasLength(1));
+    expect(added.whereType<AddSetToExercise>(), hasLength(1));
+  });
 
   testWidgets('il tasto indietro chiede conferma invece di uscire', (
     tester,
