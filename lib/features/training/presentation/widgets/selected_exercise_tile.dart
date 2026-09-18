@@ -61,29 +61,34 @@ class _SelectedExerciseTileState extends State<SelectedExerciseTile> {
     );
   }
 
+  /// Le serie salvate, saltando quelle illeggibili.
+  ///
+  /// Una sola serie con un valore sbagliato faceva ricadere l'intero
+  /// esercizio su una serie vuota: le altre sparivano in silenzio, ed era un
+  /// modo di perdere il lavoro di chi aveva compilato la scheda.
+  static List<ExerciseSet> _decodeSets(String? raw) {
+    if (raw == null || raw.isEmpty) return [ExerciseSet(weight: 0, reps: 0)];
+
+    final sets = <ExerciseSet>[];
+    try {
+      for (final entry in jsonDecode(raw) as List<dynamic>) {
+        if (entry is! Map<String, dynamic>) continue;
+        final weight = entry['weight'];
+        final reps = entry['reps'];
+        if (weight is! num || reps is! num) continue;
+        sets.add(ExerciseSet(weight: weight.toDouble(), reps: reps.toInt()));
+      }
+    } catch (e) {
+      debugPrint('SelectedExerciseTile: serie non interpretabili: $e');
+    }
+
+    return sets.isEmpty ? [ExerciseSet(weight: 0, reps: 0)] : sets;
+  }
+
   @override
   void initState() {
     super.initState();
-    sets = [];
-    if (widget.exercise.setsData != null) {
-      try {
-        final decoded = jsonDecode(widget.exercise.setsData!) as List<dynamic>;
-        sets = decoded.map((dynamic s) {
-          final map = s as Map<String, dynamic>;
-          return ExerciseSet(
-            weight: (map['weight'] as num).toDouble(),
-            reps: map['reps'] as int,
-          );
-        }).toList();
-      } catch (e) {
-        debugPrint('WorkoutPage _SelectedExerciseTile init error: $e');
-        sets = [ExerciseSet(weight: 0, reps: 0)];
-      }
-    }
-
-    if (sets.isEmpty) {
-      sets = [ExerciseSet(weight: 0, reps: 0)];
-    }
+    sets = _decodeSets(widget.exercise.setsData);
 
     final trainingState = context.read<TrainingBloc>().state;
     final settings = trainingState is TrainingLoaded

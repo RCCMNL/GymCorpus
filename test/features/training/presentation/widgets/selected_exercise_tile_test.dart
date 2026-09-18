@@ -176,6 +176,29 @@ void main() {
     expect(removed, isTrue);
   });
 
+  testWidgets('una serie illeggibile non porta via anche le altre', (
+    tester,
+  ) async {
+    // Prima un solo valore sbagliato faceva ricadere tutto su una serie
+    // vuota: le altre sparivano senza che nessuno lo dicesse.
+    const setsData =
+        '[{"weight":50.0,"reps":8},{"weight":"rotto","reps":10},'
+        '{"weight":60.0,"reps":6}]';
+
+    await tester.pumpWidget(
+      wrap(
+        SelectedExerciseTile(
+          exercise: buildExercise(setsData: setsData),
+          onRemove: () {},
+          onSetsUpdated: (_) {},
+          index: 0,
+        ),
+      ),
+    );
+
+    expect(find.text('2 serie'), findsOneWidget);
+  });
+
   testWidgets('in libbre mostra il peso convertito ma lo riporta in chili', (
     tester,
   ) async {
