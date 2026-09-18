@@ -18,6 +18,17 @@ void main() {
 
   const squat = ExerciseEntity(id: 1, name: 'Squat', targetMuscle: 'Gambe');
 
+  void useUnits(String units) {
+    whenListen(
+      bloc,
+      const Stream<TrainingState>.empty(),
+      initialState: TrainingState.loaded(
+        exercises: const [],
+        settings: {'units': units},
+      ),
+    );
+  }
+
   setUp(() {
     bloc = MockTrainingBloc();
     whenListen(
@@ -163,6 +174,66 @@ void main() {
 
     await tester.tap(find.byIcon(Icons.delete_outline));
     expect(removed, isTrue);
+  });
+
+  testWidgets('in libbre mostra il peso convertito ma lo riporta in chili', (
+    tester,
+  ) async {
+    useUnits('LB');
+    final setsData = jsonEncode([
+      {'weight': 100.0, 'reps': 8},
+    ]);
+    List<ExerciseSet>? updated;
+
+    await tester.pumpWidget(
+      wrap(
+        SelectedExerciseTile(
+          exercise: buildExercise(setsData: setsData),
+          onRemove: () {},
+          onSetsUpdated: (sets) => updated = sets,
+          index: 0,
+        ),
+      ),
+    );
+
+    await tester.tap(find.byIcon(Icons.keyboard_arrow_down_rounded));
+    await tester.pump();
+
+    // A schermo le libbre, perche' e' l'unita' scelta dall'utente.
+    expect(find.text('220.5'), findsOneWidget);
+
+    await tester.tap(find.text('AGGIUNGI UNA SERIE'));
+    await tester.pump();
+
+    // Fuori di qui i chili, perche' e' l'unita' del modello.
+    expect(updated!.first.weight, closeTo(100, 0.01));
+    expect(updated!.last.weight, closeTo(100, 0.01));
+  });
+
+  testWidgets('in chili il peso esce com e', (tester) async {
+    useUnits('KG');
+    final setsData = jsonEncode([
+      {'weight': 100.0, 'reps': 8},
+    ]);
+    List<ExerciseSet>? updated;
+
+    await tester.pumpWidget(
+      wrap(
+        SelectedExerciseTile(
+          exercise: buildExercise(setsData: setsData),
+          onRemove: () {},
+          onSetsUpdated: (sets) => updated = sets,
+          index: 0,
+        ),
+      ),
+    );
+
+    await tester.tap(find.byIcon(Icons.keyboard_arrow_down_rounded));
+    await tester.pump();
+    await tester.tap(find.text('AGGIUNGI UNA SERIE'));
+    await tester.pump();
+
+    expect(updated!.first.weight, closeTo(100, 0.01));
   });
 
   testWidgets('esercizi a corpo libero mostrano solo il campo reps', (

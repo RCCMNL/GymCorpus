@@ -34,9 +34,32 @@ class _SelectedExerciseTileState extends State<SelectedExerciseTile> {
   late List<ExerciseSet> sets;
   late List<TextEditingController> weightControllers;
   late List<TextEditingController> repsControllers;
+
+  /// L'unita' scelta dall'utente, letta una volta sola: [sets] vive in
+  /// questa unita' perche' e' quella che si vede e si digita.
+  late final bool _isImperial;
   bool isCollapsed = true;
 
   bool get _isBodyweight => widget.exercise.exercise.isBodyweight;
+
+  /// Le serie come le vuole chi sta fuori: sempre in chili.
+  ///
+  /// Convertire qui, e non al salvataggio, e' l'unico modo per non dover
+  /// sapere piu' tardi in che unita' fosse un `RoutineExerciseEntity`: chi
+  /// lo riceve sa che e' in chili e basta.
+  void _report() {
+    widget.onSetsUpdated(
+      _isImperial
+          ? [
+              for (final set in sets)
+                ExerciseSet(
+                  weight: UnitConverter.lbToKg(set.weight),
+                  reps: set.reps,
+                ),
+            ]
+          : sets,
+    );
+  }
 
   @override
   void initState() {
@@ -66,9 +89,9 @@ class _SelectedExerciseTileState extends State<SelectedExerciseTile> {
     final settings = trainingState is TrainingLoaded
         ? trainingState.settings
         : <String, String>{};
-    final isImperial = (settings['units'] ?? 'KG') == 'LB';
+    _isImperial = (settings['units'] ?? 'KG') == 'LB';
 
-    if (isImperial) {
+    if (_isImperial) {
       for (final s in sets) {
         s.weight = UnitConverter.kgToLb(s.weight);
       }
@@ -123,7 +146,7 @@ class _SelectedExerciseTileState extends State<SelectedExerciseTile> {
       repsControllers.add(
         TextEditingController(text: lastReps == 0 ? '' : lastReps.toString()),
       );
-      widget.onSetsUpdated(sets);
+      _report();
     });
   }
 
@@ -135,7 +158,7 @@ class _SelectedExerciseTileState extends State<SelectedExerciseTile> {
       weightControllers.removeAt(index);
       repsControllers[index].dispose();
       repsControllers.removeAt(index);
-      widget.onSetsUpdated(sets);
+      _report();
     });
   }
 
@@ -323,24 +346,16 @@ class _SelectedExerciseTileState extends State<SelectedExerciseTile> {
                                     label: 'REPS',
                                     onChanged: (v) {
                                       sets[index].reps = int.tryParse(v) ?? 0;
-                                      widget.onSetsUpdated(sets);
+                                      _report();
                                     },
                                   )
                                 : SetInputCell(
                                     controller: weightControllers[index],
-                                    label:
-                                        (context.read<TrainingBloc>().state
-                                                is TrainingLoaded &&
-                                            (context.read<TrainingBloc>().state
-                                                        as TrainingLoaded)
-                                                    .settings['units'] ==
-                                                'LB')
-                                        ? 'LB'
-                                        : 'KG',
+                                    label: _isImperial ? 'LB' : 'KG',
                                     onChanged: (v) {
                                       sets[index].weight =
                                           double.tryParse(v) ?? 0;
-                                      widget.onSetsUpdated(sets);
+                                      _report();
                                     },
                                   ),
                           ),
@@ -352,7 +367,7 @@ class _SelectedExerciseTileState extends State<SelectedExerciseTile> {
                                 label: 'REPS',
                                 onChanged: (v) {
                                   sets[index].reps = int.tryParse(v) ?? 0;
-                                  widget.onSetsUpdated(sets);
+                                  _report();
                                 },
                               ),
                             ),

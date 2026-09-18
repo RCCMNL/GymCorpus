@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:gym_corpus/core/utils/unit_converter.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 
 /// Cosa manca a una bozza di routine per poter essere salvata.
@@ -16,18 +15,15 @@ enum RoutineDraftProblem { missingName, noExercises }
 /// errore sarebbe passato inosservato piu' a lungo.
 @immutable
 class RoutineDraft {
-  const RoutineDraft({
-    required this.name,
-    required this.exercises,
-    required this.useImperialUnits,
-  });
+  const RoutineDraft({required this.name, required this.exercises});
 
   /// Il nome scritto dall'utente, non ancora ripulito.
   final String name;
-  final List<RoutineExerciseEntity> exercises;
 
-  /// Se l'utente lavora in libbre, i pesi vanno riportati in chili.
-  final bool useImperialUnits;
+  /// Gli esercizi compilati. I pesi sono in chili: chi raccoglie l'input
+  /// converte dalle libbre prima di consegnarli, perche' un'unita' che
+  /// dipende da chi guarda non e' un dato del modello.
+  final List<RoutineExerciseEntity> exercises;
 
   /// Il primo motivo per cui non si puo' salvare, o `null` se si puo'.
   RoutineDraftProblem? get problem {
@@ -43,15 +39,12 @@ class RoutineDraft {
     return trimmed[0].toUpperCase() + trimmed.substring(1);
   }
 
-  /// Gli esercizi pronti per il database: pesi sempre in chili, corpo libero
-  /// sempre a zero.
+  /// Gli esercizi pronti per il database: corpo libero sempre senza peso.
   List<RoutineExerciseEntity> exercisesToSave() {
     return [
       for (final exercise in exercises)
         if (exercise.exercise.isBodyweight)
           _withoutWeight(exercise)
-        else if (useImperialUnits)
-          _convertedToKg(exercise)
         else
           exercise,
     ];
@@ -69,34 +62,6 @@ class RoutineDraft {
           ];
 
     return exercise.copyWith(weight: 0, setsData: jsonEncode(sanitized));
-  }
-
-  /// Un `setsData` illeggibile lascia l'esercizio com'e': meglio un peso in
-  /// libbre salvato per sbaglio che un salvataggio che fallisce.
-  static RoutineExerciseEntity _convertedToKg(RoutineExerciseEntity exercise) {
-    final sets = _decodeSets(exercise);
-    if (sets.isEmpty) return exercise;
-
-    try {
-      final converted = [
-        for (final set in sets)
-          {
-            'weight': UnitConverter.lbToKg((set['weight']! as num).toDouble()),
-            'reps': set['reps'],
-          },
-      ];
-
-      return exercise.copyWith(
-        weight: UnitConverter.lbToKg(exercise.weight),
-        setsData: jsonEncode(converted),
-      );
-    } catch (error) {
-      debugPrint(
-        'RoutineDraft: serie non convertibili per '
-        '${exercise.exercise.name} (id ${exercise.exercise.id}): $error',
-      );
-      return exercise;
-    }
   }
 
   /// Le serie salvate, o una lista vuota se il JSON manca o e' rotto.

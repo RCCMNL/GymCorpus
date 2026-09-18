@@ -12,7 +12,6 @@ import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 import 'package:gym_corpus/features/training/domain/services/routine_draft.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
-import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
 import 'package:gym_corpus/features/training/presentation/widgets/exercise_picker_modal.dart';
 import 'package:gym_corpus/features/training/presentation/widgets/selected_exercise_tile.dart';
 
@@ -53,15 +52,9 @@ class _WorkoutPageState extends State<WorkoutPage> {
   }
 
   void _saveRoutine() {
-    final trainingState = context.read<TrainingBloc>().state;
-    final settings = trainingState is TrainingLoaded
-        ? trainingState.settings
-        : <String, String>{};
-
     final draft = RoutineDraft(
       name: _nameController.text,
       exercises: _selectedExercises,
-      useImperialUnits: (settings['units'] ?? 'KG') == 'LB',
     );
 
     final problem = draft.problem;
