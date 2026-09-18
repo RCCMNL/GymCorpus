@@ -428,36 +428,47 @@ class _TrainingScreenState extends State<TrainingScreen>
                                       child: Padding(
                                         padding: const EdgeInsets.symmetric(
                                           vertical: 16,
+                                          horizontal: 12,
                                         ),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Icon(
-                                              isResting
-                                                  ? Icons.timer
-                                                  : Icons.check_circle_rounded,
-                                              size: 22,
-                                              color: isResting
-                                                  ? theme.colorScheme.outline
-                                                  : Colors.black,
-                                            ),
-                                            const SizedBox(width: 10),
-                                            Text(
-                                              isResting
-                                                  ? 'RECUPERO IN CORSO...'
-                                                  : 'SEGNA SET COMPLETATO',
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.w900,
-                                                letterSpacing: 1,
-                                                fontSize: 14,
-                                                fontFamily: 'Lexend',
+                                        // Su 360 punti - mezzo mondo Android -
+                                        // icona ed etichetta non ci stavano:
+                                        // meglio un filo piu' piccole che
+                                        // tagliate.
+                                        child: FittedBox(
+                                          fit: BoxFit.scaleDown,
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Icon(
+                                                isResting
+                                                    ? Icons.timer
+                                                    : Icons
+                                                          .check_circle_rounded,
+                                                size: 22,
                                                 color: isResting
                                                     ? theme.colorScheme.outline
                                                     : Colors.black,
                                               ),
-                                            ),
-                                          ],
+                                              const SizedBox(width: 10),
+                                              Text(
+                                                isResting
+                                                    ? 'RECUPERO IN CORSO...'
+                                                    : 'SEGNA SET COMPLETATO',
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.w900,
+                                                  letterSpacing: 1,
+                                                  fontSize: 14,
+                                                  fontFamily: 'Lexend',
+                                                  color: isResting
+                                                      ? theme
+                                                            .colorScheme
+                                                            .outline
+                                                      : Colors.black,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
                                         ),
                                       ),
                                     ),

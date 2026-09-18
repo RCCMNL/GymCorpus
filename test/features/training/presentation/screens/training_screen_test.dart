@@ -81,10 +81,14 @@ void main() {
     ],
   );
 
-  Future<void> pumpScreen(WidgetTester tester, {RoutineEntity? withRoutine}) {
+  Future<void> pumpScreen(
+    WidgetTester tester, {
+    RoutineEntity? withRoutine,
+    double width = 1170,
+  }) {
     // Uno schermo da telefono vero: la finestra di default dei test e' piu'
     // bassa di qualunque telefono, e l'overlay del recupero non ci sta.
-    tester.view.physicalSize = const Size(1170, 2532);
+    tester.view.physicalSize = Size(width, 2532);
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
 
@@ -124,6 +128,19 @@ void main() {
 
     expect(added.whereType<StartWorkoutSessionEvent>(), hasLength(1));
     expect(added.whereType<AddSetToExercise>(), hasLength(1));
+  });
+
+  testWidgets('su uno schermo stretto non trabocca niente', (tester) async {
+    // 360 punti e' la larghezza di mezzo mondo Android: comandi e overlay
+    // del recupero devono starci dentro.
+    await pumpScreen(tester, withRoutine: routine, width: 1080);
+
+    expect(tester.takeException(), isNull);
+
+    await tester.tap(find.text('SEGNA SET COMPLETATO'));
+    await tester.pump();
+
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('il tasto indietro chiede conferma invece di uscire', (
