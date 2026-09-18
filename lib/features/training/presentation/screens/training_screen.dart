@@ -295,7 +295,9 @@ class _TrainingScreenState extends State<TrainingScreen>
     _executionTimer?.cancel();
     _restAlarm.cancel();
     _pulseCtrl?.dispose();
-    NotificationService.instance.cancelAll();
+    // Solo l'avviso di questo recupero: cancelAll() si portava via anche i
+    // promemoria programmati dal resto dell'app.
+    NotificationService.instance.cancelNotification(100);
     super.dispose();
   }
 

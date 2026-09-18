@@ -379,7 +379,4 @@ class NotificationService {
     await _notificationsPlugin.cancel(id);
   }
 
-  Future<void> cancelAll() async {
-    await _notificationsPlugin.cancelAll();
-  }
 }
