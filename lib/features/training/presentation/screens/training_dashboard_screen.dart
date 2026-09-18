@@ -87,19 +87,16 @@ class TrainingDashboardScreen extends StatelessWidget {
   }
 
   void _showCardioSelector(BuildContext context) {
-    showModalBottomSheet<void>(
+    showCardioSelectorSheet(
       context: context,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => CardioSelectorSheet(
-        onManualEntry: () {
-          Navigator.pop(ctx);
-          context.push('/training/cardio-manual');
-        },
-        onStart: (args) {
-          Navigator.pop(ctx);
-          context.go('/training/cardio', extra: args);
-        },
-      ),
+      onManualEntry: () {
+        Navigator.pop(context);
+        context.push('/training/cardio-manual');
+      },
+      onStart: (args) {
+        Navigator.pop(context);
+        context.go('/training/cardio', extra: args);
+      },
     );
   }
 }

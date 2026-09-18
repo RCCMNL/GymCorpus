@@ -94,6 +94,69 @@ void main() {
     expect(find.text('Vogatore'), findsOneWidget);
   });
 
+  testWidgets('con poco spazio le attivita al chiuso restano raggiungibili', (
+    tester,
+  ) async {
+    CardioLaunchArgs? started;
+    // 450 logici: quanto concedeva il foglio modale senza isScrollControlled.
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Align(
+            alignment: Alignment.bottomCenter,
+            child: SizedBox(
+              height: 450,
+              child: CardioSelectorSheet(
+                onStart: (args) => started = args,
+                onManualEntry: () {},
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(tester.takeException(), isNull);
+
+    await tester.scrollUntilVisible(find.text('Vogatore'), 100);
+    await tester.tap(find.text('Vogatore'));
+
+    expect(started?.activity, CardioActivity.rowing);
+  });
+
+  testWidgets('aperto come foglio mostra le attivita al chiuso sullo schermo', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1080, 2400);
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (context) => Scaffold(
+            body: Center(
+              child: ElevatedButton(
+                onPressed: () => showCardioSelectorSheet(
+                  context: context,
+                  onStart: (_) {},
+                  onManualEntry: () {},
+                ),
+                child: const Text('apri'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('apri'));
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    expect(tester.getRect(find.text('Vogatore')).bottom, lessThanOrEqualTo(800));
+  });
+
   testWidgets('si puo registrare una sessione gia fatta', (tester) async {
     var manual = 0;
     await tester.pumpWidget(
