@@ -22,8 +22,9 @@ void main() {
   test('riprogrammarlo non lascia in giro quello di prima', () async {
     var fired = 0;
 
-    alarm.schedule(const Duration(milliseconds: 20), () => fired++);
-    alarm.schedule(const Duration(milliseconds: 40), () => fired++);
+    alarm
+      ..schedule(const Duration(milliseconds: 20), () => fired++)
+      ..schedule(const Duration(milliseconds: 40), () => fired++);
     await Future<void>.delayed(const Duration(milliseconds: 160));
 
     expect(fired, 1, reason: 'il primo avviso non deve sopravvivere');
@@ -32,8 +33,9 @@ void main() {
   test('annullato non scatta', () async {
     var fired = 0;
 
-    alarm.schedule(const Duration(milliseconds: 20), () => fired++);
-    alarm.cancel();
+    alarm
+      ..schedule(const Duration(milliseconds: 20), () => fired++)
+      ..cancel();
     await Future<void>.delayed(const Duration(milliseconds: 120));
 
     expect(fired, 0);
@@ -52,8 +54,9 @@ void main() {
     var primo = 0;
     var secondo = 0;
 
-    alarm.schedulePeriodic(const Duration(milliseconds: 40), () => primo++);
-    alarm.schedulePeriodic(const Duration(milliseconds: 40), () => secondo++);
+    alarm
+      ..schedulePeriodic(const Duration(milliseconds: 40), () => primo++)
+      ..schedulePeriodic(const Duration(milliseconds: 40), () => secondo++);
     await Future<void>.delayed(const Duration(milliseconds: 150));
 
     expect(primo, 0, reason: 'il primo battito non deve sopravvivere');

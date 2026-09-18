@@ -126,7 +126,7 @@ void main() {
       final exercises = await database.select(database.exercises).get();
       final routineId = await database
           .into(database.routines)
-          .insert(RoutinesCompanion(title: const Value('Ordine')));
+          .insert(const RoutinesCompanion(title: Value('Ordine')));
 
       // Inseriti al contrario rispetto all'ordine voluto: senza un ordine
       // esplicito tornerebbero come sono stati scritti.

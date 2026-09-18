@@ -31,7 +31,6 @@ void main() {
     final done = awaitCardioSessionSaved(
       states.stream,
       sessionsBefore: 1,
-      timeout: const Duration(seconds: 5),
     );
 
     states.add(TrainingState.loaded(
@@ -46,7 +45,6 @@ void main() {
     final done = awaitCardioSessionSaved(
       states.stream,
       sessionsBefore: 0,
-      timeout: const Duration(seconds: 5),
     );
 
     states.add(

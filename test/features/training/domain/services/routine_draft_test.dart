@@ -128,7 +128,9 @@ void main() {
       final saved = _draft(
         exercises: [
           _exercise(id: 7, name: 'Stacco', orderIndex: 2),
-          _exercise(id: 3, name: 'Panca', orderIndex: 0),
+          // Lo zero e' scritto apposta: qui contano gli indici 2, 0, 1.
+          // ignore: avoid_redundant_argument_values
+          _exercise(id: 3, orderIndex: 0),
           _exercise(id: 5, name: 'Squat', orderIndex: 1),
         ],
       ).exercisesToSave();
