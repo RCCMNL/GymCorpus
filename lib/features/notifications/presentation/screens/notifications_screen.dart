@@ -5,6 +5,7 @@ import 'package:gym_corpus/core/theme/app_theme.dart';
 import 'package:gym_corpus/core/utils/date_format.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
+import 'package:gym_corpus/core/widgets/empty_state.dart';
 import 'package:gym_corpus/core/widgets/gradient_title.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:gym_corpus/core/widgets/skeleton.dart';
@@ -85,7 +86,7 @@ class NotificationsScreen extends StatelessWidget {
             }
 
             if (state.notifications.isEmpty) {
-              return _buildEmptyState(theme);
+              return _buildEmptyState();
             }
 
             return _buildNotificationsList(context, theme, state.notifications);
@@ -95,45 +96,16 @@ class NotificationsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildEmptyState(ThemeData theme) {
-    return Center(
+  Widget _buildEmptyState() {
+    return const Center(
       child: Padding(
-        padding: const EdgeInsets.all(40),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                color: theme.colorScheme.primary.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.notifications_none_rounded,
-                size: 40,
-                color: theme.colorScheme.primary.withValues(alpha: 0.5),
-              ),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              'Nessuna notifica',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w800,
-                fontFamily: 'Lexend',
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Le tue notifiche appariranno qui.\n'
-              'Badge sbloccati, promemoria e altro.',
-              textAlign: TextAlign.center,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.outline,
-                height: 1.5,
-              ),
-            ),
-          ],
+        padding: EdgeInsets.all(40),
+        child: EmptyState(
+          icon: Icons.notifications_none_rounded,
+          title: 'Nessuna notifica',
+          message:
+              'Le tue notifiche appariranno qui: badge sbloccati, '
+              'promemoria e altro.',
         ),
       ),
     );

@@ -5,6 +5,7 @@ import 'package:gym_corpus/core/services/health_service.dart';
 import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/theme/app_theme.dart';
 import 'package:gym_corpus/core/utils/date_format.dart';
+import 'package:gym_corpus/core/widgets/empty_state.dart';
 import 'package:gym_corpus/core/widgets/skeleton.dart';
 
 class DailyActivityScreen extends StatefulWidget {
@@ -77,7 +78,7 @@ class _DailyActivityScreenState extends State<DailyActivityScreen> {
       body: _isLoading
           ? const SkeletonList(hasLeading: false)
           : _weeklyData == null || _weeklyData!.isEmpty
-          ? _buildEmptyState(theme)
+          ? _buildEmptyState()
           : ListView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               itemCount: _weeklyData!.length,
@@ -89,25 +90,17 @@ class _DailyActivityScreenState extends State<DailyActivityScreen> {
     );
   }
 
-  Widget _buildEmptyState(ThemeData theme) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.directions_walk_rounded,
-            size: 48,
-            color: theme.colorScheme.outline.withValues(alpha: 0.5),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Nessun dato disponibile',
-            style: theme.textTheme.titleMedium?.copyWith(
-              color: theme.colorScheme.outline,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
+  Widget _buildEmptyState() {
+    return const Center(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 32),
+        child: EmptyState(
+          icon: Icons.directions_walk_rounded,
+          title: 'Nessun dato disponibile',
+          message:
+              'Quando il telefono registra passi e movimento, la '
+              'settimana compare qui.',
+        ),
       ),
     );
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
+import 'package:gym_corpus/core/widgets/empty_state.dart';
 import 'package:gym_corpus/core/widgets/icon_badge.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:gym_corpus/core/widgets/skeleton.dart';
@@ -104,34 +105,16 @@ class _EmptyRoutines extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return AppCard(
-      width: double.infinity,
-      padding: const EdgeInsets.all(32),
-      child: Column(
-        children: [
-          Icon(
-            Icons.add_circle_outline,
-            size: 40,
-            color: theme.colorScheme.outline.withValues(alpha: 0.3),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Nessuna routine trovata',
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.outline,
-            ),
-          ),
-          const SizedBox(height: 16),
-          // Unica azione di questa schermata: un link testuale
-          // comunicherebbe "opzionale", qui serve un invito esplicito.
-          FilledButton.icon(
-            onPressed: onCreateFirst,
-            icon: const Icon(Icons.add_rounded, size: 20),
-            label: const Text('CREA LA TUA PRIMA ROUTINE'),
-          ),
-        ],
+    return EmptyStateCard(
+      icon: Icons.add_circle_outline,
+      title: 'Nessuna routine trovata',
+      message: 'Le schede che crei o che copi dal catalogo compaiono qui.',
+      // Unica azione di questa schermata: un link testuale
+      // comunicherebbe "opzionale", qui serve un invito esplicito.
+      action: FilledButton.icon(
+        onPressed: onCreateFirst,
+        icon: const Icon(Icons.add_rounded, size: 20),
+        label: const Text('CREA LA TUA PRIMA ROUTINE'),
       ),
     );
   }

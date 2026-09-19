@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/theme/app_theme.dart';
-import 'package:gym_corpus/core/widgets/app_card.dart';
+import 'package:gym_corpus/core/widgets/empty_state.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
 
 /// Barra superiore con pulsante indietro e titolo di CardioHistoryScreen.
@@ -184,38 +184,12 @@ class EmptyCardioHistoryView extends StatelessWidget {
                 children: [
                   CardioHistoryTopBar(theme: theme),
                   const Spacer(),
-                  AppCard(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(28),
-                    child: Column(
-                      children: [
-                        Icon(
-                          Icons.route_rounded,
-                          size: 52,
-                          color: theme.colorScheme.primary.withValues(
-                            alpha: 0.75,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'Nessuna sessione cardio salvata',
-                          textAlign: TextAlign.center,
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w900,
-                            fontFamily: 'Lexend',
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Quando registri corsa o camminata, qui troverai cronologia, percorso e metriche recenti.',
-                          textAlign: TextAlign.center,
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: theme.colorScheme.outline,
-                            height: 1.45,
-                          ),
-                        ),
-                      ],
-                    ),
+                  const EmptyStateCard(
+                    icon: Icons.route_rounded,
+                    title: 'Nessuna sessione cardio salvata',
+                    message:
+                        'Quando registri corsa o camminata, qui troverai '
+                        'cronologia, percorso e metriche recenti.',
                   ),
                   const Spacer(),
                 ],

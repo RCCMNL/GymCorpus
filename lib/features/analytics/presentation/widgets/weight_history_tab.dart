@@ -4,6 +4,7 @@ import 'package:gym_corpus/core/utils/date_format.dart';
 import 'package:gym_corpus/core/utils/decimal_input.dart';
 import 'package:gym_corpus/core/utils/unit_converter.dart';
 import 'package:gym_corpus/core/widgets/compact_sheet.dart';
+import 'package:gym_corpus/core/widgets/empty_state.dart';
 import 'package:gym_corpus/features/analytics/domain/progress_formatters.dart';
 import 'package:gym_corpus/features/analytics/presentation/widgets/monthly_accordion.dart';
 import 'package:gym_corpus/features/analytics/presentation/widgets/progress_shared_widgets.dart';

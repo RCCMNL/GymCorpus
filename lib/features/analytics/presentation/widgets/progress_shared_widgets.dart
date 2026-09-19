@@ -237,58 +237,6 @@ class ProgressErrorState extends StatelessWidget {
   }
 }
 
-/// Card generica per liste vuote (nessun log, nessuna misura, ecc.).
-class EmptyStateCard extends StatelessWidget {
-  const EmptyStateCard({
-    required this.icon,
-    required this.title,
-    required this.message,
-    super.key,
-  });
-
-  final IconData icon;
-  final String title;
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return AppCard(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        children: [
-          Container(
-            width: 58,
-            height: 58,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: theme.colorScheme.primary.withValues(alpha: 0.10),
-            ),
-            child: Icon(icon, color: theme.colorScheme.primary, size: 28),
-          ),
-          const SizedBox(height: 14),
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w900,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            message,
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.outline,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 /// Riga con icona di spunta per un singolo suggerimento, usata nelle card
 /// di "buone pratiche".
 class TipLine extends StatelessWidget {

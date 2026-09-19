@@ -3,9 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/theme/app_theme.dart';
+import 'package:gym_corpus/core/widgets/empty_state.dart';
 import 'package:gym_corpus/core/widgets/gradient_title.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
-import 'package:gym_corpus/core/widgets/icon_badge.dart';
 import 'package:gym_corpus/core/widgets/skeleton.dart';
 import 'package:gym_corpus/features/exercises/domain/equipment_tags.dart';
 import 'package:gym_corpus/features/exercises/domain/exercise_catalog_view.dart';
@@ -189,7 +189,7 @@ class _FavoriteExercisesScreenState extends State<FavoriteExercisesScreen> {
 
                   Expanded(
                     child: favoriteExercises.isEmpty
-                        ? _buildEmptyState(theme)
+                        ? _buildEmptyState()
                         : ListView.builder(
                             padding: const EdgeInsets.symmetric(horizontal: 24),
                             physics: const BouncingScrollPhysics(),
@@ -219,44 +219,22 @@ class _FavoriteExercisesScreenState extends State<FavoriteExercisesScreen> {
     );
   }
 
-  Widget _buildEmptyState(ThemeData theme) {
+  Widget _buildEmptyState() {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          IconBadge(
-            Icons.favorite_border_rounded,
-            color: theme.colorScheme.primary,
-            size: IconBadgeSize.large,
-            circle: true,
-          ),
-          const SizedBox(height: 24),
-          Text(
-            'Nessun preferito',
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w900,
-              fontFamily: 'Lexend',
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Aggiungi esercizi ai preferiti per\ntrovarli rapidamente qui.',
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.outline,
-            ),
-          ),
-          const SizedBox(height: 24),
-          FilledButton.icon(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 32),
+        child: EmptyState(
+          icon: Icons.favorite_border_rounded,
+          title: 'Nessun preferito',
+          message:
+              'Aggiungi esercizi ai preferiti per trovarli '
+              'rapidamente qui.',
+          action: FilledButton.icon(
             onPressed: () => context.go('/exercises'),
             icon: const Icon(Icons.search),
             label: const Text('Esplora Esercizi'),
-            style: FilledButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              shape: const RoundedRectangleBorder(borderRadius: AppRadius.sm),
-            ),
           ),
-        ],
+        ),
       ),
     );
   }

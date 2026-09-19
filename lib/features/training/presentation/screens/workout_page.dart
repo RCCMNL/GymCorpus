@@ -5,8 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
+import 'package:gym_corpus/core/widgets/empty_state.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
-import 'package:gym_corpus/core/widgets/icon_badge.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
@@ -296,33 +296,15 @@ class _WorkoutPageState extends State<WorkoutPage> {
                     const SizedBox(height: 24),
 
                     if (_selectedExercises.isEmpty)
-                      Center(
+                      const Center(
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 40),
-                          child: Column(
-                            children: [
-                              const IconBadge(
-                                Icons.fitness_center_rounded,
-                                size: IconBadgeSize.large,
-                                circle: true,
-                              ),
-                              const SizedBox(height: 20),
-                              Text(
-                                'Nessun esercizio',
-                                style: theme.textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.w900,
-                                  fontFamily: 'Lexend',
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Aggiungi il tuo primo esercizio premendo\nil tasto in alto a destra.',
-                                textAlign: TextAlign.center,
-                                style: theme.textTheme.bodyMedium?.copyWith(
-                                  color: theme.colorScheme.outline,
-                                ),
-                              ),
-                            ],
+                          padding: EdgeInsets.symmetric(vertical: 40),
+                          child: EmptyState(
+                            icon: Icons.fitness_center_rounded,
+                            title: 'Nessun esercizio',
+                            message:
+                                'Aggiungi il tuo primo esercizio premendo '
+                                'il tasto in alto a destra.',
                           ),
                         ),
                       )

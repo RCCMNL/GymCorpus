@@ -5,6 +5,7 @@ import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/core/widgets/confirm_dialog.dart';
+import 'package:gym_corpus/core/widgets/empty_state.dart';
 import 'package:gym_corpus/core/widgets/icon_badge.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_activity.dart';
@@ -98,23 +99,10 @@ class CardioHistorySection extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           if (sessions.isEmpty)
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceContainerHighest.withValues(
-                  alpha: 0.1,
-                ),
-                borderRadius: AppRadius.lg,
-              ),
-              child: Center(
-                child: Text(
-                  'Nessuna sessione registrata',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.outline,
-                  ),
-                ),
-              ),
+            const EmptyStateCard(
+              icon: Icons.directions_run_rounded,
+              title: 'Nessuna sessione registrata',
+              message: 'Le tue corse e camminate compaiono qui.',
             )
           else
             ...displaySessions.map(
