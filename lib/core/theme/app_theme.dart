@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_page_transition.dart';
 import 'package:gym_corpus/core/theme/app_radius.dart';
 
 /// Le tinte dell'app, in un posto solo.
@@ -66,6 +67,7 @@ class AppTheme {
       useMaterial3: true,
       brightness: Brightness.dark,
       scaffoldBackgroundColor: _background,
+      pageTransitionsTheme: appPageTransitionsTheme,
       colorScheme: const ColorScheme.dark(
         primary: _primary,
         onPrimary: _onPrimary,

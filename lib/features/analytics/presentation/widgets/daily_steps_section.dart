@@ -139,11 +139,7 @@ class _DailyStepsSectionState extends State<DailyStepsSection> {
           children: [
             Row(
               children: [
-                SkeletonBox(
-                  width: 72,
-                  height: 72,
-                  radius: AppRadius.pill,
-                ),
+                SkeletonBox(width: 72, height: 72, radius: AppRadius.pill),
                 SizedBox(width: 20),
                 Expanded(
                   child: Column(

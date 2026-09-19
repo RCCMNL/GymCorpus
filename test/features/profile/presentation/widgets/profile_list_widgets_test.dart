@@ -124,9 +124,7 @@ void main() {
 
       for (final tone in ProfileItemTone.values) {
         await tester.pumpWidget(
-          wrap(
-            ProfileItem(icon: Icons.person, label: 'Una voce', tone: tone),
-          ),
+          wrap(ProfileItem(icon: Icons.person, label: 'Una voce', tone: tone)),
         );
         colors[tone] = iconColorOf(tester);
       }

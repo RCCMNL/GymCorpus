@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/services/notification_service.dart';
 import 'package:gym_corpus/core/theme/app_radius.dart';
+import 'package:gym_corpus/core/utils/app_haptics.dart';
 import 'package:gym_corpus/core/utils/pending_alarm.dart';
 import 'package:gym_corpus/core/utils/time_format.dart';
 import 'package:gym_corpus/core/utils/unit_converter.dart';
@@ -168,6 +169,9 @@ class _TrainingScreenState extends State<TrainingScreen>
 
   void _completeSet() {
     if (_phase != _Phase.working) return;
+    // Una serie chiusa si sente anche senza guardare: in quel momento le
+    // mani sono sul bilanciere, non sul telefono.
+    AppHaptics.milestone();
     final ex = _curEx;
     if (ex != null) {
       _startSessionIfNeeded();
@@ -244,6 +248,9 @@ class _TrainingScreenState extends State<TrainingScreen>
   }
 
   void _onRestDone() {
+    // Il recupero e' finito: e' il momento in cui lo schermo e' piu'
+    // lontano dagli occhi.
+    AppHaptics.transition();
     _timer?.cancel();
     _rest.stop();
     _restAlarm.cancel();

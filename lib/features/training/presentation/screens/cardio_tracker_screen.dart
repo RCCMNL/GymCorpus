@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
@@ -10,6 +9,7 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/database/database.dart';
 import 'package:gym_corpus/core/services/health_service.dart';
+import 'package:gym_corpus/core/utils/app_haptics.dart';
 import 'package:gym_corpus/core/utils/pending_alarm.dart';
 import 'package:gym_corpus/core/utils/time_format.dart';
 import 'package:gym_corpus/core/widgets/confirm_dialog.dart';
@@ -487,7 +487,7 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
       final splits = CardioSplits.fromRoute(_route);
       final lastFull = splits.where((s) => !s.isPartial).lastOrNull;
 
-      unawaited(HapticFeedback.mediumImpact());
+      AppHaptics.milestone();
       _showBanner(
         '$completedKm km',
         lastFull == null ? null : '${lastFull.pace} al chilometro',
@@ -505,7 +505,7 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
     if (!reached) return;
 
     _goalAnnounced = true;
-    unawaited(HapticFeedback.heavyImpact());
+    AppHaptics.transition();
     _showBanner('Obiettivo raggiunto', goal.label);
   }
 
