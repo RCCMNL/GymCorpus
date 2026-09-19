@@ -146,6 +146,10 @@ class CardioStatsPanel extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 12),
+              // La seconda riga e' il contorno: velocita' istantanea,
+              // passi e calorie si guardano dopo, non mentre si corre.
+              // Con lo stesso peso della prima erano sei numeri fra cui
+              // scegliere ogni volta.
               Row(
                 children: [
                   Expanded(
@@ -153,6 +157,7 @@ class CardioStatsPanel extends StatelessWidget {
                       label: 'VELOCITÀ',
                       value: '${currentSpeedKmh.toStringAsFixed(1)} km/h',
                       theme: theme,
+                      prominence: StatProminence.secondary,
                     ),
                   ),
                   Expanded(
@@ -160,6 +165,7 @@ class CardioStatsPanel extends StatelessWidget {
                       label: 'PASSI',
                       value: '$currentSteps',
                       theme: theme,
+                      prominence: StatProminence.secondary,
                     ),
                   ),
                   Expanded(
@@ -167,6 +173,7 @@ class CardioStatsPanel extends StatelessWidget {
                       label: 'CALORIE',
                       value: '$_calories kcal',
                       theme: theme,
+                      prominence: StatProminence.secondary,
                     ),
                   ),
                 ],
