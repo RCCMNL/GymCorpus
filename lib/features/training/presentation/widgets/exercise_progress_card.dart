@@ -4,9 +4,9 @@ import 'package:gym_corpus/core/utils/unit_converter.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:gym_corpus/features/exercises/presentation/widgets/exercise_thumbnail.dart';
-import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 import 'package:gym_corpus/features/training/domain/set_specs.dart';
+import 'package:gym_corpus/features/training/presentation/widgets/exercise_notes_dialog.dart';
 import 'package:gym_corpus/features/training/presentation/widgets/training_session_widgets.dart';
 
 /// Card dell'esercizio corrente durante una sessione di allenamento: nome,
@@ -107,7 +107,6 @@ class ExerciseProgressCard extends StatelessWidget {
                           onPressed: () => showExerciseNotesDialog(
                             context,
                             exercise.exercise,
-                            theme,
                           ),
                           icon: const Icon(
                             Icons.info_outline,
@@ -191,66 +190,4 @@ class ExerciseProgressCard extends StatelessWidget {
       ),
     );
   }
-}
-
-/// Dialog con le note personali salvate per [exercise].
-void showExerciseNotesDialog(
-  BuildContext context,
-  ExerciseEntity exercise,
-  ThemeData theme,
-) {
-  showDialog<void>(
-    context: context,
-    builder: (ctx) {
-      return AlertDialog(
-        backgroundColor: theme.colorScheme.surfaceContainerHigh,
-        shape: const RoundedRectangleBorder(borderRadius: AppRadius.xl),
-        title: Row(
-          children: [
-            Icon(Icons.notes, color: theme.colorScheme.primary),
-            const SizedBox(width: 8),
-            const Flexible(
-              child: Text(
-                'Le tue note',
-                style: TextStyle(
-                  fontFamily: 'Lexend',
-                  fontWeight: FontWeight.w900,
-                  fontSize: 18,
-                ),
-              ),
-            ),
-          ],
-        ),
-        content: Text(
-          (exercise.userNotes != null && exercise.userNotes!.trim().isNotEmpty)
-              ? exercise.userNotes!
-              : "Nessuna nota presente per questo esercizio.\n\nPuoi aggiungere appunti dalla schermata dei dettagli dell'esercizio.",
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color:
-                (exercise.userNotes != null &&
-                    exercise.userNotes!.trim().isNotEmpty)
-                ? theme.colorScheme.onSurface
-                : theme.colorScheme.outline,
-            fontStyle:
-                (exercise.userNotes != null &&
-                    exercise.userNotes!.trim().isNotEmpty)
-                ? FontStyle.normal
-                : FontStyle.italic,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(
-              'CHIUDI',
-              style: TextStyle(
-                color: theme.colorScheme.primary,
-                fontWeight: FontWeight.w900,
-              ),
-            ),
-          ),
-        ],
-      );
-    },
-  );
 }

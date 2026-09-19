@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/utils/unit_converter.dart';
 import 'package:gym_corpus/features/exercises/presentation/widgets/exercise_thumbnail.dart';
-import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
+import 'package:gym_corpus/features/training/presentation/widgets/exercise_notes_dialog.dart';
 
 /// Card di un esercizio della routine in WorkoutDetailScreen: nome, tag
 /// serie/muscolo, menu di azioni (modifica/rimuovi/elimina routine) ed
@@ -139,7 +139,7 @@ class RoutineExerciseListItem extends StatelessWidget {
                     color: theme.colorScheme.primary,
                   ),
                   onPressed: () =>
-                      _showNotesDialog(context, re.exercise, theme),
+                      showExerciseNotesDialog(context, re.exercise),
                 ),
                 if (!isReadOnly)
                   PopupMenuButton<String>(
@@ -364,65 +364,4 @@ class RoutineExerciseListItem extends StatelessWidget {
       ),
     );
   }
-}
-
-void _showNotesDialog(
-  BuildContext context,
-  ExerciseEntity exercise,
-  ThemeData theme,
-) {
-  showDialog<void>(
-    context: context,
-    builder: (ctx) {
-      return AlertDialog(
-        backgroundColor: theme.colorScheme.surfaceContainerHigh,
-        shape: const RoundedRectangleBorder(borderRadius: AppRadius.xl),
-        title: Row(
-          children: [
-            Icon(Icons.notes_rounded, color: theme.colorScheme.primary),
-            const SizedBox(width: 8),
-            const Flexible(
-              child: Text(
-                'Le tue note',
-                style: TextStyle(
-                  fontFamily: 'Lexend',
-                  fontWeight: FontWeight.w900,
-                  fontSize: 18,
-                ),
-              ),
-            ),
-          ],
-        ),
-        content: Text(
-          (exercise.userNotes != null && exercise.userNotes!.trim().isNotEmpty)
-              ? exercise.userNotes!
-              : "Nessuna nota presente per questo esercizio.\n\nPuoi aggiungere appunti dalla schermata dei dettagli dell'esercizio.",
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color:
-                (exercise.userNotes != null &&
-                    exercise.userNotes!.trim().isNotEmpty)
-                ? theme.colorScheme.onSurface
-                : theme.colorScheme.outline,
-            fontStyle:
-                (exercise.userNotes != null &&
-                    exercise.userNotes!.trim().isNotEmpty)
-                ? FontStyle.normal
-                : FontStyle.italic,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(
-              'CHIUDI',
-              style: TextStyle(
-                color: theme.colorScheme.primary,
-                fontWeight: FontWeight.w900,
-              ),
-            ),
-          ),
-        ],
-      );
-    },
-  );
 }

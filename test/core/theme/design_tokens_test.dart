@@ -90,6 +90,37 @@ void main() {
     );
   });
 
+  test('la domanda prima di un azione irreversibile e sempre la stessa', () {
+    final offenders = <String>[];
+
+    for (final file in sourceFiles()) {
+      final name = file.path.replaceAll(r'\', '/');
+      // Il guscio condiviso e' l'unico che puo' costruire un AlertDialog:
+      // e' il suo mestiere.
+      if (name.endsWith('core/widgets/app_dialog.dart')) continue;
+      if (name.endsWith('core/widgets/confirm_dialog.dart')) continue;
+
+      final lines = file.readAsLinesSync();
+      for (var i = 0; i < lines.length; i++) {
+        if (lines[i].trimLeft().startsWith('//')) continue;
+        if (lines[i].contains('AlertDialog(')) {
+          offenders.add('${file.path}:${i + 1}: ${lines[i].trim()}');
+        }
+      }
+    }
+
+    expect(
+      offenders,
+      isEmpty,
+      reason:
+          'Ogni AlertDialog scritto a mano si risceglie fondo, raggio, '
+          'stile del titolo e colore del pulsante: e cosi che nove '
+          'dialoghi diventano nove dialoghi diversi. Usa ConfirmDialog '
+          'per una domanda, AppDialog per un contenuto.\n'
+          '${offenders.join('\n')}',
+    );
+  });
+
   test('la scala resta corta e ordinata', () {
     final steps = [
       AppRadius.xs,

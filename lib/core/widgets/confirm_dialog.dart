@@ -13,7 +13,10 @@ class ConfirmDialog {
 
   /// Chiede conferma e ritorna `true` solo se l'utente ha confermato.
   ///
-  /// Chiudere il dialogo senza scegliere vale come un no.
+  /// Chiudere il dialogo senza scegliere vale come un no. Dove anche il
+  /// no ha conseguenze - scartare una sessione interrotta, per dire -
+  /// si passa `barrierDismissible: false`: toccare fuori non e' una
+  /// risposta.
   static Future<bool> ask(
     BuildContext context, {
     required String title,
@@ -21,6 +24,7 @@ class ConfirmDialog {
     String confirmLabel = 'ELIMINA',
     String cancelLabel = 'ANNULLA',
     bool destructive = true,
+    bool barrierDismissible = true,
   }) async {
     final theme = Theme.of(context);
     final confirmColor = destructive
@@ -29,6 +33,7 @@ class ConfirmDialog {
 
     final answer = await showDialog<bool>(
       context: context,
+      barrierDismissible: barrierDismissible,
       builder: (dialogContext) => AlertDialog(
         backgroundColor: theme.colorScheme.surface,
         shape: const RoundedRectangleBorder(borderRadius: AppRadius.xl),

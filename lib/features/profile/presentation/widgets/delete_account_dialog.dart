@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:gym_corpus/core/theme/app_theme.dart';
+import 'package:gym_corpus/core/widgets/app_dialog.dart';
 import 'package:gym_corpus/features/auth/domain/repositories/auth_repository.dart';
 
 /// Conferma di eliminazione account.
@@ -70,51 +71,9 @@ class _DeleteAccountDialogState extends State<DeleteAccountDialog> {
     final theme = Theme.of(context);
     final validationMessage = _validationMessage;
 
-    return AlertDialog(
-      backgroundColor: theme.colorScheme.surface,
-      title: const Text(
-        'Elimina Account',
-        style: TextStyle(color: AppPalette.coral, fontWeight: FontWeight.bold),
-      ),
-      // Scorrevole: fra avviso, campo password e spiegazioni il dialogo
-      // supera l'altezza disponibile su uno schermo basso.
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Sei sicuro di voler eliminare definitivamente il tuo account e '
-              'tutti i dati associati? Questa operazione non puo essere '
-              'annullata.',
-            ),
-            const SizedBox(height: 16),
-            if (_requiresPassword) ...[
-              TextField(
-                controller: _password,
-                obscureText: true,
-                autofocus: true,
-                decoration: const InputDecoration(
-                  labelText: 'Password attuale',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              if (validationMessage != null) ...[
-                const SizedBox(height: 8),
-                Text(
-                  validationMessage,
-                  style: const TextStyle(color: AppPalette.coral, fontSize: 12),
-                ),
-              ],
-            ] else
-              Text(
-                'Ti verra richiesta una nuova conferma con il provider usato '
-                'per il login.',
-                style: theme.textTheme.bodySmall,
-              ),
-          ],
-        ),
-      ),
+    return AppDialog(
+      title: 'Elimina Account',
+      icon: Icons.warning_amber_rounded,
       actions: [
         TextButton(
           onPressed: _isDeleting ? null : () => Navigator.pop(context),
@@ -134,6 +93,41 @@ class _DeleteAccountDialogState extends State<DeleteAccountDialog> {
                 ),
         ),
       ],
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Sei sicuro di voler eliminare definitivamente il tuo account e '
+            'tutti i dati associati? Questa operazione non puo essere '
+            'annullata.',
+          ),
+          const SizedBox(height: 16),
+          if (_requiresPassword) ...[
+            TextField(
+              controller: _password,
+              obscureText: true,
+              autofocus: true,
+              decoration: const InputDecoration(
+                labelText: 'Password attuale',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            if (validationMessage != null) ...[
+              const SizedBox(height: 8),
+              Text(
+                validationMessage,
+                style: const TextStyle(color: AppPalette.coral, fontSize: 12),
+              ),
+            ],
+          ] else
+            Text(
+              'Ti verra richiesta una nuova conferma con il provider usato '
+              'per il login.',
+              style: theme.textTheme.bodySmall,
+            ),
+        ],
+      ),
     );
   }
 }

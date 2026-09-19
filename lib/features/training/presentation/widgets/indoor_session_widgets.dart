@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/utils/decimal_input.dart';
 import 'package:gym_corpus/core/utils/time_format.dart';
+import 'package:gym_corpus/core/widgets/app_dialog.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_activity.dart';
 import 'package:gym_corpus/features/training/presentation/widgets/cardio_activity_style.dart';
 
@@ -107,14 +107,17 @@ class _IndoorDistanceDialogState extends State<IndoorDistanceDialog> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return AlertDialog(
-      backgroundColor: theme.colorScheme.surface,
-      shape: const RoundedRectangleBorder(borderRadius: AppRadius.xl),
-      title: const Text(
-        'Quanta distanza?',
-        style: TextStyle(fontWeight: FontWeight.w900, fontFamily: 'Lexend'),
-      ),
-      content: Column(
+    return AppDialog(
+      title: 'Quanta distanza?',
+      icon: Icons.straighten_rounded,
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop<double>(0),
+          child: const Text('NON LA SO'),
+        ),
+        FilledButton(onPressed: _save, child: const Text('SALVA')),
+      ],
+      child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -140,13 +143,6 @@ class _IndoorDistanceDialogState extends State<IndoorDistanceDialog> {
           ),
         ],
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop<double>(0),
-          child: const Text('NON LA SO'),
-        ),
-        FilledButton(onPressed: _save, child: const Text('SALVA')),
-      ],
     );
   }
 }

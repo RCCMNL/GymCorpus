@@ -5,10 +5,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/services/notification_service.dart';
 import 'package:gym_corpus/core/theme/app_radius.dart';
-import 'package:gym_corpus/core/theme/app_theme.dart';
 import 'package:gym_corpus/core/utils/pending_alarm.dart';
 import 'package:gym_corpus/core/utils/time_format.dart';
 import 'package:gym_corpus/core/utils/unit_converter.dart';
+import 'package:gym_corpus/core/widgets/confirm_dialog.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 import 'package:gym_corpus/features/training/domain/services/rest_countdown.dart';
@@ -270,45 +270,19 @@ class _TrainingScreenState extends State<TrainingScreen>
     _onRestDone();
   }
 
-  void _confirmEnd() {
-    final theme = Theme.of(context);
-    showDialog<void>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: theme.colorScheme.surface,
-        shape: const RoundedRectangleBorder(borderRadius: AppRadius.xl),
-        title: const Text(
-          'Terminare l allenamento?',
-          style: TextStyle(fontFamily: 'Lexend', fontWeight: FontWeight.bold),
-        ),
-        content: const Text(
-          'Le serie completate finora sono state salvate correttamente nel tuo storico.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(
-              'CONTINUA',
-              style: TextStyle(
-                color: theme.colorScheme.outline,
-                fontWeight: FontWeight.w900,
-              ),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(ctx);
-              context.go('/training');
-            },
-            style: TextButton.styleFrom(foregroundColor: AppPalette.coral),
-            child: const Text(
-              'CHIUDI ORA',
-              style: TextStyle(fontWeight: FontWeight.w900),
-            ),
-          ),
-        ],
-      ),
+  Future<void> _confirmEnd() async {
+    final confirmed = await ConfirmDialog.ask(
+      context,
+      title: 'Terminare l allenamento?',
+      message:
+          'Le serie completate finora sono state salvate correttamente nel '
+          'tuo storico.',
+      confirmLabel: 'CHIUDI ORA',
+      cancelLabel: 'CONTINUA',
     );
+
+    if (!confirmed || !mounted) return;
+    context.go('/training');
   }
 
   @override

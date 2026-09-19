@@ -6,6 +6,7 @@ import 'package:gym_corpus/core/utils/date_format.dart';
 import 'package:gym_corpus/core/utils/decimal_input.dart';
 import 'package:gym_corpus/core/utils/unit_converter.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
+import 'package:gym_corpus/core/widgets/app_dialog.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
 import 'package:gym_corpus/features/training/domain/entities/body_weight.dart';
@@ -397,18 +398,9 @@ class _WeightTrackingCardState extends State<WeightTrackingCard> {
 
     showDialog<void>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(log == null ? 'Registra Peso' : 'Modifica Peso'),
-        content: TextField(
-          controller: controller,
-          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          autofocus: true,
-          decoration: InputDecoration(
-            labelText: isImperial ? 'Peso (lb)' : 'Peso (kg)',
-            suffixText: isImperial ? 'lb' : 'kg',
-            border: const OutlineInputBorder(borderRadius: AppRadius.sm),
-          ),
-        ),
+      builder: (context) => AppDialog(
+        title: log == null ? 'Registra Peso' : 'Modifica Peso',
+        icon: Icons.monitor_weight_outlined,
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -441,6 +433,16 @@ class _WeightTrackingCardState extends State<WeightTrackingCard> {
             child: Text(log == null ? 'Salva' : 'Aggiorna'),
           ),
         ],
+        child: TextField(
+          controller: controller,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          autofocus: true,
+          decoration: InputDecoration(
+            labelText: isImperial ? 'Peso (lb)' : 'Peso (kg)',
+            suffixText: isImperial ? 'lb' : 'kg',
+            border: const OutlineInputBorder(borderRadius: AppRadius.sm),
+          ),
+        ),
       ),
     );
   }
