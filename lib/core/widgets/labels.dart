@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 
 /// Che peso ha l'etichetta nella pagina.
 ///
@@ -40,8 +41,13 @@ class SectionTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    // Una riga sola, e se non ci sta si accorcia: questa etichetta sta
+    // dentro decine di righe strette, e allungandosi le faceva traboccare
+    // una per una.
     final text = Text(
       title,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
       style: theme.textTheme.labelSmall?.copyWith(
         letterSpacing: tone.letterSpacing,
         fontWeight: FontWeight.w900,
@@ -58,21 +64,41 @@ class SectionTitle extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Container(
-          width: 4,
-          height: 14,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [theme.colorScheme.primary, theme.colorScheme.tertiary],
-            ),
-            borderRadius: BorderRadius.circular(2),
-          ),
-        ),
+        const AccentBar(),
         const SizedBox(width: 10),
-        text,
+        Flexible(child: text),
       ],
+    );
+  }
+}
+
+/// La barretta verticale che marca l'inizio di una sezione.
+///
+/// Quattro schermate se la ridisegnavano per conto loro, ognuna con la
+/// sua tinta - arancione, verde, un rosa fuori palette - e con un
+/// gradiente a due fermate dello stesso colore, che su quattro punti di
+/// larghezza non si vede comunque. Qui e' una sola, nel gradiente del
+/// brand: cambia l'altezza, non il colore.
+class AccentBar extends StatelessWidget {
+  const AccentBar({this.height = 14, super.key});
+
+  final double height;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Container(
+      width: 4,
+      height: height,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [theme.colorScheme.primary, theme.colorScheme.tertiary],
+        ),
+        borderRadius: AppRadius.pill,
+      ),
     );
   }
 }
@@ -98,6 +124,8 @@ class Eyebrow extends StatelessWidget {
 
     return Text(
       text,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
       style: theme.textTheme.labelSmall?.copyWith(
         letterSpacing: 2,
         fontWeight: FontWeight.w900,
@@ -123,6 +151,8 @@ class StatLabel extends StatelessWidget {
 
     return Text(
       text,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
       style: theme.textTheme.labelSmall?.copyWith(
         letterSpacing: 1.5,
         fontWeight: FontWeight.w900,

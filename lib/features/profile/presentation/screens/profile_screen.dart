@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
+import 'package:gym_corpus/core/theme/app_theme.dart';
 import 'package:gym_corpus/core/widgets/gradient_title.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
@@ -111,7 +113,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           theme.colorScheme.tertiary.withValues(alpha: 0.08),
                         ],
                       ),
-                      borderRadius: BorderRadius.circular(32),
+                      borderRadius: AppRadius.xxl,
                       border: Border.all(
                         color: theme.colorScheme.primary.withValues(
                           alpha: 0.15,
@@ -202,7 +204,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           width: 24,
                                           height: 24,
                                           decoration: BoxDecoration(
-                                            color: Colors.orangeAccent,
+                                            color: AppPalette.gold,
                                             shape: BoxShape.circle,
                                             border: Border.all(
                                               color: theme.colorScheme.surface,
@@ -258,9 +260,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         decoration: BoxDecoration(
                                           color: theme.colorScheme.tertiary
                                               .withValues(alpha: 0.1),
-                                          borderRadius: BorderRadius.circular(
-                                            8,
-                                          ),
+                                          borderRadius: AppRadius.xs,
                                           border: Border.all(
                                             color: theme.colorScheme.tertiary
                                                 .withValues(alpha: 0.2),

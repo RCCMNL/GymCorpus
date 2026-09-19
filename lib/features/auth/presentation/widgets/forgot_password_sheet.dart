@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/core/widgets/compact_sheet.dart';
 import 'package:gym_corpus/core/widgets/icon_badge.dart';
@@ -75,7 +76,7 @@ class _ForgotPasswordSheetState extends State<ForgotPasswordSheet> {
         padding: const EdgeInsets.all(28),
         decoration: BoxDecoration(
           color: theme.colorScheme.surfaceContainer,
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: AppRadius.xl,
           border: Border.all(
             color: theme.colorScheme.primary.withValues(alpha: 0.15),
           ),
@@ -94,10 +95,12 @@ class _ForgotPasswordSheetState extends State<ForgotPasswordSheet> {
                   size: IconBadgeSize.small,
                 ),
                 const SizedBox(width: 14),
-                Text(
-                  'Recupera Password',
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
+                Flexible(
+                  child: Text(
+                    'Recupera Password',
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],
@@ -128,8 +131,8 @@ class _ForgotPasswordSheetState extends State<ForgotPasswordSheet> {
                   backgroundColor: theme.colorScheme.primary,
                   foregroundColor: theme.colorScheme.onPrimary,
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: AppRadius.md,
                   ),
                 ),
                 child: const Text(

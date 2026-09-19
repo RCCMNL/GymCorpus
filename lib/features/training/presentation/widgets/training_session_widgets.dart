@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 
 /// Chip "vetro smerigliato" con etichetta e valore in evidenza, usato nella
 /// card dell'esercizio corrente per mostrare ripetizioni e peso.
@@ -27,7 +28,7 @@ class GlassChip extends StatelessWidget {
             color.withValues(alpha: 0.04),
           ],
         ),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppRadius.md,
         border: Border.all(color: color.withValues(alpha: 0.08)),
       ),
       child: Column(
@@ -87,7 +88,7 @@ class ActionPill extends StatelessWidget {
                 )
               : null,
           color: filled ? null : Colors.transparent,
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: AppRadius.xl,
           border: filled
               ? null
               : Border.all(

@@ -47,12 +47,14 @@ class ProfileMenuTab extends StatelessWidget {
               icon: Icons.leaderboard,
               label: 'Classifica Utenti',
               trailingText: 'Prossimamente',
+              isComingSoon: true,
               isBadge: true,
             ),
             const ProfileItem(
               icon: Icons.campaign,
               label: 'Sfide Community',
               trailingText: 'Prossimamente',
+              isComingSoon: true,
               isBadge: true,
             ),
             ProfileItem(
@@ -74,6 +76,7 @@ class ProfileMenuTab extends StatelessWidget {
               icon: Icons.track_changes,
               label: 'Obiettivi',
               trailingText: 'Prossimamente',
+              isComingSoon: true,
               isBadge: true,
             ),
             ProfileItem(
@@ -89,18 +92,21 @@ class ProfileMenuTab extends StatelessWidget {
             ProfileItem(
               icon: Icons.favorite,
               label: 'Esercizi Preferiti',
+              tone: ProfileItemTone.secondary,
               onTap: () => context.push('/profile/favorites'),
             ),
             const ProfileItem(
               icon: Icons.calendar_today,
               label: 'Programma attuale',
               trailingText: 'Prossimamente',
+              isComingSoon: true,
               isBadge: true,
             ),
             if (_showsCycleCalendar(context))
               ProfileItem(
                 icon: Icons.auto_awesome_rounded,
                 label: 'Calendario ciclo',
+                tone: ProfileItemTone.cycle,
                 onTap: () => context.push('/profile/cycle-calendar'),
               ),
           ],
@@ -118,6 +124,7 @@ class ProfileMenuTab extends StatelessWidget {
               icon: Icons.qr_code,
               label: 'QR Check-in',
               trailingText: 'Prossimamente',
+              isComingSoon: true,
               isBadge: true,
             ),
           ],

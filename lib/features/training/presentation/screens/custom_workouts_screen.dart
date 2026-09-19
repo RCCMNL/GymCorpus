@@ -3,10 +3,14 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
+import 'package:gym_corpus/core/theme/app_theme.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/core/widgets/confirm_dialog.dart';
+import 'package:gym_corpus/core/widgets/empty_state.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/core/widgets/icon_badge.dart';
+import 'package:gym_corpus/core/widgets/skeleton.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
@@ -37,7 +41,7 @@ class _CustomWorkoutsScreenState extends State<CustomWorkoutsScreen> {
         child: BlocBuilder<TrainingBloc, TrainingState>(
           builder: (context, state) {
             if (state is TrainingLoading) {
-              return const Center(child: CircularProgressIndicator());
+              return const SkeletonList();
             }
 
             if (state is TrainingLoaded) {
@@ -88,7 +92,7 @@ class _CustomWorkoutsScreenState extends State<CustomWorkoutsScreen> {
                                 decoration: BoxDecoration(
                                   color: theme.colorScheme.primaryContainer
                                       .withValues(alpha: 0.3),
-                                  borderRadius: BorderRadius.circular(20),
+                                  borderRadius: AppRadius.lg,
                                 ),
                                 child: Text(
                                   '${routines.length} WORKOUTS',
@@ -116,7 +120,7 @@ class _CustomWorkoutsScreenState extends State<CustomWorkoutsScreen> {
                                   theme.colorScheme.tertiary,
                                 ],
                               ),
-                              borderRadius: BorderRadius.circular(24),
+                              borderRadius: AppRadius.xl,
                               boxShadow: [
                                 BoxShadow(
                                   color: theme.colorScheme.primary.withValues(
@@ -184,39 +188,19 @@ class _CustomWorkoutsScreenState extends State<CustomWorkoutsScreen> {
 
                     // Workouts List
                     if (routines.isEmpty)
-                      Center(
+                      const Center(
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(
+                          padding: EdgeInsets.symmetric(
                             vertical: 60,
                             horizontal: 24,
                           ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const IconBadge(
-                                Icons.edit_document,
-                                size: IconBadgeSize.large,
-                                circle: true,
-                              ),
-                              const SizedBox(height: 24),
-                              Text(
-                                'Nessun workout creato',
-                                style: theme.textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.w900,
-                                  fontFamily: 'Lexend',
-                                  color: theme.colorScheme.onSurface,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Tocca il pulsante "NUOVO" in alto per creare il tuo primo protocollo di allenamento personalizzato.',
-                                textAlign: TextAlign.center,
-                                style: theme.textTheme.bodyMedium?.copyWith(
-                                  color: theme.colorScheme.outline,
-                                  height: 1.5,
-                                ),
-                              ),
-                            ],
+                          child: EmptyState(
+                            icon: Icons.edit_document,
+                            title: 'Nessun workout creato',
+                            message:
+                                'Tocca il pulsante "NUOVO" in alto per '
+                                'creare il tuo primo protocollo di '
+                                'allenamento personalizzato.',
                           ),
                         ),
                       )
@@ -348,14 +332,16 @@ class _WorkoutCard extends StatelessWidget {
               children: [
                 RoutineCardTitle(routine.title),
                 const SizedBox(height: 16),
-                Row(
+                // Le targhette vanno a capo invece di uscire dal bordo.
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
                   children: [
                     RoutineTagChip(
                       label: '${routine.exercises.length} ESERCIZI',
                       color: color,
                       icon: Icons.fitness_center_rounded,
                     ),
-                    const SizedBox(width: 8),
                     RoutineTagChip(
                       label: '${routine.estimatedDuration ?? "--"} MIN',
                       color: theme.colorScheme.tertiary,
@@ -377,7 +363,7 @@ class _WorkoutCard extends StatelessWidget {
               const SizedBox(width: 8),
               _ActionButton(
                 icon: Icons.delete_rounded,
-                color: Colors.redAccent,
+                color: AppPalette.coral,
                 onTap: () => unawaited(_showDeleteDialog(context)),
               ),
             ],

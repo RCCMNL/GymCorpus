@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_event.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
@@ -56,6 +57,7 @@ class SettingsMenuTab extends StatelessWidget {
             ProfileItem(
               icon: Icons.lock,
               label: 'Sicurezza',
+              tone: ProfileItemTone.secondary,
               onTap: () => context.push('/profile/security'),
             ),
             const ProfileItem(
@@ -77,12 +79,14 @@ class SettingsMenuTab extends StatelessWidget {
               icon: Icons.dark_mode,
               label: 'Dark Mode',
               trailingText: 'Prossimamente',
+              isComingSoon: true,
               isBadge: true,
             ),
             const ProfileItem(
               icon: Icons.language,
               label: 'Lingua',
               trailingText: 'Prossimamente',
+              isComingSoon: true,
               isBadge: true,
             ),
             ProfileItem(
@@ -125,6 +129,7 @@ class SettingsMenuTab extends StatelessWidget {
             ProfileItem(
               icon: Icons.auto_awesome_rounded,
               label: 'Calendario ciclo',
+              tone: ProfileItemTone.cycle,
               trailing: Transform.scale(
                 scale: 0.8,
                 child: Switch(
@@ -152,6 +157,7 @@ class SettingsMenuTab extends StatelessWidget {
               icon: Icons.star_rounded,
               label: 'Valuta GymCorpus',
               trailingText: 'Prossimamente',
+              isComingSoon: true,
               isBadge: true,
             ),
             ProfileItem(
@@ -179,7 +185,7 @@ class SettingsMenuTab extends StatelessWidget {
           width: double.infinity,
           child: Container(
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(24),
+              borderRadius: AppRadius.xl,
               boxShadow: [
                 BoxShadow(
                   color: theme.colorScheme.error.withValues(alpha: 0.1),
@@ -201,7 +207,7 @@ class SettingsMenuTab extends StatelessWidget {
                 ),
                 foregroundColor: theme.colorScheme.error,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(24),
+                  borderRadius: AppRadius.xl,
                   side: BorderSide(
                     color: theme.colorScheme.errorContainer.withValues(
                       alpha: 0.3,

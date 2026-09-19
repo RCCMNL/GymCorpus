@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
+import 'package:gym_corpus/core/widgets/empty_state.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
 
@@ -17,7 +19,9 @@ class WorkoutCompletedScreen extends StatelessWidget {
       backgroundColor: theme.colorScheme.surface,
       appBar: const GymHeader(),
       body: SafeArea(
-        child: Center(
+        // Scorrevole: su uno schermo basso, o col testo ingrandito, il
+        // contenuto non ci stava e veniva tagliato in fondo.
+        child: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(32),
             child: Column(
@@ -75,7 +79,7 @@ class WorkoutCompletedScreen extends StatelessWidget {
                   ),
                   decoration: BoxDecoration(
                     color: theme.colorScheme.surfaceContainerHigh,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: AppRadius.sm,
                   ),
                   child: Text(
                     routineTitle.toUpperCase(),
@@ -90,9 +94,9 @@ class WorkoutCompletedScreen extends StatelessWidget {
                 SizedBox(
                   width: double.infinity,
                   child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      gradient: const LinearGradient(
+                    decoration: const BoxDecoration(
+                      borderRadius: AppRadius.lg,
+                      gradient: LinearGradient(
                         colors: [Color(0xFF3367FF), Color(0xFF94AAFF)],
                       ),
                     ),
@@ -100,7 +104,7 @@ class WorkoutCompletedScreen extends StatelessWidget {
                       color: Colors.transparent,
                       child: InkWell(
                         onTap: () => context.go('/training'),
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: AppRadius.lg,
                         child: const Padding(
                           padding: EdgeInsets.symmetric(vertical: 18),
                           child: Center(
@@ -140,33 +144,21 @@ class EmptyRoutineScreen extends StatelessWidget {
       backgroundColor: theme.colorScheme.surface,
       appBar: const GymHeader(),
       body: SafeArea(
-        child: Center(
+        // Scorrevole: su uno schermo basso, o col testo ingrandito, il
+        // contenuto non ci stava e veniva tagliato in fondo.
+        child: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(32),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.fitness_center_outlined,
-                  size: 64,
-                  color: theme.colorScheme.outline.withValues(alpha: 0.3),
-                ),
-                const SizedBox(height: 24),
-                Text(
-                  'Nessun esercizio in questa routine',
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    color: theme.colorScheme.outline,
-                  ),
-                ),
-                const SizedBox(height: 24),
-                // Unica via d'uscita da questa schermata: merita un
-                // bottone pieno, non un link di testo.
-                FilledButton(
-                  onPressed: () => context.go('/training'),
-                  child: const Text('TORNA INDIETRO'),
-                ),
-              ],
+            child: EmptyState(
+              icon: Icons.fitness_center_outlined,
+              title: 'Nessun esercizio in questa routine',
+              message: 'Aggiungine almeno uno per poterla allenare.',
+              // Unica via d'uscita da questa schermata: merita un
+              // bottone pieno, non un link di testo.
+              action: FilledButton(
+                onPressed: () => context.go('/training'),
+                child: const Text('TORNA INDIETRO'),
+              ),
             ),
           ),
         ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/features/auth/presentation/widgets/auth_shared_widgets.dart';
 
 /// Casella di accettazione di Termini e Privacy Policy.
@@ -31,7 +32,7 @@ class LegalConsentField extends StatelessWidget {
             color: theme.colorScheme.surfaceContainerHighest.withValues(
               alpha: 0.7,
             ),
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: AppRadius.sm,
             border: Border.all(
               color: value
                   ? theme.colorScheme.primary.withValues(alpha: 0.35)
@@ -43,9 +44,7 @@ class LegalConsentField extends StatelessWidget {
               Checkbox(
                 value: value,
                 onChanged: (checked) => onChanged(checked ?? false),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(5),
-                ),
+                shape: const RoundedRectangleBorder(borderRadius: AppRadius.xs),
               ),
               Expanded(
                 child: Padding(
@@ -61,14 +60,22 @@ class LegalConsentField extends StatelessWidget {
                   ),
                 ),
               ),
-              TextButton(
-                onPressed: () => context.push('/legal/consent'),
-                style: TextButton.styleFrom(
-                  padding: const EdgeInsets.only(right: 12),
-                  minimumSize: const Size(0, 32),
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              // Cede insieme all'etichetta quando la riga si stringe:
+              // casella, testo e link insieme non ci stavano.
+              Flexible(
+                child: TextButton(
+                  onPressed: () => context.push('/legal/consent'),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.only(right: 12),
+                    minimumSize: const Size(0, 32),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  child: const Text(
+                    'Leggi i termini',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-                child: const Text('Leggi i termini'),
               ),
             ],
           ),

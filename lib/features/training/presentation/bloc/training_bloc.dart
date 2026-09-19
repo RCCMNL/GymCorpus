@@ -244,7 +244,10 @@ class TrainingBloc extends Bloc<TrainingEvent, TrainingState> {
         rpe: event.rpe,
       );
 
-      result.fold((failure) => _emitFailure(failure.message, emit), (_) => null);
+      result.fold(
+        (failure) => _emitFailure(failure.message, emit),
+        (_) => null,
+      );
     });
 
     on<AddBodyWeightLogEvent>((event, emit) async {

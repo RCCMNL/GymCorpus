@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
+import 'package:gym_corpus/core/theme/app_theme.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/gradient_title.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
@@ -24,7 +26,7 @@ class YogaScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: theme.colorScheme.tertiary.tintedFill,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: AppRadius.md,
                   border: Border.all(
                     color: theme.colorScheme.tertiary.tintedBorder,
                   ),
@@ -82,14 +84,14 @@ class YogaScreen extends StatelessWidget {
                 'Vinyasa Flow',
                 '25 min • Intermedio',
                 Icons.self_improvement,
-                Colors.orangeAccent,
+                AppPalette.gold,
               ),
               _buildYogaCard(
                 theme,
                 'Hatha Yoga',
                 '40 min • Principiante',
                 Icons.spa,
-                Colors.tealAccent,
+                AppPalette.mint,
               ),
               const SizedBox(height: 32),
               const SectionTitle('FLOW DEL GIORNO'),
@@ -110,7 +112,7 @@ class YogaScreen extends StatelessWidget {
                       theme.colorScheme.surfaceContainerHighest,
                     ],
                   ),
-                  borderRadius: BorderRadius.circular(28),
+                  borderRadius: AppRadius.xl,
                   boxShadow: [
                     BoxShadow(
                       color: theme.colorScheme.primary.withValues(alpha: 0.2),
@@ -129,7 +131,7 @@ class YogaScreen extends StatelessWidget {
                       ),
                       decoration: BoxDecoration(
                         color: theme.colorScheme.primary,
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: AppRadius.lg,
                       ),
                       child: const Text(
                         'NUOVO',
@@ -169,7 +171,7 @@ class YogaScreen extends StatelessWidget {
                       ),
                       decoration: BoxDecoration(
                         color: Colors.white.tintedFill,
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: AppRadius.md,
                         border: Border.all(color: Colors.white.tintedBorder),
                       ),
                       child: Row(
@@ -181,12 +183,16 @@ class YogaScreen extends StatelessWidget {
                             color: Colors.white,
                           ),
                           const SizedBox(width: 8),
-                          Text(
-                            'Le sessioni guidate non sono ancora disponibili',
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.9),
-                              fontWeight: FontWeight.w700,
-                              fontSize: 12,
+                          // Flessibile: la frase e' lunga e su uno schermo
+                          // stretto usciva dal riquadro, tagliata a meta'.
+                          Flexible(
+                            child: Text(
+                              'Le sessioni guidate non sono ancora disponibili',
+                              style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.9),
+                                fontWeight: FontWeight.w700,
+                                fontSize: 12,
+                              ),
                             ),
                           ),
                         ],
@@ -221,7 +227,7 @@ class YogaScreen extends StatelessWidget {
         ),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: AppRadius.sm,
           side: BorderSide(
             color: isSelected ? theme.colorScheme.primary : Colors.transparent,
           ),

@@ -33,7 +33,9 @@ class UpdateController extends ChangeNotifier {
       final packageInfo = await PackageInfo.fromPlatform();
       currentVersionCode = int.parse(packageInfo.buildNumber);
     } catch (e) {
-      debugPrint('UpdateController.checkForUpdate: versione locale illeggibile: $e');
+      debugPrint(
+        'UpdateController.checkForUpdate: versione locale illeggibile: $e',
+      );
       return;
     }
 
@@ -41,7 +43,8 @@ class UpdateController extends ChangeNotifier {
       currentVersionCode: currentVersionCode,
     );
     result.fold(
-      (failure) => debugPrint('UpdateController.checkForUpdate: ${failure.message}'),
+      (failure) =>
+          debugPrint('UpdateController.checkForUpdate: ${failure.message}'),
       (status) {
         _status = status;
         notifyListeners();

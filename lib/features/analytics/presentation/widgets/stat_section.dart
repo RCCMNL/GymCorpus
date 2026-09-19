@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
 
 /// Riquadro con un titolo di sezione e una riga di [StatItem].
@@ -21,7 +22,7 @@ class StatSection extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppRadius.md,
         border: Border(left: BorderSide(color: color, width: 4)),
       ),
       child: Column(
@@ -29,10 +30,9 @@ class StatSection extends StatelessWidget {
         children: [
           SectionTitle(title.toUpperCase(), tone: SectionTitleTone.muted),
           const SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: stats,
-          ),
+          // Le statistiche si dividono la larghezza in parti uguali: a
+          // spaziatura libera la piu' lunga spingeva le altre fuori.
+          Row(children: [for (final stat in stats) Expanded(child: stat)]),
         ],
       ),
     );
@@ -67,6 +67,9 @@ class StatItem extends StatelessWidget {
         ),
         Text(
           label.toUpperCase(),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 8,
             fontWeight: FontWeight.bold,

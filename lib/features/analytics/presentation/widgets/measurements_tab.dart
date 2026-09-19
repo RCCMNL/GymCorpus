@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/utils/date_format.dart';
 import 'package:gym_corpus/core/utils/decimal_input.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/compact_sheet.dart';
+import 'package:gym_corpus/core/widgets/empty_state.dart';
 import 'package:gym_corpus/features/analytics/domain/progress_formatters.dart';
 import 'package:gym_corpus/features/analytics/presentation/widgets/monthly_accordion.dart';
 import 'package:gym_corpus/features/analytics/presentation/widgets/progress_shared_widgets.dart';
@@ -141,23 +143,31 @@ class _MeasurementSessionCard extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    Icon(
-                      Icons.calendar_today_outlined,
-                      size: 14,
-                      color: theme.colorScheme.primary,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      formatDateTimeShort(date),
-                      style: theme.textTheme.labelMedium?.copyWith(
-                        fontWeight: FontWeight.w900,
-                        fontFamily: 'Lexend',
+                // La data cede al contatore: data lunga piu' etichetta
+                // uscivano dalla card su un telefono stretto.
+                Flexible(
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.calendar_today_outlined,
+                        size: 14,
                         color: theme.colorScheme.primary,
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 8),
+                      Flexible(
+                        child: Text(
+                          formatDateTimeShort(date),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            fontWeight: FontWeight.w900,
+                            fontFamily: 'Lexend',
+                            color: theme.colorScheme.primary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(
@@ -166,7 +176,7 @@ class _MeasurementSessionCard extends StatelessWidget {
                   ),
                   decoration: BoxDecoration(
                     color: theme.colorScheme.tertiary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: AppRadius.xs,
                   ),
                   child: Text(
                     '${items.length} MISURE',
@@ -209,7 +219,7 @@ class _MiniMeasurementChip extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: AppRadius.xs,
         // Unico punto d'accesso alla modifica di una misurazione: il foglio
         // esisteva gia' completo ma non era raggiungibile da nessuna parte.
         onTap: canEdit
@@ -269,7 +279,7 @@ class _MeasurementTipsCard extends StatelessWidget {
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: theme.colorScheme.tertiary.tintedFill,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: AppRadius.xl,
         border: Border.all(color: theme.colorScheme.tertiary.tintedBorder),
       ),
       child: Column(
@@ -440,8 +450,8 @@ class _AddMeasurementSheetState extends State<_AddMeasurementSheet> {
                             onPressed: () => Navigator.pop(context),
                             style: OutlinedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: AppRadius.md,
                               ),
                             ),
                             child: const Text('Annulla'),
@@ -470,8 +480,8 @@ class _AddMeasurementSheetState extends State<_AddMeasurementSheet> {
                             },
                             style: FilledButton.styleFrom(
                               padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: AppRadius.md,
                               ),
                             ),
                             child: const Text('Salva Check-in'),

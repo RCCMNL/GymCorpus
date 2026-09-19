@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/widgets/compact_sheet.dart';
 import 'package:gym_corpus/core/widgets/radial_timer_picker.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
@@ -37,56 +38,61 @@ class _TimerPickerSheetState extends State<TimerPickerSheet> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            theme.colorScheme.primary.withValues(alpha: 0.15),
-                            theme.colorScheme.tertiary.withValues(alpha: 0.1),
+                // Icona e titolo cedono spazio a cio che chiude la riga.
+                Expanded(
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              theme.colorScheme.primary.withValues(alpha: 0.15),
+                              theme.colorScheme.tertiary.withValues(alpha: 0.1),
+                            ],
+                          ),
+                          borderRadius: AppRadius.sm,
+                          border: Border.all(
+                            color: theme.colorScheme.primary.withValues(
+                              alpha: 0.2,
+                            ),
+                          ),
+                        ),
+                        child: Icon(
+                          Icons.timer_rounded,
+                          color: theme.colorScheme.primary,
+                          size: 22,
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      Flexible(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Timer di Recupero',
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.w800,
+                                fontFamily: 'Lexend',
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'PAUSA TRA LE SERIE',
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                letterSpacing: 1.5,
+                                color: theme.colorScheme.outline,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
                           ],
                         ),
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(
-                          color: theme.colorScheme.primary.withValues(
-                            alpha: 0.2,
-                          ),
-                        ),
                       ),
-                      child: Icon(
-                        Icons.timer_rounded,
-                        color: theme.colorScheme.primary,
-                        size: 22,
-                      ),
-                    ),
-                    const SizedBox(width: 14),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Timer di Recupero',
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w800,
-                            fontFamily: 'Lexend',
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          'PAUSA TRA LE SERIE',
-                          style: theme.textTheme.labelSmall?.copyWith(
-                            letterSpacing: 1.5,
-                            color: theme.colorScheme.outline,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
                 IconButton(
                   onPressed: () => Navigator.pop(context),
@@ -113,7 +119,7 @@ class _TimerPickerSheetState extends State<TimerPickerSheet> {
             child: Container(
               width: double.infinity,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: AppRadius.md,
                 boxShadow: [
                   BoxShadow(
                     color: theme.colorScheme.primary.withValues(alpha: 0.3),
@@ -133,8 +139,8 @@ class _TimerPickerSheetState extends State<TimerPickerSheet> {
                   backgroundColor: theme.colorScheme.primary,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: AppRadius.md,
                   ),
                   elevation: 0,
                 ),

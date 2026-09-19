@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
+import 'package:gym_corpus/core/widgets/confirm_dialog.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
@@ -56,89 +56,42 @@ class WorkoutDetailScreen extends StatelessWidget {
     context.pop();
   }
 
-  void _showResetDialog(BuildContext context, RoutineEntity currentRoutine) {
-    showDialog<void>(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: const Text(
-          'Ripristina valori originali',
-          style: TextStyle(fontWeight: FontWeight.w900, fontFamily: 'Lexend'),
-        ),
-        content: const Text(
+  Future<void> _showResetDialog(
+    BuildContext context,
+    RoutineEntity currentRoutine,
+  ) async {
+    final confirmed = await ConfirmDialog.ask(
+      context,
+      title: 'Ripristina valori originali',
+      message:
           'Serie, ripetizioni, carico ed esercizi torneranno come nella '
           'scheda di sistema originale. Le modifiche che hai fatto qui '
           'andranno perse.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              'ANNULLA',
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.outline,
-                fontWeight: FontWeight.w900,
-              ),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              context.read<TrainingBloc>().add(
-                ResetRoutineToSourceEvent(currentRoutine.id),
-              );
-              Navigator.pop(context);
-              AppSnackBar.showSuccess(context, 'Routine ripristinata');
-            },
-            child: const Text(
-              'RIPRISTINA',
-              style: TextStyle(fontWeight: FontWeight.w900),
-            ),
-          ),
-        ],
-      ),
+      confirmLabel: 'RIPRISTINA',
+      // Non distrugge la scheda: la riporta a com'era.
+      destructive: false,
     );
+
+    if (!confirmed || !context.mounted) return;
+    context.read<TrainingBloc>().add(
+      ResetRoutineToSourceEvent(currentRoutine.id),
+    );
+    AppSnackBar.showSuccess(context, 'Routine ripristinata');
   }
 
-  void _showDeleteDialog(BuildContext context) {
-    showDialog<void>(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: const Text(
-          'Elimina Routine',
-          style: TextStyle(fontWeight: FontWeight.w900, fontFamily: 'Lexend'),
-        ),
-        content: const Text(
-          'Sei sicuro di voler eliminare questa routine? Questa azione non può essere annullata.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              'ANNULLA',
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.outline,
-                fontWeight: FontWeight.w900,
-              ),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              context.read<TrainingBloc>().add(DeleteRoutineEvent(routine.id));
-              Navigator.pop(context); // Close dialog
-              context.pop(); // Go back from detail screen
-            },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text(
-              'ELIMINA PERMANENTEMENTE',
-              style: TextStyle(fontWeight: FontWeight.w900),
-            ),
-          ),
-        ],
-      ),
+  Future<void> _showDeleteDialog(BuildContext context) async {
+    final confirmed = await ConfirmDialog.ask(
+      context,
+      title: 'Elimina Routine',
+      message:
+          'Sei sicuro di voler eliminare questa routine? Questa azione non '
+          'puo essere annullata.',
+      confirmLabel: 'ELIMINA PERMANENTEMENTE',
     );
+
+    if (!confirmed || !context.mounted) return;
+    context.read<TrainingBloc>().add(DeleteRoutineEvent(routine.id));
+    context.pop();
   }
 
   @override

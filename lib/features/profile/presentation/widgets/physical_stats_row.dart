@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gym_corpus/core/theme/app_theme.dart';
 import 'package:gym_corpus/core/utils/unit_converter.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/features/auth/domain/entities/user_entity.dart';
@@ -111,7 +112,7 @@ class _StatItem extends StatelessWidget {
                 ? theme.colorScheme.primary
                 : (icon == Icons.height
                       ? theme.colorScheme.tertiary
-                      : Colors.orangeAccent),
+                      : AppPalette.gold),
           ),
           const SizedBox(width: 6),
           Text(

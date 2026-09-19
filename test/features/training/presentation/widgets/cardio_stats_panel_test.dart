@@ -5,6 +5,8 @@ import 'package:gym_corpus/features/training/domain/entities/cardio_goal.dart';
 import 'package:gym_corpus/features/training/presentation/widgets/cardio_activity_style.dart';
 import 'package:gym_corpus/features/training/presentation/widgets/cardio_stats_panel.dart';
 
+import '../../../../helpers/narrow_screen.dart';
+
 void main() {
   Widget buildPanel({
     CardioActivity activity = CardioActivity.run,
@@ -36,6 +38,47 @@ void main() {
       ),
     );
   }
+
+  testWidgets('su uno schermo stretto non taglia i numeri', (tester) async {
+    useNarrowScreen(tester);
+
+    await tester.pumpWidget(
+      buildPanel(activity: CardioActivity.treadmill, isTracking: true),
+    );
+
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('su uno schermo stretto ci sta anche l obiettivo', (
+    tester,
+  ) async {
+    useNarrowScreen(tester);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: CardioStatsPanel(
+            activity: CardioActivity.run,
+            distanceKm: 12.75,
+            elapsedSeconds: 5430,
+            currentSpeedKmh: 10.4,
+            currentSteps: 14200,
+            userWeightKg: 70,
+            isTracking: true,
+            isLocating: false,
+            isPaused: false,
+            isSaving: false,
+            goal: const CardioGoal(type: CardioGoalType.distance, value: 10),
+            onStart: () {},
+            onPauseResume: () {},
+            onStop: () {},
+          ),
+        ),
+      ),
+    );
+
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets('ogni attivita porta il proprio colore, non l arancione', (
     tester,

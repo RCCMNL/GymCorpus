@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gym_corpus/core/services/notification_service.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
+import 'package:gym_corpus/core/theme/app_theme.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/core/widgets/gradient_title.dart';
@@ -323,7 +325,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                   color: _systemNotificationsEnabled
                       ? const Color(0xFF8DE8C7).withValues(alpha: 0.10)
                       : theme.colorScheme.error.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(18),
+                  borderRadius: AppRadius.md,
                   border: Border.all(
                     color: _systemNotificationsEnabled
                         ? const Color(0xFF8DE8C7).withValues(alpha: 0.30)
@@ -473,7 +475,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
               // Badge section
               const NotificationSectionHeader(
                 icon: Icons.emoji_events_rounded,
-                color: Colors.orangeAccent,
+                color: AppPalette.gold,
                 title: 'BADGE & TRAGUARDI',
               ),
               const SizedBox(height: 16),

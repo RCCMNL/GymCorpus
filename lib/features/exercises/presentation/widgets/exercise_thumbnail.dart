@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/features/exercises/domain/exercise_image.dart';
 import 'package:gym_corpus/features/exercises/domain/muscle_groups.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
@@ -28,7 +29,7 @@ class ExerciseThumbnail extends StatelessWidget {
   const ExerciseThumbnail({
     required this.exercise,
     this.size = 60,
-    this.borderRadius = 16,
+    this.borderRadius = AppRadius.md,
     super.key,
   }) : _expand = false;
 
@@ -36,12 +37,12 @@ class ExerciseThumbnail extends StatelessWidget {
   /// fisso: serve all'hero del dettaglio esercizio.
   const ExerciseThumbnail.expand({required this.exercise, super.key})
     : size = 0,
-      borderRadius = 0,
+      borderRadius = BorderRadius.zero,
       _expand = true;
 
   final ExerciseEntity exercise;
   final double size;
-  final double borderRadius;
+  final BorderRadius borderRadius;
   final bool _expand;
 
   /// Tinta associata alla regione muscolare. Le quattro tinte vengono
@@ -83,7 +84,7 @@ class ExerciseThumbnail extends StatelessWidget {
     if (_expand) return content;
 
     return ClipRRect(
-      borderRadius: BorderRadius.circular(borderRadius),
+      borderRadius: borderRadius,
       child: SizedBox(width: size, height: size, child: content),
     );
   }

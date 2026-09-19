@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/utils/decimal_input.dart';
 import 'package:gym_corpus/core/utils/unit_converter.dart';
 import 'package:gym_corpus/core/widgets/gradient_title.dart';
@@ -358,7 +359,7 @@ class _GenderChip extends StatelessWidget {
           color: isSelected
               ? theme.colorScheme.primary.withValues(alpha: 0.15)
               : theme.colorScheme.surfaceContainerHigh,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: AppRadius.md,
           border: Border.all(
             color: isSelected
                 ? theme.colorScheme.primary
@@ -436,7 +437,7 @@ class _ObjChip extends StatelessWidget {
           color: isSelected
               ? theme.colorScheme.primary.withValues(alpha: 0.15)
               : theme.colorScheme.surfaceContainerHigh,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: AppRadius.sm,
           border: Border.all(
             color: isSelected
                 ? theme.colorScheme.primary

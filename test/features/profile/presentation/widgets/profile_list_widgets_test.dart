@@ -84,5 +84,75 @@ void main() {
 
       expect(find.byIcon(Icons.chevron_right), findsOneWidget);
     });
+
+    // Il colore dell'icona si decideva confrontando l'etichetta scritta a
+    // schermo: 'Sicurezza' era menta, 'Valuta GymCorpus' arancione, tutto
+    // il resto periwinkle. Riscrivere una voce - o tradurla - le cambiava
+    // colore in silenzio, senza che nessuno avesse chiesto niente.
+    Color iconColorOf(WidgetTester tester) =>
+        tester.widget<Icon>(find.byType(Icon).first).color!;
+
+    testWidgets('il tono e quello chiesto, non quello dedotto dal testo', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        wrap(
+          const ProfileItem(
+            icon: Icons.lock,
+            label: 'Sicurezza',
+            tone: ProfileItemTone.secondary,
+          ),
+        ),
+      );
+      final beforeRename = iconColorOf(tester);
+
+      await tester.pumpWidget(
+        wrap(
+          const ProfileItem(
+            icon: Icons.lock,
+            label: 'Sicurezza e accesso',
+            tone: ProfileItemTone.secondary,
+          ),
+        ),
+      );
+
+      expect(iconColorOf(tester), beforeRename);
+    });
+
+    testWidgets('toni diversi, colori diversi', (tester) async {
+      final colors = <ProfileItemTone, Color>{};
+
+      for (final tone in ProfileItemTone.values) {
+        await tester.pumpWidget(
+          wrap(ProfileItem(icon: Icons.person, label: 'Una voce', tone: tone)),
+        );
+        colors[tone] = iconColorOf(tester);
+      }
+
+      expect(
+        colors.values.toSet(),
+        hasLength(ProfileItemTone.values.length),
+        reason:
+            'due toni che finiscono sullo stesso colore sono un tono solo '
+            'con due nomi: $colors',
+      );
+    });
+
+    testWidgets('la voce in arrivo e smorzata anche senza badge', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        wrap(
+          const ProfileItem(
+            icon: Icons.emoji_events,
+            label: 'Classifica Utenti',
+            isComingSoon: true,
+          ),
+        ),
+      );
+
+      final theme = ThemeData();
+      expect(iconColorOf(tester), isNot(theme.colorScheme.primary));
+    });
   });
 }

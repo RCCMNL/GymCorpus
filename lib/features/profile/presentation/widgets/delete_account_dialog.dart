@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:gym_corpus/core/theme/app_theme.dart';
+import 'package:gym_corpus/core/widgets/app_dialog.dart';
 import 'package:gym_corpus/features/auth/domain/repositories/auth_repository.dart';
 
 /// Conferma di eliminazione account.
@@ -69,13 +71,29 @@ class _DeleteAccountDialogState extends State<DeleteAccountDialog> {
     final theme = Theme.of(context);
     final validationMessage = _validationMessage;
 
-    return AlertDialog(
-      backgroundColor: theme.colorScheme.surface,
-      title: const Text(
-        'Elimina Account',
-        style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
-      ),
-      content: Column(
+    return AppDialog(
+      title: 'Elimina Account',
+      icon: Icons.warning_amber_rounded,
+      actions: [
+        TextButton(
+          onPressed: _isDeleting ? null : () => Navigator.pop(context),
+          child: const Text('ANNULLA'),
+        ),
+        TextButton(
+          onPressed: _isDeleting ? null : _delete,
+          child: _isDeleting
+              ? const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Text(
+                  'ELIMINA PERMANENTEMENTE',
+                  style: TextStyle(color: AppPalette.coral),
+                ),
+        ),
+      ],
+      child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -99,7 +117,7 @@ class _DeleteAccountDialogState extends State<DeleteAccountDialog> {
               const SizedBox(height: 8),
               Text(
                 validationMessage,
-                style: const TextStyle(color: Colors.red, fontSize: 12),
+                style: const TextStyle(color: AppPalette.coral, fontSize: 12),
               ),
             ],
           ] else
@@ -110,25 +128,6 @@ class _DeleteAccountDialogState extends State<DeleteAccountDialog> {
             ),
         ],
       ),
-      actions: [
-        TextButton(
-          onPressed: _isDeleting ? null : () => Navigator.pop(context),
-          child: const Text('ANNULLA'),
-        ),
-        TextButton(
-          onPressed: _isDeleting ? null : _delete,
-          child: _isDeleting
-              ? const SizedBox(
-                  width: 18,
-                  height: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : const Text(
-                  'ELIMINA PERMANENTEMENTE',
-                  style: TextStyle(color: Colors.red),
-                ),
-        ),
-      ],
     );
   }
 }

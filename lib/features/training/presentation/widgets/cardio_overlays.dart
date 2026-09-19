@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/widgets/icon_badge.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_location_issue.dart';
 
@@ -212,8 +213,8 @@ class ManualPauseOverlay extends StatelessWidget {
                     horizontal: 32,
                     vertical: 16,
                   ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(32),
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: AppRadius.xxl,
                   ),
                 ),
               ),
@@ -246,7 +247,7 @@ class AutoPauseOverlay extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 36),
               decoration: BoxDecoration(
                 color: theme.colorScheme.surface.withValues(alpha: 0.9),
-                borderRadius: BorderRadius.circular(32),
+                borderRadius: AppRadius.xxl,
                 border: Border.all(
                   color: theme.colorScheme.primary.withValues(alpha: 0.3),
                   width: 1.5,
@@ -292,7 +293,7 @@ class AutoPauseOverlay extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       color: theme.colorScheme.primary,
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: AppRadius.lg,
                       boxShadow: [
                         BoxShadow(
                           color: theme.colorScheme.primary.withValues(
@@ -344,7 +345,7 @@ class CardioMilestoneBanner extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface.withValues(alpha: 0.94),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: AppRadius.lg,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.18),

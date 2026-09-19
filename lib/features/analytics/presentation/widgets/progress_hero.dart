@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
+import 'package:gym_corpus/core/theme/app_theme.dart';
 import 'package:gym_corpus/core/utils/date_format.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/icon_badge.dart';
@@ -86,7 +88,7 @@ class _ProgressHeroState extends State<ProgressHero> {
                       theme.colorScheme.primary.withValues(alpha: 0.10),
                     ],
             ),
-            borderRadius: BorderRadius.circular(28),
+            borderRadius: AppRadius.xl,
             border: Border.all(
               color:
                   (isWeightTab
@@ -151,7 +153,12 @@ class _ProgressHeroState extends State<ProgressHero> {
                       ),
                     ),
                     if (weightDelta != null)
-                      DeltaBadge(value: weightDelta, isImperial: isImperial),
+                      Flexible(
+                        child: DeltaBadge(
+                          value: weightDelta,
+                          isImperial: isImperial,
+                        ),
+                      ),
                   ],
                 ),
                 const SizedBox(height: 18),
@@ -352,38 +359,45 @@ class DeltaBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDown = value <= 0;
-    final accent = isDown ? theme.colorScheme.tertiary : Colors.orangeAccent;
+    final accent = isDown ? theme.colorScheme.tertiary : AppPalette.gold;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
         color: accent.withValues(alpha: 0.14),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppRadius.md,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                isDown ? Icons.south_rounded : Icons.north_rounded,
-                size: 16,
-                color: accent,
-              ),
-              const SizedBox(width: 4),
-              Text(
-                formatSignedWeight(value, isImperial: isImperial),
-                style: theme.textTheme.labelLarge?.copyWith(
+          // Rimpicciolire, non tagliare: una variazione di peso letta a
+          // meta' ("+1,..." invece di "+1,4 kg") non dice niente.
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  isDown ? Icons.south_rounded : Icons.north_rounded,
+                  size: 16,
                   color: accent,
-                  fontWeight: FontWeight.w900,
                 ),
-              ),
-            ],
+                const SizedBox(width: 4),
+                Text(
+                  formatSignedWeight(value, isImperial: isImperial),
+                  style: theme.textTheme.labelLarge?.copyWith(
+                    color: accent,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 2),
           Text(
             'vs ultimo log',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: theme.textTheme.labelSmall?.copyWith(
               color: theme.colorScheme.outline,
             ),

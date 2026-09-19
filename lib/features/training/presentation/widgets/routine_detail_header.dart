@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
+import 'package:gym_corpus/core/theme/app_theme.dart';
 import 'package:gym_corpus/core/widgets/gradient_title.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:gym_corpus/features/training/presentation/widgets/header_tag.dart';
@@ -31,10 +33,10 @@ class RoutineDetailHeader extends StatelessWidget {
           colors: [
             theme.colorScheme.primary.withValues(alpha: 0.1),
             theme.colorScheme.tertiary.withValues(alpha: 0.05),
-            Colors.orangeAccent.withValues(alpha: 0.02),
+            AppPalette.gold.withValues(alpha: 0.02),
           ],
         ),
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: AppRadius.xl,
         border: Border.all(
           color: theme.colorScheme.primary.withValues(alpha: 0.05),
         ),
@@ -45,22 +47,13 @@ class RoutineDetailHeader extends StatelessWidget {
         children: [
           Row(
             children: [
-              Container(
-                width: 4,
-                height: 20,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [Colors.orangeAccent, Colors.deepOrange],
-                  ),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
+              const AccentBar(height: 20),
               const SizedBox(width: 12),
-              Eyebrow(
-                'ROUTINE ATTUALE',
-                color: theme.colorScheme.primary.withValues(alpha: 0.6),
+              Flexible(
+                child: Eyebrow(
+                  'ROUTINE ATTUALE',
+                  color: theme.colorScheme.primary.withValues(alpha: 0.6),
+                ),
               ),
             ],
           ),
@@ -72,7 +65,11 @@ class RoutineDetailHeader extends StatelessWidget {
             maxLines: 2,
           ),
           const SizedBox(height: 16),
-          Row(
+          // Le targhette vanno a capo invece di stare in fila per forza:
+          // tre su uno schermo stretto uscivano dal riquadro.
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
             children: [
               HeaderTag(
                 icon: Icons.fitness_center_rounded,
@@ -80,22 +77,19 @@ class RoutineDetailHeader extends StatelessWidget {
                 color: theme.colorScheme.primary.withValues(alpha: 0.08),
                 textColor: theme.colorScheme.primary,
               ),
-              const SizedBox(width: 8),
               HeaderTag(
                 icon: Icons.timer_outlined,
                 label: '${estimatedDuration ?? "--"} MIN',
-                color: Colors.orangeAccent.withValues(alpha: 0.08),
-                textColor: Colors.orangeAccent,
+                color: AppPalette.gold.withValues(alpha: 0.08),
+                textColor: AppPalette.gold,
               ),
-              if (isSystem) ...[
-                const SizedBox(width: 8),
+              if (isSystem)
                 HeaderTag(
                   icon: Icons.verified_rounded,
                   label: 'DI SISTEMA',
                   color: theme.colorScheme.secondary.withValues(alpha: 0.08),
                   textColor: theme.colorScheme.secondary,
                 ),
-              ],
             ],
           ),
         ],

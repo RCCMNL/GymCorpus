@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
@@ -10,8 +9,10 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/database/database.dart';
 import 'package:gym_corpus/core/services/health_service.dart';
+import 'package:gym_corpus/core/utils/app_haptics.dart';
 import 'package:gym_corpus/core/utils/pending_alarm.dart';
 import 'package:gym_corpus/core/utils/time_format.dart';
+import 'package:gym_corpus/core/widgets/confirm_dialog.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_activity.dart';
@@ -50,6 +51,7 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
   final HealthService _healthService = GetIt.I<HealthService>();
   final List<CardioRoutePoint> _route = [];
   StreamSubscription<Position>? _positionStream;
+
   /// Il battito al secondo della sessione: uno solo, sempre.
   final PendingAlarm _tick = PendingAlarm();
   Timer? _countdownTimer;
@@ -193,49 +195,28 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
 
       if (!mounted) return;
 
-      final shouldResume = await showDialog<bool>(
-        context: context,
-        barrierDismissible: false,
-        builder: (ctx) => AlertDialog(
-          backgroundColor: Theme.of(context).colorScheme.surface,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
-          ),
-          title: const Text(
-            'Sessione interrotta',
-            style: TextStyle(fontWeight: FontWeight.w900, fontFamily: 'Lexend'),
-          ),
-          content: Text(
+      final shouldResume = await ConfirmDialog.ask(
+        context,
+        title: 'Sessione interrotta',
+        message:
             'Abbiamo trovato una sessione di '
             '${CardioActivity.fromId(draft.type).label} non terminata. '
             'Vuoi riprenderla?',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                unawaited(_clearDraft());
-                Navigator.pop(ctx, false);
-              },
-              child: Text(
-                'SCARTA',
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.error,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: const Text(
-                'RIPRENDI',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ),
-          ],
-        ),
+        confirmLabel: 'RIPRENDI',
+        cancelLabel: 'SCARTA',
+        // Riprendere non distrugge niente: il rosso qui sarebbe un
+        // allarme per l'azione sbagliata.
+        destructive: false,
+        // Anche il no ha una conseguenza - la bozza viene buttata -
+        // quindi un tocco fuori non puo' valere come risposta.
+        barrierDismissible: false,
       );
 
-      if (shouldResume != true || !mounted) return;
+      if (!shouldResume) {
+        unawaited(_clearDraft());
+        return;
+      }
+      if (!mounted) return;
 
       setState(() {
         // Riprendendo una bozza la posizione e' gia' nota.
@@ -506,7 +487,7 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
       final splits = CardioSplits.fromRoute(_route);
       final lastFull = splits.where((s) => !s.isPartial).lastOrNull;
 
-      unawaited(HapticFeedback.mediumImpact());
+      AppHaptics.milestone();
       _showBanner(
         '$completedKm km',
         lastFull == null ? null : '${lastFull.pace} al chilometro',
@@ -524,7 +505,7 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
     if (!reached) return;
 
     _goalAnnounced = true;
-    unawaited(HapticFeedback.heavyImpact());
+    AppHaptics.transition();
     _showBanner('Obiettivo raggiunto', goal.label);
   }
 
@@ -673,7 +654,7 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
       canPop: !_isTracking || _isSaving,
       onPopInvokedWithResult: (didPop, result) async {
         if (didPop) return;
-        _showExitConfirmation();
+        await _showExitConfirmation();
       },
       child: Scaffold(
         backgroundColor: theme.colorScheme.surface,
@@ -821,48 +802,21 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
     );
   }
 
-  void _showExitConfirmation() {
-    final theme = Theme.of(context);
-    showDialog<void>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: theme.colorScheme.surface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: const Text(
-          'Interrompere la sessione?',
-          style: TextStyle(fontWeight: FontWeight.w900, fontFamily: 'Lexend'),
-        ),
-        content: const Text('I dati non salvati andranno persi.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(
-              'ANNULLA',
-              style: TextStyle(
-                color: theme.colorScheme.outline,
-                fontWeight: FontWeight.w900,
-              ),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(ctx);
-              _tick.cancel();
-              _positionStream?.cancel();
-
-              // Elimina la bozza se l'utente interrompe intenzionalmente
-              unawaited(_clearDraft());
-
-              context.pop();
-            },
-            style: TextButton.styleFrom(foregroundColor: Colors.redAccent),
-            child: const Text(
-              'INTERROMPI',
-              style: TextStyle(fontWeight: FontWeight.w900),
-            ),
-          ),
-        ],
-      ),
+  Future<void> _showExitConfirmation() async {
+    final confirmed = await ConfirmDialog.ask(
+      context,
+      title: 'Interrompere la sessione?',
+      message: 'I dati non salvati andranno persi.',
+      confirmLabel: 'INTERROMPI',
     );
+
+    if (!confirmed || !mounted) return;
+    _tick.cancel();
+    unawaited(_positionStream?.cancel());
+
+    // Elimina la bozza se l'utente interrompe intenzionalmente
+    unawaited(_clearDraft());
+
+    context.pop();
   }
 }

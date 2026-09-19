@@ -1,31 +1,63 @@
 import 'package:flutter/material.dart';
-import 'package:gym_corpus/core/theme/stitch_colors.dart';
-import 'package:gym_corpus/core/theme/stitch_spacing.dart';
+import 'package:gym_corpus/core/theme/app_page_transition.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
+
+/// Le tinte dell'app, in un posto solo.
+///
+/// Prima meta' dei colori arrivava dalla tavolozza di fabbrica di
+/// Material: `Colors.orangeAccent` e `Colors.deepOrange` e `Colors.amber`
+/// e `Colors.yellowAccent`, quattro gialli diversi, a volte sulla stessa
+/// schermata; `Colors.greenAccent.shade400` accanto al menta del tema,
+/// abbastanza simile da sembrare un errore di stampa. Sono tinte pensate
+/// per il bianco, e su un fondo navy si vedono per quello che sono.
+///
+/// Cinque tinte, ognuna con un mestiere. Dove c'e' un [BuildContext] si
+/// passa comunque da `theme.colorScheme`: queste costanti servono dove
+/// un colore va scelto senza contesto (una `switch` su una categoria,
+/// una costante di modulo).
+abstract final class AppPalette {
+  /// Il fondo di tutto: navy profondo.
+  static const background = Color(0xFF08082F);
+
+  /// La voce normale dell'app.
+  static const periwinkle = Color(0xFF94AAFF);
+
+  /// Il blu pieno: azioni che spingono, stati attivi.
+  static const blue = Color(0xFF3367FF);
+
+  /// Il verde: quello che e' andato bene, i progressi, i traguardi.
+  static const mint = Color(0xFFB5FFC2);
+
+  /// L'oro: energia, primati, suggerimenti e avvisi. Uno solo, non
+  /// cinque: due gialli che non combaciano si notano subito.
+  static const gold = Color(0xFFFFC46B);
+
+  /// Il rosso: errori e azioni che distruggono qualcosa.
+  static const coral = Color(0xFFFF8A80);
+
+  /// Inchiostro sulle superfici scure.
+  static const onSurface = Color(0xFFE5E3FF);
+
+  /// Inchiostro sull'oro e sul menta, che sono chiari.
+  static const onLight = Color(0xFF3A2200);
+}
 
 class AppTheme {
   // Stitch Design System - Deep Navy & Neon Blue
-  static const Color _background = Color(0xFF08082F);
-  static const Color _primary = Color(0xFF94AAFF);
-  static const Color _onSurface = Color(0xFFE5E3FF);
+  static const Color _background = AppPalette.background;
+  static const Color _primary = AppPalette.periwinkle;
+  static const Color _onSurface = AppPalette.onSurface;
   static const Color _surfaceContainer = Color(0xFF131342);
   static const Color _surfaceContainerHigh = Color(0xFF18194B);
   static const Color _outline = Color(0xFF71729D);
-  static const Color _accent = Color(0xFF3367FF);
-  static const Color _tertiary = Color(0xFFB5FFC2); // Mint Accent
+  static const Color _accent = AppPalette.blue;
+  static const Color _tertiary = AppPalette.mint;
   static const Color _onPrimary = Color(0xFF00257B);
-  static const Color _error = Color(0xFFFF8A80);
+  static const Color _error = AppPalette.coral;
 
   /// Ambra della palette: e' l'avviso, quello che non e' ancora un errore.
-  static const Color warning = Color(0xFFFFC46B);
-  static const Color onWarning = Color(0xFF3A2200);
-
-  // Raggi condivisi: i valori sono quelli gia' usati a mano nei widget
-  // curati, promossi a costanti cosi' che i widget lasciati al default
-  // ereditino la stessa forma invece di quella di fabbrica di Material.
-  static const double _radiusField = 16;
-  static const double _radiusButton = 18;
-  static const double _radiusDialog = 24;
-  static const double _radiusSnackBar = 20;
+  static const Color warning = AppPalette.gold;
+  static const Color onWarning = AppPalette.onLight;
 
   static ThemeData get lightTheme =>
       darkTheme; // Defaulting to Dark for that premium feel
@@ -35,7 +67,7 @@ class AppTheme {
       useMaterial3: true,
       brightness: Brightness.dark,
       scaffoldBackgroundColor: _background,
-      extensions: const [StitchColors.dark, StitchSpacing.standard],
+      pageTransitionsTheme: appPageTransitionsTheme,
       colorScheme: const ColorScheme.dark(
         primary: _primary,
         onPrimary: _onPrimary,
@@ -72,7 +104,7 @@ class AppTheme {
         color: _surfaceContainer,
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: AppRadius.md,
           side: BorderSide(color: _primary.withValues(alpha: 0.05)),
         ),
       ),
@@ -119,25 +151,25 @@ class AppTheme {
           fontFamily: 'Inter',
           color: _primary,
         ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(_radiusField),
+        border: const OutlineInputBorder(
+          borderRadius: AppRadius.md,
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(_radiusField),
+          borderRadius: AppRadius.md,
           borderSide: BorderSide(color: _outline.withValues(alpha: 0.12)),
         ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(_radiusField),
-          borderSide: const BorderSide(color: _primary, width: 1.5),
+        focusedBorder: const OutlineInputBorder(
+          borderRadius: AppRadius.md,
+          borderSide: BorderSide(color: _primary, width: 1.5),
         ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(_radiusField),
-          borderSide: const BorderSide(color: _error),
+        errorBorder: const OutlineInputBorder(
+          borderRadius: AppRadius.md,
+          borderSide: BorderSide(color: _error),
         ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(_radiusField),
-          borderSide: const BorderSide(color: _error, width: 1.5),
+        focusedErrorBorder: const OutlineInputBorder(
+          borderRadius: AppRadius.md,
+          borderSide: BorderSide(color: _error, width: 1.5),
         ),
         errorStyle: const TextStyle(fontFamily: 'Inter', color: _error),
       ),
@@ -147,7 +179,7 @@ class AppTheme {
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(_radiusDialog),
+          borderRadius: AppRadius.xl,
           side: BorderSide(color: _primary.withValues(alpha: 0.12)),
         ),
         titleTextStyle: const TextStyle(
@@ -164,14 +196,12 @@ class AppTheme {
         ),
       ),
 
-      snackBarTheme: SnackBarThemeData(
+      snackBarTheme: const SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
         backgroundColor: _surfaceContainerHigh,
         elevation: 6,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(_radiusSnackBar),
-        ),
-        contentTextStyle: const TextStyle(
+        shape: RoundedRectangleBorder(borderRadius: AppRadius.lg),
+        contentTextStyle: TextStyle(
           fontFamily: 'Inter',
           fontSize: 14,
           color: _onSurface,
@@ -185,9 +215,7 @@ class AppTheme {
           foregroundColor: _onPrimary,
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
           elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(_radiusButton),
-          ),
+          shape: const RoundedRectangleBorder(borderRadius: AppRadius.md),
           textStyle: const TextStyle(
             fontFamily: 'Lexend',
             fontWeight: FontWeight.w900,
@@ -201,9 +229,7 @@ class AppTheme {
           backgroundColor: _primary,
           foregroundColor: _onPrimary,
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(_radiusButton),
-          ),
+          shape: const RoundedRectangleBorder(borderRadius: AppRadius.md),
           textStyle: const TextStyle(
             fontFamily: 'Lexend',
             fontWeight: FontWeight.w900,
@@ -217,9 +243,7 @@ class AppTheme {
           foregroundColor: _primary,
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
           side: BorderSide(color: _primary.withValues(alpha: 0.35)),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(_radiusButton),
-          ),
+          shape: const RoundedRectangleBorder(borderRadius: AppRadius.md),
           textStyle: const TextStyle(
             fontFamily: 'Lexend',
             fontWeight: FontWeight.w800,
@@ -232,9 +256,7 @@ class AppTheme {
         style: TextButton.styleFrom(
           foregroundColor: _primary,
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+          shape: const RoundedRectangleBorder(borderRadius: AppRadius.sm),
           textStyle: const TextStyle(
             fontFamily: 'Lexend',
             fontWeight: FontWeight.w800,
@@ -267,7 +289,7 @@ class AppTheme {
         }),
         checkColor: const WidgetStatePropertyAll(_onPrimary),
         side: BorderSide(color: _outline.withValues(alpha: 0.6), width: 1.5),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+        shape: const RoundedRectangleBorder(borderRadius: AppRadius.xs),
       ),
 
       progressIndicatorTheme: ProgressIndicatorThemeData(
@@ -276,7 +298,33 @@ class AppTheme {
         linearTrackColor: _primary.withValues(alpha: 0.12),
       ),
 
+      // La scala e' completa di proposito: uno stile lasciato fuori non
+      // da' errore, Flutter lo riempie con la tipografia di Material e chi
+      // lo usa scrive nel font di sistema. Restano fuori le dimensioni,
+      // che continuano ad arrivare da Material: qui si decide solo di che
+      // famiglia, peso e colore e' il testo.
+      //
+      // Lexend porta i titoli e le etichette (e' la voce del marchio),
+      // Inter il testo che si legge a paragrafi.
       textTheme: const TextTheme(
+        displayLarge: TextStyle(
+          fontFamily: 'Lexend',
+          fontWeight: FontWeight.w900,
+          color: _onSurface,
+          letterSpacing: -1,
+        ),
+        displayMedium: TextStyle(
+          fontFamily: 'Lexend',
+          fontWeight: FontWeight.w900,
+          color: _onSurface,
+          letterSpacing: -1,
+        ),
+        displaySmall: TextStyle(
+          fontFamily: 'Lexend',
+          fontWeight: FontWeight.w900,
+          color: _onSurface,
+          letterSpacing: -0.5,
+        ),
         headlineLarge: TextStyle(
           fontFamily: 'Lexend',
           fontWeight: FontWeight.w900,
@@ -288,7 +336,22 @@ class AppTheme {
           fontWeight: FontWeight.bold,
           color: _onSurface,
         ),
+        headlineSmall: TextStyle(
+          fontFamily: 'Lexend',
+          fontWeight: FontWeight.bold,
+          color: _onSurface,
+        ),
         titleLarge: TextStyle(
+          fontFamily: 'Lexend',
+          fontWeight: FontWeight.w600,
+          color: _onSurface,
+        ),
+        titleMedium: TextStyle(
+          fontFamily: 'Lexend',
+          fontWeight: FontWeight.w600,
+          color: _onSurface,
+        ),
+        titleSmall: TextStyle(
           fontFamily: 'Lexend',
           fontWeight: FontWeight.w600,
           color: _onSurface,
@@ -298,6 +361,23 @@ class AppTheme {
           fontFamily: 'Inter',
           color: _onSurface,
           height: 1.5,
+        ),
+        bodySmall: TextStyle(
+          fontFamily: 'Inter',
+          color: _onSurface,
+          height: 1.5,
+        ),
+        labelLarge: TextStyle(
+          fontFamily: 'Lexend',
+          fontWeight: FontWeight.bold,
+          letterSpacing: 0.5,
+          color: _onSurface,
+        ),
+        labelMedium: TextStyle(
+          fontFamily: 'Lexend',
+          fontWeight: FontWeight.bold,
+          letterSpacing: 0.8,
+          color: _onSurface,
         ),
         labelSmall: TextStyle(
           fontFamily: 'Lexend',

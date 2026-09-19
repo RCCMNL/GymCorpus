@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/widgets/compact_sheet.dart';
 import 'package:gym_corpus/features/exercises/domain/equipment_tags.dart';
 import 'package:gym_corpus/features/exercises/domain/exercise_catalog_view.dart';
@@ -96,8 +97,8 @@ class _ExercisePickerModalState extends State<ExercisePickerModal> {
                               prefixIcon: const Icon(Icons.search),
                               filled: true,
                               fillColor: theme.colorScheme.surfaceContainerHigh,
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
+                              border: const OutlineInputBorder(
+                                borderRadius: AppRadius.md,
                                 borderSide: BorderSide.none,
                               ),
                             ),
@@ -106,9 +107,9 @@ class _ExercisePickerModalState extends State<ExercisePickerModal> {
                         const SizedBox(width: 12),
                         Material(
                           color: theme.colorScheme.surfaceContainerHigh,
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: AppRadius.md,
                           child: InkWell(
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: AppRadius.md,
                             onTap: _openFilters,
                             child: Padding(
                               padding: const EdgeInsets.all(14),
@@ -183,7 +184,7 @@ class _ExercisePickerModalState extends State<ExercisePickerModal> {
                             onTap: isAlreadyAdded
                                 ? null
                                 : () => _toggleExercise(ex),
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: AppRadius.md,
                             child: AnimatedContainer(
                               duration: const Duration(milliseconds: 200),
                               padding: const EdgeInsets.all(12),
@@ -193,7 +194,7 @@ class _ExercisePickerModalState extends State<ExercisePickerModal> {
                                         alpha: 0.1,
                                       )
                                     : theme.colorScheme.surfaceContainerHigh,
-                                borderRadius: BorderRadius.circular(16),
+                                borderRadius: AppRadius.md,
                                 border: Border.all(
                                   color: isSelected && !isAlreadyAdded
                                       ? theme.colorScheme.primary
@@ -206,7 +207,7 @@ class _ExercisePickerModalState extends State<ExercisePickerModal> {
                                 children: [
                                   ExerciseThumbnail(
                                     exercise: ex,
-                                    borderRadius: 12,
+                                    borderRadius: AppRadius.sm,
                                   ),
                                   const SizedBox(width: 16),
                                   Expanded(
@@ -236,25 +237,35 @@ class _ExercisePickerModalState extends State<ExercisePickerModal> {
                                                   : theme.colorScheme.outline,
                                             ),
                                             const SizedBox(width: 4),
-                                            Text(
-                                              isAlreadyAdded
-                                                  ? 'GIÀ AGGIUNTO'
-                                                  : ex.categories
-                                                        .join(' • ')
-                                                        .toUpperCase(),
-                                              style: theme.textTheme.labelSmall
-                                                  ?.copyWith(
-                                                    color: isSelected
-                                                        ? theme
-                                                              .colorScheme
-                                                              .primary
-                                                        : theme
-                                                              .colorScheme
-                                                              .outline,
-                                                    fontWeight: FontWeight.w900,
-                                                    fontSize: 10,
-                                                    letterSpacing: 0.5,
-                                                  ),
+                                            // L'elenco delle categorie puo'
+                                            // essere lungo quanto vuole:
+                                            // qui cede invece di uscire.
+                                            Expanded(
+                                              child: Text(
+                                                isAlreadyAdded
+                                                    ? 'GIÀ AGGIUNTO'
+                                                    : ex.categories
+                                                          .join(' • ')
+                                                          .toUpperCase(),
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: theme
+                                                    .textTheme
+                                                    .labelSmall
+                                                    ?.copyWith(
+                                                      color: isSelected
+                                                          ? theme
+                                                                .colorScheme
+                                                                .primary
+                                                          : theme
+                                                                .colorScheme
+                                                                .outline,
+                                                      fontWeight:
+                                                          FontWeight.w900,
+                                                      fontSize: 10,
+                                                      letterSpacing: 0.5,
+                                                    ),
+                                              ),
                                             ),
                                           ],
                                         ),
@@ -317,8 +328,8 @@ class _ExercisePickerModalState extends State<ExercisePickerModal> {
                       shadowColor: theme.colorScheme.primary.withValues(
                         alpha: 0.4,
                       ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: AppRadius.lg,
                       ),
                     ),
                     child: Text(

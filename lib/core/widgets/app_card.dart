@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 
 /// Quanto e' grande il riquadro.
 ///
@@ -8,18 +9,18 @@ import 'package:flutter/material.dart';
 /// cella di input e un pannello a tutta larghezza sono davvero cose
 /// diverse: quello che non doveva esistere e' la scala continua fra le due.
 enum AppCardSize {
-  /// Riquadri piccoli in linea: celle, campi, badge di misura: 16.
-  tight(16),
+  /// Riquadri piccoli in linea: celle, campi, badge di misura.
+  tight(AppRadius.md),
 
-  /// La scheda normale dell'app: 24.
-  card(24),
+  /// La scheda normale dell'app.
+  card(AppRadius.xl),
 
-  /// Il pannello grande che contiene altre schede: 32.
-  panel(32);
+  /// Il pannello grande che contiene altre schede.
+  panel(AppRadius.xxl);
 
   const AppCardSize(this.radius);
 
-  final double radius;
+  final BorderRadius radius;
 }
 
 /// Se il riquadro sta sulla pagina o dentro un altro riquadro.
@@ -88,7 +89,7 @@ class AppCard extends StatelessWidget {
           AppCardTone.raised => theme.colorScheme.surfaceContainerHigh,
           AppCardTone.sunken => theme.colorScheme.surfaceContainerHighest,
         },
-        borderRadius: BorderRadius.circular(size.radius),
+        borderRadius: size.radius,
         border: switch (tone) {
           AppCardTone.raised => Border.all(
             color: theme.colorScheme.outline.withValues(alpha: 0.08),

@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
+import 'package:gym_corpus/core/theme/app_theme.dart';
 import 'package:gym_corpus/core/utils/date_format.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
+import 'package:gym_corpus/core/widgets/empty_state.dart';
 import 'package:gym_corpus/core/widgets/gradient_title.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
+import 'package:gym_corpus/core/widgets/skeleton.dart';
 import 'package:gym_corpus/features/notifications/domain/entities/notification_log_entity.dart';
 import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_bloc.dart';
 import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_event.dart';
@@ -78,11 +82,11 @@ class NotificationsScreen extends StatelessWidget {
         body: BlocBuilder<NotificationsBloc, NotificationsState>(
           builder: (context, state) {
             if (state.isLoading) {
-              return const Center(child: CircularProgressIndicator());
+              return const SkeletonList(rows: 6);
             }
 
             if (state.notifications.isEmpty) {
-              return _buildEmptyState(theme);
+              return _buildEmptyState();
             }
 
             return _buildNotificationsList(context, theme, state.notifications);
@@ -92,45 +96,16 @@ class NotificationsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildEmptyState(ThemeData theme) {
-    return Center(
+  Widget _buildEmptyState() {
+    return const Center(
       child: Padding(
-        padding: const EdgeInsets.all(40),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                color: theme.colorScheme.primary.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.notifications_none_rounded,
-                size: 40,
-                color: theme.colorScheme.primary.withValues(alpha: 0.5),
-              ),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              'Nessuna notifica',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w800,
-                fontFamily: 'Lexend',
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Le tue notifiche appariranno qui.\n'
-              'Badge sbloccati, promemoria e altro.',
-              textAlign: TextAlign.center,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.outline,
-                height: 1.5,
-              ),
-            ),
-          ],
+        padding: EdgeInsets.all(40),
+        child: EmptyState(
+          icon: Icons.notifications_none_rounded,
+          title: 'Nessuna notifica',
+          message:
+              'Le tue notifiche appariranno qui: badge sbloccati, '
+              'promemoria e altro.',
         ),
       ),
     );
@@ -234,7 +209,7 @@ class _NotificationTile extends StatelessWidget {
   Color _colorForType(String type, ThemeData theme) {
     switch (type) {
       case 'badge':
-        return Colors.orangeAccent;
+        return AppPalette.gold;
       case 'stretching':
         return const Color(0xFF8DE8C7);
       case 'training':
@@ -277,7 +252,7 @@ class _NotificationTile extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
           color: theme.colorScheme.error.withValues(alpha: 0.15),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: AppRadius.lg,
         ),
         child: Icon(Icons.delete_outline, color: theme.colorScheme.error),
       ),
@@ -291,7 +266,7 @@ class _NotificationTile extends StatelessWidget {
             color: notification.isRead
                 ? theme.colorScheme.surfaceContainerHigh
                 : theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.8),
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: AppRadius.lg,
             border: Border.all(
               color: notification.isRead
                   ? theme.colorScheme.outline.withValues(alpha: 0.05)
@@ -316,7 +291,7 @@ class _NotificationTile extends StatelessWidget {
                 height: 44,
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: AppRadius.sm,
                 ),
                 child: Icon(
                   _iconForType(notification.type),
@@ -364,7 +339,7 @@ class _NotificationTile extends StatelessWidget {
                           ),
                           decoration: BoxDecoration(
                             color: color.tintedFill,
-                            borderRadius: BorderRadius.circular(999),
+                            borderRadius: AppRadius.pill,
                             border: Border.all(color: color.tintedBorder),
                           ),
                           child: Text(

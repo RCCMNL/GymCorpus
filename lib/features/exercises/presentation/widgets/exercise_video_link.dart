@@ -38,7 +38,7 @@ class ExerciseVideoLink extends StatelessWidget {
 
     return InkWell(
       onTap: () => _open(context, url),
-      borderRadius: BorderRadius.circular(AppCardSize.card.radius),
+      borderRadius: AppCardSize.card.radius,
       child: AppCard(
         padding: const EdgeInsets.all(16),
         child: Row(

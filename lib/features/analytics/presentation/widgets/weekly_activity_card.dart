@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 
 /// Indicatore settimanale (lun-dom) dei giorni con almeno una serie
@@ -36,7 +37,7 @@ class WeeklyActivityCard extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppRadius.md,
         border: Border(
           left: BorderSide(color: theme.colorScheme.secondary, width: 4),
         ),

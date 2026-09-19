@@ -243,21 +243,24 @@ class TrainingRepositoryImpl implements TrainingRepository {
 
       for (final routineData in routinesList) {
         // Get exercises for this routine
-        final exercisesQuery = database.select(database.routineExercises).join([
-          innerJoin(
-            database.exercises,
-            database.exercises.id.equalsExp(
-              database.routineExercises.exerciseId,
-            ),
-          ),
-        ])
-          ..where(database.routineExercises.routineId.equals(routineData.id))
-          // L'ordine e' un dato della routine, non l'ordine in cui il
-          // database restituisce le righe: senza questo, l'ordine degli
-          // esercizi dipendeva da come erano stati scritti.
-          ..orderBy([
-            OrderingTerm(expression: database.routineExercises.orderIndex),
-          ]);
+        final exercisesQuery =
+            database.select(database.routineExercises).join([
+                innerJoin(
+                  database.exercises,
+                  database.exercises.id.equalsExp(
+                    database.routineExercises.exerciseId,
+                  ),
+                ),
+              ])
+              ..where(
+                database.routineExercises.routineId.equals(routineData.id),
+              )
+              // L'ordine e' un dato della routine, non l'ordine in cui il
+              // database restituisce le righe: senza questo, l'ordine degli
+              // esercizi dipendeva da come erano stati scritti.
+              ..orderBy([
+                OrderingTerm(expression: database.routineExercises.orderIndex),
+              ]);
 
         final rows = await exercisesQuery.get();
 

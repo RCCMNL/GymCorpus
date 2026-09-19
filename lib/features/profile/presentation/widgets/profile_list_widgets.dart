@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:gym_corpus/features/profile/presentation/widgets/cycle_phase_info.dart';
@@ -35,11 +36,16 @@ class ProfileSection extends StatelessWidget {
                         theme.colorScheme.tertiary,
                       ],
                     ),
-                    borderRadius: BorderRadius.circular(2),
+                    borderRadius: AppRadius.pill,
                   ),
                 ),
                 const SizedBox(width: 12),
-                SectionTitle(title.toUpperCase(), tone: SectionTitleTone.muted),
+                Flexible(
+                  child: SectionTitle(
+                    title.toUpperCase(),
+                    tone: SectionTitleTone.muted,
+                  ),
+                ),
               ],
             ),
           ),
@@ -58,6 +64,24 @@ class ProfileSection extends StatelessWidget {
   }
 }
 
+/// Di che colore e' la voce.
+///
+/// Prima il colore si deduceva dall'etichetta: `label == 'Sicurezza'`
+/// dava menta, `label == 'Valuta GymCorpus'` arancione, tutto il resto
+/// periwinkle. Riscrivere una voce - o tradurla - le cambiava colore
+/// senza che nessuno l'avesse chiesto, e il confronto falliva in
+/// silenzio: nessun errore, solo il colore sbagliato.
+enum ProfileItemTone {
+  /// Il tono normale dell'elenco.
+  primary,
+
+  /// Le voci che riguardano la cura di se': sicurezza, preferiti.
+  secondary,
+
+  /// Il ciclo, che ha una sua tinta riconoscibile in tutta l'app.
+  cycle,
+}
+
 /// Riga di menu con icona, etichetta e un trailing opzionale (badge, testo,
 /// switch o freccia di navigazione).
 class ProfileItem extends StatelessWidget {
@@ -67,6 +91,8 @@ class ProfileItem extends StatelessWidget {
     this.trailingText,
     this.trailing,
     this.isBadge = false,
+    this.tone = ProfileItemTone.primary,
+    this.isComingSoon = false,
     this.onTap,
     super.key,
   });
@@ -76,35 +102,37 @@ class ProfileItem extends StatelessWidget {
   final String? trailingText;
   final Widget? trailing;
   final bool isBadge;
+  final ProfileItemTone tone;
+
+  /// La funzione non c'e' ancora: la riga resta ma si spegne.
+  final bool isComingSoon;
+
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isComingSoon = isBadge && trailingText == 'Prossimamente';
     final iconColor = isComingSoon
         ? theme.colorScheme.outline
-        : label == 'Calendario ciclo'
-        ? CyclePalette.period
-        : (label == 'Sicurezza' || label == 'Esercizi Preferiti'
-              ? theme.colorScheme.tertiary
-              : (label == 'Valuta GymCorpus'
-                    ? Colors.orangeAccent
-                    : theme.colorScheme.primary));
+        : switch (tone) {
+            ProfileItemTone.primary => theme.colorScheme.primary,
+            ProfileItemTone.secondary => theme.colorScheme.tertiary,
+            ProfileItemTone.cycle => CyclePalette.period,
+          };
 
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: AppRadius.lg,
         child: Container(
           constraints: const BoxConstraints(minHeight: 60),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: label == 'Calendario ciclo'
+            color: tone == ProfileItemTone.cycle && !isComingSoon
                 ? CyclePalette.period.withValues(alpha: 0.05)
                 : null,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: AppRadius.lg,
           ),
           child: Row(
             children: [
@@ -130,7 +158,7 @@ class ProfileItem extends StatelessWidget {
                       color: isComingSoon
                           ? theme.colorScheme.outline.withValues(alpha: 0.12)
                           : theme.colorScheme.tertiary.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: AppRadius.lg,
                     ),
                     child: Text(
                       trailingText!,

@@ -3,9 +3,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
+import 'package:gym_corpus/core/widgets/empty_state.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
-import 'package:gym_corpus/core/widgets/icon_badge.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
@@ -131,27 +132,28 @@ class _WorkoutPageState extends State<WorkoutPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              widget.routineToEdit != null
-                                  ? 'Modifica workout'
-                                  : 'Nuovo workout',
-                              style: theme.textTheme.headlineMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                fontFamily: 'Lexend',
-                              ),
+                        // Il titolo cede spazio all'icona accanto: su uno
+                        // schermo stretto "Modifica workout" la spingeva
+                        // fuori dal bordo.
+                        Expanded(
+                          child: Text(
+                            widget.routineToEdit != null
+                                ? 'Modifica workout'
+                                : 'Nuovo workout',
+                            style: theme.textTheme.headlineMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'Lexend',
                             ),
-                          ],
+                          ),
                         ),
+                        const SizedBox(width: 12),
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
                             color: theme.colorScheme.primary.withValues(
                               alpha: 0.1,
                             ),
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: AppRadius.md,
                           ),
                           child: Icon(
                             Icons.mode_edit_outline,
@@ -172,7 +174,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
                       decoration: BoxDecoration(
                         color: theme.colorScheme.surfaceContainerHigh
                             .withValues(alpha: 0.5),
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: AppRadius.lg,
                         border: Border.all(
                           color: theme.colorScheme.outline.withValues(
                             alpha: 0.1,
@@ -213,32 +215,37 @@ class _WorkoutPageState extends State<WorkoutPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const SectionTitle('PIANO ESERCIZI'),
-                            const SizedBox(height: 4),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 2,
-                              ),
-                              decoration: BoxDecoration(
-                                color: theme.colorScheme.tertiary.withValues(
-                                  alpha: 0.15,
+                        // Il titolo cede spazio al pulsante "aggiungi",
+                        // che deve restare intero.
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SectionTitle('PIANO ESERCIZI'),
+                              const SizedBox(height: 4),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 2,
                                 ),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                '${_selectedExercises.length} ESERCIZI',
-                                style: theme.textTheme.labelSmall?.copyWith(
-                                  color: theme.colorScheme.tertiary,
-                                  fontWeight: FontWeight.w900,
+                                decoration: BoxDecoration(
+                                  color: theme.colorScheme.tertiary.withValues(
+                                    alpha: 0.15,
+                                  ),
+                                  borderRadius: AppRadius.xs,
+                                ),
+                                child: Text(
+                                  '${_selectedExercises.length} ESERCIZI',
+                                  style: theme.textTheme.labelSmall?.copyWith(
+                                    color: theme.colorScheme.tertiary,
+                                    fontWeight: FontWeight.w900,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
+                        const SizedBox(width: 12),
                         GestureDetector(
                           onTap: () => _showExercisePicker(context),
                           child: Container(
@@ -253,7 +260,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
                                   theme.colorScheme.tertiary,
                                 ],
                               ),
-                              borderRadius: BorderRadius.circular(20),
+                              borderRadius: AppRadius.lg,
                               boxShadow: [
                                 BoxShadow(
                                   color: theme.colorScheme.primary.withValues(
@@ -289,33 +296,15 @@ class _WorkoutPageState extends State<WorkoutPage> {
                     const SizedBox(height: 24),
 
                     if (_selectedExercises.isEmpty)
-                      Center(
+                      const Center(
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 40),
-                          child: Column(
-                            children: [
-                              const IconBadge(
-                                Icons.fitness_center_rounded,
-                                size: IconBadgeSize.large,
-                                circle: true,
-                              ),
-                              const SizedBox(height: 20),
-                              Text(
-                                'Nessun esercizio',
-                                style: theme.textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.w900,
-                                  fontFamily: 'Lexend',
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Aggiungi il tuo primo esercizio premendo\nil tasto in alto a destra.',
-                                textAlign: TextAlign.center,
-                                style: theme.textTheme.bodyMedium?.copyWith(
-                                  color: theme.colorScheme.outline,
-                                ),
-                              ),
-                            ],
+                          padding: EdgeInsets.symmetric(vertical: 40),
+                          child: EmptyState(
+                            icon: Icons.fitness_center_rounded,
+                            title: 'Nessun esercizio',
+                            message:
+                                'Aggiungi il tuo primo esercizio premendo '
+                                'il tasto in alto a destra.',
                           ),
                         ),
                       )
@@ -401,7 +390,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
                         theme.colorScheme.tertiary,
                       ],
                     ),
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: AppRadius.lg,
                     boxShadow: [
                       BoxShadow(
                         color: theme.colorScheme.primary.withValues(alpha: 0.3),
@@ -411,25 +400,30 @@ class _WorkoutPageState extends State<WorkoutPage> {
                     ],
                   ),
                   alignment: Alignment.center,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        Icons.check_circle_rounded,
-                        color: Colors.white,
-                        size: 22,
-                      ),
-                      const SizedBox(width: 10),
-                      Text(
-                        'SALVA WORKOUT',
-                        style: theme.textTheme.titleMedium?.copyWith(
+                  // Icona ed etichetta si stringono invece di uscire dal
+                  // pulsante su uno schermo stretto.
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.check_circle_rounded,
                           color: Colors.white,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 1.2,
-                          fontFamily: 'Lexend',
+                          size: 22,
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: 10),
+                        Text(
+                          'SALVA WORKOUT',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 1.2,
+                            fontFamily: 'Lexend',
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),

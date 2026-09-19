@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
+import 'package:gym_corpus/core/theme/app_theme.dart';
 import 'package:gym_corpus/core/utils/unit_converter.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/core/widgets/compact_sheet.dart';
@@ -289,9 +291,7 @@ class _QuickExerciseEditPanelState extends State<QuickExerciseEditPanel> {
                               icon: Icon(
                                 Icons.remove_circle_outline_rounded,
                                 size: 22,
-                                color: Colors.orangeAccent.withValues(
-                                  alpha: 0.5,
-                                ),
+                                color: AppPalette.gold.withValues(alpha: 0.5),
                               ),
                               onPressed: () => setState(() {
                                 if (sets.length > 1) {
@@ -326,27 +326,25 @@ class _QuickExerciseEditPanelState extends State<QuickExerciseEditPanel> {
                       }),
                       icon: const Icon(
                         Icons.add_rounded,
-                        color: Colors.orangeAccent,
+                        color: AppPalette.gold,
                       ),
                       label: const Text(
                         'AGGIUNGI SERIE',
                         style: TextStyle(
-                          color: Colors.orangeAccent,
+                          color: AppPalette.gold,
                           fontWeight: FontWeight.w900,
                           letterSpacing: 0.5,
                           fontSize: 12,
                         ),
                       ),
                       style: TextButton.styleFrom(
-                        backgroundColor: Colors.orangeAccent.withValues(
-                          alpha: 0.1,
-                        ),
+                        backgroundColor: AppPalette.gold.withValues(alpha: 0.1),
                         padding: const EdgeInsets.symmetric(
                           horizontal: 20,
                           vertical: 12,
                         ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: AppRadius.sm,
                         ),
                       ),
                     ),
@@ -357,7 +355,7 @@ class _QuickExerciseEditPanelState extends State<QuickExerciseEditPanel> {
                   width: double.infinity,
                   child: Container(
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: AppRadius.lg,
                       boxShadow: [
                         BoxShadow(
                           color: theme.colorScheme.primary.withValues(
@@ -374,8 +372,8 @@ class _QuickExerciseEditPanelState extends State<QuickExerciseEditPanel> {
                         backgroundColor: theme.colorScheme.primary,
                         foregroundColor: theme.colorScheme.onPrimary,
                         padding: const EdgeInsets.symmetric(vertical: 20),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: AppRadius.lg,
                         ),
                         elevation: 0,
                       ),

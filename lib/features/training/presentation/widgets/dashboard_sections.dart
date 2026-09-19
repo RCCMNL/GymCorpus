@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
+import 'package:gym_corpus/core/widgets/empty_state.dart';
 import 'package:gym_corpus/core/widgets/icon_badge.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
+import 'package:gym_corpus/core/widgets/skeleton.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 
 /// Il saluto in cima al Training Hub.
@@ -67,10 +70,7 @@ class YourRoutinesCard extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           if (routines == null)
-            const SizedBox(
-              height: 180,
-              child: Center(child: CircularProgressIndicator()),
-            )
+            const SkeletonList(rows: 3, padding: EdgeInsets.zero)
           else if (routines.isEmpty)
             _EmptyRoutines(onCreateFirst: onCreateFirst)
           else
@@ -105,34 +105,16 @@ class _EmptyRoutines extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return AppCard(
-      width: double.infinity,
-      padding: const EdgeInsets.all(32),
-      child: Column(
-        children: [
-          Icon(
-            Icons.add_circle_outline,
-            size: 40,
-            color: theme.colorScheme.outline.withValues(alpha: 0.3),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Nessuna routine trovata',
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.outline,
-            ),
-          ),
-          const SizedBox(height: 16),
-          // Unica azione di questa schermata: un link testuale
-          // comunicherebbe "opzionale", qui serve un invito esplicito.
-          FilledButton.icon(
-            onPressed: onCreateFirst,
-            icon: const Icon(Icons.add_rounded, size: 20),
-            label: const Text('CREA LA TUA PRIMA ROUTINE'),
-          ),
-        ],
+    return EmptyStateCard(
+      icon: Icons.add_circle_outline,
+      title: 'Nessuna routine trovata',
+      message: 'Le schede che crei o che copi dal catalogo compaiono qui.',
+      // Unica azione di questa schermata: un link testuale
+      // comunicherebbe "opzionale", qui serve un invito esplicito.
+      action: FilledButton.icon(
+        onPressed: onCreateFirst,
+        icon: const Icon(Icons.add_rounded, size: 20),
+        label: const Text('CREA LA TUA PRIMA ROUTINE'),
       ),
     );
   }
@@ -151,7 +133,7 @@ class _StartWorkoutButton extends StatelessWidget {
       width: double.infinity,
       height: 64,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: AppRadius.lg,
         gradient: LinearGradient(
           colors: [theme.colorScheme.secondary, theme.colorScheme.primary],
           begin: Alignment.topLeft,
@@ -169,7 +151,7 @@ class _StartWorkoutButton extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: AppRadius.lg,
           child: Center(
             child: Text(
               'AVVIA ALLENAMENTO',
@@ -269,11 +251,17 @@ class _DashboardCard extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Text(
-                        title,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Lexend',
+                      // Cede il titolo, non la targhetta beta che gli sta
+                      // accanto: insieme non stavano in una riga stretta.
+                      Flexible(
+                        child: Text(
+                          title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Lexend',
+                          ),
                         ),
                       ),
                       if (isBeta) ...[
@@ -287,7 +275,7 @@ class _DashboardCard extends StatelessWidget {
                             color: theme.colorScheme.tertiary.withValues(
                               alpha: 0.2,
                             ),
-                            borderRadius: BorderRadius.circular(6),
+                            borderRadius: AppRadius.xs,
                             border: Border.all(
                               color: theme.colorScheme.tertiary.withValues(
                                 alpha: 0.3,
@@ -361,7 +349,7 @@ class RoutineHighlightCard extends StatelessWidget {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
-          borderRadius: BorderRadius.circular(32),
+          borderRadius: AppRadius.xxl,
           border: Border.all(
             color: primary.withValues(alpha: 0.15),
             width: 1.5,
@@ -405,7 +393,7 @@ class RoutineHighlightCard extends StatelessWidget {
                         ),
                         decoration: BoxDecoration(
                           color: tertiary.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: AppRadius.lg,
                         ),
                         child: Text(
                           '${routine.estimatedDuration} MIN',

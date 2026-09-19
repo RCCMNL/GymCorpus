@@ -247,7 +247,10 @@ class _GymAppState extends State<GymApp> with WidgetsBindingObserver {
         ),
         ShellRoute(
           builder: (context, state, child) {
-            return RootScreen(updateController: _updateController, child: child);
+            return RootScreen(
+              updateController: _updateController,
+              child: child,
+            );
           },
           routes: [
             GoRoute(

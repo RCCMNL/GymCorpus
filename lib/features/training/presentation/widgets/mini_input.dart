@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 
 /// Campo numerico compatto con etichetta fluttuante, usato dentro
 /// QuickExerciseEditPanel.
@@ -20,7 +21,7 @@ class MiniInput extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppRadius.md,
         border: Border.all(
           color: theme.colorScheme.primary.withValues(alpha: 0.1),
         ),

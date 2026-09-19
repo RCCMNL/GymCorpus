@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
+import 'package:gym_corpus/core/theme/app_theme.dart';
 import 'package:gym_corpus/core/utils/time_format.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:gym_corpus/features/training/presentation/widgets/training_session_widgets.dart';
@@ -43,7 +45,7 @@ class RestTimerOverlay extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
             decoration: BoxDecoration(
               color: theme.colorScheme.surfaceContainerHigh,
-              borderRadius: BorderRadius.circular(40),
+              borderRadius: AppRadius.xxl,
               border: Border.all(
                 color: accentColor.withValues(alpha: 0.3),
                 width: 2,
@@ -79,21 +81,27 @@ class RestTimerOverlay extends StatelessWidget {
                           ),
                         ),
                       ),
-                      Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Eyebrow('RECUPERO'),
-                          const SizedBox(height: 4),
-                          Text(
-                            formatClock(secondsRemaining),
-                            style: theme.textTheme.headlineMedium?.copyWith(
-                              fontWeight: FontWeight.w900,
-                              fontFamily: 'Lexend',
-                              fontSize: 56,
-                              color: accentColor,
+                      // Dentro l'anello lo spazio e' fisso: con il testo
+                      // ingrandito etichetta e cronometro non ci stavano,
+                      // e uscivano dal cerchio.
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Eyebrow('RECUPERO'),
+                            const SizedBox(height: 4),
+                            Text(
+                              formatClock(secondsRemaining),
+                              style: theme.textTheme.headlineMedium?.copyWith(
+                                fontWeight: FontWeight.w900,
+                                fontFamily: 'Lexend',
+                                fontSize: 56,
+                                color: accentColor,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ],
                   ),
@@ -130,12 +138,12 @@ class RestTimerOverlay extends StatelessWidget {
                   icon: const Icon(
                     Icons.stop_circle_outlined,
                     size: 18,
-                    color: Colors.redAccent,
+                    color: AppPalette.coral,
                   ),
                   label: const Text(
                     'TERMINA ALLENAMENTO',
                     style: TextStyle(
-                      color: Colors.redAccent,
+                      color: AppPalette.coral,
                       fontSize: 11,
                       fontWeight: FontWeight.bold,
                     ),

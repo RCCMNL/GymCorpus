@@ -3,10 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/service_locator.dart' as di;
 import 'package:gym_corpus/core/services/health_service.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
+import 'package:gym_corpus/core/theme/app_theme.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/core/widgets/icon_badge.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
+import 'package:gym_corpus/core/widgets/skeleton.dart';
 
 /// Card riepilogo attività giornaliera con passi, km, tempo, kcal
 /// e grafico a barre settimanale.
@@ -92,21 +95,7 @@ class _DailyStepsSectionState extends State<DailyStepsSection> {
         // Section Header
         Row(
           children: [
-            Container(
-              width: 4,
-              height: 20,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.greenAccent.shade400,
-                    Colors.tealAccent.shade700,
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
+            const AccentBar(height: 20),
             const SizedBox(width: 12),
             const SectionTitle(
               'ATTIVITÀ GIORNALIERA',
@@ -129,7 +118,7 @@ class _DailyStepsSectionState extends State<DailyStepsSection> {
 
         // Main Content
         if (_isLoading)
-          _buildLoadingState(theme)
+          _buildLoadingState()
         else if (_permissionDenied)
           _buildPermissionBanner(theme)
         else
@@ -138,28 +127,44 @@ class _DailyStepsSectionState extends State<DailyStepsSection> {
     );
   }
 
-  Widget _buildLoadingState(ThemeData theme) {
-    return AppCard(
+  Widget _buildLoadingState() {
+    // La forma di quello che arriva: l'anello dei passi a sinistra, le
+    // tre misure a destra, il grafico della settimana sotto.
+    return const AppCard(
       width: double.infinity,
-      padding: const EdgeInsets.all(40),
-      child: Column(
-        children: [
-          SizedBox(
-            width: 28,
-            height: 28,
-            child: CircularProgressIndicator(
-              strokeWidth: 2.5,
-              color: Colors.greenAccent.shade400,
+      padding: EdgeInsets.all(20),
+      child: Shimmer(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                SkeletonBox(width: 72, height: 72, radius: AppRadius.pill),
+                SizedBox(width: 20),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SkeletonBox(height: 16),
+                      SizedBox(height: 10),
+                      FractionallySizedBox(
+                        widthFactor: 0.7,
+                        child: SkeletonBox(),
+                      ),
+                      SizedBox(height: 10),
+                      FractionallySizedBox(
+                        widthFactor: 0.45,
+                        child: SkeletonBox(),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            'Caricamento dati salute...',
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.outline,
-            ),
-          ),
-        ],
+            SizedBox(height: 24),
+            SkeletonBox(height: 90, radius: AppRadius.md),
+          ],
+        ),
       ),
     );
   }
@@ -173,22 +178,20 @@ class _DailyStepsSectionState extends State<DailyStepsSection> {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Colors.greenAccent.shade700.withValues(alpha: 0.08),
-              Colors.tealAccent.shade700.withValues(alpha: 0.05),
+              AppPalette.mint.withValues(alpha: 0.08),
+              AppPalette.mint.withValues(alpha: 0.05),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(
-            color: Colors.greenAccent.shade700.withValues(alpha: 0.15),
-          ),
+          borderRadius: AppRadius.xl,
+          border: Border.all(color: AppPalette.mint.withValues(alpha: 0.15)),
         ),
         child: Row(
           children: [
-            IconBadge(
+            const IconBadge(
               Icons.directions_walk_rounded,
-              color: Colors.greenAccent.shade400,
+              color: AppPalette.mint,
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -215,10 +218,10 @@ class _DailyStepsSectionState extends State<DailyStepsSection> {
               ),
             ),
             const SizedBox(width: 8),
-            Icon(
+            const Icon(
               Icons.arrow_forward_ios_rounded,
               size: 16,
-              color: Colors.greenAccent.shade400,
+              color: AppPalette.mint,
             ),
           ],
         ),
@@ -258,10 +261,11 @@ class _DailyStepsSectionState extends State<DailyStepsSection> {
                         child: CircularProgressIndicator(
                           value: progress,
                           strokeWidth: 6,
-                          backgroundColor: Colors.greenAccent.shade400
-                              .withValues(alpha: 0.12),
-                          valueColor: AlwaysStoppedAnimation(
-                            Colors.greenAccent.shade400,
+                          backgroundColor: AppPalette.mint.withValues(
+                            alpha: 0.12,
+                          ),
+                          valueColor: const AlwaysStoppedAnimation(
+                            AppPalette.mint,
                           ),
                           strokeCap: StrokeCap.round,
                         ),
@@ -269,17 +273,17 @@ class _DailyStepsSectionState extends State<DailyStepsSection> {
                       Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.directions_walk_rounded,
                             size: 18,
-                            color: Colors.greenAccent.shade400,
+                            color: AppPalette.mint,
                           ),
                           Text(
                             '${(progress * 100).round()}%',
                             style: theme.textTheme.labelSmall?.copyWith(
                               fontWeight: FontWeight.w900,
                               fontSize: 10,
-                              color: Colors.greenAccent.shade400,
+                              color: AppPalette.mint,
                             ),
                           ),
                         ],
@@ -316,19 +320,19 @@ class _DailyStepsSectionState extends State<DailyStepsSection> {
                           _MiniMetric(
                             icon: Icons.straighten_rounded,
                             value: today.formattedDistance,
-                            color: Colors.blueAccent,
+                            color: AppPalette.blue,
                           ),
                           const SizedBox(width: 16),
                           _MiniMetric(
                             icon: Icons.timer_outlined,
                             value: today.formattedActiveTime,
-                            color: Colors.orangeAccent,
+                            color: AppPalette.gold,
                           ),
                           const SizedBox(width: 16),
                           _MiniMetric(
                             icon: Icons.local_fire_department_rounded,
                             value: '${today.caloriesBurned.round()}',
-                            color: Colors.redAccent,
+                            color: AppPalette.coral,
                           ),
                         ],
                       ),
@@ -438,7 +442,7 @@ class _WeeklyStepsChart extends StatelessWidget {
               maxY: chartMax,
               barTouchData: BarTouchData(
                 touchTooltipData: BarTouchTooltipData(
-                  tooltipBorderRadius: BorderRadius.circular(12),
+                  tooltipBorderRadius: AppRadius.sm,
                   getTooltipItem: (group, groupIndex, rod, rodIndex) {
                     final activity = data[group.x];
                     return BarTooltipItem(
@@ -485,7 +489,7 @@ class _WeeklyStepsChart extends StatelessWidget {
                 drawVerticalLine: false,
                 horizontalInterval: dailyGoal.toDouble(),
                 getDrawingHorizontalLine: (value) => FlLine(
-                  color: Colors.greenAccent.shade400.withValues(alpha: 0.2),
+                  color: AppPalette.mint.withValues(alpha: 0.2),
                   strokeWidth: 1,
                   dashArray: [6, 4],
                 ),
@@ -503,21 +507,23 @@ class _WeeklyStepsChart extends StatelessWidget {
                     BarChartRodData(
                       toY: activity.steps.toDouble(),
                       width: 24,
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: AppRadius.xs,
                       gradient: LinearGradient(
                         begin: Alignment.bottomCenter,
                         end: Alignment.topCenter,
+                        // Obiettivo raggiunto: menta piena. Oggi, ma non
+                        // ancora raggiunto: la stessa menta smorzata, che
+                        // si legge come "ci siamo quasi" invece che come
+                        // un altro colore.
                         colors: reachedGoal
                             ? [
-                                Colors.greenAccent.shade700,
-                                Colors.greenAccent.shade400,
+                                AppPalette.mint.withValues(alpha: 0.5),
+                                AppPalette.mint,
                               ]
                             : isToday
                             ? [
-                                Colors.greenAccent.shade400.withValues(
-                                  alpha: 0.7,
-                                ),
-                                Colors.greenAccent.shade400,
+                                AppPalette.mint.withValues(alpha: 0.25),
+                                AppPalette.mint.withValues(alpha: 0.65),
                               ]
                             : [
                                 theme.colorScheme.primary.withValues(

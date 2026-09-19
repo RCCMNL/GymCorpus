@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/features/exercises/presentation/widgets/difficulty_badge.dart';
 import 'package:gym_corpus/features/exercises/presentation/widgets/exercise_thumbnail.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
@@ -91,7 +92,7 @@ class ExerciseHero extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       color: theme.colorScheme.tertiary,
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: AppRadius.lg,
                     ),
                     child: Text(
                       exercise.targetMuscle.toUpperCase(),

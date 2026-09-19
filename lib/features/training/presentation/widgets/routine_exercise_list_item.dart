@@ -1,10 +1,11 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/utils/unit_converter.dart';
 import 'package:gym_corpus/features/exercises/presentation/widgets/exercise_thumbnail.dart';
-import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
+import 'package:gym_corpus/features/training/presentation/widgets/exercise_notes_dialog.dart';
 
 /// Card di un esercizio della routine in WorkoutDetailScreen: nome, tag
 /// serie/muscolo, menu di azioni (modifica/rimuovi/elimina routine) ed
@@ -56,7 +57,7 @@ class RoutineExerciseListItem extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: AppRadius.lg,
         border: Border.all(
           color: theme.colorScheme.outline.withValues(alpha: 0.1),
           width: 1.5,
@@ -70,7 +71,7 @@ class RoutineExerciseListItem extends StatelessWidget {
             leading: ExerciseThumbnail(
               exercise: re.exercise,
               size: 48,
-              borderRadius: 14,
+              borderRadius: AppRadius.sm,
             ),
             title: Text(
               re.exercise.name,
@@ -82,7 +83,11 @@ class RoutineExerciseListItem extends StatelessWidget {
             ),
             subtitle: Padding(
               padding: const EdgeInsets.only(top: 6),
-              child: Row(
+              // Le due targhette vanno a capo: affiancate non stavano
+              // nella riga di un telefono stretto.
+              child: Wrap(
+                spacing: 6,
+                runSpacing: 4,
                 children: [
                   Container(
                     padding: const EdgeInsets.symmetric(
@@ -91,7 +96,7 @@ class RoutineExerciseListItem extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       color: theme.colorScheme.tertiary.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(6),
+                      borderRadius: AppRadius.xs,
                     ),
                     child: Text(
                       '${setsList.length} SERIE',
@@ -103,7 +108,6 @@ class RoutineExerciseListItem extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 6),
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
@@ -111,7 +115,7 @@ class RoutineExerciseListItem extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       color: theme.colorScheme.outline.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(6),
+                      borderRadius: AppRadius.xs,
                     ),
                     child: Text(
                       re.exercise.targetMuscle.toUpperCase(),
@@ -135,7 +139,7 @@ class RoutineExerciseListItem extends StatelessWidget {
                     color: theme.colorScheme.primary,
                   ),
                   onPressed: () =>
-                      _showNotesDialog(context, re.exercise, theme),
+                      showExerciseNotesDialog(context, re.exercise),
                 ),
                 if (!isReadOnly)
                   PopupMenuButton<String>(
@@ -148,8 +152,8 @@ class RoutineExerciseListItem extends StatelessWidget {
                         onDeleteRoutine?.call();
                       }
                     },
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: AppRadius.md,
                     ),
                     color: theme.colorScheme.surfaceContainerHigh,
                     elevation: 8,
@@ -261,7 +265,7 @@ class RoutineExerciseListItem extends StatelessWidget {
                             ? theme.colorScheme.surfaceContainerHighest
                                   .withValues(alpha: 0.3)
                             : Colors.transparent,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: AppRadius.sm,
                       ),
                       child: Row(
                         children: [
@@ -360,63 +364,4 @@ class RoutineExerciseListItem extends StatelessWidget {
       ),
     );
   }
-}
-
-void _showNotesDialog(
-  BuildContext context,
-  ExerciseEntity exercise,
-  ThemeData theme,
-) {
-  showDialog<void>(
-    context: context,
-    builder: (ctx) {
-      return AlertDialog(
-        backgroundColor: theme.colorScheme.surfaceContainerHigh,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: Row(
-          children: [
-            Icon(Icons.notes_rounded, color: theme.colorScheme.primary),
-            const SizedBox(width: 8),
-            const Text(
-              'Le tue note',
-              style: TextStyle(
-                fontFamily: 'Lexend',
-                fontWeight: FontWeight.w900,
-                fontSize: 18,
-              ),
-            ),
-          ],
-        ),
-        content: Text(
-          (exercise.userNotes != null && exercise.userNotes!.trim().isNotEmpty)
-              ? exercise.userNotes!
-              : "Nessuna nota presente per questo esercizio.\n\nPuoi aggiungere appunti dalla schermata dei dettagli dell'esercizio.",
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color:
-                (exercise.userNotes != null &&
-                    exercise.userNotes!.trim().isNotEmpty)
-                ? theme.colorScheme.onSurface
-                : theme.colorScheme.outline,
-            fontStyle:
-                (exercise.userNotes != null &&
-                    exercise.userNotes!.trim().isNotEmpty)
-                ? FontStyle.normal
-                : FontStyle.italic,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(
-              'CHIUDI',
-              style: TextStyle(
-                color: theme.colorScheme.primary,
-                fontWeight: FontWeight.w900,
-              ),
-            ),
-          ),
-        ],
-      );
-    },
-  );
 }

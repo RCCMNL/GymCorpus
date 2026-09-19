@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
+import 'package:gym_corpus/core/widgets/skeleton.dart';
 import 'package:gym_corpus/features/analytics/presentation/widgets/measurements_tab.dart';
 import 'package:gym_corpus/features/analytics/presentation/widgets/progress_hero.dart';
 import 'package:gym_corpus/features/analytics/presentation/widgets/progress_shared_widgets.dart';
@@ -58,7 +59,7 @@ class _ProgressScreenState extends State<ProgressScreen>
             }
 
             if (state is! TrainingLoaded) {
-              return const Center(child: CircularProgressIndicator());
+              return const SkeletonList();
             }
 
             final profileWeight = context.read<AuthBloc>().state.maybeWhen(

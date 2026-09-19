@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/utils/unit_converter.dart';
 import 'package:gym_corpus/features/exercises/presentation/widgets/exercise_thumbnail.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
@@ -181,7 +182,7 @@ class _SelectedExerciseTileState extends State<SelectedExerciseTile> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: AppRadius.lg,
         border: Border.all(
           color: theme.colorScheme.outline.withValues(alpha: 0.1),
           width: 1.5,
@@ -217,7 +218,7 @@ class _SelectedExerciseTileState extends State<SelectedExerciseTile> {
                 ExerciseThumbnail(
                   exercise: widget.exercise.exercise,
                   size: 48,
-                  borderRadius: 14,
+                  borderRadius: AppRadius.sm,
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -311,7 +312,7 @@ class _SelectedExerciseTileState extends State<SelectedExerciseTile> {
                             ? theme.colorScheme.surfaceContainerHighest
                                   .withValues(alpha: 0.3)
                             : Colors.transparent,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: AppRadius.sm,
                       ),
                       child: Row(
                         children: [
@@ -406,7 +407,7 @@ class _SelectedExerciseTileState extends State<SelectedExerciseTile> {
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
                         color: theme.colorScheme.primary.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius: AppRadius.sm,
                         border: Border.all(
                           color: theme.colorScheme.primary.withValues(
                             alpha: 0.2,
@@ -414,25 +415,28 @@ class _SelectedExerciseTileState extends State<SelectedExerciseTile> {
                         ),
                       ),
                       alignment: Alignment.center,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.add_rounded,
-                            size: 18,
-                            color: theme.colorScheme.primary,
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            'AGGIUNGI UNA SERIE',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w900,
-                              letterSpacing: 0.5,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.add_rounded,
+                              size: 18,
                               color: theme.colorScheme.primary,
                             ),
-                          ),
-                        ],
+                            const SizedBox(width: 6),
+                            Text(
+                              'AGGIUNGI UNA SERIE',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 0.5,
+                                color: theme.colorScheme.primary,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/widgets/compact_sheet.dart';
+import 'package:gym_corpus/core/widgets/empty_state.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
 import 'package:gym_corpus/features/training/presentation/widgets/dashboard_sections.dart';
@@ -60,33 +61,18 @@ class WorkoutSelectorModal extends StatelessWidget {
                         vertical: 60,
                         horizontal: 40,
                       ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.fitness_center_outlined,
-                            size: 48,
-                            color: theme.colorScheme.outline.withValues(
-                              alpha: 0.3,
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'Nessuna routine custom trovata',
-                            textAlign: TextAlign.center,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: theme.colorScheme.outline,
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                              context.go('/custom/new');
-                            },
-                            child: const Text('CREA ORA'),
-                          ),
-                        ],
+                      child: EmptyState(
+                        icon: Icons.fitness_center_outlined,
+                        title: 'Nessuna routine custom trovata',
+                        message:
+                            'Crea una scheda tua per poterla avviare da qui.',
+                        action: FilledButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            context.go('/custom/new');
+                          },
+                          child: const Text('CREA ORA'),
+                        ),
                       ),
                     );
                   }

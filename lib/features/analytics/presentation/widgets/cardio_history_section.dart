@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/core/widgets/confirm_dialog.dart';
+import 'package:gym_corpus/core/widgets/empty_state.dart';
 import 'package:gym_corpus/core/widgets/icon_badge.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_activity.dart';
@@ -41,26 +43,20 @@ class CardioHistorySection extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Container(
-                    width: 4,
-                    height: 20,
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [Color(0xFFFF9494), Colors.deepOrange],
+              // Il titolo cede spazio a quello che gli sta a destra.
+              const Expanded(
+                child: Row(
+                  children: [
+                    AccentBar(height: 20),
+                    SizedBox(width: 12),
+                    Flexible(
+                      child: SectionTitle(
+                        'RECENTI CARDIO',
+                        tone: SectionTitleTone.muted,
                       ),
-                      borderRadius: BorderRadius.circular(2),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  const SectionTitle(
-                    'RECENTI CARDIO',
-                    tone: SectionTitleTone.muted,
-                  ),
-                ],
+                  ],
+                ),
               ),
               if (sessions.isNotEmpty)
                 TextButton(
@@ -74,8 +70,8 @@ class CardioHistorySection extends StatelessWidget {
                     backgroundColor: theme.colorScheme.primary.withValues(
                       alpha: 0.05,
                     ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: AppRadius.sm,
                     ),
                   ),
                   child: Row(
@@ -103,23 +99,10 @@ class CardioHistorySection extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           if (sessions.isEmpty)
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceContainerHighest.withValues(
-                  alpha: 0.1,
-                ),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Center(
-                child: Text(
-                  'Nessuna sessione registrata',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.outline,
-                  ),
-                ),
-              ),
+            const EmptyStateCard(
+              icon: Icons.directions_run_rounded,
+              title: 'Nessuna sessione registrata',
+              message: 'Le tue corse e camminate compaiono qui.',
             )
           else
             ...displaySessions.map(
@@ -164,7 +147,7 @@ class CompactCardioCard extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainer,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppRadius.md,
         border: Border(left: BorderSide(color: accentColor, width: 3)),
       ),
       child: Row(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 
 /// La domanda che l'app fa prima di un'azione che non si torna indietro.
 ///
@@ -12,7 +13,10 @@ class ConfirmDialog {
 
   /// Chiede conferma e ritorna `true` solo se l'utente ha confermato.
   ///
-  /// Chiudere il dialogo senza scegliere vale come un no.
+  /// Chiudere il dialogo senza scegliere vale come un no. Dove anche il
+  /// no ha conseguenze - scartare una sessione interrotta, per dire -
+  /// si passa `barrierDismissible: false`: toccare fuori non e' una
+  /// risposta.
   static Future<bool> ask(
     BuildContext context, {
     required String title,
@@ -20,6 +24,7 @@ class ConfirmDialog {
     String confirmLabel = 'ELIMINA',
     String cancelLabel = 'ANNULLA',
     bool destructive = true,
+    bool barrierDismissible = true,
   }) async {
     final theme = Theme.of(context);
     final confirmColor = destructive
@@ -28,9 +33,10 @@ class ConfirmDialog {
 
     final answer = await showDialog<bool>(
       context: context,
+      barrierDismissible: barrierDismissible,
       builder: (dialogContext) => AlertDialog(
         backgroundColor: theme.colorScheme.surface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        shape: const RoundedRectangleBorder(borderRadius: AppRadius.xl),
         title: Text(
           title,
           style: theme.textTheme.titleLarge?.copyWith(

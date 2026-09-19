@@ -82,23 +82,9 @@ void main() {
     });
   });
 
-  group('EmptyStateCard', () {
-    testWidgets('mostra icona, titolo e messaggio', (tester) async {
-      await tester.pumpWidget(
-        wrap(
-          const EmptyStateCard(
-            icon: Icons.monitor_weight_outlined,
-            title: 'Ancora nessun peso registrato',
-            message: 'Aggiungi il primo check-in.',
-          ),
-        ),
-      );
-
-      expect(find.text('Ancora nessun peso registrato'), findsOneWidget);
-      expect(find.text('Aggiungi il primo check-in.'), findsOneWidget);
-      expect(find.byIcon(Icons.monitor_weight_outlined), findsOneWidget);
-    });
-  });
+  // EmptyStateCard non vive piu' qui: era il riquadro "niente da
+  // mostrare" di analytics, ma dodici schermate ne avevano uno per una.
+  // Ora sta in core/widgets/empty_state.dart, con i suoi test.
 
   group('TipLine', () {
     testWidgets('mostra il testo del suggerimento', (tester) async {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/gradient_title.dart';
 
@@ -70,7 +71,7 @@ class _LegalScreenState extends State<LegalScreen>
                         theme.colorScheme.tertiary.withValues(alpha: 0.08),
                       ],
                     ),
-                    borderRadius: BorderRadius.circular(24),
+                    borderRadius: AppRadius.xl,
                     border: Border.all(
                       color: theme.colorScheme.primary.withValues(alpha: 0.15),
                     ),
@@ -84,7 +85,7 @@ class _LegalScreenState extends State<LegalScreen>
                           color: theme.colorScheme.primary.withValues(
                             alpha: 0.15,
                           ),
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius: AppRadius.sm,
                         ),
                         child: Icon(
                           widget.icon,
@@ -148,7 +149,7 @@ class _LegalScreenState extends State<LegalScreen>
                               theme.colorScheme.tertiary,
                             ],
                           ),
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: AppRadius.xs,
                         ),
                         child: Center(
                           child: Text(

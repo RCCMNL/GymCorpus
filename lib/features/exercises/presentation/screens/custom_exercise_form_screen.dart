@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/core/widgets/gradient_title.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
@@ -298,7 +299,7 @@ class _CustomExerciseFormScreenState extends State<CustomExerciseFormScreen> {
                 Container(
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: AppRadius.lg,
                     boxShadow: [
                       BoxShadow(
                         color: theme.colorScheme.primary.withValues(alpha: 0.3),
@@ -313,8 +314,8 @@ class _CustomExerciseFormScreenState extends State<CustomExerciseFormScreen> {
                       backgroundColor: theme.colorScheme.primary,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 18),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: AppRadius.lg,
                       ),
                       elevation: 0,
                     ),

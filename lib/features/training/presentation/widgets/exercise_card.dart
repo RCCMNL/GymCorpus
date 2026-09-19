@@ -28,11 +28,16 @@ class ExerciseCard extends StatelessWidget {
                 children: [
                   const Icon(Icons.accessibility_new, size: 16),
                   const SizedBox(width: 4),
-                  Text(
-                    exercise.targetMuscle,
-                    style: Theme.of(context).textTheme.bodyMedium,
+                  // Il nome del gruppo muscolare puo' essere lungo: cede
+                  // invece di spingere la riga fuori dalla card.
+                  Expanded(
+                    child: Text(
+                      exercise.targetMuscle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
                   ),
-                  const Spacer(),
                   if (exercise.isVector)
                     const Chip(
                       label: Text('Vector'),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
 
 /// Quanto e' grande la pastiglia che regge l'icona.
@@ -7,13 +8,13 @@ import 'package:gym_corpus/core/widgets/app_card.dart';
 /// e le altrettante misure d'icona che ogni schermata si era scelta.
 enum IconBadgeSize {
   /// Accanto al titolo di una riga in elenco.
-  small(padding: 8, icon: 18, radius: 12),
+  small(padding: 8, icon: 18, radius: AppRadius.sm),
 
   /// In testa a una sezione o a una scheda.
-  medium(padding: 12, icon: 22, radius: 16),
+  medium(padding: 12, icon: 22, radius: AppRadius.md),
 
   /// L'icona grande di uno schermo vuoto.
-  large(padding: 24, icon: 48, radius: 24);
+  large(padding: 24, icon: 48, radius: AppRadius.xl);
 
   const IconBadgeSize({
     required this.padding,
@@ -23,7 +24,7 @@ enum IconBadgeSize {
 
   final double padding;
   final double icon;
-  final double radius;
+  final BorderRadius radius;
 }
 
 /// Un'icona dentro la sua pastiglia tinta.
@@ -63,7 +64,7 @@ class IconBadge extends StatelessWidget {
       decoration: BoxDecoration(
         color: color?.tintedFill ?? theme.colorScheme.surfaceContainerHigh,
         shape: circle ? BoxShape.circle : BoxShape.rectangle,
-        borderRadius: circle ? null : BorderRadius.circular(size.radius),
+        borderRadius: circle ? null : size.radius,
       ),
       child: Icon(
         icon,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
 
@@ -24,7 +25,7 @@ class NotificationSectionHeader extends StatelessWidget {
           height: 32,
           decoration: BoxDecoration(
             color: color.withValues(alpha: 0.15),
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: AppRadius.xs,
           ),
           child: Icon(icon, color: color, size: 18),
         ),
@@ -128,7 +129,7 @@ class NotificationTimeTile extends StatelessWidget {
 
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: AppRadius.md,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         child: Row(
@@ -146,7 +147,7 @@ class NotificationTimeTile extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
               decoration: BoxDecoration(
                 color: theme.colorScheme.primary.tintedFill,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: AppRadius.sm,
                 border: Border.all(
                   color: theme.colorScheme.primary.tintedBorder,
                 ),
@@ -205,7 +206,7 @@ class WeekDaySelector extends StatelessWidget {
                   : theme.colorScheme.surfaceContainerHighest.withValues(
                       alpha: 0.3,
                     ),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: AppRadius.sm,
               border: Border.all(
                 color: isSelected
                     ? theme.colorScheme.primary

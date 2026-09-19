@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/widgets/compact_sheet.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
@@ -39,57 +40,62 @@ class _UnitPickerSheetState extends State<UnitPickerSheet> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            theme.colorScheme.primary.withValues(alpha: 0.15),
-                            theme.colorScheme.tertiary.withValues(alpha: 0.1),
+                // Icona e titolo cedono spazio a cio che chiude la riga.
+                Expanded(
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              theme.colorScheme.primary.withValues(alpha: 0.15),
+                              theme.colorScheme.tertiary.withValues(alpha: 0.1),
+                            ],
+                          ),
+                          borderRadius: AppRadius.sm,
+                          border: Border.all(
+                            color: theme.colorScheme.primary.withValues(
+                              alpha: 0.2,
+                            ),
+                          ),
+                        ),
+                        child: Icon(
+                          Icons.straighten_rounded,
+                          color: theme.colorScheme.primary,
+                          size: 22,
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      Flexible(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Unità di Misura',
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.w800,
+                                fontFamily: 'Lexend',
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'SISTEMA METRICO O IMPERIALE',
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                letterSpacing: 1.2,
+                                color: theme.colorScheme.outline,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 9,
+                              ),
+                            ),
                           ],
                         ),
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(
-                          color: theme.colorScheme.primary.withValues(
-                            alpha: 0.2,
-                          ),
-                        ),
                       ),
-                      child: Icon(
-                        Icons.straighten_rounded,
-                        color: theme.colorScheme.primary,
-                        size: 22,
-                      ),
-                    ),
-                    const SizedBox(width: 14),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Unità di Misura',
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w800,
-                            fontFamily: 'Lexend',
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          'SISTEMA METRICO O IMPERIALE',
-                          style: theme.textTheme.labelSmall?.copyWith(
-                            letterSpacing: 1.2,
-                            color: theme.colorScheme.outline,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 9,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
                 IconButton(
                   onPressed: () => Navigator.pop(context),
@@ -137,7 +143,7 @@ class _UnitPickerSheetState extends State<UnitPickerSheet> {
             child: Container(
               width: double.infinity,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: AppRadius.md,
                 boxShadow: [
                   BoxShadow(
                     color: theme.colorScheme.primary.withValues(alpha: 0.3),
@@ -157,8 +163,8 @@ class _UnitPickerSheetState extends State<UnitPickerSheet> {
                   backgroundColor: theme.colorScheme.primary,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: AppRadius.md,
                   ),
                   elevation: 0,
                 ),
@@ -211,7 +217,7 @@ class UnitCard extends StatelessWidget {
           color: isSelected
               ? theme.colorScheme.primary.withValues(alpha: 0.12)
               : theme.colorScheme.surfaceContainerHigh,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: AppRadius.lg,
           border: Border.all(
             color: isSelected
                 ? theme.colorScheme.primary
@@ -237,7 +243,7 @@ class UnitCard extends StatelessWidget {
                 color: isSelected
                     ? theme.colorScheme.primary.withValues(alpha: 0.15)
                     : theme.colorScheme.outline.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: AppRadius.sm,
               ),
               child: Icon(
                 icon,

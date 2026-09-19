@@ -456,39 +456,45 @@ class _SocialConsentSheetState extends State<_SocialConsentSheet> {
         24,
         MediaQuery.of(context).padding.bottom + 24,
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Prima di continuare',
-            style: theme.textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.w900,
-              fontFamily: 'Lexend',
+      // Scorrevole: il consenso e' lungo, e su uno schermo basso o con il
+      // testo ingrandito finiva sotto il bordo insieme al pulsante.
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Prima di continuare',
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w900,
+                fontFamily: 'Lexend',
+              ),
             ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            'Il resto del profilo te lo chiediamo subito dopo, una volta '
-            'entrato.',
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.outline,
+            const SizedBox(height: 6),
+            Text(
+              'Il resto del profilo te lo chiediamo subito dopo, una volta '
+              'entrato.',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.outline,
+              ),
             ),
-          ),
-          const SizedBox(height: 20),
-          LegalConsentField(
-            value: _accepted,
-            onChanged: (value) => setState(() => _accepted = value),
-          ),
-          const SizedBox(height: 20),
-          AuthPrimaryButton(
-            label: widget.provider == SocialProvider.google
-                ? 'CONTINUA CON GOOGLE'
-                : 'CONTINUA CON APPLE',
-            isLoading: false,
-            onPressed: _accepted ? () => Navigator.of(context).pop(true) : null,
-          ),
-        ],
+            const SizedBox(height: 20),
+            LegalConsentField(
+              value: _accepted,
+              onChanged: (value) => setState(() => _accepted = value),
+            ),
+            const SizedBox(height: 20),
+            AuthPrimaryButton(
+              label: widget.provider == SocialProvider.google
+                  ? 'CONTINUA CON GOOGLE'
+                  : 'CONTINUA CON APPLE',
+              isLoading: false,
+              onPressed: _accepted
+                  ? () => Navigator.of(context).pop(true)
+                  : null,
+            ),
+          ],
+        ),
       ),
     );
   }

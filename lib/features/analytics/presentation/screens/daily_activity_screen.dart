@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/service_locator.dart' as di;
 import 'package:gym_corpus/core/services/health_service.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
+import 'package:gym_corpus/core/theme/app_theme.dart';
 import 'package:gym_corpus/core/utils/date_format.dart';
+import 'package:gym_corpus/core/widgets/empty_state.dart';
+import 'package:gym_corpus/core/widgets/skeleton.dart';
 
 class DailyActivityScreen extends StatefulWidget {
   const DailyActivityScreen({super.key});
@@ -72,11 +76,9 @@ class _DailyActivityScreenState extends State<DailyActivityScreen> {
         centerTitle: true,
       ),
       body: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator(color: Colors.greenAccent),
-            )
+          ? const SkeletonList(hasLeading: false)
           : _weeklyData == null || _weeklyData!.isEmpty
-          ? _buildEmptyState(theme)
+          ? _buildEmptyState()
           : ListView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               itemCount: _weeklyData!.length,
@@ -88,25 +90,17 @@ class _DailyActivityScreenState extends State<DailyActivityScreen> {
     );
   }
 
-  Widget _buildEmptyState(ThemeData theme) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.directions_walk_rounded,
-            size: 48,
-            color: theme.colorScheme.outline.withValues(alpha: 0.5),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Nessun dato disponibile',
-            style: theme.textTheme.titleMedium?.copyWith(
-              color: theme.colorScheme.outline,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
+  Widget _buildEmptyState() {
+    return const Center(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 32),
+        child: EmptyState(
+          icon: Icons.directions_walk_rounded,
+          title: 'Nessun dato disponibile',
+          message:
+              'Quando il telefono registra passi e movimento, la '
+              'settimana compare qui.',
+        ),
       ),
     );
   }
@@ -127,10 +121,10 @@ class _ActivityDayCard extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: AppRadius.xl,
         border: Border.all(
           color: isToday
-              ? Colors.greenAccent.shade400.withValues(alpha: 0.3)
+              ? AppPalette.mint.withValues(alpha: 0.3)
               : theme.colorScheme.outline.withValues(alpha: 0.08),
           width: isToday ? 1.5 : 1.0,
         ),
@@ -149,15 +143,15 @@ class _ActivityDayCard extends StatelessWidget {
                   fontWeight: FontWeight.w800,
                   letterSpacing: 1.2,
                   color: isToday
-                      ? Colors.greenAccent.shade400
+                      ? AppPalette.mint
                       : theme.colorScheme.onSurfaceVariant,
                 ),
               ),
               if (activity.steps >= 10000)
-                Icon(
+                const Icon(
                   Icons.emoji_events_rounded,
                   size: 16,
-                  color: Colors.amber.shade400,
+                  color: AppPalette.gold,
                 ),
             ],
           ),
@@ -193,7 +187,7 @@ class _ActivityDayCard extends StatelessWidget {
                 icon: Icons.straighten_rounded,
                 value: activity.formattedDistance,
                 label: 'Distanza',
-                color: Colors.blueAccent,
+                color: AppPalette.blue,
               ),
               Container(
                 width: 1,
@@ -204,7 +198,7 @@ class _ActivityDayCard extends StatelessWidget {
                 icon: Icons.timer_outlined,
                 value: activity.formattedActiveTime,
                 label: 'Attività',
-                color: Colors.orangeAccent,
+                color: AppPalette.gold,
               ),
               Container(
                 width: 1,
@@ -215,7 +209,7 @@ class _ActivityDayCard extends StatelessWidget {
                 icon: Icons.local_fire_department_rounded,
                 value: '${activity.caloriesBurned.round()}',
                 label: 'Kcal',
-                color: Colors.redAccent,
+                color: AppPalette.coral,
               ),
             ],
           ),

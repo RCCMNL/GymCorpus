@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
 
 /// La barra in cima alla registrazione: indietro e a che punto siamo.
@@ -26,7 +27,7 @@ class SignUpTopBar extends StatelessWidget {
           DecoratedBox(
             decoration: BoxDecoration(
               color: theme.colorScheme.primary.tintedFill,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: AppRadius.md,
               border: Border.all(color: theme.colorScheme.primary.tintedBorder),
             ),
             child: IconButton(
@@ -47,7 +48,7 @@ class SignUpTopBar extends StatelessWidget {
                   theme.colorScheme.tertiary.withValues(alpha: 0.12),
                 ],
               ),
-              borderRadius: BorderRadius.circular(999),
+              borderRadius: AppRadius.pill,
               border: Border.all(
                 color: theme.colorScheme.primary.withValues(alpha: 0.14),
               ),
@@ -130,7 +131,7 @@ class SignUpStepIndicator extends StatelessWidget {
                   theme.colorScheme.outline.withValues(alpha: 0.08),
                 ],
         ),
-        borderRadius: BorderRadius.circular(999),
+        borderRadius: AppRadius.pill,
       ),
     );
   }

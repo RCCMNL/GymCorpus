@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/utils/date_format.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/compact_sheet.dart';
@@ -129,7 +130,7 @@ class ProfileBasicsFormState extends State<ProfileBasicsForm> {
                 padding: const EdgeInsets.fromLTRB(18, 14, 18, 18),
                 decoration: BoxDecoration(
                   color: theme.colorScheme.surfaceContainer,
-                  borderRadius: BorderRadius.circular(24),
+                  borderRadius: AppRadius.xl,
                   border: Border.all(
                     color: theme.colorScheme.primary.withValues(alpha: 0.12),
                   ),
@@ -277,7 +278,7 @@ class ProfileBasicsFormState extends State<ProfileBasicsForm> {
         InkWell(
           key: const Key('profile-birthdate'),
           onTap: _selectDate,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: AppRadius.md,
           child: AppCard(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
             size: AppCardSize.tight,
@@ -324,7 +325,7 @@ class ProfileBasicsFormState extends State<ProfileBasicsForm> {
               value: _gender,
               isExpanded: true,
               padding: const EdgeInsets.symmetric(horizontal: 14),
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: AppRadius.sm,
               dropdownColor: theme.colorScheme.surfaceContainerHigh,
               // Nessun valore di partenza: il campo resta vuoto finche' non
               // viene scelto, e senza scelta non si prosegue.

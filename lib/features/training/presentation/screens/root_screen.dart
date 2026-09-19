@@ -10,6 +10,7 @@ import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/services/external_links.dart';
 import 'package:gym_corpus/core/services/notification_service.dart';
 import 'package:gym_corpus/core/services/update_controller.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/features/app_update/domain/entities/app_update_status.dart';
 import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_bloc.dart';
 import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_event.dart';
@@ -18,7 +19,11 @@ import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dar
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
 
 class RootScreen extends StatefulWidget {
-  const RootScreen({required this.updateController, required this.child, super.key});
+  const RootScreen({
+    required this.updateController,
+    required this.child,
+    super.key,
+  });
 
   final UpdateController updateController;
   final Widget child;
@@ -62,7 +67,9 @@ class _RootScreenState extends State<RootScreen> {
       final messenger = ScaffoldMessenger.of(context);
       messenger.showMaterialBanner(
         MaterialBanner(
-          content: Text('Nuova versione ${info.latestVersionName} disponibile.'),
+          content: Text(
+            'Nuova versione ${info.latestVersionName} disponibile.',
+          ),
           actions: [
             TextButton(
               onPressed: messenger.hideCurrentMaterialBanner,
@@ -227,7 +234,7 @@ class _RootScreenState extends State<RootScreen> {
       height: 90,
       decoration: BoxDecoration(
         color: const Color(0xFF08082F).withValues(alpha: 0.8),
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+        borderRadius: AppRadius.topXxl,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.4),
@@ -237,7 +244,7 @@ class _RootScreenState extends State<RootScreen> {
         ],
       ),
       child: ClipRRect(
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+        borderRadius: AppRadius.topXxl,
         child: BackdropFilter(
           filter: ui.ImageFilter.blur(sigmaX: 30, sigmaY: 30),
           child: Padding(
@@ -314,7 +321,7 @@ class _RootScreenState extends State<RootScreen> {
                     ? const Color(0xFF3367FF)
                     : const Color(0xFF3367FF).withValues(alpha: 0.2))
               : Colors.transparent,
-          borderRadius: BorderRadius.circular(isTraining ? 20 : 24),
+          borderRadius: isTraining ? AppRadius.lg : AppRadius.xl,
           boxShadow: isSelected && isTraining
               ? [
                   BoxShadow(
