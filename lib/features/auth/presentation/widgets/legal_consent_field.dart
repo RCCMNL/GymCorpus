@@ -61,14 +61,22 @@ class LegalConsentField extends StatelessWidget {
                   ),
                 ),
               ),
-              TextButton(
-                onPressed: () => context.push('/legal/consent'),
-                style: TextButton.styleFrom(
-                  padding: const EdgeInsets.only(right: 12),
-                  minimumSize: const Size(0, 32),
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              // Cede insieme all'etichetta quando la riga si stringe:
+              // casella, testo e link insieme non ci stavano.
+              Flexible(
+                child: TextButton(
+                  onPressed: () => context.push('/legal/consent'),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.only(right: 12),
+                    minimumSize: const Size(0, 32),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  child: const Text(
+                    'Leggi i termini',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-                child: const Text('Leggi i termini'),
               ),
             ],
           ),

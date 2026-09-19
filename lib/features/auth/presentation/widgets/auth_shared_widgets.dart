@@ -293,20 +293,24 @@ class AuthSocialButton extends StatelessWidget {
             ),
             borderRadius: BorderRadius.circular(16),
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              logo,
-              const SizedBox(width: 10),
-              Text(
-                label,
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontFamily: 'Inter',
-                  color: t.colorScheme.onSurface,
+          // Logo ed etichetta si stringono invece di uscire dal pulsante.
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                logo,
+                const SizedBox(width: 10),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontFamily: 'Inter',
+                    color: t.colorScheme.onSurface,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -379,9 +383,16 @@ Widget authDivider(ThemeData t, String s) {
   return Row(
     children: [
       l,
-      Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 14),
-        child: Text(s, style: t.textTheme.labelSmall),
+      Flexible(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14),
+          child: Text(
+            s,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: t.textTheme.labelSmall,
+          ),
+        ),
       ),
       l,
     ],

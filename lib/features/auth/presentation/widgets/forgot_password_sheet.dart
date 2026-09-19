@@ -94,10 +94,12 @@ class _ForgotPasswordSheetState extends State<ForgotPasswordSheet> {
                   size: IconBadgeSize.small,
                 ),
                 const SizedBox(width: 14),
-                Text(
-                  'Recupera Password',
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
+                Flexible(
+                  child: Text(
+                    'Recupera Password',
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],

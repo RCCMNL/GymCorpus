@@ -32,26 +32,31 @@ class AuthHeader extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: theme.textTheme.headlineLarge?.copyWith(
-                fontWeight: FontWeight.w900,
-                letterSpacing: -0.5,
-                fontSize: titleSize,
+        // Titolo e sottotitolo cedono spazio al logo che li affianca:
+        // "Accedi per continuare il tuo percorso" spingeva la riga fuori
+        // dallo schermo.
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: theme.textTheme.headlineLarge?.copyWith(
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: -0.5,
+                  fontSize: titleSize,
+                ),
               ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              subtitle,
-              style: theme.textTheme.labelSmall?.copyWith(
-                letterSpacing: 2,
-                color: theme.colorScheme.primary.withValues(alpha: 0.7),
+              const SizedBox(height: 4),
+              Text(
+                subtitle,
+                style: theme.textTheme.labelSmall?.copyWith(
+                  letterSpacing: 2,
+                  color: theme.colorScheme.primary.withValues(alpha: 0.7),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         const SizedBox(width: 16),
         Hero(

@@ -63,13 +63,19 @@ class LoginCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               authLabel(theme, 'Password'),
-              GestureDetector(
-                onTap: onForgotPassword,
-                child: Text(
-                  'Password dimenticata?',
-                  style: theme.textTheme.labelSmall?.copyWith(
-                    color: theme.colorScheme.primary,
-                    fontWeight: FontWeight.w600,
+              // "Password dimenticata?" accanto all'etichetta non ci
+              // stava su uno schermo stretto: cede il link, non il campo.
+              Flexible(
+                child: GestureDetector(
+                  onTap: onForgotPassword,
+                  child: Text(
+                    'Password dimenticata?',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: theme.colorScheme.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ),
