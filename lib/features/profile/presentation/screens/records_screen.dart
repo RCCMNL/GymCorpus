@@ -4,6 +4,7 @@ import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/features/profile/domain/services/athlete_progress_service.dart';
 import 'package:gym_corpus/features/profile/presentation/utils/athlete_progress_extensions.dart';
+import 'package:gym_corpus/features/profile/presentation/widgets/achievement_style.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
@@ -77,7 +78,7 @@ class _RecordTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = _categoryColor(record.category, theme);
+    final color = achievementCategoryColor(record.category);
 
     final isNumeric =
         RegExp(r'^\d').hasMatch(record.value) || record.value == '-';
@@ -93,7 +94,7 @@ class _RecordTile extends StatelessWidget {
               shape: BoxShape.circle,
               color: color.withValues(alpha: 0.14),
             ),
-            child: Icon(_categoryIcon(record.category), color: color),
+            child: Icon(achievementCategoryIcon(record.category), color: color),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -162,26 +163,4 @@ class _RecordTile extends StatelessWidget {
       ),
     );
   }
-}
-
-IconData _categoryIcon(AchievementCategory category) {
-  return switch (category) {
-    AchievementCategory.consistency => Icons.local_fire_department_rounded,
-    AchievementCategory.performance => Icons.fitness_center_rounded,
-    AchievementCategory.cardio => Icons.directions_run_rounded,
-    AchievementCategory.variety => Icons.auto_awesome_mosaic_rounded,
-    AchievementCategory.specialization => Icons.ads_click_rounded,
-    AchievementCategory.streak => Icons.bolt_rounded,
-  };
-}
-
-Color _categoryColor(AchievementCategory category, ThemeData theme) {
-  return switch (category) {
-    AchievementCategory.consistency => Colors.orangeAccent,
-    AchievementCategory.performance => theme.colorScheme.primary,
-    AchievementCategory.cardio => theme.colorScheme.tertiary,
-    AchievementCategory.variety => Colors.tealAccent,
-    AchievementCategory.specialization => Colors.purpleAccent,
-    AchievementCategory.streak => Colors.yellowAccent,
-  };
 }

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:gym_corpus/core/theme/app_radius.dart';
+import 'package:gym_corpus/core/theme/app_theme.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/core/widgets/gradient_title.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
@@ -259,17 +260,20 @@ class _SecurityScreenState extends State<SecurityScreen> {
                       currentUser?.authProviders ?? const <String>[],
                     ),
                   ),
-                  icon: const Icon(Icons.delete_forever, color: Colors.red),
+                  icon: const Icon(
+                    Icons.delete_forever,
+                    color: AppPalette.coral,
+                  ),
                   label: const Text(
                     'ELIMINA ACCOUNT',
                     style: TextStyle(
-                      color: Colors.red,
+                      color: AppPalette.coral,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    side: const BorderSide(color: Colors.red),
+                    side: const BorderSide(color: AppPalette.coral),
                     shape: const RoundedRectangleBorder(
                       borderRadius: AppRadius.md,
                     ),

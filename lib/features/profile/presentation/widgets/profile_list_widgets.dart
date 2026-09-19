@@ -64,6 +64,24 @@ class ProfileSection extends StatelessWidget {
   }
 }
 
+/// Di che colore e' la voce.
+///
+/// Prima il colore si deduceva dall'etichetta: `label == 'Sicurezza'`
+/// dava menta, `label == 'Valuta GymCorpus'` arancione, tutto il resto
+/// periwinkle. Riscrivere una voce - o tradurla - le cambiava colore
+/// senza che nessuno l'avesse chiesto, e il confronto falliva in
+/// silenzio: nessun errore, solo il colore sbagliato.
+enum ProfileItemTone {
+  /// Il tono normale dell'elenco.
+  primary,
+
+  /// Le voci che riguardano la cura di se': sicurezza, preferiti.
+  secondary,
+
+  /// Il ciclo, che ha una sua tinta riconoscibile in tutta l'app.
+  cycle,
+}
+
 /// Riga di menu con icona, etichetta e un trailing opzionale (badge, testo,
 /// switch o freccia di navigazione).
 class ProfileItem extends StatelessWidget {
@@ -73,6 +91,8 @@ class ProfileItem extends StatelessWidget {
     this.trailingText,
     this.trailing,
     this.isBadge = false,
+    this.tone = ProfileItemTone.primary,
+    this.isComingSoon = false,
     this.onTap,
     super.key,
   });
@@ -82,21 +102,23 @@ class ProfileItem extends StatelessWidget {
   final String? trailingText;
   final Widget? trailing;
   final bool isBadge;
+  final ProfileItemTone tone;
+
+  /// La funzione non c'e' ancora: la riga resta ma si spegne.
+  final bool isComingSoon;
+
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isComingSoon = isBadge && trailingText == 'Prossimamente';
     final iconColor = isComingSoon
         ? theme.colorScheme.outline
-        : label == 'Calendario ciclo'
-        ? CyclePalette.period
-        : (label == 'Sicurezza' || label == 'Esercizi Preferiti'
-              ? theme.colorScheme.tertiary
-              : (label == 'Valuta GymCorpus'
-                    ? Colors.orangeAccent
-                    : theme.colorScheme.primary));
+        : switch (tone) {
+            ProfileItemTone.primary => theme.colorScheme.primary,
+            ProfileItemTone.secondary => theme.colorScheme.tertiary,
+            ProfileItemTone.cycle => CyclePalette.period,
+          };
 
     return Material(
       color: Colors.transparent,
@@ -107,7 +129,7 @@ class ProfileItem extends StatelessWidget {
           constraints: const BoxConstraints(minHeight: 60),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: label == 'Calendario ciclo'
+            color: tone == ProfileItemTone.cycle && !isComingSoon
                 ? CyclePalette.period.withValues(alpha: 0.05)
                 : null,
             borderRadius: AppRadius.lg,

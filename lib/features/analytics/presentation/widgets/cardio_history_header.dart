@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gym_corpus/core/theme/app_radius.dart';
+import 'package:gym_corpus/core/theme/app_theme.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
 
@@ -146,7 +147,7 @@ class CardioHistoryOverview extends StatelessWidget {
                   CardioOverviewStat(
                     label: 'Kcal',
                     value: totalCalories.toString(),
-                    accentColor: Colors.orangeAccent,
+                    accentColor: AppPalette.gold,
                   ),
                 ],
               ),

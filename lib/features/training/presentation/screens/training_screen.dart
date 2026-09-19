@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/services/notification_service.dart';
 import 'package:gym_corpus/core/theme/app_radius.dart';
+import 'package:gym_corpus/core/theme/app_theme.dart';
 import 'package:gym_corpus/core/utils/pending_alarm.dart';
 import 'package:gym_corpus/core/utils/time_format.dart';
 import 'package:gym_corpus/core/utils/unit_converter.dart';
@@ -299,7 +300,7 @@ class _TrainingScreenState extends State<TrainingScreen>
               Navigator.pop(ctx);
               context.go('/training');
             },
-            style: TextButton.styleFrom(foregroundColor: Colors.redAccent),
+            style: TextButton.styleFrom(foregroundColor: AppPalette.coral),
             child: const Text(
               'CHIUDI ORA',
               style: TextStyle(fontWeight: FontWeight.w900),

@@ -58,6 +58,38 @@ void main() {
     );
   });
 
+  // Bianco, nero e trasparente non sono tinte: sono l'inchiostro su un
+  // fondo colorato e il "niente". Tutto il resto e' una tinta, e le
+  // tinte dell'app stanno nel tema.
+  final neutrals = RegExp(r'^(white|black|transparent)\d*$');
+
+  test('nessuna tinta di fabbrica fuori dal tema', () {
+    final offenders = <String>[];
+
+    for (final file in sourceFiles()) {
+      final lines = file.readAsLinesSync();
+      for (var i = 0; i < lines.length; i++) {
+        final line = lines[i];
+        if (line.trimLeft().startsWith('//')) continue;
+
+        for (final m in RegExp(r'Colors\.([a-zA-Z]+)').allMatches(line)) {
+          if (neutrals.hasMatch(m.group(1)!)) continue;
+          offenders.add('${file.path}:${i + 1}: ${line.trim()}');
+          break;
+        }
+      }
+    }
+
+    expect(
+      offenders,
+      isEmpty,
+      reason:
+          'Queste tinte vengono dalla tavolozza di Material, non da '
+          'quella dell app: accanto al navy e al menta si vedono per '
+          'quello che sono.\n${offenders.join('\n')}',
+    );
+  });
+
   test('la scala resta corta e ordinata', () {
     final steps = [
       AppRadius.xs,

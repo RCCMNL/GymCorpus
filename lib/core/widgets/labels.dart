@@ -64,21 +64,41 @@ class SectionTitle extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Container(
-          width: 4,
-          height: 14,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [theme.colorScheme.primary, theme.colorScheme.tertiary],
-            ),
-            borderRadius: AppRadius.pill,
-          ),
-        ),
+        const AccentBar(),
         const SizedBox(width: 10),
         Flexible(child: text),
       ],
+    );
+  }
+}
+
+/// La barretta verticale che marca l'inizio di una sezione.
+///
+/// Quattro schermate se la ridisegnavano per conto loro, ognuna con la
+/// sua tinta - arancione, verde, un rosa fuori palette - e con un
+/// gradiente a due fermate dello stesso colore, che su quattro punti di
+/// larghezza non si vede comunque. Qui e' una sola, nel gradiente del
+/// brand: cambia l'altezza, non il colore.
+class AccentBar extends StatelessWidget {
+  const AccentBar({this.height = 14, super.key});
+
+  final double height;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Container(
+      width: 4,
+      height: height,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [theme.colorScheme.primary, theme.colorScheme.tertiary],
+        ),
+        borderRadius: AppRadius.pill,
+      ),
     );
   }
 }

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/service_locator.dart' as di;
 import 'package:gym_corpus/core/services/health_service.dart';
 import 'package:gym_corpus/core/theme/app_radius.dart';
+import 'package:gym_corpus/core/theme/app_theme.dart';
 import 'package:gym_corpus/core/utils/date_format.dart';
 
 class DailyActivityScreen extends StatefulWidget {
@@ -74,7 +75,7 @@ class _DailyActivityScreenState extends State<DailyActivityScreen> {
       ),
       body: _isLoading
           ? const Center(
-              child: CircularProgressIndicator(color: Colors.greenAccent),
+              child: CircularProgressIndicator(color: AppPalette.mint),
             )
           : _weeklyData == null || _weeklyData!.isEmpty
           ? _buildEmptyState(theme)
@@ -131,7 +132,7 @@ class _ActivityDayCard extends StatelessWidget {
         borderRadius: AppRadius.xl,
         border: Border.all(
           color: isToday
-              ? Colors.greenAccent.shade400.withValues(alpha: 0.3)
+              ? AppPalette.mint.withValues(alpha: 0.3)
               : theme.colorScheme.outline.withValues(alpha: 0.08),
           width: isToday ? 1.5 : 1.0,
         ),
@@ -150,15 +151,15 @@ class _ActivityDayCard extends StatelessWidget {
                   fontWeight: FontWeight.w800,
                   letterSpacing: 1.2,
                   color: isToday
-                      ? Colors.greenAccent.shade400
+                      ? AppPalette.mint
                       : theme.colorScheme.onSurfaceVariant,
                 ),
               ),
               if (activity.steps >= 10000)
-                Icon(
+                const Icon(
                   Icons.emoji_events_rounded,
                   size: 16,
-                  color: Colors.amber.shade400,
+                  color: AppPalette.gold,
                 ),
             ],
           ),
@@ -194,7 +195,7 @@ class _ActivityDayCard extends StatelessWidget {
                 icon: Icons.straighten_rounded,
                 value: activity.formattedDistance,
                 label: 'Distanza',
-                color: Colors.blueAccent,
+                color: AppPalette.blue,
               ),
               Container(
                 width: 1,
@@ -205,7 +206,7 @@ class _ActivityDayCard extends StatelessWidget {
                 icon: Icons.timer_outlined,
                 value: activity.formattedActiveTime,
                 label: 'Attività',
-                color: Colors.orangeAccent,
+                color: AppPalette.gold,
               ),
               Container(
                 width: 1,
@@ -216,7 +217,7 @@ class _ActivityDayCard extends StatelessWidget {
                 icon: Icons.local_fire_department_rounded,
                 value: '${activity.caloriesBurned.round()}',
                 label: 'Kcal',
-                color: Colors.redAccent,
+                color: AppPalette.coral,
               ),
             ],
           ),

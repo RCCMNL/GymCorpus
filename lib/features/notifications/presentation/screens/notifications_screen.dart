@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gym_corpus/core/theme/app_radius.dart';
+import 'package:gym_corpus/core/theme/app_theme.dart';
 import 'package:gym_corpus/core/utils/date_format.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
@@ -235,7 +236,7 @@ class _NotificationTile extends StatelessWidget {
   Color _colorForType(String type, ThemeData theme) {
     switch (type) {
       case 'badge':
-        return Colors.orangeAccent;
+        return AppPalette.gold;
       case 'stretching':
         return const Color(0xFF8DE8C7);
       case 'training':

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_theme.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_activity.dart';
 
 /// Icona e colore di ogni attivita' cardio.
@@ -30,7 +31,7 @@ extension CardioActivityStyle on CardioActivity {
       case CardioActivity.run:
         return theme.colorScheme.primary;
       case CardioActivity.walk:
-        return Colors.orangeAccent;
+        return AppPalette.gold;
       case CardioActivity.bike:
         return theme.colorScheme.tertiary;
       case CardioActivity.treadmill:

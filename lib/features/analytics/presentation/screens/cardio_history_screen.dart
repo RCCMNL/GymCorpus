@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gym_corpus/core/theme/app_theme.dart';
 import 'package:gym_corpus/features/analytics/presentation/widgets/cardio_history_group.dart';
 import 'package:gym_corpus/features/analytics/presentation/widgets/cardio_history_header.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_session.dart';
@@ -39,7 +40,7 @@ class _CardioHistoryScreenState extends State<CardioHistoryScreen> {
                     children: [
                       const Icon(
                         Icons.error_outline_rounded,
-                        color: Colors.redAccent,
+                        color: AppPalette.coral,
                         size: 46,
                       ),
                       const SizedBox(height: 16),

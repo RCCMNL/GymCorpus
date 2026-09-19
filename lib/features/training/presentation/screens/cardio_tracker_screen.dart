@@ -11,6 +11,7 @@ import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/database/database.dart';
 import 'package:gym_corpus/core/services/health_service.dart';
 import 'package:gym_corpus/core/theme/app_radius.dart';
+import 'package:gym_corpus/core/theme/app_theme.dart';
 import 'package:gym_corpus/core/utils/pending_alarm.dart';
 import 'package:gym_corpus/core/utils/time_format.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
@@ -855,7 +856,7 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
 
               context.pop();
             },
-            style: TextButton.styleFrom(foregroundColor: Colors.redAccent),
+            style: TextButton.styleFrom(foregroundColor: AppPalette.coral),
             child: const Text(
               'INTERROMPI',
               style: TextStyle(fontWeight: FontWeight.w900),

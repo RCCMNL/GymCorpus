@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gym_corpus/core/theme/app_radius.dart';
+import 'package:gym_corpus/core/theme/app_theme.dart';
 
 /// Indicatore qualita' segnale GPS (mostrato solo durante il tracking) e
 /// attribuzione OpenStreetMap, in alto a destra sulla mappa.
@@ -38,10 +39,10 @@ class GpsStatusBadge extends StatelessWidget {
                       : Icons.signal_cellular_connected_no_internet_0_bar,
                   size: 14,
                   color: gpsSignalQuality == 2
-                      ? Colors.green
+                      ? AppPalette.mint
                       : gpsSignalQuality == 1
-                      ? Colors.orange
-                      : Colors.red,
+                      ? AppPalette.gold
+                      : AppPalette.coral,
                 ),
                 const SizedBox(width: 4),
                 Text(

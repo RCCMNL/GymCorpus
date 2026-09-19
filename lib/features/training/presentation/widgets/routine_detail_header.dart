@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gym_corpus/core/theme/app_radius.dart';
+import 'package:gym_corpus/core/theme/app_theme.dart';
 import 'package:gym_corpus/core/widgets/gradient_title.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:gym_corpus/features/training/presentation/widgets/header_tag.dart';
@@ -32,7 +33,7 @@ class RoutineDetailHeader extends StatelessWidget {
           colors: [
             theme.colorScheme.primary.withValues(alpha: 0.1),
             theme.colorScheme.tertiary.withValues(alpha: 0.05),
-            Colors.orangeAccent.withValues(alpha: 0.02),
+            AppPalette.gold.withValues(alpha: 0.02),
           ],
         ),
         borderRadius: AppRadius.xl,
@@ -46,18 +47,7 @@ class RoutineDetailHeader extends StatelessWidget {
         children: [
           Row(
             children: [
-              Container(
-                width: 4,
-                height: 20,
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [Colors.orangeAccent, Colors.deepOrange],
-                  ),
-                  borderRadius: AppRadius.pill,
-                ),
-              ),
+              const AccentBar(height: 20),
               const SizedBox(width: 12),
               Flexible(
                 child: Eyebrow(
@@ -90,8 +80,8 @@ class RoutineDetailHeader extends StatelessWidget {
               HeaderTag(
                 icon: Icons.timer_outlined,
                 label: '${estimatedDuration ?? "--"} MIN',
-                color: Colors.orangeAccent.withValues(alpha: 0.08),
-                textColor: Colors.orangeAccent,
+                color: AppPalette.gold.withValues(alpha: 0.08),
+                textColor: AppPalette.gold,
               ),
               if (isSystem)
                 HeaderTag(

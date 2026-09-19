@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/theme/app_radius.dart';
+import 'package:gym_corpus/core/theme/app_theme.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/core/widgets/confirm_dialog.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
@@ -380,7 +381,7 @@ class _WorkoutCard extends StatelessWidget {
               const SizedBox(width: 8),
               _ActionButton(
                 icon: Icons.delete_rounded,
-                color: Colors.redAccent,
+                color: AppPalette.coral,
                 onTap: () => unawaited(_showDeleteDialog(context)),
               ),
             ],

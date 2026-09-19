@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gym_corpus/core/theme/app_radius.dart';
+import 'package:gym_corpus/core/theme/app_theme.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/gradient_title.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
@@ -83,14 +84,14 @@ class YogaScreen extends StatelessWidget {
                 'Vinyasa Flow',
                 '25 min • Intermedio',
                 Icons.self_improvement,
-                Colors.orangeAccent,
+                AppPalette.gold,
               ),
               _buildYogaCard(
                 theme,
                 'Hatha Yoga',
                 '40 min • Principiante',
                 Icons.spa,
-                Colors.tealAccent,
+                AppPalette.mint,
               ),
               const SizedBox(height: 32),
               const SectionTitle('FLOW DEL GIORNO'),

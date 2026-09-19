@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/theme/app_radius.dart';
+import 'package:gym_corpus/core/theme/app_theme.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
+import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:gym_corpus/features/exercises/domain/exercise_catalog_view.dart';
 import 'package:gym_corpus/features/exercises/presentation/widgets/difficulty_badge.dart';
 import 'package:gym_corpus/features/exercises/presentation/widgets/exercise_filters_sheet.dart';
@@ -231,21 +233,7 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
                             borderRadius: AppRadius.sm,
                             child: Row(
                               children: [
-                                Container(
-                                  width: 4,
-                                  height: 20,
-                                  decoration: const BoxDecoration(
-                                    gradient: LinearGradient(
-                                      begin: Alignment.topCenter,
-                                      end: Alignment.bottomCenter,
-                                      colors: [
-                                        Colors.orangeAccent,
-                                        Colors.deepOrange,
-                                      ],
-                                    ),
-                                    borderRadius: AppRadius.pill,
-                                  ),
-                                ),
+                                const AccentBar(height: 20),
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: Text(
@@ -420,7 +408,7 @@ class _ExerciseTile extends StatelessWidget {
                     exercise.isFavorite
                         ? Icons.favorite
                         : Icons.favorite_border,
-                    color: Colors.redAccent.withValues(alpha: 0.8),
+                    color: AppPalette.coral.withValues(alpha: 0.8),
                     size: 22,
                   ),
                 ),

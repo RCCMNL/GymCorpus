@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gym_corpus/core/theme/app_radius.dart';
+import 'package:gym_corpus/core/theme/app_theme.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
@@ -41,16 +42,16 @@ class BMICard extends StatelessWidget {
 
           if (calculatedBmi < 18.5) {
             category = 'UNDERWEIGHT';
-            categoryColor = Colors.lightBlue;
+            categoryColor = AppPalette.blue;
           } else if (calculatedBmi < 25) {
             category = 'NORMAL';
             categoryColor = theme.colorScheme.tertiary;
           } else if (calculatedBmi < 30) {
             category = 'OVERWEIGHT';
-            categoryColor = Colors.orange;
+            categoryColor = AppPalette.gold;
           } else {
             category = 'OBESE';
-            categoryColor = Colors.red;
+            categoryColor = AppPalette.coral;
           }
         }
 

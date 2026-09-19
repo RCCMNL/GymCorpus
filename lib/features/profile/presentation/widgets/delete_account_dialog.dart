@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:gym_corpus/core/theme/app_theme.dart';
 import 'package:gym_corpus/features/auth/domain/repositories/auth_repository.dart';
 
 /// Conferma di eliminazione account.
@@ -73,7 +74,7 @@ class _DeleteAccountDialogState extends State<DeleteAccountDialog> {
       backgroundColor: theme.colorScheme.surface,
       title: const Text(
         'Elimina Account',
-        style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+        style: TextStyle(color: AppPalette.coral, fontWeight: FontWeight.bold),
       ),
       // Scorrevole: fra avviso, campo password e spiegazioni il dialogo
       // supera l'altezza disponibile su uno schermo basso.
@@ -102,7 +103,7 @@ class _DeleteAccountDialogState extends State<DeleteAccountDialog> {
                 const SizedBox(height: 8),
                 Text(
                   validationMessage,
-                  style: const TextStyle(color: Colors.red, fontSize: 12),
+                  style: const TextStyle(color: AppPalette.coral, fontSize: 12),
                 ),
               ],
             ] else
@@ -129,7 +130,7 @@ class _DeleteAccountDialogState extends State<DeleteAccountDialog> {
                 )
               : const Text(
                   'ELIMINA PERMANENTEMENTE',
-                  style: TextStyle(color: Colors.red),
+                  style: TextStyle(color: AppPalette.coral),
                 ),
         ),
       ],

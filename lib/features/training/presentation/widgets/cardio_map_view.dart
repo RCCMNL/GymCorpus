@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:gym_corpus/core/theme/app_theme.dart';
 import 'package:latlong2/latlong.dart';
 
 /// Mappa OpenStreetMap con il percorso GPS e la posizione corrente,
@@ -21,7 +22,7 @@ class CardioMapView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final accentColor = isRun ? theme.colorScheme.primary : Colors.orangeAccent;
+    final accentColor = isRun ? theme.colorScheme.primary : AppPalette.gold;
 
     return FlutterMap(
       mapController: mapController,

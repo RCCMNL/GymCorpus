@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/theme/app_radius.dart';
+import 'package:gym_corpus/core/theme/app_theme.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
@@ -130,7 +131,7 @@ class WorkoutDetailScreen extends StatelessWidget {
               Navigator.pop(context); // Close dialog
               context.pop(); // Go back from detail screen
             },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            style: TextButton.styleFrom(foregroundColor: AppPalette.coral),
             child: const Text(
               'ELIMINA PERMANENTEMENTE',
               style: TextStyle(fontWeight: FontWeight.w900),

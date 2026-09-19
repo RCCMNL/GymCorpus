@@ -57,6 +57,7 @@ class SettingsMenuTab extends StatelessWidget {
             ProfileItem(
               icon: Icons.lock,
               label: 'Sicurezza',
+              tone: ProfileItemTone.secondary,
               onTap: () => context.push('/profile/security'),
             ),
             const ProfileItem(
@@ -78,12 +79,14 @@ class SettingsMenuTab extends StatelessWidget {
               icon: Icons.dark_mode,
               label: 'Dark Mode',
               trailingText: 'Prossimamente',
+              isComingSoon: true,
               isBadge: true,
             ),
             const ProfileItem(
               icon: Icons.language,
               label: 'Lingua',
               trailingText: 'Prossimamente',
+              isComingSoon: true,
               isBadge: true,
             ),
             ProfileItem(
@@ -126,6 +129,7 @@ class SettingsMenuTab extends StatelessWidget {
             ProfileItem(
               icon: Icons.auto_awesome_rounded,
               label: 'Calendario ciclo',
+              tone: ProfileItemTone.cycle,
               trailing: Transform.scale(
                 scale: 0.8,
                 child: Switch(
@@ -153,6 +157,7 @@ class SettingsMenuTab extends StatelessWidget {
               icon: Icons.star_rounded,
               label: 'Valuta GymCorpus',
               trailingText: 'Prossimamente',
+              isComingSoon: true,
               isBadge: true,
             ),
             ProfileItem(

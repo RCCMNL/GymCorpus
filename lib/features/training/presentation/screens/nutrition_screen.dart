@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/theme/app_radius.dart';
+import 'package:gym_corpus/core/theme/app_theme.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/gradient_title.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
@@ -101,14 +102,14 @@ class NutritionScreen extends StatelessWidget {
                 'Colazione',
                 '450 kcal',
                 Icons.bakery_dining,
-                Colors.orange,
+                AppPalette.gold,
               ),
               _buildMealItem(
                 theme,
                 'Pranzo',
                 '820 kcal',
                 Icons.lunch_dining,
-                Colors.green,
+                AppPalette.mint,
               ),
               const SizedBox(height: 32),
               const SectionTitle('ARTICOLI E CONSIGLI'),

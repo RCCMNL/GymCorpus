@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gym_corpus/core/theme/app_radius.dart';
+import 'package:gym_corpus/core/theme/app_theme.dart';
 import 'package:gym_corpus/core/widgets/gradient_title.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
@@ -148,7 +149,7 @@ class InsightsSection extends StatelessWidget {
                 icon: Icons.trending_down,
                 text:
                     'Il volume totale è calato del ${change.abs()}% rispetto al mese precedente.',
-                color: Colors.orangeAccent,
+                color: AppPalette.gold,
               ),
             );
           }

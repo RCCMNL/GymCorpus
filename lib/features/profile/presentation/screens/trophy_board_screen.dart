@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gym_corpus/core/theme/app_radius.dart';
+import 'package:gym_corpus/core/theme/app_theme.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/features/profile/domain/services/athlete_progress_service.dart';
 import 'package:gym_corpus/features/profile/presentation/utils/athlete_progress_extensions.dart';
+import 'package:gym_corpus/features/profile/presentation/widgets/achievement_style.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_state.dart';
@@ -99,7 +101,9 @@ class _GroupedAchievementCard extends StatelessWidget {
         nextToUnlock ?? highestUnlocked ?? sortedGroup.first;
     final isMastered = nextToUnlock == null;
 
-    final color = _categoryColor(displayAchievement.definition.category, theme);
+    final color = achievementCategoryColor(
+      displayAchievement.definition.category,
+    );
     final rarityColor = highestUnlocked != null
         ? _rarityColor(highestUnlocked.definition.rarity)
         : theme.colorScheme.outline.withValues(alpha: 0.5);
@@ -111,14 +115,14 @@ class _GroupedAchievementCard extends StatelessWidget {
         borderRadius: AppRadius.xl,
         border: Border.all(
           color: isMastered
-              ? Colors.amber.withValues(alpha: 0.5)
+              ? AppPalette.gold.withValues(alpha: 0.5)
               : rarityColor.withValues(alpha: 0.2),
           width: isMastered ? 2 : 1,
         ),
         boxShadow: isMastered
             ? [
                 BoxShadow(
-                  color: Colors.amber.withValues(alpha: 0.1),
+                  color: AppPalette.gold.withValues(alpha: 0.1),
                   blurRadius: 15,
                   spreadRadius: 1,
                 ),
@@ -143,7 +147,9 @@ class _GroupedAchievementCard extends StatelessWidget {
                   ),
                 ),
                 child: Icon(
-                  _categoryIcon(displayAchievement.definition.category),
+                  achievementCategoryIcon(
+                    displayAchievement.definition.category,
+                  ),
                   color: color,
                   size: 28,
                 ),
@@ -181,7 +187,11 @@ class _GroupedAchievementCard extends StatelessWidget {
                 ),
               ),
               if (isMastered)
-                const Icon(Icons.stars_rounded, color: Colors.amber, size: 28),
+                const Icon(
+                  Icons.stars_rounded,
+                  color: AppPalette.gold,
+                  size: 28,
+                ),
             ],
           ),
           const SizedBox(height: 20),
@@ -373,26 +383,4 @@ class _LevelHero extends StatelessWidget {
       ),
     );
   }
-}
-
-IconData _categoryIcon(AchievementCategory category) {
-  return switch (category) {
-    AchievementCategory.consistency => Icons.local_fire_department_rounded,
-    AchievementCategory.performance => Icons.fitness_center_rounded,
-    AchievementCategory.cardio => Icons.directions_run_rounded,
-    AchievementCategory.variety => Icons.auto_awesome_mosaic_rounded,
-    AchievementCategory.specialization => Icons.ads_click_rounded,
-    AchievementCategory.streak => Icons.bolt_rounded,
-  };
-}
-
-Color _categoryColor(AchievementCategory category, ThemeData theme) {
-  return switch (category) {
-    AchievementCategory.consistency => Colors.orangeAccent,
-    AchievementCategory.performance => theme.colorScheme.primary,
-    AchievementCategory.cardio => theme.colorScheme.tertiary,
-    AchievementCategory.variety => Colors.tealAccent,
-    AchievementCategory.specialization => Colors.purpleAccent,
-    AchievementCategory.streak => Colors.yellowAccent,
-  };
 }

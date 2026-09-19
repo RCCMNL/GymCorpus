@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/theme/app_radius.dart';
+import 'package:gym_corpus/core/theme/app_theme.dart';
 import 'package:gym_corpus/core/widgets/gradient_title.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/core/widgets/icon_badge.dart';
@@ -353,7 +354,7 @@ class _ExerciseTile extends StatelessWidget {
                     exercise.isFavorite
                         ? Icons.favorite
                         : Icons.favorite_border,
-                    color: Colors.redAccent.withValues(alpha: 0.8),
+                    color: AppPalette.coral.withValues(alpha: 0.8),
                     size: 22,
                   ),
                 ),

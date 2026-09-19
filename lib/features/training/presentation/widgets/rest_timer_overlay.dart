@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gym_corpus/core/theme/app_radius.dart';
+import 'package:gym_corpus/core/theme/app_theme.dart';
 import 'package:gym_corpus/core/utils/time_format.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:gym_corpus/features/training/presentation/widgets/training_session_widgets.dart';
@@ -137,12 +138,12 @@ class RestTimerOverlay extends StatelessWidget {
                   icon: const Icon(
                     Icons.stop_circle_outlined,
                     size: 18,
-                    color: Colors.redAccent,
+                    color: AppPalette.coral,
                   ),
                   label: const Text(
                     'TERMINA ALLENAMENTO',
                     style: TextStyle(
-                      color: Colors.redAccent,
+                      color: AppPalette.coral,
                       fontSize: 11,
                       fontWeight: FontWeight.bold,
                     ),

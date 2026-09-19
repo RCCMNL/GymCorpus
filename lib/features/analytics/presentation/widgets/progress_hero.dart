@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gym_corpus/core/theme/app_radius.dart';
+import 'package:gym_corpus/core/theme/app_theme.dart';
 import 'package:gym_corpus/core/utils/date_format.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/icon_badge.dart';
@@ -358,7 +359,7 @@ class DeltaBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDown = value <= 0;
-    final accent = isDown ? theme.colorScheme.tertiary : Colors.orangeAccent;
+    final accent = isDown ? theme.colorScheme.tertiary : AppPalette.gold;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),

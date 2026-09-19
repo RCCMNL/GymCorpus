@@ -1,22 +1,62 @@
 import 'package:flutter/material.dart';
 import 'package:gym_corpus/core/theme/app_radius.dart';
 
+/// Le tinte dell'app, in un posto solo.
+///
+/// Prima meta' dei colori arrivava dalla tavolozza di fabbrica di
+/// Material: `Colors.orangeAccent` e `Colors.deepOrange` e `Colors.amber`
+/// e `Colors.yellowAccent`, quattro gialli diversi, a volte sulla stessa
+/// schermata; `Colors.greenAccent.shade400` accanto al menta del tema,
+/// abbastanza simile da sembrare un errore di stampa. Sono tinte pensate
+/// per il bianco, e su un fondo navy si vedono per quello che sono.
+///
+/// Cinque tinte, ognuna con un mestiere. Dove c'e' un [BuildContext] si
+/// passa comunque da `theme.colorScheme`: queste costanti servono dove
+/// un colore va scelto senza contesto (una `switch` su una categoria,
+/// una costante di modulo).
+abstract final class AppPalette {
+  /// Il fondo di tutto: navy profondo.
+  static const background = Color(0xFF08082F);
+
+  /// La voce normale dell'app.
+  static const periwinkle = Color(0xFF94AAFF);
+
+  /// Il blu pieno: azioni che spingono, stati attivi.
+  static const blue = Color(0xFF3367FF);
+
+  /// Il verde: quello che e' andato bene, i progressi, i traguardi.
+  static const mint = Color(0xFFB5FFC2);
+
+  /// L'oro: energia, primati, suggerimenti e avvisi. Uno solo, non
+  /// cinque: due gialli che non combaciano si notano subito.
+  static const gold = Color(0xFFFFC46B);
+
+  /// Il rosso: errori e azioni che distruggono qualcosa.
+  static const coral = Color(0xFFFF8A80);
+
+  /// Inchiostro sulle superfici scure.
+  static const onSurface = Color(0xFFE5E3FF);
+
+  /// Inchiostro sull'oro e sul menta, che sono chiari.
+  static const onLight = Color(0xFF3A2200);
+}
+
 class AppTheme {
   // Stitch Design System - Deep Navy & Neon Blue
-  static const Color _background = Color(0xFF08082F);
-  static const Color _primary = Color(0xFF94AAFF);
-  static const Color _onSurface = Color(0xFFE5E3FF);
+  static const Color _background = AppPalette.background;
+  static const Color _primary = AppPalette.periwinkle;
+  static const Color _onSurface = AppPalette.onSurface;
   static const Color _surfaceContainer = Color(0xFF131342);
   static const Color _surfaceContainerHigh = Color(0xFF18194B);
   static const Color _outline = Color(0xFF71729D);
-  static const Color _accent = Color(0xFF3367FF);
-  static const Color _tertiary = Color(0xFFB5FFC2); // Mint Accent
+  static const Color _accent = AppPalette.blue;
+  static const Color _tertiary = AppPalette.mint;
   static const Color _onPrimary = Color(0xFF00257B);
-  static const Color _error = Color(0xFFFF8A80);
+  static const Color _error = AppPalette.coral;
 
   /// Ambra della palette: e' l'avviso, quello che non e' ancora un errore.
-  static const Color warning = Color(0xFFFFC46B);
-  static const Color onWarning = Color(0xFF3A2200);
+  static const Color warning = AppPalette.gold;
+  static const Color onWarning = AppPalette.onLight;
 
   static ThemeData get lightTheme =>
       darkTheme; // Defaulting to Dark for that premium feel
