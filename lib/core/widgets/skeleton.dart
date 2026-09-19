@@ -162,29 +162,3 @@ class SkeletonList extends StatelessWidget {
     );
   }
 }
-
-/// Una scheda che sta arrivando: il titolo, due righe, una fascia bassa.
-class SkeletonCard extends StatelessWidget {
-  const SkeletonCard({this.height = 180, super.key});
-
-  final double height;
-
-  @override
-  Widget build(BuildContext context) {
-    return Shimmer(
-      child: SizedBox(
-        height: height,
-        child: const Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SkeletonBox(width: 140, height: 16),
-            SizedBox(height: 16),
-            Expanded(
-              child: SkeletonBox(height: double.infinity, radius: AppRadius.xl),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
