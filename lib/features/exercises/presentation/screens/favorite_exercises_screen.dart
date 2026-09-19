@@ -6,6 +6,7 @@ import 'package:gym_corpus/core/theme/app_theme.dart';
 import 'package:gym_corpus/core/widgets/gradient_title.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/core/widgets/icon_badge.dart';
+import 'package:gym_corpus/core/widgets/skeleton.dart';
 import 'package:gym_corpus/features/exercises/domain/equipment_tags.dart';
 import 'package:gym_corpus/features/exercises/domain/exercise_catalog_view.dart';
 import 'package:gym_corpus/features/exercises/presentation/widgets/difficulty_badge.dart';
@@ -211,7 +212,7 @@ class _FavoriteExercisesScreenState extends State<FavoriteExercisesScreen> {
               return Center(child: Text(state.message));
             }
 
-            return const Center(child: CircularProgressIndicator());
+            return const SkeletonList(rows: 6);
           },
         ),
       ),

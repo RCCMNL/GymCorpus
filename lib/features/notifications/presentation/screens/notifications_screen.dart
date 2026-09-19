@@ -7,6 +7,7 @@ import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/core/widgets/gradient_title.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
+import 'package:gym_corpus/core/widgets/skeleton.dart';
 import 'package:gym_corpus/features/notifications/domain/entities/notification_log_entity.dart';
 import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_bloc.dart';
 import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_event.dart';
@@ -80,7 +81,7 @@ class NotificationsScreen extends StatelessWidget {
         body: BlocBuilder<NotificationsBloc, NotificationsState>(
           builder: (context, state) {
             if (state.isLoading) {
-              return const Center(child: CircularProgressIndicator());
+              return const SkeletonList(rows: 6);
             }
 
             if (state.notifications.isEmpty) {

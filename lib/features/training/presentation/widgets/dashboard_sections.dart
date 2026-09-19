@@ -3,6 +3,7 @@ import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/icon_badge.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
+import 'package:gym_corpus/core/widgets/skeleton.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 
 /// Il saluto in cima al Training Hub.
@@ -68,10 +69,7 @@ class YourRoutinesCard extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           if (routines == null)
-            const SizedBox(
-              height: 180,
-              child: Center(child: CircularProgressIndicator()),
-            )
+            const SkeletonList(rows: 3, padding: EdgeInsets.zero)
           else if (routines.isEmpty)
             _EmptyRoutines(onCreateFirst: onCreateFirst)
           else

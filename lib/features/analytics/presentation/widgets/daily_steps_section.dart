@@ -9,6 +9,7 @@ import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/core/widgets/icon_badge.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
+import 'package:gym_corpus/core/widgets/skeleton.dart';
 
 /// Card riepilogo attività giornaliera con passi, km, tempo, kcal
 /// e grafico a barre settimanale.
@@ -117,7 +118,7 @@ class _DailyStepsSectionState extends State<DailyStepsSection> {
 
         // Main Content
         if (_isLoading)
-          _buildLoadingState(theme)
+          _buildLoadingState()
         else if (_permissionDenied)
           _buildPermissionBanner(theme)
         else
@@ -126,28 +127,48 @@ class _DailyStepsSectionState extends State<DailyStepsSection> {
     );
   }
 
-  Widget _buildLoadingState(ThemeData theme) {
-    return AppCard(
+  Widget _buildLoadingState() {
+    // La forma di quello che arriva: l'anello dei passi a sinistra, le
+    // tre misure a destra, il grafico della settimana sotto.
+    return const AppCard(
       width: double.infinity,
-      padding: const EdgeInsets.all(40),
-      child: Column(
-        children: [
-          const SizedBox(
-            width: 28,
-            height: 28,
-            child: CircularProgressIndicator(
-              strokeWidth: 2.5,
-              color: AppPalette.mint,
+      padding: EdgeInsets.all(20),
+      child: Shimmer(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                SkeletonBox(
+                  width: 72,
+                  height: 72,
+                  radius: AppRadius.pill,
+                ),
+                SizedBox(width: 20),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SkeletonBox(height: 16),
+                      SizedBox(height: 10),
+                      FractionallySizedBox(
+                        widthFactor: 0.7,
+                        child: SkeletonBox(),
+                      ),
+                      SizedBox(height: 10),
+                      FractionallySizedBox(
+                        widthFactor: 0.45,
+                        child: SkeletonBox(),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            'Caricamento dati salute...',
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.outline,
-            ),
-          ),
-        ],
+            SizedBox(height: 24),
+            SkeletonBox(height: 90, radius: AppRadius.md),
+          ],
+        ),
       ),
     );
   }

@@ -9,6 +9,7 @@ import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/core/widgets/confirm_dialog.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/core/widgets/icon_badge.dart';
+import 'package:gym_corpus/core/widgets/skeleton.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
@@ -39,7 +40,7 @@ class _CustomWorkoutsScreenState extends State<CustomWorkoutsScreen> {
         child: BlocBuilder<TrainingBloc, TrainingState>(
           builder: (context, state) {
             if (state is TrainingLoading) {
-              return const Center(child: CircularProgressIndicator());
+              return const SkeletonList();
             }
 
             if (state is TrainingLoaded) {

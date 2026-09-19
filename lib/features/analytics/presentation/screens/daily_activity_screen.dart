@@ -5,6 +5,7 @@ import 'package:gym_corpus/core/services/health_service.dart';
 import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/theme/app_theme.dart';
 import 'package:gym_corpus/core/utils/date_format.dart';
+import 'package:gym_corpus/core/widgets/skeleton.dart';
 
 class DailyActivityScreen extends StatefulWidget {
   const DailyActivityScreen({super.key});
@@ -74,9 +75,7 @@ class _DailyActivityScreenState extends State<DailyActivityScreen> {
         centerTitle: true,
       ),
       body: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator(color: AppPalette.mint),
-            )
+          ? const SkeletonList(hasLeading: false)
           : _weeklyData == null || _weeklyData!.isEmpty
           ? _buildEmptyState(theme)
           : ListView.builder(

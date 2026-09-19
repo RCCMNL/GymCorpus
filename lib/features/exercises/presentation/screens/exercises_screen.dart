@@ -5,6 +5,7 @@ import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/theme/app_theme.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
+import 'package:gym_corpus/core/widgets/skeleton.dart';
 import 'package:gym_corpus/features/exercises/domain/exercise_catalog_view.dart';
 import 'package:gym_corpus/features/exercises/presentation/widgets/difficulty_badge.dart';
 import 'package:gym_corpus/features/exercises/presentation/widgets/exercise_filters_sheet.dart';
@@ -307,7 +308,7 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
               return Center(child: Text(state.message));
             }
 
-            return const Center(child: CircularProgressIndicator());
+            return const SkeletonList(rows: 7);
           },
         ),
       ),

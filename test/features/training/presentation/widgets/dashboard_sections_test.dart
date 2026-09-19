@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gym_corpus/core/theme/app_theme.dart';
+import 'package:gym_corpus/core/widgets/skeleton.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
 import 'package:gym_corpus/features/training/presentation/widgets/dashboard_sections.dart';
 
@@ -76,7 +77,9 @@ void main() {
         ),
       );
 
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      // L'attesa ha la forma delle righe che sta aspettando, non di
+      // una rotella al centro del vuoto.
+      expect(find.byType(SkeletonList), findsOneWidget);
       expect(find.text('Nessuna routine trovata'), findsNothing);
     });
 

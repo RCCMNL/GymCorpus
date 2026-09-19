@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gym_corpus/core/theme/app_theme.dart';
+import 'package:gym_corpus/core/widgets/skeleton.dart';
 import 'package:gym_corpus/features/analytics/presentation/widgets/cardio_history_group.dart';
 import 'package:gym_corpus/features/analytics/presentation/widgets/cardio_history_header.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_session.dart';
@@ -56,7 +57,7 @@ class _CardioHistoryScreenState extends State<CardioHistoryScreen> {
             }
 
             if (state is! TrainingLoaded) {
-              return const Center(child: CircularProgressIndicator());
+              return const SkeletonList(rows: 6);
             }
 
             final sessions = List<CardioSessionEntity>.from(
