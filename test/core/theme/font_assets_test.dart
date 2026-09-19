@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gym_corpus/core/theme/app_theme.dart';
 
@@ -100,5 +101,40 @@ void main() {
     expect(theme.textTheme.titleLarge?.fontFamily, 'Lexend');
     expect(theme.textTheme.bodyMedium?.fontFamily, 'Inter');
     expect(theme.appBarTheme.titleTextStyle?.fontFamily, 'Lexend');
+  });
+
+  test('nessuno stile della scala resta senza font della casa', () {
+    // Uno stile non definito nel tema non da' errore: Flutter lo riempie
+    // con la tipografia di Material, cioe' il font di sistema. Meta' del
+    // testo dell'app usava stili lasciati vuoti - bodySmall, titleMedium,
+    // headlineSmall - e finiva in Roboto senza che si vedesse.
+    final text = AppTheme.darkTheme.textTheme;
+    final scale = <String, TextStyle?>{
+      'displayLarge': text.displayLarge,
+      'displayMedium': text.displayMedium,
+      'displaySmall': text.displaySmall,
+      'headlineLarge': text.headlineLarge,
+      'headlineMedium': text.headlineMedium,
+      'headlineSmall': text.headlineSmall,
+      'titleLarge': text.titleLarge,
+      'titleMedium': text.titleMedium,
+      'titleSmall': text.titleSmall,
+      'bodyLarge': text.bodyLarge,
+      'bodyMedium': text.bodyMedium,
+      'bodySmall': text.bodySmall,
+      'labelLarge': text.labelLarge,
+      'labelMedium': text.labelMedium,
+      'labelSmall': text.labelSmall,
+    };
+
+    for (final style in scale.entries) {
+      expect(
+        style.value?.fontFamily,
+        anyOf('Lexend', 'Inter'),
+        reason:
+            '${style.key} non ha un font: chi lo usa scrive nel font di '
+            'sistema, e non se ne accorge nessuno',
+      );
+    }
   });
 }

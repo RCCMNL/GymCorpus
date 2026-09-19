@@ -276,7 +276,33 @@ class AppTheme {
         linearTrackColor: _primary.withValues(alpha: 0.12),
       ),
 
+      // La scala e' completa di proposito: uno stile lasciato fuori non
+      // da' errore, Flutter lo riempie con la tipografia di Material e chi
+      // lo usa scrive nel font di sistema. Restano fuori le dimensioni,
+      // che continuano ad arrivare da Material: qui si decide solo di che
+      // famiglia, peso e colore e' il testo.
+      //
+      // Lexend porta i titoli e le etichette (e' la voce del marchio),
+      // Inter il testo che si legge a paragrafi.
       textTheme: const TextTheme(
+        displayLarge: TextStyle(
+          fontFamily: 'Lexend',
+          fontWeight: FontWeight.w900,
+          color: _onSurface,
+          letterSpacing: -1,
+        ),
+        displayMedium: TextStyle(
+          fontFamily: 'Lexend',
+          fontWeight: FontWeight.w900,
+          color: _onSurface,
+          letterSpacing: -1,
+        ),
+        displaySmall: TextStyle(
+          fontFamily: 'Lexend',
+          fontWeight: FontWeight.w900,
+          color: _onSurface,
+          letterSpacing: -0.5,
+        ),
         headlineLarge: TextStyle(
           fontFamily: 'Lexend',
           fontWeight: FontWeight.w900,
@@ -288,7 +314,22 @@ class AppTheme {
           fontWeight: FontWeight.bold,
           color: _onSurface,
         ),
+        headlineSmall: TextStyle(
+          fontFamily: 'Lexend',
+          fontWeight: FontWeight.bold,
+          color: _onSurface,
+        ),
         titleLarge: TextStyle(
+          fontFamily: 'Lexend',
+          fontWeight: FontWeight.w600,
+          color: _onSurface,
+        ),
+        titleMedium: TextStyle(
+          fontFamily: 'Lexend',
+          fontWeight: FontWeight.w600,
+          color: _onSurface,
+        ),
+        titleSmall: TextStyle(
           fontFamily: 'Lexend',
           fontWeight: FontWeight.w600,
           color: _onSurface,
@@ -298,6 +339,23 @@ class AppTheme {
           fontFamily: 'Inter',
           color: _onSurface,
           height: 1.5,
+        ),
+        bodySmall: TextStyle(
+          fontFamily: 'Inter',
+          color: _onSurface,
+          height: 1.5,
+        ),
+        labelLarge: TextStyle(
+          fontFamily: 'Lexend',
+          fontWeight: FontWeight.bold,
+          letterSpacing: 0.5,
+          color: _onSurface,
+        ),
+        labelMedium: TextStyle(
+          fontFamily: 'Lexend',
+          fontWeight: FontWeight.bold,
+          letterSpacing: 0.8,
+          color: _onSurface,
         ),
         labelSmall: TextStyle(
           fontFamily: 'Lexend',
