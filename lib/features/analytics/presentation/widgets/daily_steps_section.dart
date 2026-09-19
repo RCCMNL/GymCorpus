@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/service_locator.dart' as di;
 import 'package:gym_corpus/core/services/health_service.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/core/widgets/icon_badge.dart';
@@ -104,7 +105,7 @@ class _DailyStepsSectionState extends State<DailyStepsSection> {
                     Colors.tealAccent.shade700,
                   ],
                 ),
-                borderRadius: BorderRadius.circular(2),
+                borderRadius: AppRadius.pill,
               ),
             ),
             const SizedBox(width: 12),
@@ -179,7 +180,7 @@ class _DailyStepsSectionState extends State<DailyStepsSection> {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: AppRadius.xl,
           border: Border.all(
             color: Colors.greenAccent.shade700.withValues(alpha: 0.15),
           ),
@@ -438,7 +439,7 @@ class _WeeklyStepsChart extends StatelessWidget {
               maxY: chartMax,
               barTouchData: BarTouchData(
                 touchTooltipData: BarTouchTooltipData(
-                  tooltipBorderRadius: BorderRadius.circular(12),
+                  tooltipBorderRadius: AppRadius.sm,
                   getTooltipItem: (group, groupIndex, rod, rodIndex) {
                     final activity = data[group.x];
                     return BarTooltipItem(
@@ -503,7 +504,7 @@ class _WeeklyStepsChart extends StatelessWidget {
                     BarChartRodData(
                       toY: activity.steps.toDouble(),
                       width: 24,
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: AppRadius.xs,
                       gradient: LinearGradient(
                         begin: Alignment.bottomCenter,
                         end: Alignment.topCenter,

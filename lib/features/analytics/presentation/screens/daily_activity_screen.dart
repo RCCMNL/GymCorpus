@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/service_locator.dart' as di;
 import 'package:gym_corpus/core/services/health_service.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/utils/date_format.dart';
 
 class DailyActivityScreen extends StatefulWidget {
@@ -127,7 +128,7 @@ class _ActivityDayCard extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: AppRadius.xl,
         border: Border.all(
           color: isToday
               ? Colors.greenAccent.shade400.withValues(alpha: 0.3)

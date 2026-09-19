@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
@@ -62,7 +63,7 @@ class BMICard extends StatelessWidget {
                 theme.colorScheme.surfaceContainer,
               ],
             ),
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: AppRadius.lg,
             border: Border.all(
               color: theme.colorScheme.outline.withValues(alpha: 0.1),
             ),
@@ -80,7 +81,7 @@ class BMICard extends StatelessWidget {
                       height: 48,
                       decoration: BoxDecoration(
                         color: categoryColor.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: AppRadius.sm,
                       ),
                       child: Icon(Icons.person_search, color: categoryColor),
                     ),

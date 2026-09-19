@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:share_plus/share_plus.dart';
@@ -65,7 +66,7 @@ class ArticleDetailScreen extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       color: theme.colorScheme.primary.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: AppRadius.xs,
                     ),
                     child: Text(
                       'BENESSERE',
@@ -139,7 +140,7 @@ class ArticleDetailScreen extends StatelessWidget {
             height: 40,
             decoration: BoxDecoration(
               color: theme.colorScheme.primary.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: AppRadius.xs,
             ),
             child: Icon(
               Icons.article_outlined,

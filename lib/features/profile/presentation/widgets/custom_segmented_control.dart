@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 
 class CustomSegmentedControl extends StatelessWidget {
   const CustomSegmentedControl({
@@ -18,7 +19,7 @@ class CustomSegmentedControl extends StatelessWidget {
       padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.8),
-        borderRadius: BorderRadius.circular(30),
+        borderRadius: AppRadius.xl,
         border: Border.all(
           color: theme.colorScheme.outline.withValues(alpha: 0.05),
         ),
@@ -73,7 +74,7 @@ class _Segment extends StatelessWidget {
           alignment: Alignment.center,
           decoration: BoxDecoration(
             color: isSelected ? theme.colorScheme.surface : Colors.transparent,
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: AppRadius.xl,
             boxShadow: isSelected
                 ? [
                     BoxShadow(

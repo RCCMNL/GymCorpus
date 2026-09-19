@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
 
 /// Riquadro "PRO TIP" statico mostrato in fondo a WorkoutDetailScreen.
@@ -18,7 +19,7 @@ class QuickTipBox extends StatelessWidget {
             Colors.deepOrange.withValues(alpha: 0.05),
           ],
         ),
-        borderRadius: BorderRadius.circular(32),
+        borderRadius: AppRadius.xxl,
         border: Border.all(color: Colors.orangeAccent.withValues(alpha: 0.2)),
       ),
       child: Stack(

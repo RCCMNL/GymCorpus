@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/utils/date_format.dart';
 import 'package:gym_corpus/core/utils/decimal_input.dart';
 import 'package:gym_corpus/core/utils/time_format.dart';
@@ -161,7 +162,7 @@ class _ManualCardioEntryScreenState extends State<ManualCardioEntryScreen> {
             InkWell(
               key: const Key('manual-date'),
               onTap: _pickDate,
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: AppRadius.sm,
               child: AppCard(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
@@ -225,9 +226,7 @@ class _ManualCardioEntryScreenState extends State<ManualCardioEntryScreen> {
               onPressed: _save,
               style: FilledButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 18),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(18),
-                ),
+                shape: const RoundedRectangleBorder(borderRadius: AppRadius.md),
               ),
               child: const Text(
                 'SALVA SESSIONE',
@@ -262,8 +261,8 @@ class _NumberField extends StatelessWidget {
         hintText: hint,
         filled: true,
         fillColor: theme.colorScheme.surfaceContainerHighest,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+        border: const OutlineInputBorder(
+          borderRadius: AppRadius.sm,
           borderSide: BorderSide.none,
         ),
       ),
@@ -296,7 +295,7 @@ class _ActivityChip extends StatelessWidget {
           color: selected
               ? accent.withValues(alpha: 0.16)
               : theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.5),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: AppRadius.md,
           border: Border.all(
             color: selected
                 ? accent

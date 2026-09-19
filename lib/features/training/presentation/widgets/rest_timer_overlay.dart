@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/utils/time_format.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:gym_corpus/features/training/presentation/widgets/training_session_widgets.dart';
@@ -43,7 +44,7 @@ class RestTimerOverlay extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
             decoration: BoxDecoration(
               color: theme.colorScheme.surfaceContainerHigh,
-              borderRadius: BorderRadius.circular(40),
+              borderRadius: AppRadius.xxl,
               border: Border.all(
                 color: accentColor.withValues(alpha: 0.3),
                 width: 2,

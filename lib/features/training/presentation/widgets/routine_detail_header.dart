@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/widgets/gradient_title.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:gym_corpus/features/training/presentation/widgets/header_tag.dart';
@@ -34,7 +35,7 @@ class RoutineDetailHeader extends StatelessWidget {
             Colors.orangeAccent.withValues(alpha: 0.02),
           ],
         ),
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: AppRadius.xl,
         border: Border.all(
           color: theme.colorScheme.primary.withValues(alpha: 0.05),
         ),
@@ -48,13 +49,13 @@ class RoutineDetailHeader extends StatelessWidget {
               Container(
                 width: 4,
                 height: 20,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [Colors.orangeAccent, Colors.deepOrange],
                   ),
-                  borderRadius: BorderRadius.circular(2),
+                  borderRadius: AppRadius.pill,
                 ),
               ),
               const SizedBox(width: 12),

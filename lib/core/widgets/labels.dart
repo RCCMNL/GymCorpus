@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 
 /// Che peso ha l'etichetta nella pagina.
 ///
@@ -72,7 +73,7 @@ class SectionTitle extends StatelessWidget {
               end: Alignment.bottomCenter,
               colors: [theme.colorScheme.primary, theme.colorScheme.tertiary],
             ),
-            borderRadius: BorderRadius.circular(2),
+            borderRadius: AppRadius.pill,
           ),
         ),
         const SizedBox(width: 10),

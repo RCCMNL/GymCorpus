@@ -1,6 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/utils/date_format.dart';
 import 'package:gym_corpus/core/utils/time_format.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
@@ -47,7 +48,7 @@ class CardioSessionDetailScreen extends StatelessWidget {
                   height: 48,
                   decoration: BoxDecoration(
                     color: accent.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: AppRadius.sm,
                   ),
                   child: Icon(_activity.icon, color: accent),
                 ),
@@ -118,7 +119,7 @@ class _RouteMap extends StatelessWidget {
     final positions = points.map((p) => p.position).toList();
 
     return ClipRRect(
-      borderRadius: BorderRadius.circular(24),
+      borderRadius: AppRadius.xl,
       child: SizedBox(
         height: 260,
         child: FlutterMap(
@@ -340,7 +341,7 @@ class _GoalOutcome extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppRadius.md,
       ),
       child: Row(
         children: [

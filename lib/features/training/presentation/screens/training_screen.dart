@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/services/notification_service.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/utils/pending_alarm.dart';
 import 'package:gym_corpus/core/utils/time_format.dart';
 import 'package:gym_corpus/core/utils/unit_converter.dart';
@@ -274,7 +275,7 @@ class _TrainingScreenState extends State<TrainingScreen>
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: theme.colorScheme.surface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        shape: const RoundedRectangleBorder(borderRadius: AppRadius.xl),
         title: const Text(
           'Terminare l allenamento?',
           style: TextStyle(fontFamily: 'Lexend', fontWeight: FontWeight.bold),
@@ -404,7 +405,7 @@ class _TrainingScreenState extends State<TrainingScreen>
                                 width: double.infinity,
                                 child: Container(
                                   decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(20),
+                                    borderRadius: AppRadius.lg,
                                     gradient: isResting
                                         ? null
                                         : LinearGradient(
@@ -424,7 +425,7 @@ class _TrainingScreenState extends State<TrainingScreen>
                                       onTap: _phase == _Phase.working
                                           ? _completeSet
                                           : null,
-                                      borderRadius: BorderRadius.circular(20),
+                                      borderRadius: AppRadius.lg,
                                       child: Padding(
                                         padding: const EdgeInsets.symmetric(
                                           vertical: 16,

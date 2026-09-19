@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/utils/date_format.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/features/auth/domain/entities/user_entity.dart';
@@ -59,7 +60,7 @@ class LoginHistoryTile extends StatelessWidget {
                     theme.colorScheme.tertiary.withValues(alpha: 0.2),
                   ],
                 ),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: AppRadius.sm,
                 border: Border.all(
                   color: theme.colorScheme.primary.withValues(alpha: 0.2),
                 ),

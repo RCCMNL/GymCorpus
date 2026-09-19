@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_event.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
@@ -179,7 +180,7 @@ class SettingsMenuTab extends StatelessWidget {
           width: double.infinity,
           child: Container(
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(24),
+              borderRadius: AppRadius.xl,
               boxShadow: [
                 BoxShadow(
                   color: theme.colorScheme.error.withValues(alpha: 0.1),
@@ -201,7 +202,7 @@ class SettingsMenuTab extends StatelessWidget {
                 ),
                 foregroundColor: theme.colorScheme.error,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(24),
+                  borderRadius: AppRadius.xl,
                   side: BorderSide(
                     color: theme.colorScheme.errorContainer.withValues(
                       alpha: 0.3,

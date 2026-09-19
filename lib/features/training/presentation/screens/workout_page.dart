@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/core/widgets/icon_badge.dart';
@@ -152,7 +153,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
                             color: theme.colorScheme.primary.withValues(
                               alpha: 0.1,
                             ),
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: AppRadius.md,
                           ),
                           child: Icon(
                             Icons.mode_edit_outline,
@@ -173,7 +174,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
                       decoration: BoxDecoration(
                         color: theme.colorScheme.surfaceContainerHigh
                             .withValues(alpha: 0.5),
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: AppRadius.lg,
                         border: Border.all(
                           color: theme.colorScheme.outline.withValues(
                             alpha: 0.1,
@@ -231,7 +232,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
                                   color: theme.colorScheme.tertiary.withValues(
                                     alpha: 0.15,
                                   ),
-                                  borderRadius: BorderRadius.circular(8),
+                                  borderRadius: AppRadius.xs,
                                 ),
                                 child: Text(
                                   '${_selectedExercises.length} ESERCIZI',
@@ -259,7 +260,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
                                   theme.colorScheme.tertiary,
                                 ],
                               ),
-                              borderRadius: BorderRadius.circular(20),
+                              borderRadius: AppRadius.lg,
                               boxShadow: [
                                 BoxShadow(
                                   color: theme.colorScheme.primary.withValues(
@@ -407,7 +408,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
                         theme.colorScheme.tertiary,
                       ],
                     ),
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: AppRadius.lg,
                     boxShadow: [
                       BoxShadow(
                         color: theme.colorScheme.primary.withValues(alpha: 0.3),

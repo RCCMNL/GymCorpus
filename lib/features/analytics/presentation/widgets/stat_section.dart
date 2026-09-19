@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
 
 /// Riquadro con un titolo di sezione e una riga di [StatItem].
@@ -21,7 +22,7 @@ class StatSection extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppRadius.md,
         border: Border(left: BorderSide(color: color, width: 4)),
       ),
       child: Column(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/gradient_title.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
@@ -25,7 +26,7 @@ class NutritionScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: theme.colorScheme.tertiary.tintedFill,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: AppRadius.md,
                   border: Border.all(
                     color: theme.colorScheme.tertiary.tintedBorder,
                   ),
@@ -81,7 +82,7 @@ class NutritionScreen extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       color: theme.colorScheme.surfaceContainerHigh,
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: AppRadius.xs,
                     ),
                     child: Text(
                       'PRESTO DISPONIBILE',
@@ -226,7 +227,7 @@ class NutritionScreen extends StatelessWidget {
             theme.colorScheme.primaryContainer.withValues(alpha: 0.1),
           ],
         ),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: AppRadius.xl,
         border: Border.all(
           color: theme.colorScheme.tertiary.withValues(alpha: 0.1),
         ),
@@ -257,7 +258,7 @@ class NutritionScreen extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           ClipRRect(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: AppRadius.xs,
             child: LinearProgressIndicator(
               value: 0.48,
               minHeight: 8,
@@ -352,9 +353,7 @@ class NutritionScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ClipRRect(
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(20),
-              ),
+              borderRadius: AppRadius.topXxl,
               child: Image.network(
                 imageUrl,
                 height: 120,

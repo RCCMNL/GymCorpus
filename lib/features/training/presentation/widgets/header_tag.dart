@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 
 /// Pillola con icona opzionale e testo, usata nell'header di
 /// RoutineDetailHeader.
@@ -23,7 +24,7 @@ class HeaderTag extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
         color: color,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: AppRadius.sm,
         border: Border.all(color: textColor.withValues(alpha: 0.15)),
       ),
       child: Row(

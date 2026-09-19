@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:gym_corpus/features/training/domain/services/cardio_splits.dart';
@@ -121,7 +122,7 @@ class CardioSplitRow extends StatelessWidget {
                   width: constraints.maxWidth * relativeWidth,
                   decoration: BoxDecoration(
                     color: color.withValues(alpha: isFastest ? 0.9 : 0.35),
-                    borderRadius: BorderRadius.circular(6),
+                    borderRadius: AppRadius.xs,
                   ),
                 ),
               ),

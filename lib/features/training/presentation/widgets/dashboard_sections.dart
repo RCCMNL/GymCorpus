@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/icon_badge.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
@@ -151,7 +152,7 @@ class _StartWorkoutButton extends StatelessWidget {
       width: double.infinity,
       height: 64,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: AppRadius.lg,
         gradient: LinearGradient(
           colors: [theme.colorScheme.secondary, theme.colorScheme.primary],
           begin: Alignment.topLeft,
@@ -169,7 +170,7 @@ class _StartWorkoutButton extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: AppRadius.lg,
           child: Center(
             child: Text(
               'AVVIA ALLENAMENTO',
@@ -293,7 +294,7 @@ class _DashboardCard extends StatelessWidget {
                             color: theme.colorScheme.tertiary.withValues(
                               alpha: 0.2,
                             ),
-                            borderRadius: BorderRadius.circular(6),
+                            borderRadius: AppRadius.xs,
                             border: Border.all(
                               color: theme.colorScheme.tertiary.withValues(
                                 alpha: 0.3,
@@ -367,7 +368,7 @@ class RoutineHighlightCard extends StatelessWidget {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
-          borderRadius: BorderRadius.circular(32),
+          borderRadius: AppRadius.xxl,
           border: Border.all(
             color: primary.withValues(alpha: 0.15),
             width: 1.5,
@@ -411,7 +412,7 @@ class RoutineHighlightCard extends StatelessWidget {
                         ),
                         decoration: BoxDecoration(
                           color: tertiary.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: AppRadius.lg,
                         ),
                         child: Text(
                           '${routine.estimatedDuration} MIN',

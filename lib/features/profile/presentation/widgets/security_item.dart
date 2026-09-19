@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
 
 /// Riga della schermata Sicurezza: icona o logo, etichetta, e a scelta un
@@ -40,7 +41,7 @@ class SecurityItem extends StatelessWidget {
         trailing:
             trailing ??
             (onTap != null ? const Icon(Icons.chevron_right, size: 20) : null),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: const RoundedRectangleBorder(borderRadius: AppRadius.md),
       ),
     );
   }
@@ -63,7 +64,7 @@ class AuthProviderBadge extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: AppRadius.xs,
       ),
       child: Text(
         isLinked ? 'COLLEGATO' : 'NON COLLEGATO',

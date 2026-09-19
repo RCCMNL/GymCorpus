@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/gradient_title.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
@@ -24,7 +25,7 @@ class YogaScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: theme.colorScheme.tertiary.tintedFill,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: AppRadius.md,
                   border: Border.all(
                     color: theme.colorScheme.tertiary.tintedBorder,
                   ),
@@ -110,7 +111,7 @@ class YogaScreen extends StatelessWidget {
                       theme.colorScheme.surfaceContainerHighest,
                     ],
                   ),
-                  borderRadius: BorderRadius.circular(28),
+                  borderRadius: AppRadius.xl,
                   boxShadow: [
                     BoxShadow(
                       color: theme.colorScheme.primary.withValues(alpha: 0.2),
@@ -129,7 +130,7 @@ class YogaScreen extends StatelessWidget {
                       ),
                       decoration: BoxDecoration(
                         color: theme.colorScheme.primary,
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: AppRadius.lg,
                       ),
                       child: const Text(
                         'NUOVO',
@@ -169,7 +170,7 @@ class YogaScreen extends StatelessWidget {
                       ),
                       decoration: BoxDecoration(
                         color: Colors.white.tintedFill,
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: AppRadius.md,
                         border: Border.all(color: Colors.white.tintedBorder),
                       ),
                       child: Row(
@@ -225,7 +226,7 @@ class YogaScreen extends StatelessWidget {
         ),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: AppRadius.sm,
           side: BorderSide(
             color: isSelected ? theme.colorScheme.primary : Colors.transparent,
           ),

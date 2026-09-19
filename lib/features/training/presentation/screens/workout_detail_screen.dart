@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/features/training/domain/entities/routine.dart';
@@ -61,7 +61,7 @@ class WorkoutDetailScreen extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: Theme.of(context).colorScheme.surface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        shape: const RoundedRectangleBorder(borderRadius: AppRadius.xl),
         title: const Text(
           'Ripristina valori originali',
           style: TextStyle(fontWeight: FontWeight.w900, fontFamily: 'Lexend'),
@@ -105,7 +105,7 @@ class WorkoutDetailScreen extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: Theme.of(context).colorScheme.surface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        shape: const RoundedRectangleBorder(borderRadius: AppRadius.xl),
         title: const Text(
           'Elimina Routine',
           style: TextStyle(fontWeight: FontWeight.w900, fontFamily: 'Lexend'),

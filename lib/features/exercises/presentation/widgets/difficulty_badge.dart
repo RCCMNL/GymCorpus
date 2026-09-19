@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
 
@@ -39,7 +40,7 @@ class DifficultyBadge extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: color.tintedFill,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: AppRadius.lg,
         border: Border.all(color: color.tintedBorder),
       ),
       child: Text(

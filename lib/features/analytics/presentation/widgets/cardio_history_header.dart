@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
 
@@ -60,7 +61,7 @@ class CardioOverviewStat extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
           color: theme.colorScheme.surface.withValues(alpha: 0.6),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: AppRadius.md,
           border: Border.all(color: accentColor.withValues(alpha: 0.12)),
         ),
         child: Column(
@@ -118,7 +119,7 @@ class CardioHistoryOverview extends StatelessWidget {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: AppRadius.xl,
             border: Border.all(
               color: theme.colorScheme.primary.withValues(alpha: 0.10),
             ),

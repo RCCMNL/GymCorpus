@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/core/widgets/confirm_dialog.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
@@ -88,7 +89,7 @@ class _CustomWorkoutsScreenState extends State<CustomWorkoutsScreen> {
                                 decoration: BoxDecoration(
                                   color: theme.colorScheme.primaryContainer
                                       .withValues(alpha: 0.3),
-                                  borderRadius: BorderRadius.circular(20),
+                                  borderRadius: AppRadius.lg,
                                 ),
                                 child: Text(
                                   '${routines.length} WORKOUTS',
@@ -116,7 +117,7 @@ class _CustomWorkoutsScreenState extends State<CustomWorkoutsScreen> {
                                   theme.colorScheme.tertiary,
                                 ],
                               ),
-                              borderRadius: BorderRadius.circular(24),
+                              borderRadius: AppRadius.xl,
                               boxShadow: [
                                 BoxShadow(
                                   color: theme.colorScheme.primary.withValues(

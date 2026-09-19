@@ -1,6 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/utils/date_format.dart';
 import 'package:gym_corpus/core/utils/decimal_input.dart';
 import 'package:gym_corpus/core/utils/unit_converter.dart';
@@ -162,7 +163,7 @@ class _WeightTrackingCardState extends State<WeightTrackingCard> {
                                 ),
                                 decoration: BoxDecoration(
                                   color: changeColor.withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(6),
+                                  borderRadius: AppRadius.xs,
                                 ),
                                 child: Text(
                                   '$changeText $unitText',
@@ -258,7 +259,7 @@ class _WeightTrackingCardState extends State<WeightTrackingCard> {
                         touchTooltipData: LineTouchTooltipData(
                           getTooltipColor: (spot) =>
                               theme.colorScheme.surfaceContainerHighest,
-                          tooltipBorderRadius: BorderRadius.circular(12),
+                          tooltipBorderRadius: AppRadius.sm,
                           getTooltipItems: (List<LineBarSpot> touchedBarSpots) {
                             return touchedBarSpots.map((barSpot) {
                               final flSpot = barSpot;
@@ -405,7 +406,7 @@ class _WeightTrackingCardState extends State<WeightTrackingCard> {
           decoration: InputDecoration(
             labelText: isImperial ? 'Peso (lb)' : 'Peso (kg)',
             suffixText: isImperial ? 'lb' : 'kg',
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            border: const OutlineInputBorder(borderRadius: AppRadius.sm),
           ),
         ),
         actions: [

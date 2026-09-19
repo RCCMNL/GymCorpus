@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 
 /// La domanda che l'app fa prima di un'azione che non si torna indietro.
 ///
@@ -30,7 +31,7 @@ class ConfirmDialog {
       context: context,
       builder: (dialogContext) => AlertDialog(
         backgroundColor: theme.colorScheme.surface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        shape: const RoundedRectangleBorder(borderRadius: AppRadius.xl),
         title: Text(
           title,
           style: theme.textTheme.titleLarge?.copyWith(

@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
@@ -220,7 +221,7 @@ class _IntegrationsScreenState extends State<IntegrationsScreen> {
           ),
         ),
         trailing: trailing ?? const Icon(Icons.chevron_right, size: 20),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: const RoundedRectangleBorder(borderRadius: AppRadius.md),
       ),
     );
   }

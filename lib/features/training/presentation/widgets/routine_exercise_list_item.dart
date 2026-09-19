@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/utils/unit_converter.dart';
 import 'package:gym_corpus/features/exercises/presentation/widgets/exercise_thumbnail.dart';
 import 'package:gym_corpus/features/training/domain/entities/exercise.dart';
@@ -56,7 +57,7 @@ class RoutineExerciseListItem extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: AppRadius.lg,
         border: Border.all(
           color: theme.colorScheme.outline.withValues(alpha: 0.1),
           width: 1.5,
@@ -70,7 +71,7 @@ class RoutineExerciseListItem extends StatelessWidget {
             leading: ExerciseThumbnail(
               exercise: re.exercise,
               size: 48,
-              borderRadius: 14,
+              borderRadius: AppRadius.sm,
             ),
             title: Text(
               re.exercise.name,
@@ -95,7 +96,7 @@ class RoutineExerciseListItem extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       color: theme.colorScheme.tertiary.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(6),
+                      borderRadius: AppRadius.xs,
                     ),
                     child: Text(
                       '${setsList.length} SERIE',
@@ -114,7 +115,7 @@ class RoutineExerciseListItem extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       color: theme.colorScheme.outline.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(6),
+                      borderRadius: AppRadius.xs,
                     ),
                     child: Text(
                       re.exercise.targetMuscle.toUpperCase(),
@@ -151,8 +152,8 @@ class RoutineExerciseListItem extends StatelessWidget {
                         onDeleteRoutine?.call();
                       }
                     },
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: AppRadius.md,
                     ),
                     color: theme.colorScheme.surfaceContainerHigh,
                     elevation: 8,
@@ -264,7 +265,7 @@ class RoutineExerciseListItem extends StatelessWidget {
                             ? theme.colorScheme.surfaceContainerHighest
                                   .withValues(alpha: 0.3)
                             : Colors.transparent,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: AppRadius.sm,
                       ),
                       child: Row(
                         children: [
@@ -375,7 +376,7 @@ void _showNotesDialog(
     builder: (ctx) {
       return AlertDialog(
         backgroundColor: theme.colorScheme.surfaceContainerHigh,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        shape: const RoundedRectangleBorder(borderRadius: AppRadius.xl),
         title: Row(
           children: [
             Icon(Icons.notes_rounded, color: theme.colorScheme.primary),

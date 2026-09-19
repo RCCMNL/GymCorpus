@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 
 /// Intestazione della sessione di allenamento: titolo routine, cronometro
 /// di esecuzione, controlli pausa/termina e barra di avanzamento serie.
@@ -41,7 +42,7 @@ class TrainingHeader extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: AppRadius.xl,
         border: Border.all(color: accentColor.withValues(alpha: 0.1)),
       ),
       child: Column(
@@ -126,7 +127,7 @@ class TrainingHeader extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           ClipRRect(
-            borderRadius: BorderRadius.circular(4),
+            borderRadius: AppRadius.xs,
             child: LinearProgressIndicator(
               value: progress,
               minHeight: 6,

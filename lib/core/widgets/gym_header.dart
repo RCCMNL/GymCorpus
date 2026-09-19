@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/widgets/gradient_title.dart';
 import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_bloc.dart';
 import 'package:gym_corpus/features/notifications/presentation/bloc/notifications_state.dart';
@@ -70,7 +71,7 @@ class GymHeader extends StatelessWidget implements PreferredSizeWidget {
                           ),
                           decoration: BoxDecoration(
                             color: const Color(0xFFFF4D6A),
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: AppRadius.xs,
                             border: Border.all(
                               color: theme.colorScheme.surface,
                               width: 1.5,

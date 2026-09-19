@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 
 /// Sezione comprimibile con titolo, contatore e contenuto, usata per
 /// raggruppare log peso e misure per mese.
@@ -48,7 +49,7 @@ class _MonthlyAccordionState extends State<MonthlyAccordion> {
                     color: _expanded
                         ? theme.colorScheme.primary
                         : theme.colorScheme.outline.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(2),
+                    borderRadius: AppRadius.pill,
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -70,7 +71,7 @@ class _MonthlyAccordionState extends State<MonthlyAccordion> {
                   ),
                   decoration: BoxDecoration(
                     color: theme.colorScheme.outline.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(4),
+                    borderRadius: AppRadius.xs,
                   ),
                   child: Text(
                     widget.count.toString(),

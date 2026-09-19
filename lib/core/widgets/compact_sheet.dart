@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
 
 /// Il foglio modale piccolo dell'app: quello che chiede un valore e si
@@ -145,8 +146,8 @@ class DecimalField extends StatelessWidget {
         fillColor: theme.colorScheme.surfaceContainerHigh.withValues(
           alpha: 0.35,
         ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(18),
+        border: const OutlineInputBorder(
+          borderRadius: AppRadius.md,
           borderSide: BorderSide.none,
         ),
       ),
@@ -170,7 +171,7 @@ class SheetHandle extends StatelessWidget {
       height: 4,
       decoration: BoxDecoration(
         color: theme.colorScheme.outline.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(2),
+        borderRadius: AppRadius.pill,
       ),
     );
   }
@@ -212,7 +213,7 @@ class SheetSurface extends StatelessWidget {
       constraints: constraints,
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+        borderRadius: AppRadius.topXxl,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.2),

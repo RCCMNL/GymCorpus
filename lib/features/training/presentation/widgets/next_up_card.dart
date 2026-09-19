@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/utils/unit_converter.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:gym_corpus/features/exercises/presentation/widgets/exercise_thumbnail.dart';
@@ -69,7 +70,7 @@ class NextUpCard extends StatelessWidget {
             theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.15),
           ],
         ),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: AppRadius.xl,
         border: Border.all(
           color: theme.colorScheme.outline.withValues(alpha: 0.05),
         ),
@@ -83,7 +84,7 @@ class NextUpCard extends StatelessWidget {
             )
           else
             ClipRRect(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: AppRadius.md,
               child: Container(
                 width: 48,
                 height: 48,

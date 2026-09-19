@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/utils/decimal_input.dart';
 import 'package:gym_corpus/core/utils/time_format.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_activity.dart';
@@ -108,7 +109,7 @@ class _IndoorDistanceDialogState extends State<IndoorDistanceDialog> {
 
     return AlertDialog(
       backgroundColor: theme.colorScheme.surface,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      shape: const RoundedRectangleBorder(borderRadius: AppRadius.xl),
       title: const Text(
         'Quanta distanza?',
         style: TextStyle(fontWeight: FontWeight.w900, fontFamily: 'Lexend'),

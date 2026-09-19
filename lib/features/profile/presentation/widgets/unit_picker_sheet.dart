@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/widgets/compact_sheet.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_bloc.dart';
 import 'package:gym_corpus/features/training/presentation/bloc/training_event.dart';
@@ -55,7 +56,7 @@ class _UnitPickerSheetState extends State<UnitPickerSheet> {
                               theme.colorScheme.tertiary.withValues(alpha: 0.1),
                             ],
                           ),
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius: AppRadius.sm,
                           border: Border.all(
                             color: theme.colorScheme.primary.withValues(
                               alpha: 0.2,
@@ -142,7 +143,7 @@ class _UnitPickerSheetState extends State<UnitPickerSheet> {
             child: Container(
               width: double.infinity,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: AppRadius.md,
                 boxShadow: [
                   BoxShadow(
                     color: theme.colorScheme.primary.withValues(alpha: 0.3),
@@ -162,8 +163,8 @@ class _UnitPickerSheetState extends State<UnitPickerSheet> {
                   backgroundColor: theme.colorScheme.primary,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: AppRadius.md,
                   ),
                   elevation: 0,
                 ),
@@ -216,7 +217,7 @@ class UnitCard extends StatelessWidget {
           color: isSelected
               ? theme.colorScheme.primary.withValues(alpha: 0.12)
               : theme.colorScheme.surfaceContainerHigh,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: AppRadius.lg,
           border: Border.all(
             color: isSelected
                 ? theme.colorScheme.primary
@@ -242,7 +243,7 @@ class UnitCard extends StatelessWidget {
                 color: isSelected
                     ? theme.colorScheme.primary.withValues(alpha: 0.15)
                     : theme.colorScheme.outline.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: AppRadius.sm,
               ),
               child: Icon(
                 icon,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/features/profile/domain/services/athlete_progress_service.dart';
 import 'package:gym_corpus/features/profile/presentation/utils/athlete_progress_extensions.dart';
@@ -107,7 +108,7 @@ class _GroupedAchievementCard extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.45),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: AppRadius.xl,
         border: Border.all(
           color: isMastered
               ? Colors.amber.withValues(alpha: 0.5)
@@ -196,7 +197,7 @@ class _GroupedAchievementCard extends StatelessWidget {
           if (!isMastered) ...[
             const SizedBox(height: 16),
             ClipRRect(
-              borderRadius: BorderRadius.circular(999),
+              borderRadius: AppRadius.pill,
               child: LinearProgressIndicator(
                 value: displayAchievement.ratio,
                 minHeight: 8,
@@ -296,7 +297,7 @@ class _LevelHero extends StatelessWidget {
             theme.colorScheme.tertiary.withValues(alpha: 0.12),
           ],
         ),
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: AppRadius.xl,
         border: Border.all(
           color: theme.colorScheme.primary.withValues(alpha: 0.16),
         ),
@@ -351,7 +352,7 @@ class _LevelHero extends StatelessWidget {
           ),
           const SizedBox(height: 18),
           ClipRRect(
-            borderRadius: BorderRadius.circular(999),
+            borderRadius: AppRadius.pill,
             child: LinearProgressIndicator(
               value: progress.levelRatio,
               minHeight: 8,

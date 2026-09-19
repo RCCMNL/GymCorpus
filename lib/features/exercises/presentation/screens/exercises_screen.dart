@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/features/exercises/domain/exercise_catalog_view.dart';
 import 'package:gym_corpus/features/exercises/presentation/widgets/difficulty_badge.dart';
@@ -89,7 +90,7 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
                               decoration: BoxDecoration(
                                 color: theme.colorScheme.surfaceContainerHigh
                                     .withValues(alpha: 0.8),
-                                borderRadius: BorderRadius.circular(16),
+                                borderRadius: AppRadius.md,
                               ),
                               child: TextField(
                                 onChanged: (val) =>
@@ -121,9 +122,9 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
                           const SizedBox(width: 12),
                           Material(
                             color: theme.colorScheme.surfaceContainerHigh,
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: AppRadius.md,
                             child: InkWell(
-                              borderRadius: BorderRadius.circular(16),
+                              borderRadius: AppRadius.md,
                               onTap: _openFilters,
                               child: Padding(
                                 padding: const EdgeInsets.all(14),
@@ -142,9 +143,9 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
                           const SizedBox(width: 12),
                           Material(
                             color: theme.colorScheme.primary,
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: AppRadius.md,
                             child: InkWell(
-                              borderRadius: BorderRadius.circular(16),
+                              borderRadius: AppRadius.md,
                               onTap: () => context.push('/exercises/new'),
                               child: Padding(
                                 padding: const EdgeInsets.all(14),
@@ -188,8 +189,8 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
                                 fontWeight: FontWeight.bold,
                                 fontSize: 12,
                               ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(24),
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: AppRadius.xl,
                               ),
                               showCheckmark: false,
                               side: BorderSide.none,
@@ -227,14 +228,14 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
                           padding: const EdgeInsets.fromLTRB(24, 16, 24, 12),
                           child: InkWell(
                             onTap: () => _toggleCategory(section),
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: AppRadius.sm,
                             child: Row(
                               children: [
                                 Container(
                                   width: 4,
                                   height: 20,
-                                  decoration: BoxDecoration(
-                                    gradient: const LinearGradient(
+                                  decoration: const BoxDecoration(
+                                    gradient: LinearGradient(
                                       begin: Alignment.topCenter,
                                       end: Alignment.bottomCenter,
                                       colors: [
@@ -242,7 +243,7 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
                                         Colors.deepOrange,
                                       ],
                                     ),
-                                    borderRadius: BorderRadius.circular(2),
+                                    borderRadius: AppRadius.pill,
                                   ),
                                 ),
                                 const SizedBox(width: 12),
@@ -336,17 +337,17 @@ class _ExerciseTile extends StatelessWidget {
 
     return Material(
       color: Colors.transparent,
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: AppRadius.lg,
       child: InkWell(
         onTap: () {
           context.push('/exercises/detail', extra: exercise);
         },
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: AppRadius.lg,
         child: Ink(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             color: theme.colorScheme.surfaceContainer.withValues(alpha: 0.4),
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: AppRadius.lg,
             border: Border.all(
               color: theme.colorScheme.outline.withValues(alpha: 0.05),
             ),

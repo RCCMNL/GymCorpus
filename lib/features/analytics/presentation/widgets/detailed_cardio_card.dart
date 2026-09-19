@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/utils/date_format.dart';
 import 'package:gym_corpus/core/utils/time_format.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
@@ -43,7 +44,7 @@ class DetailedCardioCard extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(22),
+          borderRadius: AppRadius.lg,
           child: Padding(
             padding: const EdgeInsets.all(14),
             child: Column(
@@ -56,7 +57,7 @@ class DetailedCardioCard extends StatelessWidget {
                       height: 48,
                       decoration: BoxDecoration(
                         color: accent.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius: AppRadius.sm,
                       ),
                       child: Icon(activity.icon, color: accent, size: 22),
                     ),
@@ -89,7 +90,7 @@ class DetailedCardioCard extends StatelessWidget {
                       ),
                       decoration: BoxDecoration(
                         color: accent.withValues(alpha: 0.10),
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: AppRadius.sm,
                       ),
                       child: Text(
                         '${session.calories} kcal',
@@ -247,7 +248,7 @@ class ChipMetric extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
           color: accentColor.withValues(alpha: 0.10),
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: AppRadius.sm,
         ),
         child: Row(
           children: [

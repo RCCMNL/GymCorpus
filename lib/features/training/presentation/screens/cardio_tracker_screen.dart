@@ -10,6 +10,7 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gym_corpus/core/database/database.dart';
 import 'package:gym_corpus/core/services/health_service.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/utils/pending_alarm.dart';
 import 'package:gym_corpus/core/utils/time_format.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
@@ -50,6 +51,7 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
   final HealthService _healthService = GetIt.I<HealthService>();
   final List<CardioRoutePoint> _route = [];
   StreamSubscription<Position>? _positionStream;
+
   /// Il battito al secondo della sessione: uno solo, sempre.
   final PendingAlarm _tick = PendingAlarm();
   Timer? _countdownTimer;
@@ -198,9 +200,7 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
         barrierDismissible: false,
         builder: (ctx) => AlertDialog(
           backgroundColor: Theme.of(context).colorScheme.surface,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
-          ),
+          shape: const RoundedRectangleBorder(borderRadius: AppRadius.xl),
           title: const Text(
             'Sessione interrotta',
             style: TextStyle(fontWeight: FontWeight.w900, fontFamily: 'Lexend'),
@@ -827,7 +827,7 @@ class _CardioTrackerScreenState extends State<CardioTrackerScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: theme.colorScheme.surface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        shape: const RoundedRectangleBorder(borderRadius: AppRadius.xl),
         title: const Text(
           'Interrompere la sessione?',
           style: TextStyle(fontWeight: FontWeight.w900, fontFamily: 'Lexend'),

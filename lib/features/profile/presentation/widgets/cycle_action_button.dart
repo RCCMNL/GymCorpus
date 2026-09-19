@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/features/profile/presentation/widgets/cycle_phase_info.dart';
 
 /// Unica azione della schermata: apre o chiude la mestruazione in corso.
@@ -31,7 +32,7 @@ class CycleActionButton extends StatelessWidget {
             ? theme.colorScheme.onSurface
             : Colors.white,
         padding: const EdgeInsets.symmetric(vertical: 20),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: const RoundedRectangleBorder(borderRadius: AppRadius.lg),
       ),
       child: Text(
         hasOpenLog ? 'SEGNA FINE CICLO' : 'SEGNA INIZIO CICLO',

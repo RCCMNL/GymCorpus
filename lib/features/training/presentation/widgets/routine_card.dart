@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 
 /// Il guscio di una scheda routine: sfumatura, bordo di accento, tocco.
 ///
@@ -34,7 +35,7 @@ class RoutineCardShell extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: AppRadius.xl,
         border: Border.all(color: accent.withValues(alpha: 0.15), width: 1.5),
         boxShadow: [
           BoxShadow(
@@ -84,7 +85,7 @@ class RoutineTagChip extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         color: background ?? color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: AppRadius.xs,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

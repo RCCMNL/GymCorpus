@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
@@ -185,7 +186,7 @@ class _PhaseAdviceCard extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: info.color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: AppRadius.xl,
       ),
       child: Row(
         children: [

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gym_corpus/core/theme/stitch_colors.dart';
-import 'package:gym_corpus/core/theme/stitch_spacing.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 
 class AppTheme {
   // Stitch Design System - Deep Navy & Neon Blue
@@ -19,14 +18,6 @@ class AppTheme {
   static const Color warning = Color(0xFFFFC46B);
   static const Color onWarning = Color(0xFF3A2200);
 
-  // Raggi condivisi: i valori sono quelli gia' usati a mano nei widget
-  // curati, promossi a costanti cosi' che i widget lasciati al default
-  // ereditino la stessa forma invece di quella di fabbrica di Material.
-  static const double _radiusField = 16;
-  static const double _radiusButton = 18;
-  static const double _radiusDialog = 24;
-  static const double _radiusSnackBar = 20;
-
   static ThemeData get lightTheme =>
       darkTheme; // Defaulting to Dark for that premium feel
 
@@ -35,7 +26,6 @@ class AppTheme {
       useMaterial3: true,
       brightness: Brightness.dark,
       scaffoldBackgroundColor: _background,
-      extensions: const [StitchColors.dark, StitchSpacing.standard],
       colorScheme: const ColorScheme.dark(
         primary: _primary,
         onPrimary: _onPrimary,
@@ -72,7 +62,7 @@ class AppTheme {
         color: _surfaceContainer,
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: AppRadius.md,
           side: BorderSide(color: _primary.withValues(alpha: 0.05)),
         ),
       ),
@@ -119,25 +109,25 @@ class AppTheme {
           fontFamily: 'Inter',
           color: _primary,
         ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(_radiusField),
+        border: const OutlineInputBorder(
+          borderRadius: AppRadius.md,
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(_radiusField),
+          borderRadius: AppRadius.md,
           borderSide: BorderSide(color: _outline.withValues(alpha: 0.12)),
         ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(_radiusField),
-          borderSide: const BorderSide(color: _primary, width: 1.5),
+        focusedBorder: const OutlineInputBorder(
+          borderRadius: AppRadius.md,
+          borderSide: BorderSide(color: _primary, width: 1.5),
         ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(_radiusField),
-          borderSide: const BorderSide(color: _error),
+        errorBorder: const OutlineInputBorder(
+          borderRadius: AppRadius.md,
+          borderSide: BorderSide(color: _error),
         ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(_radiusField),
-          borderSide: const BorderSide(color: _error, width: 1.5),
+        focusedErrorBorder: const OutlineInputBorder(
+          borderRadius: AppRadius.md,
+          borderSide: BorderSide(color: _error, width: 1.5),
         ),
         errorStyle: const TextStyle(fontFamily: 'Inter', color: _error),
       ),
@@ -147,7 +137,7 @@ class AppTheme {
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(_radiusDialog),
+          borderRadius: AppRadius.xl,
           side: BorderSide(color: _primary.withValues(alpha: 0.12)),
         ),
         titleTextStyle: const TextStyle(
@@ -164,14 +154,12 @@ class AppTheme {
         ),
       ),
 
-      snackBarTheme: SnackBarThemeData(
+      snackBarTheme: const SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
         backgroundColor: _surfaceContainerHigh,
         elevation: 6,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(_radiusSnackBar),
-        ),
-        contentTextStyle: const TextStyle(
+        shape: RoundedRectangleBorder(borderRadius: AppRadius.lg),
+        contentTextStyle: TextStyle(
           fontFamily: 'Inter',
           fontSize: 14,
           color: _onSurface,
@@ -185,9 +173,7 @@ class AppTheme {
           foregroundColor: _onPrimary,
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
           elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(_radiusButton),
-          ),
+          shape: const RoundedRectangleBorder(borderRadius: AppRadius.md),
           textStyle: const TextStyle(
             fontFamily: 'Lexend',
             fontWeight: FontWeight.w900,
@@ -201,9 +187,7 @@ class AppTheme {
           backgroundColor: _primary,
           foregroundColor: _onPrimary,
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(_radiusButton),
-          ),
+          shape: const RoundedRectangleBorder(borderRadius: AppRadius.md),
           textStyle: const TextStyle(
             fontFamily: 'Lexend',
             fontWeight: FontWeight.w900,
@@ -217,9 +201,7 @@ class AppTheme {
           foregroundColor: _primary,
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
           side: BorderSide(color: _primary.withValues(alpha: 0.35)),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(_radiusButton),
-          ),
+          shape: const RoundedRectangleBorder(borderRadius: AppRadius.md),
           textStyle: const TextStyle(
             fontFamily: 'Lexend',
             fontWeight: FontWeight.w800,
@@ -232,9 +214,7 @@ class AppTheme {
         style: TextButton.styleFrom(
           foregroundColor: _primary,
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+          shape: const RoundedRectangleBorder(borderRadius: AppRadius.sm),
           textStyle: const TextStyle(
             fontFamily: 'Lexend',
             fontWeight: FontWeight.w800,
@@ -267,7 +247,7 @@ class AppTheme {
         }),
         checkColor: const WidgetStatePropertyAll(_onPrimary),
         side: BorderSide(color: _outline.withValues(alpha: 0.6), width: 1.5),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+        shape: const RoundedRectangleBorder(borderRadius: AppRadius.xs),
       ),
 
       progressIndicatorTheme: ProgressIndicatorThemeData(

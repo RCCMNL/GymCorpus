@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/features/exercises/domain/execution_phases.dart';
 import 'package:gym_corpus/features/exercises/presentation/widgets/exercise_video_link.dart';
@@ -284,7 +285,7 @@ class _ExecutionCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHigh,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppRadius.md,
         border: Border(left: BorderSide(color: color, width: 4)),
       ),
       child: Stack(
@@ -344,7 +345,7 @@ class _ExpertTipsCard extends StatelessWidget {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: theme.colorScheme.primary.tintedFill,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: AppRadius.xl,
         border: Border.all(color: theme.colorScheme.primary.tintedBorder),
       ),
       child: Stack(
@@ -357,7 +358,7 @@ class _ExpertTipsCard extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
               decoration: BoxDecoration(
                 color: theme.colorScheme.primary,
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: AppRadius.lg,
               ),
               child: const Text(
                 'SUGGERIMENTI',
@@ -455,7 +456,7 @@ class _UserNotesCardState extends State<_UserNotesCard> {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: theme.colorScheme.tertiary.tintedFill,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: AppRadius.xl,
         border: Border.all(color: theme.colorScheme.tertiary.tintedBorder),
       ),
       child: Stack(
@@ -468,7 +469,7 @@ class _UserNotesCardState extends State<_UserNotesCard> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
               decoration: BoxDecoration(
                 color: theme.colorScheme.tertiary,
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: AppRadius.lg,
               ),
               child: const Text(
                 'LE TUE NOTE',
@@ -530,7 +531,7 @@ class _UserNotesCardState extends State<_UserNotesCard> {
                       color: theme.colorScheme.outline.withValues(alpha: 0.5),
                     ),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: AppRadius.sm,
                       borderSide: BorderSide(
                         color: theme.colorScheme.tertiary.withValues(
                           alpha: 0.5,
@@ -538,7 +539,7 @@ class _UserNotesCardState extends State<_UserNotesCard> {
                       ),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: AppRadius.sm,
                       borderSide: BorderSide(color: theme.colorScheme.tertiary),
                     ),
                     contentPadding: const EdgeInsets.all(12),

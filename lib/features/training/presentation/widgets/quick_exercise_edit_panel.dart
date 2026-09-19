@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/utils/unit_converter.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/core/widgets/compact_sheet.dart';
@@ -345,8 +346,8 @@ class _QuickExerciseEditPanelState extends State<QuickExerciseEditPanel> {
                           horizontal: 20,
                           vertical: 12,
                         ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: AppRadius.sm,
                         ),
                       ),
                     ),
@@ -357,7 +358,7 @@ class _QuickExerciseEditPanelState extends State<QuickExerciseEditPanel> {
                   width: double.infinity,
                   child: Container(
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: AppRadius.lg,
                       boxShadow: [
                         BoxShadow(
                           color: theme.colorScheme.primary.withValues(
@@ -374,8 +375,8 @@ class _QuickExerciseEditPanelState extends State<QuickExerciseEditPanel> {
                         backgroundColor: theme.colorScheme.primary,
                         foregroundColor: theme.colorScheme.onPrimary,
                         padding: const EdgeInsets.symmetric(vertical: 20),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: AppRadius.lg,
                         ),
                         elevation: 0,
                       ),

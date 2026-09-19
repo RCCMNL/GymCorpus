@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/compact_sheet.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
@@ -179,7 +180,7 @@ class _GoalChip extends StatelessWidget {
           color: selected
               ? theme.colorScheme.primary.withValues(alpha: 0.15)
               : theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.5),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: AppRadius.md,
           border: Border.all(
             color: selected
                 ? theme.colorScheme.primary
@@ -223,12 +224,12 @@ class CardioOptionTile extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: AppRadius.xl,
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 24),
           decoration: BoxDecoration(
             color: color.tintedFill,
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: AppRadius.xl,
             border: Border.all(color: color.tintedBorder),
           ),
           child: Column(

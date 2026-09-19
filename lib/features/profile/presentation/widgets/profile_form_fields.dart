@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/utils/date_format.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
@@ -61,7 +62,7 @@ class ProfileTextField extends StatelessWidget {
             border: _border(theme, alpha: 0.1),
             enabledBorder: _border(theme, alpha: 0.1),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: AppRadius.md,
               borderSide: BorderSide(color: theme.colorScheme.primary),
             ),
             disabledBorder: _border(theme, alpha: 0.05),
@@ -73,7 +74,7 @@ class ProfileTextField extends StatelessWidget {
 
   static OutlineInputBorder _border(ThemeData theme, {required double alpha}) {
     return OutlineInputBorder(
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: AppRadius.md,
       borderSide: BorderSide(
         color: theme.colorScheme.outline.withValues(alpha: alpha),
       ),
@@ -108,7 +109,7 @@ class ProfileDateField extends StatelessWidget {
         const SizedBox(height: 8),
         InkWell(
           onTap: enabled ? onTap : null,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: AppRadius.md,
           child: AppCard(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             size: AppCardSize.tight,
@@ -160,7 +161,7 @@ class ProfileSaveButton extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: AppRadius.lg,
         boxShadow: [
           BoxShadow(
             color: theme.colorScheme.primary.withValues(alpha: 0.3),
@@ -178,9 +179,7 @@ class ProfileSaveButton extends StatelessWidget {
           disabledBackgroundColor: theme.colorScheme.primary.withValues(
             alpha: 0.5,
           ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
+          shape: const RoundedRectangleBorder(borderRadius: AppRadius.lg),
           elevation: 0,
         ),
         child: isSaving

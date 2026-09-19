@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/utils/date_format.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
@@ -277,7 +278,7 @@ class _NotificationTile extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
           color: theme.colorScheme.error.withValues(alpha: 0.15),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: AppRadius.lg,
         ),
         child: Icon(Icons.delete_outline, color: theme.colorScheme.error),
       ),
@@ -291,7 +292,7 @@ class _NotificationTile extends StatelessWidget {
             color: notification.isRead
                 ? theme.colorScheme.surfaceContainerHigh
                 : theme.colorScheme.surfaceContainerHigh.withValues(alpha: 0.8),
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: AppRadius.lg,
             border: Border.all(
               color: notification.isRead
                   ? theme.colorScheme.outline.withValues(alpha: 0.05)
@@ -316,7 +317,7 @@ class _NotificationTile extends StatelessWidget {
                 height: 44,
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: AppRadius.sm,
                 ),
                 child: Icon(
                   _iconForType(notification.type),
@@ -364,7 +365,7 @@ class _NotificationTile extends StatelessWidget {
                           ),
                           decoration: BoxDecoration(
                             color: color.tintedFill,
-                            borderRadius: BorderRadius.circular(999),
+                            borderRadius: AppRadius.pill,
                             border: Border.all(color: color.tintedBorder),
                           ),
                           child: Text(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
 
@@ -77,7 +78,7 @@ class WorkoutCompletedScreen extends StatelessWidget {
                   ),
                   decoration: BoxDecoration(
                     color: theme.colorScheme.surfaceContainerHigh,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: AppRadius.sm,
                   ),
                   child: Text(
                     routineTitle.toUpperCase(),
@@ -92,9 +93,9 @@ class WorkoutCompletedScreen extends StatelessWidget {
                 SizedBox(
                   width: double.infinity,
                   child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      gradient: const LinearGradient(
+                    decoration: const BoxDecoration(
+                      borderRadius: AppRadius.lg,
+                      gradient: LinearGradient(
                         colors: [Color(0xFF3367FF), Color(0xFF94AAFF)],
                       ),
                     ),
@@ -102,7 +103,7 @@ class WorkoutCompletedScreen extends StatelessWidget {
                       color: Colors.transparent,
                       child: InkWell(
                         onTap: () => context.go('/training'),
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: AppRadius.lg,
                         child: const Padding(
                           padding: EdgeInsets.symmetric(vertical: 18),
                           child: Center(

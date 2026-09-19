@@ -5,6 +5,7 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gym_corpus/core/constants/app_constants.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/core/widgets/compact_sheet.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
@@ -153,7 +154,7 @@ class _FeedbackDialogState extends State<FeedbackDialog> {
                                 ),
                               ],
                             ),
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius: AppRadius.sm,
                             border: Border.all(
                               color: theme.colorScheme.primary.withValues(
                                 alpha: 0.2,
@@ -238,7 +239,7 @@ class _FeedbackDialogState extends State<FeedbackDialog> {
                           vertical: 14,
                         ),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: AppRadius.md,
                           borderSide: BorderSide(
                             color: theme.colorScheme.outline.withValues(
                               alpha: 0.1,
@@ -246,7 +247,7 @@ class _FeedbackDialogState extends State<FeedbackDialog> {
                           ),
                         ),
                         enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: AppRadius.md,
                           borderSide: BorderSide(
                             color: theme.colorScheme.outline.withValues(
                               alpha: 0.1,
@@ -254,7 +255,7 @@ class _FeedbackDialogState extends State<FeedbackDialog> {
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: AppRadius.md,
                           borderSide: BorderSide(
                             color: theme.colorScheme.primary,
                           ),
@@ -289,7 +290,7 @@ class _FeedbackDialogState extends State<FeedbackDialog> {
                         fillColor: theme.colorScheme.surfaceContainerHigh,
                         contentPadding: const EdgeInsets.all(16),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: AppRadius.md,
                           borderSide: BorderSide(
                             color: theme.colorScheme.outline.withValues(
                               alpha: 0.1,
@@ -297,7 +298,7 @@ class _FeedbackDialogState extends State<FeedbackDialog> {
                           ),
                         ),
                         enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: AppRadius.md,
                           borderSide: BorderSide(
                             color: theme.colorScheme.outline.withValues(
                               alpha: 0.1,
@@ -305,7 +306,7 @@ class _FeedbackDialogState extends State<FeedbackDialog> {
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: AppRadius.md,
                           borderSide: BorderSide(
                             color: theme.colorScheme.primary,
                           ),
@@ -328,7 +329,7 @@ class _FeedbackDialogState extends State<FeedbackDialog> {
                         style: TextButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: AppRadius.md,
                             side: BorderSide(
                               color: theme.colorScheme.outline.withValues(
                                 alpha: 0.15,
@@ -353,7 +354,7 @@ class _FeedbackDialogState extends State<FeedbackDialog> {
                       flex: 2,
                       child: Container(
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: AppRadius.md,
                           boxShadow: [
                             BoxShadow(
                               color: theme.colorScheme.primary.withValues(
@@ -372,8 +373,8 @@ class _FeedbackDialogState extends State<FeedbackDialog> {
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             disabledBackgroundColor: theme.colorScheme.primary
                                 .withValues(alpha: 0.5),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: AppRadius.md,
                             ),
                             elevation: 0,
                           ),

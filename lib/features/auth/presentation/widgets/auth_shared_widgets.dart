@@ -1,6 +1,8 @@
 import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 
 class AmbientBackground extends StatelessWidget {
   const AmbientBackground({required this.theme, super.key});
@@ -83,7 +85,7 @@ class GlassCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = Theme.of(context);
     return ClipRRect(
-      borderRadius: BorderRadius.circular(24),
+      borderRadius: AppRadius.xl,
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
         child: Container(
@@ -98,7 +100,7 @@ class GlassCard extends StatelessWidget {
                 t.colorScheme.surface.withValues(alpha: 0.84),
               ],
             ),
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: AppRadius.xl,
             border: Border.all(
               color: t.colorScheme.primary.withValues(alpha: 0.12),
             ),
@@ -180,18 +182,18 @@ class AuthTextField extends StatelessWidget {
           horizontal: 16,
           vertical: 14,
         ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+        border: const OutlineInputBorder(
+          borderRadius: AppRadius.sm,
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: AppRadius.sm,
           borderSide: BorderSide(
             color: t.colorScheme.primary.withValues(alpha: 0.08),
           ),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: AppRadius.sm,
           borderSide: BorderSide(
             color: t.colorScheme.primary.withValues(alpha: 0.55),
             width: 1.5,
@@ -226,9 +228,7 @@ class AuthPrimaryButton extends StatelessWidget {
           backgroundColor: t.colorScheme.primary,
           foregroundColor: t.colorScheme.onPrimary,
           padding: const EdgeInsets.symmetric(vertical: 18),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18),
-          ),
+          shape: const RoundedRectangleBorder(borderRadius: AppRadius.md),
           elevation: 8,
           shadowColor: t.colorScheme.primary.withValues(alpha: 0.32),
           side: BorderSide(
@@ -273,10 +273,10 @@ class AuthSocialButton extends StatelessWidget {
     final t = Theme.of(context);
     return Material(
       color: t.colorScheme.surfaceContainerHigh.withValues(alpha: 0.92),
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: AppRadius.md,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppRadius.md,
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 14),
           decoration: BoxDecoration(
@@ -291,7 +291,7 @@ class AuthSocialButton extends StatelessWidget {
             border: Border.all(
               color: t.colorScheme.primary.withValues(alpha: 0.1),
             ),
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: AppRadius.md,
           ),
           // Logo ed etichetta si stringono invece di uscire dal pulsante.
           child: FittedBox(
@@ -338,7 +338,7 @@ class AuthAccentTag extends StatelessWidget {
             t.colorScheme.tertiary.withValues(alpha: 0.16),
           ],
         ),
-        borderRadius: BorderRadius.circular(999),
+        borderRadius: AppRadius.pill,
         border: Border.all(
           color: t.colorScheme.primary.withValues(alpha: 0.18),
         ),

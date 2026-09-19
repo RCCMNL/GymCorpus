@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
 
 /// Selettore a due tab (Peso / Misure) usato in cima a ProgressScreen.
@@ -16,7 +17,7 @@ class ProgressTabBar extends StatelessWidget {
       child: TabBar(
         controller: controller,
         indicator: BoxDecoration(
-          borderRadius: BorderRadius.circular(15),
+          borderRadius: AppRadius.sm,
           color: theme.colorScheme.primary,
           boxShadow: [
             BoxShadow(
@@ -127,7 +128,7 @@ class LogTile extends StatelessWidget {
             height: 44,
             decoration: BoxDecoration(
               color: theme.colorScheme.primary.withValues(alpha: 0.10),
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: AppRadius.sm,
             ),
             child: Icon(icon, color: theme.colorScheme.primary),
           ),
@@ -192,7 +193,7 @@ class ProgressErrorState extends StatelessWidget {
             color: theme.colorScheme.surfaceContainerHigh.withValues(
               alpha: 0.4,
             ),
-            borderRadius: BorderRadius.circular(28),
+            borderRadius: AppRadius.xl,
             border: Border.all(
               color: theme.colorScheme.error.withValues(alpha: 0.16),
             ),

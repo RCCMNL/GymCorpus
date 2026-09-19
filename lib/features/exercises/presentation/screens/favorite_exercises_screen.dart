@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/widgets/gradient_title.dart';
 import 'package:gym_corpus/core/widgets/gym_header.dart';
 import 'package:gym_corpus/core/widgets/icon_badge.dart';
@@ -130,7 +131,7 @@ class _FavoriteExercisesScreenState extends State<FavoriteExercisesScreen> {
                             decoration: BoxDecoration(
                               color: theme.colorScheme.surfaceContainerHigh
                                   .withValues(alpha: 0.8),
-                              borderRadius: BorderRadius.circular(16),
+                              borderRadius: AppRadius.md,
                             ),
                             child: TextField(
                               onChanged: (val) =>
@@ -162,9 +163,9 @@ class _FavoriteExercisesScreenState extends State<FavoriteExercisesScreen> {
                         const SizedBox(width: 12),
                         Material(
                           color: theme.colorScheme.surfaceContainerHigh,
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: AppRadius.md,
                           child: InkWell(
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: AppRadius.md,
                             onTap: _openFilters,
                             child: Padding(
                               padding: const EdgeInsets.all(14),
@@ -250,9 +251,7 @@ class _FavoriteExercisesScreenState extends State<FavoriteExercisesScreen> {
             label: const Text('Esplora Esercizi'),
             style: FilledButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
+              shape: const RoundedRectangleBorder(borderRadius: AppRadius.sm),
             ),
           ),
         ],
@@ -271,17 +270,17 @@ class _ExerciseTile extends StatelessWidget {
 
     return Material(
       color: Colors.transparent,
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: AppRadius.lg,
       child: InkWell(
         onTap: () {
           context.push('/exercises/detail', extra: exercise);
         },
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: AppRadius.lg,
         child: Ink(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             color: theme.colorScheme.surfaceContainer.withValues(alpha: 0.4),
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: AppRadius.lg,
             border: Border.all(
               color: theme.colorScheme.outline.withValues(alpha: 0.05),
             ),

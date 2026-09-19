@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/theme/app_theme.dart';
 
 /// Cosa sta dicendo il messaggio: decide colore e icona.
@@ -101,7 +102,7 @@ class AppSnackBar {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
           color: background,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: AppRadius.lg,
           boxShadow: [
             BoxShadow(
               color: background.withValues(alpha: 0.3),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/app_snack_bar.dart';
 import 'package:gym_corpus/core/widgets/confirm_dialog.dart';
@@ -41,7 +42,7 @@ class CardioHistoryGroup extends StatelessWidget {
                 height: 20,
                 decoration: BoxDecoration(
                   color: accentColor,
-                  borderRadius: BorderRadius.circular(2),
+                  borderRadius: AppRadius.pill,
                 ),
               ),
               const SizedBox(width: 10),
@@ -119,7 +120,7 @@ class DismissibleCardioCard extends StatelessWidget {
         alignment: Alignment.centerRight,
         decoration: BoxDecoration(
           color: Colors.redAccent.tintedFill,
-          borderRadius: BorderRadius.circular(22),
+          borderRadius: AppRadius.lg,
           border: Border.all(color: Colors.redAccent.tintedBorder),
         ),
         child: const Icon(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/widgets/gradient_title.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:gym_corpus/features/auth/presentation/bloc/auth_state.dart';
@@ -159,7 +160,7 @@ class _SplashScreenState extends State<SplashScreen>
           Container(
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.05),
-              borderRadius: BorderRadius.circular(2),
+              borderRadius: AppRadius.pill,
             ),
           ),
           AnimatedBuilder(
@@ -174,7 +175,7 @@ class _SplashScreenState extends State<SplashScreen>
                       theme.colorScheme.tertiary,
                     ],
                   ),
-                  borderRadius: BorderRadius.circular(2),
+                  borderRadius: AppRadius.pill,
                   boxShadow: [
                     BoxShadow(
                       color: theme.colorScheme.primary.withValues(alpha: 0.3),

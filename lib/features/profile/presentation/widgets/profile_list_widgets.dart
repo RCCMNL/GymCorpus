@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:gym_corpus/features/profile/presentation/widgets/cycle_phase_info.dart';
@@ -35,7 +36,7 @@ class ProfileSection extends StatelessWidget {
                         theme.colorScheme.tertiary,
                       ],
                     ),
-                    borderRadius: BorderRadius.circular(2),
+                    borderRadius: AppRadius.pill,
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -101,7 +102,7 @@ class ProfileItem extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: AppRadius.lg,
         child: Container(
           constraints: const BoxConstraints(minHeight: 60),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -109,7 +110,7 @@ class ProfileItem extends StatelessWidget {
             color: label == 'Calendario ciclo'
                 ? CyclePalette.period.withValues(alpha: 0.05)
                 : null,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: AppRadius.lg,
           ),
           child: Row(
             children: [
@@ -135,7 +136,7 @@ class ProfileItem extends StatelessWidget {
                       color: isComingSoon
                           ? theme.colorScheme.outline.withValues(alpha: 0.12)
                           : theme.colorScheme.tertiary.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: AppRadius.lg,
                     ),
                     child: Text(
                       trailingText!,

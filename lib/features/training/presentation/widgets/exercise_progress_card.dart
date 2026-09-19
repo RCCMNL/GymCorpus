@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/utils/unit_converter.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
@@ -74,7 +75,7 @@ class ExerciseProgressCard extends StatelessWidget {
                               color: theme.colorScheme.surface.withValues(
                                 alpha: 0.5,
                               ),
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: AppRadius.sm,
                             ),
                             child: const Eyebrow('ESERCIZIO CORRENTE'),
                           ),
@@ -127,7 +128,7 @@ class ExerciseProgressCard extends StatelessWidget {
                             color: theme.colorScheme.tertiary.withValues(
                               alpha: 0.8,
                             ),
-                            borderRadius: BorderRadius.circular(20),
+                            borderRadius: AppRadius.lg,
                           ),
                           child: Column(
                             children: [
@@ -203,7 +204,7 @@ void showExerciseNotesDialog(
     builder: (ctx) {
       return AlertDialog(
         backgroundColor: theme.colorScheme.surfaceContainerHigh,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        shape: const RoundedRectangleBorder(borderRadius: AppRadius.xl),
         title: Row(
           children: [
             Icon(Icons.notes, color: theme.colorScheme.primary),

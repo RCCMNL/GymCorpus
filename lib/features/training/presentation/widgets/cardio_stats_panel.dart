@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/utils/time_format.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_activity.dart';
 import 'package:gym_corpus/features/training/domain/entities/cardio_goal.dart';
@@ -66,7 +67,7 @@ class CardioStatsPanel extends StatelessWidget {
     final accent = activity.accent(theme);
 
     return ClipRRect(
-      borderRadius: const BorderRadius.vertical(top: Radius.circular(40)),
+      borderRadius: AppRadius.topXxl,
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
         child: Container(
@@ -97,7 +98,7 @@ class CardioStatsPanel extends StatelessWidget {
                         end: Alignment.bottomCenter,
                         colors: [accent, accent.withValues(alpha: 0.6)],
                       ),
-                      borderRadius: BorderRadius.circular(2),
+                      borderRadius: AppRadius.pill,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -200,8 +201,8 @@ class CardioStatsPanel extends StatelessWidget {
                       backgroundColor: accent,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 18),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: AppRadius.lg,
                       ),
                       elevation: 0,
                     ),
@@ -236,8 +237,8 @@ class CardioStatsPanel extends StatelessWidget {
                               theme.colorScheme.surfaceContainerHigh,
                           foregroundColor: theme.colorScheme.onSurface,
                           padding: const EdgeInsets.symmetric(vertical: 18),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: AppRadius.lg,
                           ),
                           elevation: 0,
                         ),
@@ -272,8 +273,8 @@ class CardioStatsPanel extends StatelessWidget {
                           backgroundColor: Colors.redAccent,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 18),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: AppRadius.lg,
                           ),
                           elevation: 0,
                         ),
@@ -357,7 +358,7 @@ class _GoalProgress extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         ClipRRect(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: AppRadius.xs,
           child: LinearProgressIndicator(
             value: progress,
             minHeight: 8,

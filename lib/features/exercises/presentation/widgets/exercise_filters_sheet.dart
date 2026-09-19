@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/widgets/compact_sheet.dart';
 import 'package:gym_corpus/core/widgets/labels.dart';
 import 'package:gym_corpus/features/exercises/domain/equipment_tags.dart';
@@ -176,8 +177,8 @@ class _ExerciseFiltersSheetState extends State<_ExerciseFiltersSheet> {
                     backgroundColor: theme.colorScheme.primary,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: AppRadius.lg,
                     ),
                     elevation: 0,
                   ),

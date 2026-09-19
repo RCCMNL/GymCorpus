@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gym_corpus/core/theme/app_radius.dart';
 import 'package:gym_corpus/core/utils/date_format.dart';
 import 'package:gym_corpus/core/widgets/app_card.dart';
 import 'package:gym_corpus/core/widgets/icon_badge.dart';
@@ -86,7 +87,7 @@ class _ProgressHeroState extends State<ProgressHero> {
                       theme.colorScheme.primary.withValues(alpha: 0.10),
                     ],
             ),
-            borderRadius: BorderRadius.circular(28),
+            borderRadius: AppRadius.xl,
             border: Border.all(
               color:
                   (isWeightTab
@@ -363,7 +364,7 @@ class DeltaBadge extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
         color: accent.withValues(alpha: 0.14),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppRadius.md,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
