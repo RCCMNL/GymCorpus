@@ -144,12 +144,16 @@ class _BentoCard extends StatelessWidget {
             children: [
               Icon(icon, color: iconColor, size: 14),
               const SizedBox(width: 8),
-              Text(
-                title,
-                style: theme.textTheme.labelSmall?.copyWith(
-                  fontSize: 9,
-                  letterSpacing: 0.5,
-                  color: theme.colorScheme.outline,
+              Flexible(
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    fontSize: 9,
+                    letterSpacing: 0.5,
+                    color: theme.colorScheme.outline,
+                  ),
                 ),
               ),
             ],
@@ -181,14 +185,18 @@ class _SectionHeader extends StatelessWidget {
       children: [
         Container(width: 32, height: 2, color: color),
         const SizedBox(width: 12),
-        Text(
-          title.toUpperCase(),
-          style: TextStyle(
-            color: color,
-            fontFamily: 'Lexend',
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-            letterSpacing: -0.5,
+        Flexible(
+          child: Text(
+            title.toUpperCase(),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: color,
+              fontFamily: 'Lexend',
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+              letterSpacing: -0.5,
+            ),
           ),
         ),
       ],
@@ -479,10 +487,16 @@ class _UserNotesCardState extends State<_UserNotesCard> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    'Appunti Esercizio',
-                    style: theme.textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
+                  // Il titolo cede spazio al pulsante: a 360 punti, dentro
+                  // la card con 24 di padding, usciva dal bordo.
+                  Flexible(
+                    child: Text(
+                      'Appunti Esercizio',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                   IconButton(

@@ -64,130 +64,135 @@ class _ExerciseFiltersSheetState extends State<_ExerciseFiltersSheet> {
           right: 24,
           bottom: MediaQuery.of(context).viewInsets.bottom + 24,
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Filtri',
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w900,
-                    fontFamily: 'Lexend',
-                  ),
-                ),
-                TextButton(
-                  onPressed: () => setState(() {
-                    _difficulty = kAllDifficultiesFilter;
-                    _equipment = {};
-                  }),
-                  child: const Text('AZZERA'),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            const SectionTitle('DIFFICOLTÀ', tone: SectionTitleTone.muted),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children:
-                  [
-                    kAllDifficultiesFilter,
-                    ...ExerciseEntity.difficultyLevels,
-                  ].map((difficulty) {
-                    final isSelected = _difficulty == difficulty;
-                    return ChoiceChip(
-                      label: Text(difficulty),
-                      selected: isSelected,
-                      onSelected: (_) =>
-                          setState(() => _difficulty = difficulty),
-                      showCheckmark: false,
-                      side: BorderSide.none,
-                      backgroundColor: theme.colorScheme.surfaceContainerHigh,
-                      selectedColor: theme.colorScheme.primary,
-                      labelStyle: TextStyle(
-                        color: isSelected
-                            ? theme.colorScheme.onPrimary
-                            : theme.colorScheme.onSurface,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
+        // Scorrevole: fra i gruppi di filtri il foglio supera lo schermo.
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Flexible(
+                    child: Text(
+                      'Filtri',
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w900,
+                        fontFamily: 'Lexend',
                       ),
-                    );
-                  }).toList(),
-            ),
-            const SizedBox(height: 24),
-            const SectionTitle('ATTREZZATURA', tone: SectionTitleTone.muted),
-            const SizedBox(height: 4),
-            Text(
-              'Puoi selezionarne più di una.',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.outline,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () => setState(() {
+                      _difficulty = kAllDifficultiesFilter;
+                      _equipment = {};
+                    }),
+                    child: const Text('AZZERA'),
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: kEquipmentTags.map((tag) {
-                final isSelected = _equipment.contains(tag);
-                return FilterChip(
-                  label: Text(tag),
-                  selected: isSelected,
-                  onSelected: (selected) => setState(() {
-                    if (selected) {
-                      _equipment.add(tag);
-                    } else {
-                      _equipment.remove(tag);
-                    }
-                  }),
-                  showCheckmark: false,
-                  side: BorderSide.none,
-                  backgroundColor: theme.colorScheme.surfaceContainerHigh,
-                  selectedColor: theme.colorScheme.primary,
-                  labelStyle: TextStyle(
-                    color: isSelected
-                        ? theme.colorScheme.onPrimary
-                        : theme.colorScheme.onSurface,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
-                  ),
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: 28),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () => Navigator.pop(
-                  context,
-                  ExerciseFiltersResult(
-                    difficulty: _difficulty,
-                    equipment: _equipment,
-                  ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: theme.colorScheme.primary,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  elevation: 0,
-                ),
-                child: const Text(
-                  'APPLICA',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 1.5,
-                    fontSize: 14,
-                  ),
+              const SizedBox(height: 8),
+              const SectionTitle('DIFFICOLTÀ', tone: SectionTitleTone.muted),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children:
+                    [
+                      kAllDifficultiesFilter,
+                      ...ExerciseEntity.difficultyLevels,
+                    ].map((difficulty) {
+                      final isSelected = _difficulty == difficulty;
+                      return ChoiceChip(
+                        label: Text(difficulty),
+                        selected: isSelected,
+                        onSelected: (_) =>
+                            setState(() => _difficulty = difficulty),
+                        showCheckmark: false,
+                        side: BorderSide.none,
+                        backgroundColor: theme.colorScheme.surfaceContainerHigh,
+                        selectedColor: theme.colorScheme.primary,
+                        labelStyle: TextStyle(
+                          color: isSelected
+                              ? theme.colorScheme.onPrimary
+                              : theme.colorScheme.onSurface,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      );
+                    }).toList(),
+              ),
+              const SizedBox(height: 24),
+              const SectionTitle('ATTREZZATURA', tone: SectionTitleTone.muted),
+              const SizedBox(height: 4),
+              Text(
+                'Puoi selezionarne più di una.',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.outline,
                 ),
               ),
-            ),
-          ],
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: kEquipmentTags.map((tag) {
+                  final isSelected = _equipment.contains(tag);
+                  return FilterChip(
+                    label: Text(tag),
+                    selected: isSelected,
+                    onSelected: (selected) => setState(() {
+                      if (selected) {
+                        _equipment.add(tag);
+                      } else {
+                        _equipment.remove(tag);
+                      }
+                    }),
+                    showCheckmark: false,
+                    side: BorderSide.none,
+                    backgroundColor: theme.colorScheme.surfaceContainerHigh,
+                    selectedColor: theme.colorScheme.primary,
+                    labelStyle: TextStyle(
+                      color: isSelected
+                          ? theme.colorScheme.onPrimary
+                          : theme.colorScheme.onSurface,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 28),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(
+                    context,
+                    ExerciseFiltersResult(
+                      difficulty: _difficulty,
+                      equipment: _equipment,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: theme.colorScheme.primary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: const Text(
+                    'APPLICA',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1.5,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

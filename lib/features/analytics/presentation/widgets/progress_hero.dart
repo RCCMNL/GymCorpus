@@ -368,27 +368,34 @@ class DeltaBadge extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                isDown ? Icons.south_rounded : Icons.north_rounded,
-                size: 16,
-                color: accent,
-              ),
-              const SizedBox(width: 4),
-              Text(
-                formatSignedWeight(value, isImperial: isImperial),
-                style: theme.textTheme.labelLarge?.copyWith(
+          // Rimpicciolire, non tagliare: una variazione di peso letta a
+          // meta' ("+1,..." invece di "+1,4 kg") non dice niente.
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  isDown ? Icons.south_rounded : Icons.north_rounded,
+                  size: 16,
                   color: accent,
-                  fontWeight: FontWeight.w900,
                 ),
-              ),
-            ],
+                const SizedBox(width: 4),
+                Text(
+                  formatSignedWeight(value, isImperial: isImperial),
+                  style: theme.textTheme.labelLarge?.copyWith(
+                    color: accent,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 2),
           Text(
             'vs ultimo log',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: theme.textTheme.labelSmall?.copyWith(
               color: theme.colorScheme.outline,
             ),

@@ -129,21 +129,25 @@ class AppSnackBar {
             ),
             if (actionLabel != null) ...[
               const SizedBox(width: 8),
-              TextButton(
-                onPressed: onAction,
-                style: TextButton.styleFrom(
-                  foregroundColor: foreground,
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  minimumSize: Size.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-                child: Text(
-                  actionLabel,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w900,
-                    fontFamily: 'Lexend',
-                    fontSize: 13,
-                    decoration: TextDecoration.underline,
+              // Anche l'azione cede: messaggio lungo e azione insieme non
+              // stavano nella larghezza di un telefono stretto.
+              Flexible(
+                child: TextButton(
+                  onPressed: onAction,
+                  style: TextButton.styleFrom(
+                    foregroundColor: foreground,
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  child: Text(
+                    actionLabel,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w900,
+                      fontFamily: 'Lexend',
+                      fontSize: 13,
+                      decoration: TextDecoration.underline,
+                    ),
                   ),
                 ),
               ),
