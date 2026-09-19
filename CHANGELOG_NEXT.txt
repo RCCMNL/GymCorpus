@@ -1,1 +1,1 @@
-Fix bug sezione training
+Interfaccia rinnovata: niente piu testi tagliati sugli schermi stretti, colori e forme coerenti in tutta l app, attese che mostrano il contenuto in arrivo e nuove transizioni fra le schermate.
