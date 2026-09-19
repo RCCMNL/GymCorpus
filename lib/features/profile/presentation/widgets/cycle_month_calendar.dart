@@ -49,12 +49,16 @@ class CycleMonthCalendar extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                formatMonthYear(month).toUpperCase(),
-                style: const TextStyle(
-                  fontWeight: FontWeight.w900,
-                  fontFamily: 'Lexend',
-                  fontSize: 14,
+              Flexible(
+                child: Text(
+                  formatMonthYear(month).toUpperCase(),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w900,
+                    fontFamily: 'Lexend',
+                    fontSize: 14,
+                  ),
                 ),
               ),
               Row(

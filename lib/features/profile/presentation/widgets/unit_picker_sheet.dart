@@ -39,57 +39,62 @@ class _UnitPickerSheetState extends State<UnitPickerSheet> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            theme.colorScheme.primary.withValues(alpha: 0.15),
-                            theme.colorScheme.tertiary.withValues(alpha: 0.1),
+                // Icona e titolo cedono spazio a cio che chiude la riga.
+                Expanded(
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              theme.colorScheme.primary.withValues(alpha: 0.15),
+                              theme.colorScheme.tertiary.withValues(alpha: 0.1),
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
+                            color: theme.colorScheme.primary.withValues(
+                              alpha: 0.2,
+                            ),
+                          ),
+                        ),
+                        child: Icon(
+                          Icons.straighten_rounded,
+                          color: theme.colorScheme.primary,
+                          size: 22,
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      Flexible(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Unità di Misura',
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.w800,
+                                fontFamily: 'Lexend',
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'SISTEMA METRICO O IMPERIALE',
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                letterSpacing: 1.2,
+                                color: theme.colorScheme.outline,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 9,
+                              ),
+                            ),
                           ],
                         ),
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(
-                          color: theme.colorScheme.primary.withValues(
-                            alpha: 0.2,
-                          ),
-                        ),
                       ),
-                      child: Icon(
-                        Icons.straighten_rounded,
-                        color: theme.colorScheme.primary,
-                        size: 22,
-                      ),
-                    ),
-                    const SizedBox(width: 14),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Unità di Misura',
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w800,
-                            fontFamily: 'Lexend',
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          'SISTEMA METRICO O IMPERIALE',
-                          style: theme.textTheme.labelSmall?.copyWith(
-                            letterSpacing: 1.2,
-                            color: theme.colorScheme.outline,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 9,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
                 IconButton(
                   onPressed: () => Navigator.pop(context),

@@ -149,11 +149,17 @@ class _SummaryRow extends StatelessWidget {
             ),
           ),
         ),
-        Text(
-          value,
-          style: theme.textTheme.bodyMedium?.copyWith(
-            fontWeight: FontWeight.w900,
-            color: highlight ? CyclePalette.period : null,
+        // Anche il valore cede: con il testo grande etichetta e valore
+        // insieme uscivano dalla riga.
+        Flexible(
+          child: Text(
+            value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              fontWeight: FontWeight.w900,
+              color: highlight ? CyclePalette.period : null,
+            ),
           ),
         ),
       ],

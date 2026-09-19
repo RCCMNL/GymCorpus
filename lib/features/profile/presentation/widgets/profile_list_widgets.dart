@@ -39,7 +39,12 @@ class ProfileSection extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 12),
-                SectionTitle(title.toUpperCase(), tone: SectionTitleTone.muted),
+                Flexible(
+                  child: SectionTitle(
+                    title.toUpperCase(),
+                    tone: SectionTitleTone.muted,
+                  ),
+                ),
               ],
             ),
           ),

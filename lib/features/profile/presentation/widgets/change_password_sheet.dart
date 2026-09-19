@@ -94,23 +94,26 @@ class _ChangePasswordSheetState extends State<ChangePasswordSheet> {
                   ),
                 ),
                 const SizedBox(width: 16),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Cambia Password',
-                      style: theme.textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.w900,
-                        fontFamily: 'Lexend',
+                // Titolo e sottotitolo cedono spazio all'icona.
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Cambia Password',
+                        style: theme.textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.w900,
+                          fontFamily: 'Lexend',
+                        ),
                       ),
-                    ),
-                    Text(
-                      'Assicurati che sia complessa e sicura',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.outline,
+                      Text(
+                        'Assicurati che sia complessa e sicura',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.outline,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ],
             ),

@@ -75,40 +75,44 @@ class _DeleteAccountDialogState extends State<DeleteAccountDialog> {
         'Elimina Account',
         style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
       ),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Sei sicuro di voler eliminare definitivamente il tuo account e '
-            'tutti i dati associati? Questa operazione non puo essere '
-            'annullata.',
-          ),
-          const SizedBox(height: 16),
-          if (_requiresPassword) ...[
-            TextField(
-              controller: _password,
-              obscureText: true,
-              autofocus: true,
-              decoration: const InputDecoration(
-                labelText: 'Password attuale',
-                border: OutlineInputBorder(),
-              ),
+      // Scorrevole: fra avviso, campo password e spiegazioni il dialogo
+      // supera l'altezza disponibile su uno schermo basso.
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Sei sicuro di voler eliminare definitivamente il tuo account e '
+              'tutti i dati associati? Questa operazione non puo essere '
+              'annullata.',
             ),
-            if (validationMessage != null) ...[
-              const SizedBox(height: 8),
+            const SizedBox(height: 16),
+            if (_requiresPassword) ...[
+              TextField(
+                controller: _password,
+                obscureText: true,
+                autofocus: true,
+                decoration: const InputDecoration(
+                  labelText: 'Password attuale',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              if (validationMessage != null) ...[
+                const SizedBox(height: 8),
+                Text(
+                  validationMessage,
+                  style: const TextStyle(color: Colors.red, fontSize: 12),
+                ),
+              ],
+            ] else
               Text(
-                validationMessage,
-                style: const TextStyle(color: Colors.red, fontSize: 12),
+                'Ti verra richiesta una nuova conferma con il provider usato '
+                'per il login.',
+                style: theme.textTheme.bodySmall,
               ),
-            ],
-          ] else
-            Text(
-              'Ti verra richiesta una nuova conferma con il provider usato '
-              'per il login.',
-              style: theme.textTheme.bodySmall,
-            ),
-        ],
+          ],
+        ),
       ),
       actions: [
         TextButton(
