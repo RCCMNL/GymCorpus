@@ -40,8 +40,13 @@ class SectionTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    // Una riga sola, e se non ci sta si accorcia: questa etichetta sta
+    // dentro decine di righe strette, e allungandosi le faceva traboccare
+    // una per una.
     final text = Text(
       title,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
       style: theme.textTheme.labelSmall?.copyWith(
         letterSpacing: tone.letterSpacing,
         fontWeight: FontWeight.w900,
@@ -71,7 +76,7 @@ class SectionTitle extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 10),
-        text,
+        Flexible(child: text),
       ],
     );
   }
@@ -98,6 +103,8 @@ class Eyebrow extends StatelessWidget {
 
     return Text(
       text,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
       style: theme.textTheme.labelSmall?.copyWith(
         letterSpacing: 2,
         fontWeight: FontWeight.w900,
@@ -123,6 +130,8 @@ class StatLabel extends StatelessWidget {
 
     return Text(
       text,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
       style: theme.textTheme.labelSmall?.copyWith(
         letterSpacing: 1.5,
         fontWeight: FontWeight.w900,

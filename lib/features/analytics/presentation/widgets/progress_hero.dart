@@ -151,7 +151,12 @@ class _ProgressHeroState extends State<ProgressHero> {
                       ),
                     ),
                     if (weightDelta != null)
-                      DeltaBadge(value: weightDelta, isImperial: isImperial),
+                      Flexible(
+                        child: DeltaBadge(
+                          value: weightDelta,
+                          isImperial: isImperial,
+                        ),
+                      ),
                   ],
                 ),
                 const SizedBox(height: 18),

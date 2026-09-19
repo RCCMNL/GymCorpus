@@ -141,47 +141,54 @@ class _WeightTrackingCardState extends State<WeightTrackingCard> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Progresso Peso',
-                          style: theme.textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.w900,
-                            fontFamily: 'Lexend',
+                    // Il titolo cede spazio a cio che gli sta a destra.
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Progresso Peso',
+                            style: theme.textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.w900,
+                              fontFamily: 'Lexend',
+                            ),
                           ),
-                        ),
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 6,
-                                vertical: 2,
-                              ),
-                              decoration: BoxDecoration(
-                                color: changeColor.withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Text(
-                                '$changeText $unitText',
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                  color: changeColor,
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: changeColor.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  '$changeText $unitText',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                    color: changeColor,
+                                  ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              'ULTIMI 30 GIORNI',
-                              style: theme.textTheme.labelSmall?.copyWith(
-                                fontSize: 9,
-                                letterSpacing: 1,
+                              const SizedBox(width: 8),
+                              Flexible(
+                                child: Text(
+                                  'ULTIMI 30 GIORNI',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: theme.textTheme.labelSmall?.copyWith(
+                                    fontSize: 9,
+                                    letterSpacing: 1,
+                                  ),
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ],
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                     Row(
                       children: [
@@ -321,39 +328,43 @@ class _WeightTrackingCardState extends State<WeightTrackingCard> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      '${startDate.day} ${UnitConverter.monthName(startDate.month)}'
-                          .toUpperCase(),
-                      style: theme.textTheme.labelSmall?.copyWith(
-                        fontSize: 8,
-                        color: theme.colorScheme.outline,
-                      ),
-                    ),
-                    // Week indicators
-                    ...List.generate(3, (index) {
-                      final weekNum = 3 - index;
-                      return Text(
-                        '-$weekNum SET',
+                // Le date sotto il grafico si stringono invece di uscire.
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '${startDate.day} ${UnitConverter.monthName(startDate.month)}'
+                            .toUpperCase(),
                         style: theme.textTheme.labelSmall?.copyWith(
-                          fontSize: 7,
-                          color: theme.colorScheme.outline.withValues(
-                            alpha: 0.4,
-                          ),
+                          fontSize: 8,
+                          color: theme.colorScheme.outline,
                         ),
-                      );
-                    }),
-                    Text(
-                      'OGGI',
-                      style: theme.textTheme.labelSmall?.copyWith(
-                        fontSize: 8,
-                        fontWeight: FontWeight.w900,
-                        color: theme.colorScheme.primary,
                       ),
-                    ),
-                  ],
+                      // Week indicators
+                      ...List.generate(3, (index) {
+                        final weekNum = 3 - index;
+                        return Text(
+                          '-$weekNum SET',
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            fontSize: 7,
+                            color: theme.colorScheme.outline.withValues(
+                              alpha: 0.4,
+                            ),
+                          ),
+                        );
+                      }),
+                      Text(
+                        'OGGI',
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          fontSize: 8,
+                          fontWeight: FontWeight.w900,
+                          color: theme.colorScheme.primary,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -467,30 +478,34 @@ class WeightItem extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 4),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.baseline,
-              textBaseline: TextBaseline.alphabetic,
-              children: [
-                Text(
-                  value,
-                  style: TextStyle(
-                    fontFamily: 'Lexend',
-                    fontWeight: FontWeight.w900,
-                    fontSize: 18,
-                    color: color,
+            // Valore e unita' si stringono insieme: sono una cosa sola.
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
+                children: [
+                  Text(
+                    value,
+                    style: TextStyle(
+                      fontFamily: 'Lexend',
+                      fontWeight: FontWeight.w900,
+                      fontSize: 18,
+                      color: color,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 2),
-                Text(
-                  unit,
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    color: color.withValues(alpha: 0.5),
+                  const SizedBox(width: 2),
+                  Text(
+                    unit,
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: color.withValues(alpha: 0.5),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ),

@@ -41,26 +41,31 @@ class CardioHistorySection extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Container(
-                    width: 4,
-                    height: 20,
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [Color(0xFFFF9494), Colors.deepOrange],
+              // Il titolo cede spazio a quello che gli sta a destra.
+              Expanded(
+                child: Row(
+                  children: [
+                    Container(
+                      width: 4,
+                      height: 20,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [Color(0xFFFF9494), Colors.deepOrange],
+                        ),
+                        borderRadius: BorderRadius.circular(2),
                       ),
-                      borderRadius: BorderRadius.circular(2),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  const SectionTitle(
-                    'RECENTI CARDIO',
-                    tone: SectionTitleTone.muted,
-                  ),
-                ],
+                    const SizedBox(width: 12),
+                    const Flexible(
+                      child: SectionTitle(
+                        'RECENTI CARDIO',
+                        tone: SectionTitleTone.muted,
+                      ),
+                    ),
+                  ],
+                ),
               ),
               if (sessions.isNotEmpty)
                 TextButton(

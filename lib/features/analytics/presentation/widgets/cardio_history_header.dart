@@ -17,18 +17,21 @@ class CardioHistoryTopBar extends StatelessWidget {
           icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
         ),
         const SizedBox(width: 16),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Cronologia cardio',
-              style: theme.textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.w900,
-                fontFamily: 'Lexend',
+        // Titolo e sottotitolo cedono spazio al tasto indietro.
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Cronologia cardio',
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.w900,
+                  fontFamily: 'Lexend',
+                ),
               ),
-            ),
-            const SectionTitle('CRONOLOGIA E PERCORSI'),
-          ],
+              const SectionTitle('CRONOLOGIA E PERCORSI'),
+            ],
+          ),
         ),
       ],
     );
@@ -162,46 +165,62 @@ class EmptyCardioHistoryView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CardioHistoryTopBar(theme: theme),
-          const Spacer(),
-          AppCard(
-            width: double.infinity,
-            padding: const EdgeInsets.all(28),
-            child: Column(
-              children: [
-                Icon(
-                  Icons.route_rounded,
-                  size: 52,
-                  color: theme.colorScheme.primary.withValues(alpha: 0.75),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Nessuna sessione cardio salvata',
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w900,
-                    fontFamily: 'Lexend',
+    // Scorrevole con altezza minima pari allo schermo: le spaziature
+    // elastiche centrano il messaggio quando c'e' posto, e su uno schermo
+    // basso il contenuto scorre invece di essere tagliato.
+    return LayoutBuilder(
+      builder: (context, constraints) => SingleChildScrollView(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minHeight: constraints.maxHeight),
+          // Da' alla colonna un'altezza definita: senza, le spaziature
+          // elastiche non saprebbero fra cosa distribuirsi.
+          child: IntrinsicHeight(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CardioHistoryTopBar(theme: theme),
+                  const Spacer(),
+                  AppCard(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(28),
+                    child: Column(
+                      children: [
+                        Icon(
+                          Icons.route_rounded,
+                          size: 52,
+                          color: theme.colorScheme.primary.withValues(
+                            alpha: 0.75,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Nessuna sessione cardio salvata',
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w900,
+                            fontFamily: 'Lexend',
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Quando registri corsa o camminata, qui troverai cronologia, percorso e metriche recenti.',
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.outline,
+                            height: 1.45,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Quando registri corsa o camminata, qui troverai cronologia, percorso e metriche recenti.',
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.outline,
-                    height: 1.45,
-                  ),
-                ),
-              ],
+                  const Spacer(),
+                ],
+              ),
             ),
           ),
-          const Spacer(),
-        ],
+        ),
       ),
     );
   }

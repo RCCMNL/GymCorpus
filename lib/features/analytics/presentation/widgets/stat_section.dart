@@ -29,10 +29,9 @@ class StatSection extends StatelessWidget {
         children: [
           SectionTitle(title.toUpperCase(), tone: SectionTitleTone.muted),
           const SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: stats,
-          ),
+          // Le statistiche si dividono la larghezza in parti uguali: a
+          // spaziatura libera la piu' lunga spingeva le altre fuori.
+          Row(children: [for (final stat in stats) Expanded(child: stat)]),
         ],
       ),
     );
@@ -67,6 +66,9 @@ class StatItem extends StatelessWidget {
         ),
         Text(
           label.toUpperCase(),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 8,
             fontWeight: FontWeight.bold,
