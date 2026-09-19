@@ -181,12 +181,16 @@ class YogaScreen extends StatelessWidget {
                             color: Colors.white,
                           ),
                           const SizedBox(width: 8),
-                          Text(
-                            'Le sessioni guidate non sono ancora disponibili',
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.9),
-                              fontWeight: FontWeight.w700,
-                              fontSize: 12,
+                          // Flessibile: la frase e' lunga e su uno schermo
+                          // stretto usciva dal riquadro, tagliata a meta'.
+                          Flexible(
+                            child: Text(
+                              'Le sessioni guidate non sono ancora disponibili',
+                              style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.9),
+                                fontWeight: FontWeight.w700,
+                                fontSize: 12,
+                              ),
                             ),
                           ),
                         ],

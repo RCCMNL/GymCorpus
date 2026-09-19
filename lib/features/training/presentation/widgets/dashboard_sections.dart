@@ -269,11 +269,17 @@ class _DashboardCard extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Text(
-                        title,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Lexend',
+                      // Cede il titolo, non la targhetta beta che gli sta
+                      // accanto: insieme non stavano in una riga stretta.
+                      Flexible(
+                        child: Text(
+                          title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Lexend',
+                          ),
                         ),
                       ),
                       if (isBeta) ...[

@@ -348,14 +348,16 @@ class _WorkoutCard extends StatelessWidget {
               children: [
                 RoutineCardTitle(routine.title),
                 const SizedBox(height: 16),
-                Row(
+                // Le targhette vanno a capo invece di uscire dal bordo.
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
                   children: [
                     RoutineTagChip(
                       label: '${routine.exercises.length} ESERCIZI',
                       color: color,
                       icon: Icons.fitness_center_rounded,
                     ),
-                    const SizedBox(width: 8),
                     RoutineTagChip(
                       label: '${routine.estimatedDuration ?? "--"} MIN',
                       color: theme.colorScheme.tertiary,

@@ -7,6 +7,7 @@ import 'package:gym_corpus/features/training/presentation/screens/yoga_screen.da
 import 'package:mocktail/mocktail.dart';
 
 import '../../../../helpers/mock_notifications_bloc.dart';
+import '../../../../helpers/narrow_screen.dart';
 
 /// La sezione yoga e' ancora una vetrina: non deve pero' promettere cose
 /// che non esistono, ne' scaricare immagini da un servizio esterno.
@@ -54,5 +55,13 @@ void main() {
     for (final image in tester.widgetList<Image>(find.byType(Image))) {
       expect(image.image, isNot(isA<NetworkImage>()));
     }
+  });
+
+  testWidgets('su uno schermo stretto non taglia niente', (tester) async {
+    useNarrowScreen(tester);
+
+    await tester.pumpWidget(wrap());
+
+    expect(tester.takeException(), isNull);
   });
 }

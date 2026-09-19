@@ -131,20 +131,21 @@ class _WorkoutPageState extends State<WorkoutPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              widget.routineToEdit != null
-                                  ? 'Modifica workout'
-                                  : 'Nuovo workout',
-                              style: theme.textTheme.headlineMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                fontFamily: 'Lexend',
-                              ),
+                        // Il titolo cede spazio all'icona accanto: su uno
+                        // schermo stretto "Modifica workout" la spingeva
+                        // fuori dal bordo.
+                        Expanded(
+                          child: Text(
+                            widget.routineToEdit != null
+                                ? 'Modifica workout'
+                                : 'Nuovo workout',
+                            style: theme.textTheme.headlineMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'Lexend',
                             ),
-                          ],
+                          ),
                         ),
+                        const SizedBox(width: 12),
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(

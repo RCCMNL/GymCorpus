@@ -114,46 +114,58 @@ class CardioStatsPanel extends StatelessWidget {
               ),
               const SizedBox(height: 20),
 
-              // Main Stats
+              // Main Stats. Le colonne si dividono la larghezza in parti
+              // uguali: a spaziatura libera i numeri piu' lunghi
+              // spingevano la riga fuori dal pannello.
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  StatColumn(
-                    label: 'DISTANZA',
-                    value: '${distanceKm.toStringAsFixed(2)} km',
-                    theme: theme,
+                  Expanded(
+                    child: StatColumn(
+                      label: 'DISTANZA',
+                      value: '${distanceKm.toStringAsFixed(2)} km',
+                      theme: theme,
+                    ),
                   ),
-                  StatColumn(
-                    label: 'DURATA',
-                    value: formatClock(elapsedSeconds),
-                    theme: theme,
+                  Expanded(
+                    child: StatColumn(
+                      label: 'DURATA',
+                      value: formatClock(elapsedSeconds),
+                      theme: theme,
+                    ),
                   ),
-                  StatColumn(
-                    label: 'VEL. MEDIA',
-                    value:
-                        '${(elapsedSeconds > 0 ? (distanceKm / (elapsedSeconds / 3600)) : 0).toStringAsFixed(1)} km/h',
-                    theme: theme,
+                  Expanded(
+                    child: StatColumn(
+                      label: 'VEL. MEDIA',
+                      value:
+                          '${(elapsedSeconds > 0 ? (distanceKm / (elapsedSeconds / 3600)) : 0).toStringAsFixed(1)} km/h',
+                      theme: theme,
+                    ),
                   ),
                 ],
               ),
               const SizedBox(height: 12),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  StatColumn(
-                    label: 'VELOCITÀ',
-                    value: '${currentSpeedKmh.toStringAsFixed(1)} km/h',
-                    theme: theme,
+                  Expanded(
+                    child: StatColumn(
+                      label: 'VELOCITÀ',
+                      value: '${currentSpeedKmh.toStringAsFixed(1)} km/h',
+                      theme: theme,
+                    ),
                   ),
-                  StatColumn(
-                    label: 'PASSI',
-                    value: '$currentSteps',
-                    theme: theme,
+                  Expanded(
+                    child: StatColumn(
+                      label: 'PASSI',
+                      value: '$currentSteps',
+                      theme: theme,
+                    ),
                   ),
-                  StatColumn(
-                    label: 'CALORIE',
-                    value: '$_calories kcal',
-                    theme: theme,
+                  Expanded(
+                    child: StatColumn(
+                      label: 'CALORIE',
+                      value: '$_calories kcal',
+                      theme: theme,
+                    ),
                   ),
                 ],
               ),
@@ -206,12 +218,17 @@ class CardioStatsPanel extends StatelessWidget {
                               ? Icons.play_arrow_rounded
                               : Icons.pause_rounded,
                         ),
-                        label: Text(
-                          isPaused ? 'RIPRENDI' : 'PAUSA',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 1,
-                            fontSize: 13,
+                        // Con il testo ingrandito l'etichetta non stava
+                        // accanto all'icona: si stringe invece di uscire.
+                        label: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            isPaused ? 'RIPRENDI' : 'PAUSA',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 1,
+                              fontSize: 13,
+                            ),
                           ),
                         ),
                         style: ElevatedButton.styleFrom(
@@ -240,12 +257,15 @@ class CardioStatsPanel extends StatelessWidget {
                                 ),
                               )
                             : const Icon(Icons.stop_rounded),
-                        label: Text(
-                          isSaving ? 'SALVO...' : 'FINE',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 1,
-                            fontSize: 13,
+                        label: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            isSaving ? 'SALVO...' : 'FINE',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 1,
+                              fontSize: 13,
+                            ),
                           ),
                         ),
                         style: ElevatedButton.styleFrom(
@@ -302,20 +322,35 @@ class _GoalProgress extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // "Obiettivo 10 km" e "Obiettivo raggiunto" affiancati non
+        // stavano in una riga stretta: cede l'obiettivo, che e' la parte
+        // che si puo' accorciare senza perdere il senso.
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'Obiettivo ${goal.label}',
-              style: theme.textTheme.labelMedium?.copyWith(
-                fontWeight: FontWeight.w900,
+            Flexible(
+              child: Text(
+                'Obiettivo ${goal.label}',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.labelMedium?.copyWith(
+                  fontWeight: FontWeight.w900,
+                ),
               ),
             ),
-            Text(
-              reached ? 'Obiettivo raggiunto' : '${(progress * 100).round()}%',
-              style: theme.textTheme.labelMedium?.copyWith(
-                fontWeight: FontWeight.w900,
-                color: reached ? accentColor : theme.colorScheme.outline,
+            const SizedBox(width: 8),
+            Flexible(
+              child: Text(
+                reached
+                    ? 'Obiettivo raggiunto'
+                    : '${(progress * 100).round()}%',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.end,
+                style: theme.textTheme.labelMedium?.copyWith(
+                  fontWeight: FontWeight.w900,
+                  color: reached ? accentColor : theme.colorScheme.outline,
+                ),
               ),
             ),
           ],

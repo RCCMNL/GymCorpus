@@ -21,12 +21,19 @@ class StatColumn extends StatelessWidget {
       children: [
         StatLabel(label),
         const SizedBox(height: 6),
-        Text(
-          value,
-          style: theme.textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.w900,
-            fontFamily: 'Lexend',
-            color: theme.colorScheme.onSurface,
+        // Il numero si stringe quando lo spazio non basta invece di
+        // uscire dal pannello: "10.4 km/h" su uno schermo stretto non ci
+        // stava, e la riga veniva tranciata.
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            value,
+            maxLines: 1,
+            style: theme.textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.w900,
+              fontFamily: 'Lexend',
+              color: theme.colorScheme.onSurface,
+            ),
           ),
         ),
       ],
