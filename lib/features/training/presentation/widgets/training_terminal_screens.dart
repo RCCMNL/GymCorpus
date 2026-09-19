@@ -17,7 +17,9 @@ class WorkoutCompletedScreen extends StatelessWidget {
       backgroundColor: theme.colorScheme.surface,
       appBar: const GymHeader(),
       body: SafeArea(
-        child: Center(
+        // Scorrevole: su uno schermo basso, o col testo ingrandito, il
+        // contenuto non ci stava e veniva tagliato in fondo.
+        child: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(32),
             child: Column(
@@ -140,7 +142,9 @@ class EmptyRoutineScreen extends StatelessWidget {
       backgroundColor: theme.colorScheme.surface,
       appBar: const GymHeader(),
       body: SafeArea(
-        child: Center(
+        // Scorrevole: su uno schermo basso, o col testo ingrandito, il
+        // contenuto non ci stava e veniva tagliato in fondo.
+        child: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(32),
             child: Column(

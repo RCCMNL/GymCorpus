@@ -177,9 +177,13 @@ class _ManualCardioEntryScreenState extends State<ManualCardioEntryScreen> {
                       color: theme.colorScheme.primary,
                     ),
                     const SizedBox(width: 10),
-                    Text(
-                      formatFullDate(_date),
-                      style: theme.textTheme.bodyMedium,
+                    Flexible(
+                      child: Text(
+                        formatFullDate(_date),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.bodyMedium,
+                      ),
                     ),
                   ],
                 ),

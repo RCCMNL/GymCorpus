@@ -208,12 +208,14 @@ void showExerciseNotesDialog(
           children: [
             Icon(Icons.notes, color: theme.colorScheme.primary),
             const SizedBox(width: 8),
-            const Text(
-              'Le tue note',
-              style: TextStyle(
-                fontFamily: 'Lexend',
-                fontWeight: FontWeight.w900,
-                fontSize: 18,
+            const Flexible(
+              child: Text(
+                'Le tue note',
+                style: TextStyle(
+                  fontFamily: 'Lexend',
+                  fontWeight: FontWeight.w900,
+                  fontSize: 18,
+                ),
               ),
             ),
           ],

@@ -93,14 +93,18 @@ class RoutineTagChip extends StatelessWidget {
             Icon(icon, size: 14, color: color),
             const SizedBox(width: 6),
           ],
-          Text(
-            label,
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: color,
-              fontWeight: FontWeight.w900,
-              letterSpacing: 0.5,
-              fontSize: 9,
-              fontFamily: 'Lexend',
+          Flexible(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: color,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 0.5,
+                fontSize: 9,
+                fontFamily: 'Lexend',
+              ),
             ),
           ),
         ],

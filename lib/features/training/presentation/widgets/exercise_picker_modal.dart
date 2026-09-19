@@ -236,25 +236,36 @@ class _ExercisePickerModalState extends State<ExercisePickerModal> {
                                                   : theme.colorScheme.outline,
                                             ),
                                             const SizedBox(width: 4),
-                                            Text(
-                                              isAlreadyAdded
-                                                  ? 'GIÀ AGGIUNTO'
-                                                  : ex.categories
-                                                        .join(' • ')
-                                                        .toUpperCase(),
-                                              style: theme.textTheme.labelSmall
-                                                  ?.copyWith(
-                                                    color: isSelected
-                                                        ? theme
-                                                              .colorScheme
-                                                              .primary
-                                                        : theme
-                                                              .colorScheme
-                                                              .outline,
-                                                    fontWeight: FontWeight.w900,
-                                                    fontSize: 10,
-                                                    letterSpacing: 0.5,
-                                                  ),
+                                            // L'elenco delle categorie puo'
+                                            // essere lungo quanto vuole:
+                                            // qui cede invece di uscire.
+                                            Expanded(
+                                              child: Text(
+                                                isAlreadyAdded
+                                                    ? 'GIÀ AGGIUNTO'
+                                                    : ex.categories
+                                                          .join(' • ')
+                                                          .toUpperCase(),
+                                                maxLines: 1,
+                                                overflow:
+                                                    TextOverflow.ellipsis,
+                                                style: theme
+                                                    .textTheme
+                                                    .labelSmall
+                                                    ?.copyWith(
+                                                      color: isSelected
+                                                          ? theme
+                                                                .colorScheme
+                                                                .primary
+                                                          : theme
+                                                                .colorScheme
+                                                                .outline,
+                                                      fontWeight:
+                                                          FontWeight.w900,
+                                                      fontSize: 10,
+                                                      letterSpacing: 0.5,
+                                                    ),
+                                              ),
                                             ),
                                           ],
                                         ),

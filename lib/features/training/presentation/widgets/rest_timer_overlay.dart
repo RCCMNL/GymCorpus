@@ -79,21 +79,27 @@ class RestTimerOverlay extends StatelessWidget {
                           ),
                         ),
                       ),
-                      Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Eyebrow('RECUPERO'),
-                          const SizedBox(height: 4),
-                          Text(
-                            formatClock(secondsRemaining),
-                            style: theme.textTheme.headlineMedium?.copyWith(
-                              fontWeight: FontWeight.w900,
-                              fontFamily: 'Lexend',
-                              fontSize: 56,
-                              color: accentColor,
+                      // Dentro l'anello lo spazio e' fisso: con il testo
+                      // ingrandito etichetta e cronometro non ci stavano,
+                      // e uscivano dal cerchio.
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Eyebrow('RECUPERO'),
+                            const SizedBox(height: 4),
+                            Text(
+                              formatClock(secondsRemaining),
+                              style: theme.textTheme.headlineMedium?.copyWith(
+                                fontWeight: FontWeight.w900,
+                                fontFamily: 'Lexend',
+                                fontSize: 56,
+                                color: accentColor,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ],
                   ),

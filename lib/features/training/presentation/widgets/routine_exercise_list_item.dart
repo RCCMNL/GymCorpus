@@ -82,7 +82,11 @@ class RoutineExerciseListItem extends StatelessWidget {
             ),
             subtitle: Padding(
               padding: const EdgeInsets.only(top: 6),
-              child: Row(
+              // Le due targhette vanno a capo: affiancate non stavano
+              // nella riga di un telefono stretto.
+              child: Wrap(
+                spacing: 6,
+                runSpacing: 4,
                 children: [
                   Container(
                     padding: const EdgeInsets.symmetric(
@@ -103,7 +107,6 @@ class RoutineExerciseListItem extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 6),
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
@@ -377,12 +380,14 @@ void _showNotesDialog(
           children: [
             Icon(Icons.notes_rounded, color: theme.colorScheme.primary),
             const SizedBox(width: 8),
-            const Text(
-              'Le tue note',
-              style: TextStyle(
-                fontFamily: 'Lexend',
-                fontWeight: FontWeight.w900,
-                fontSize: 18,
+            const Flexible(
+              child: Text(
+                'Le tue note',
+                style: TextStyle(
+                  fontFamily: 'Lexend',
+                  fontWeight: FontWeight.w900,
+                  fontSize: 18,
+                ),
               ),
             ),
           ],

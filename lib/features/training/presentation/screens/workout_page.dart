@@ -214,32 +214,37 @@ class _WorkoutPageState extends State<WorkoutPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const SectionTitle('PIANO ESERCIZI'),
-                            const SizedBox(height: 4),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 2,
-                              ),
-                              decoration: BoxDecoration(
-                                color: theme.colorScheme.tertiary.withValues(
-                                  alpha: 0.15,
+                        // Il titolo cede spazio al pulsante "aggiungi",
+                        // che deve restare intero.
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SectionTitle('PIANO ESERCIZI'),
+                              const SizedBox(height: 4),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 2,
                                 ),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                '${_selectedExercises.length} ESERCIZI',
-                                style: theme.textTheme.labelSmall?.copyWith(
-                                  color: theme.colorScheme.tertiary,
-                                  fontWeight: FontWeight.w900,
+                                decoration: BoxDecoration(
+                                  color: theme.colorScheme.tertiary.withValues(
+                                    alpha: 0.15,
+                                  ),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  '${_selectedExercises.length} ESERCIZI',
+                                  style: theme.textTheme.labelSmall?.copyWith(
+                                    color: theme.colorScheme.tertiary,
+                                    fontWeight: FontWeight.w900,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
+                        const SizedBox(width: 12),
                         GestureDetector(
                           onTap: () => _showExercisePicker(context),
                           child: Container(
@@ -412,25 +417,30 @@ class _WorkoutPageState extends State<WorkoutPage> {
                     ],
                   ),
                   alignment: Alignment.center,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        Icons.check_circle_rounded,
-                        color: Colors.white,
-                        size: 22,
-                      ),
-                      const SizedBox(width: 10),
-                      Text(
-                        'SALVA WORKOUT',
-                        style: theme.textTheme.titleMedium?.copyWith(
+                  // Icona ed etichetta si stringono invece di uscire dal
+                  // pulsante su uno schermo stretto.
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.check_circle_rounded,
                           color: Colors.white,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 1.2,
-                          fontFamily: 'Lexend',
+                          size: 22,
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: 10),
+                        Text(
+                          'SALVA WORKOUT',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 1.2,
+                            fontFamily: 'Lexend',
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
